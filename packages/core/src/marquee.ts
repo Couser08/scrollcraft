@@ -23,19 +23,18 @@ export class VelocityMarqueeSolver implements ScrollDriver {
   private elementWidth: number = 0;
   private currentSpeed: number = 0;
 
+  private options: Required<MarqueeOptions>;
+
   constructor(
     private element: HTMLElement,
-    private options: Required<MarqueeOptions> = {
-      baseSpeed: 1,
-      velocityMultiplier: 0.05,
-      direction: 'left',
-      maxSpeed: 50
-    }
+    options?: MarqueeOptions
   ) {
-    this.options.baseSpeed = options.baseSpeed ?? 1;
-    this.options.velocityMultiplier = options.velocityMultiplier ?? 0.05;
-    this.options.direction = options.direction ?? 'left';
-    this.options.maxSpeed = options.maxSpeed ?? 50;
+    this.options = {
+      baseSpeed: options?.baseSpeed ?? 1,
+      velocityMultiplier: options?.velocityMultiplier ?? 0.05,
+      direction: options?.direction ?? 'left',
+      maxSpeed: options?.maxSpeed ?? 50,
+    };
 
     this.measure();
   }
@@ -48,7 +47,7 @@ export class VelocityMarqueeSolver implements ScrollDriver {
     }
   }
 
-  public update(scrollY: number, velocity: number = 0): MarqueeState {
+  public update(_scrollY: number, velocity: number = 0): MarqueeState {
     if (this.elementWidth === 0) return this.state;
 
     // The target speed is base + (scroll velocity * multiplier)

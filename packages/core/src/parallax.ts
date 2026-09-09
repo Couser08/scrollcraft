@@ -130,7 +130,7 @@ class NativeParallaxDriver implements ScrollDriver {
     this.element.style.setProperty('--sc-parallax-end', `${endOffset.toFixed(2)}px`);
   }
 
-  public update(scrollY: number): ParallaxState {
+  public update(_scrollY: number): ParallaxState {
     // Native driver doesn't need to compute anything on scroll.
     return this.state;
   }

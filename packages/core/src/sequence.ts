@@ -21,12 +21,17 @@ export class SequenceSolver {
   private currentFrame: number = 0;
   private targetFrame: number = 0;
 
+  private options: Required<SequenceOptions>;
+
   constructor(
     private canvas: HTMLCanvasElement,
     private container: HTMLElement,
-    private options: Required<SequenceOptions>
+    options: SequenceOptions
   ) {
-    this.options.speed = options.speed ?? 1.5;
+    this.options = {
+      frames: options.frames,
+      speed: options.speed ?? 1.5,
+    };
     this.preload();
   }
 

@@ -18,7 +18,6 @@ export * from './primitives/pin';
 export * from './primitives/scroll-progress';
 
 // High Performance Components
-export * from './components/scroll-provider';
 export * from './components/velocity-marquee';
 export * from './components/horizontal-scroll';
 export * from './components/scroll-sequence';

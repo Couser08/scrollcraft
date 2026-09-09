@@ -53,7 +53,7 @@ export const HorizontalScroll: React.FC<HorizontalScrollProps> = ({
       ref={containerRef} 
       className={`relative w-full ${className}`}
       // Multiply height by speed to create scrollable space. Assuming speed is multiplier of 100vh.
-      style={{ height: \`\${(speed ?? 2) * 100}vh\` }}
+      style={{ height: `${(speed ?? 2) * 100}vh` }}
     >
       <div className="sticky top-0 h-screen w-full overflow-hidden flex items-center">
         <div ref={trackRef} className={`flex flex-nowrap w-max ${innerClassName}`}>

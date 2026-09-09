@@ -5,6 +5,15 @@
 
 export type TickerPhase = 'measure' | 'update' | 'render';
 
+declare global {
+  interface CSSStyleDeclaration {
+    viewTimelineName?: string;
+    viewTimelineAxis?: string;
+    animationTimeline?: string;
+    animationRange?: string;
+  }
+}
+
 export type TickerCallback = (deltaTime: number, elapsedTime: number) => void;
 
 export interface TickerTask {

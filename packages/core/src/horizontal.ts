@@ -29,7 +29,7 @@ class JSHorizontalDriver implements ScrollDriver {
   constructor(
     private element: HTMLElement,
     private innerContainer: HTMLElement,
-    private options: Required<HorizontalScrollOptions>
+    _options: Required<HorizontalScrollOptions>
   ) {}
 
   public measure(): void {
@@ -82,7 +82,7 @@ class NativeHorizontalDriver implements ScrollDriver {
   constructor(
     private element: HTMLElement,
     private innerContainer: HTMLElement,
-    private options: Required<HorizontalScrollOptions>
+    _options: Required<HorizontalScrollOptions>
   ) {
     injectNativeStyles();
     // The timeline is attached to the view of the outer element.

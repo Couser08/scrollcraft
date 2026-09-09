@@ -13,8 +13,8 @@ import { Activity, Terminal } from 'lucide-react';
 export const FpsHud: React.FC = () => {
   const { subscribe, getMetrics } = useScrollCraft();
   const [fps, setFps] = useState(60);
-  const [frameTime, setFrameTime] = useState(16.6);
   const [isOpen, setIsOpen] = useState(false);
+  const frameTime = Number((1000 / (fps || 1)).toFixed(1));
 
   const velocityElRef = useRef<HTMLSpanElement | null>(null);
   const scrollElRef = useRef<HTMLSpanElement | null>(null);
