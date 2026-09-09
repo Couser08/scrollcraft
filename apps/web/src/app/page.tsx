@@ -1,43 +1,50 @@
-'use client';
+import type { Metadata } from 'next';
+import React, { Suspense } from 'react';
+import { HeroSectionRedesign } from '@/components/home/hero-section-redesign';
+import { PrimitivesSectionRedesign } from '@/components/home/primitives-section-redesign';
+import { ShowcaseBentoRedesign } from '@/components/home/showcase-bento-redesign';
+import { ArchitectureComparisonRedesign } from '@/components/home/architecture-comparison-redesign';
+import { QuickstartStepsRedesign } from '@/components/home/quickstart-steps-redesign';
+import { CtaBannerRedesign } from '@/components/home/cta-banner-redesign';
+import { ClientFpsHud } from '@/components/ui/client-fps-hud';
 
-/**
- * ScrollCraft Complete Showcase Application
- * Composes:
- * - Sprint 1: Full-Fidelity In-House Home Section
- * - Sprint 2: Zero-Spacer Pinning Engine, Timeline DSL, and DevTools HUD
- * - Sprint 3: 5 Awwwards-Tier Signature Pro Components
- * - Sprint 4: Pro Component Catalog & Commercial Tiered Pricing Section
- * Strictly under 650 LOC.
- */
-
-import React from 'react';
-import { HeroSection } from '@/components/home/hero-section';
-import { PinnedShowcase } from '@/components/home/pinned-showcase';
-import { ProShowcase } from '@/components/home/pro-showcase';
-import { ProCatalog } from '@/components/pro/pro-catalog';
-import { ProPricing } from '@/components/pro/pro-pricing';
-import { FpsHud } from '@/components/ui/fps-hud';
+export const metadata: Metadata = {
+  title: 'ScrollCraft — Scroll experiences for modern web.',
+  description:
+    'High-performance scroll primitives for React and Next.js. Direct GPU compositor writes, zero React re-renders, and no wrapper pollution.',
+  openGraph: {
+    title: 'ScrollCraft — Scroll experiences for modern web.',
+    description:
+      'High-performance scroll primitives for React and Next.js. Direct GPU compositor writes, zero React re-renders, and no wrapper pollution.',
+    type: 'website',
+  },
+};
 
 export default function HomePage() {
   return (
-    <div className="relative w-full min-h-screen bg-[#0a0a0c] text-white overflow-x-hidden">
-      {/* Sprint 1: Full-Fidelity In-House Home Section */}
-      <HeroSection />
+    <div className="relative w-full min-h-screen bg-[#FAFAF9] text-[#0A0A0A] overflow-x-hidden selection:bg-[#FF5A1F]/20 selection:text-[#FF5A1F]">
+      {/* 1. Grand Hero Section (Image 2) */}
+      <HeroSectionRedesign />
 
-      {/* Sprint 2: Zero-Spacer Pinning Engine & Timeline DSL */}
-      <PinnedShowcase />
+      {/* 2. Four Composable Primitives Grid (Image 2) */}
+      <PrimitivesSectionRedesign />
 
-      {/* Sprint 3: ScrollCraft Pro 5 Signature Components */}
-      <ProShowcase />
+      {/* 3. See What You Can Build (Bento Showcase with 3D Kinetic Cards) */}
+      <ShowcaseBentoRedesign />
 
-      {/* Sprint 4: ScrollCraft Pro Component Catalog & CLI Exporter */}
-      <ProCatalog />
+      {/* 4. Engine Architecture Compared & Modern React Stack (Image 2) */}
+      <ArchitectureComparisonRedesign />
 
-      {/* Sprint 4: Commercial Pricing & Licensing Engine */}
-      <ProPricing />
+      {/* 5. Get Started In Minutes (3 Step Cards, Image 2) */}
+      <QuickstartStepsRedesign />
 
-      {/* Sprint 2: Real-time 120 FPS Game-Dev HUD Overlay */}
-      <FpsHud />
+      {/* 6. Ready to build something amazing? CTA Banner (Image 2) */}
+      <CtaBannerRedesign />
+
+      {/* 7. Zero Re-render Performance Telemetry Island */}
+      <Suspense fallback={null}>
+        <ClientFpsHud />
+      </Suspense>
     </div>
   );
 }

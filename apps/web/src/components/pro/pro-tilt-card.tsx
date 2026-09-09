@@ -7,7 +7,7 @@
  */
 
 import React, { useRef, useState } from 'react';
-import { useSpring } from '@scrollcraft/react';
+import { useSpring } from '@/hooks/use-spring';
 
 export interface ProTiltCardProps {
   title: string;

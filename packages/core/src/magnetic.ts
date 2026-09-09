@@ -1,0 +1,138 @@
+/**
+ * Zero-Rerender Magnetic Pointer Solver for ScrollCraft
+ * Handles springStep physics and direct DOM writes without React.
+ * Strictly under 650 LOC.
+ */
+
+import { springStep } from './math';
+import { SpringConfig, SpringState } from './types';
+import { ticker } from './ticker';
+
+export interface MagneticOptions {
+  strength?: number;
+  radius?: number;
+  stiffness?: number;
+  damping?: number;
+}
+
+export class MagneticSolver {
+  private element: HTMLElement;
+  private options: Required<MagneticOptions>;
+  
+  private targetX: number = 0;
+  private targetY: number = 0;
+  
+  private stateX: SpringState = { position: 0, velocity: 0, settled: true };
+  private stateY: SpringState = { position: 0, velocity: 0, settled: true };
+  
+  private springConfig: SpringConfig;
+  private taskId: string;
+  
+  private isHovering: boolean = false;
+  private cachedRect: DOMRect | null = null;
+
+  constructor(element: HTMLElement, options?: MagneticOptions) {
+    this.element = element;
+    this.options = {
+      strength: options?.strength ?? 0.35,
+      radius: options?.radius ?? 120,
+      stiffness: options?.stiffness ?? 220,
+      damping: options?.damping ?? 16,
+    };
+
+    this.springConfig = {
+      stiffness: this.options.stiffness,
+      damping: this.options.damping,
+      mass: 1,
+      precision: 0.001,
+    };
+
+    this.taskId = `magnetic-${Math.random().toString(36).slice(2, 8)}`;
+    this.bindEvents();
+  }
+
+  private measureRect = () => {
+    this.cachedRect = this.element.getBoundingClientRect();
+  };
+
+  private onMouseEnter = () => {
+    this.isHovering = true;
+    this.measureRect();
+    this.ensureTicker();
+  };
+
+  private onMouseMove = (e: MouseEvent) => {
+    if (!this.cachedRect) this.measureRect();
+    const rect = this.cachedRect;
+    if (!rect) return;
+
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+
+    const deltaX = e.clientX - centerX;
+    const deltaY = e.clientY - centerY;
+    const distance = Math.hypot(deltaX, deltaY);
+
+    if (distance < this.options.radius) {
+      this.targetX = deltaX * this.options.strength;
+      this.targetY = deltaY * this.options.strength;
+    } else {
+      this.targetX = 0;
+      this.targetY = 0;
+    }
+    
+    this.ensureTicker();
+  };
+
+  private onMouseLeave = () => {
+    this.isHovering = false;
+    this.targetX = 0;
+    this.targetY = 0;
+    this.cachedRect = null;
+    this.ensureTicker();
+  };
+
+  private bindEvents() {
+    this.element.addEventListener('mouseenter', this.onMouseEnter);
+    this.element.addEventListener('mousemove', this.onMouseMove);
+    this.element.addEventListener('mouseleave', this.onMouseLeave);
+    
+    // Also re-measure on global resize or scroll if hovering
+    window.addEventListener('resize', this.measureRect, { passive: true });
+    window.addEventListener('scroll', this.measureRect, { passive: true });
+  }
+
+  public destroy() {
+    this.element.removeEventListener('mouseenter', this.onMouseEnter);
+    this.element.removeEventListener('mousemove', this.onMouseMove);
+    this.element.removeEventListener('mouseleave', this.onMouseLeave);
+    window.removeEventListener('resize', this.measureRect);
+    window.removeEventListener('scroll', this.measureRect);
+    ticker.remove(this.taskId);
+  }
+
+  private ensureTicker() {
+    // If not settled, we make sure it's running in the ticker
+    if (this.stateX.settled && this.stateY.settled && this.targetX === 0 && this.targetY === 0 && !this.isHovering) {
+      return; // fully idle
+    }
+    
+    // We add to 'render' phase because this is pointer-driven, but properly we should separate update/render
+    ticker.add(this.taskId, 'update', this.update);
+    ticker.add(this.taskId + '-render', 'render', this.render);
+  }
+
+  private update = (dt: number) => {
+    springStep(this.stateX.position, this.targetX, this.stateX.velocity, this.springConfig, dt, this.stateX);
+    springStep(this.stateY.position, this.targetY, this.stateY.velocity, this.springConfig, dt, this.stateY);
+    
+    if (this.stateX.settled && this.stateY.settled && this.targetX === 0 && this.targetY === 0) {
+      ticker.remove(this.taskId);
+      ticker.remove(this.taskId + '-render');
+    }
+  };
+
+  private render = () => {
+    this.element.style.transform = `translate3d(${this.stateX.position.toFixed(2)}px, ${this.stateY.position.toFixed(2)}px, 0)`;
+  };
+}

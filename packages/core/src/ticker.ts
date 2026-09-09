@@ -4,7 +4,10 @@
  * Strictly under 650 LOC.
  */
 
-import { TickerCallback, TickerPhase, TickerTask } from './types';
+import { TickerCallback, TickerPhase } from './types';
+
+export const MIN_DELTA_TIME = 0.001;
+export const MAX_DELTA_TIME = 0.033;
 
 export class Ticker {
   private static instance: Ticker | null = null;
@@ -13,7 +16,12 @@ export class Ticker {
   private updateTasks: Map<string, TickerCallback> = new Map();
   private renderTasks: Map<string, TickerCallback> = new Map();
 
+  private measureTasksArray: TickerCallback[] = [];
+  private updateTasksArray: TickerCallback[] = [];
+  private renderTasksArray: TickerCallback[] = [];
+
   private isRunning: boolean = false;
+  private visibilityBound: boolean = false;
   private rafId: number | null = null;
   private lastTime: number = 0;
   private elapsedTime: number = 0;
@@ -25,6 +33,12 @@ export class Ticker {
       Ticker.instance = new Ticker();
     }
     return Ticker.instance;
+  }
+
+  private syncTaskArrays(): void {
+    this.measureTasksArray = Array.from(this.measureTasks.values());
+    this.updateTasksArray = Array.from(this.updateTasks.values());
+    this.renderTasksArray = Array.from(this.renderTasks.values());
   }
 
   /**
@@ -39,6 +53,7 @@ export class Ticker {
       this.renderTasks.set(id, callback);
     }
 
+    this.syncTaskArrays();
     this.ensureRunning();
   }
 
@@ -50,6 +65,8 @@ export class Ticker {
     this.updateTasks.delete(id);
     this.renderTasks.delete(id);
 
+    this.syncTaskArrays();
+
     if (
       this.measureTasks.size === 0 &&
       this.updateTasks.size === 0 &&
@@ -59,14 +76,28 @@ export class Ticker {
     }
   }
 
-  private ensureRunning(): void {
-    if (this.isRunning || typeof window === 'undefined') return;
+  public ensureRunning(): void {
+    if (typeof window === 'undefined') return;
+
+    if (!this.visibilityBound && typeof document !== 'undefined') {
+      this.visibilityBound = true;
+      document.addEventListener('visibilitychange', this.onVisibilityChange);
+    }
+
+    if (this.isRunning) return;
     this.isRunning = true;
     this.lastTime = performance.now();
     this.rafId = requestAnimationFrame(this.tick);
   }
 
-  private stop(): void {
+  private onVisibilityChange = (): void => {
+    if (typeof document !== 'undefined' && !document.hidden) {
+      // Reset clock to prevent deltaTime spike upon returning to tab
+      this.lastTime = performance.now();
+    }
+  };
+
+  public stop(): void {
     if (!this.isRunning) return;
     this.isRunning = false;
     if (this.rafId !== null) {
@@ -78,25 +109,28 @@ export class Ticker {
   private tick = (currentTime: number): void => {
     if (!this.isRunning) return;
 
-    // Delta time in seconds, clamped between 1ms and 100ms to prevent huge jumps on tab switch
+    // Delta time in seconds, clamped between 1ms and 33ms to prevent huge jumps on tab switch
     const rawDelta = (currentTime - this.lastTime) / 1000;
-    const dt = Math.min(Math.max(rawDelta, 0.001), 0.1);
+    const dt = Math.min(Math.max(rawDelta, MIN_DELTA_TIME), MAX_DELTA_TIME);
     this.lastTime = currentTime;
     this.elapsedTime += dt;
 
     // Phase 1: Read/Measure (Layout reads isolated to prevent thrashing)
-    for (const task of this.measureTasks.values()) {
-      task(dt, this.elapsedTime);
+    const mTasks = this.measureTasksArray;
+    for (let i = 0; i < mTasks.length; i++) {
+      mTasks[i](dt, this.elapsedTime);
     }
 
     // Phase 2: Math/Physics Calculations
-    for (const task of this.updateTasks.values()) {
-      task(dt, this.elapsedTime);
+    const uTasks = this.updateTasksArray;
+    for (let i = 0; i < uTasks.length; i++) {
+      uTasks[i](dt, this.elapsedTime);
     }
 
     // Phase 3: Direct DOM GPU Compositor writes
-    for (const task of this.renderTasks.values()) {
-      task(dt, this.elapsedTime);
+    const rTasks = this.renderTasksArray;
+    for (let i = 0; i < rTasks.length; i++) {
+      rTasks[i](dt, this.elapsedTime);
     }
 
     this.rafId = requestAnimationFrame(this.tick);

@@ -10,6 +10,7 @@ dist/
 
 # Turborepo cache
 .turbo/
+*.tsbuildinfo
 
 # Environment files
 .env

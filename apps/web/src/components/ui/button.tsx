@@ -25,7 +25,6 @@ export const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const [isHovered, setIsHovered] = useState(false);
-  const [isPressed, setIsPressed] = useState(false);
   const magneticHandler = useMagnetic({ strength: 0.28, radius: 100 });
 
   const baseStyles =
@@ -51,16 +50,8 @@ export const Button: React.FC<ButtonProps> = ({
         if (magnetic) magneticHandler.ref.current = el;
       }}
       className={`${baseStyles} ${variantStyles} ${className}`}
-      style={magnetic ? magneticHandler.style : undefined}
       onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => {
-        setIsHovered(false);
-        setIsPressed(false);
-        if (magnetic) magneticHandler.bind.onMouseLeave();
-      }}
-      onMouseMove={magnetic ? magneticHandler.bind.onMouseMove : undefined}
-      onMouseDown={() => setIsPressed(true)}
-      onMouseUp={() => setIsPressed(false)}
+      onMouseLeave={() => setIsHovered(false)}
       {...props}
     >
       <span>{children}</span>

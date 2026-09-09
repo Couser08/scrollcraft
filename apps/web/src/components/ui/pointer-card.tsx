@@ -42,9 +42,6 @@ export const PointerCard: React.FC<{
   return (
     <div
       ref={magnetic.ref as React.RefObject<HTMLDivElement>}
-      style={magnetic.style}
-      onMouseMove={magnetic.bind.onMouseMove}
-      onMouseLeave={magnetic.bind.onMouseLeave}
       className={`flex items-center gap-3 p-3.5 rounded-2xl bg-[#14151c]/95 border border-white/10 shadow-2xl backdrop-blur-xl select-none cursor-default transition-all duration-300 hover:border-white/20 hover:scale-[1.02] ${className}`}
     >
       <div className={`p-2.5 rounded-xl border ${getAccentGlow()}`}>

@@ -25,7 +25,7 @@ import {
   CheckSquare,
   Square,
 } from 'lucide-react';
-import { scroll } from '@scrollcraft/react';
+import { Parallax } from '@scrollcraft/react';
 
 export const HeroMockup: React.FC = () => {
   const [tasks, setTasks] = useState(MOCKUP_DOCUMENT.tasks);
@@ -86,10 +86,11 @@ export const HeroMockup: React.FC = () => {
       </div>
 
       {/* Main macOS Editor Window */}
-      <scroll.div
-        className="w-full rounded-2xl bg-[#0f1015] border border-white/10 shadow-[0_25px_65px_-12px_rgba(0,0,0,0.85)] overflow-hidden backdrop-blur-xl"
-        parallax={{ y: -0.06 }}
+      <Parallax
+        asChild
+        speed={-0.06}
       >
+        <div className="w-full rounded-2xl bg-[#0f1015] border border-white/10 shadow-[0_25px_65px_-12px_rgba(0,0,0,0.85)] overflow-hidden backdrop-blur-xl">
         {/* Window Titlebar */}
         <div className="flex items-center justify-between px-4 py-3 bg-[#13141b] border-b border-white/5">
           <TrafficLights />
@@ -203,7 +204,8 @@ export const HeroMockup: React.FC = () => {
             </div>
           </div>
         </div>
-      </scroll.div>
+      </div>
+    </Parallax>
 
       {/* Floating Pointer Card: Bottom Left (Beautiful Templates) */}
       <div className="absolute -bottom-6 -left-4 sm:left-2 z-20 hidden sm:block">

@@ -1,0 +1,30 @@
+{
+  "name": "@scrollcraft/r3f",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
+    "lint": "eslint src/",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@scrollcraft/core": "workspace:*"
+  },
+  "peerDependencies": {
+    "@react-three/fiber": ">=8.0.0",
+    "react": ">=18.0.0",
+    "three": ">=0.140.0"
+  },
+  "devDependencies": {
+    "@react-three/fiber": "^8.16.1",
+    "@types/react": "^18.2.0",
+    "@types/three": "^0.163.0",
+    "react": "^18.2.0",
+    "three": "^0.163.0",
+    "tsup": "^8.0.2",
+    "typescript": "^5.4.3"
+  }
+}

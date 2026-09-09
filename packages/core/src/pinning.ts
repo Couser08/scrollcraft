@@ -6,8 +6,10 @@
 
 import { clamp } from './math';
 
+export const DEFAULT_PIN_DURATION = 800;
+
 export interface PinOptions {
-  /** Scroll distance (in px) the element stays pinned. Default: window.innerHeight */
+  /** Scroll distance (in px) the element stays pinned. Default: window.innerHeight or DEFAULT_PIN_DURATION */
   duration?: number;
   /** Offset from top of viewport to start pinning (in px). Default: 0 */
   topOffset?: number;
@@ -34,7 +36,7 @@ export class PinSolver {
   constructor(element: HTMLElement, options?: PinOptions) {
     this.element = element;
     this.options = {
-      duration: options?.duration ?? (typeof window !== 'undefined' ? window.innerHeight : 800),
+      duration: options?.duration ?? (typeof window !== 'undefined' ? window.innerHeight : DEFAULT_PIN_DURATION),
       topOffset: options?.topOffset ?? 0,
       onProgress: options?.onProgress ?? (() => {}),
     };

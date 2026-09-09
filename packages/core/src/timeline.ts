@@ -46,15 +46,19 @@ export class TimelineSolver {
   }
 
   /**
-   * Evaluates multiple animated properties simultaneously
+   * Evaluates multiple animated properties simultaneously.
+   * Zero-allocation capable when passing an existing object in `out`.
    */
   public static evaluateTimeline(
     timeline: PropertyTimeline,
-    progress: number
+    progress: number,
+    out?: Record<string, number>
   ): Record<string, number> {
-    const result: Record<string, number> = {};
-    for (const [prop, segments] of Object.entries(timeline)) {
-      result[prop] = this.evaluateSegment(segments, progress);
+    const result = out ?? {};
+    for (const prop in timeline) {
+      if (Object.prototype.hasOwnProperty.call(timeline, prop)) {
+        result[prop] = this.evaluateSegment(timeline[prop], progress);
+      }
     }
     return result;
   }

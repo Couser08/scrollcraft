@@ -1,13 +1,14 @@
 /**
- * Direct-to-DOM Compositor Writer for ScrollCraft
- * Bypasses React state re-renders during active scrolling.
- * Writes directly to GPU-accelerated compositor layer.
+ * High-Performance Direct DOM Transform Writer for ScrollCraft
+ * Directly writes transform and opacity styles to elements.
  * Strictly under 650 LOC.
  */
 
 import { ElementTransform } from './types';
 
-export class DomCompositor {
+const transformCache = new WeakMap<HTMLElement, ElementTransform>();
+
+export class TransformWriter {
   /**
    * Applies 3D hardware-accelerated transform to an HTMLElement
    */
@@ -21,10 +22,21 @@ export class DomCompositor {
     const rotateY = transform.rotateY ?? 0;
     const rotateZ = transform.rotateZ ?? 0;
 
-    const transformString = `translate3d(${x}px, ${y}px, ${z}px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) rotateZ(${rotateZ}deg) scale(${scaleX}, ${scaleY})`;
-
-    if (element.style.transform !== transformString) {
+    const cached = transformCache.get(element);
+    if (
+      !cached ||
+      cached.x !== x ||
+      cached.y !== y ||
+      cached.z !== z ||
+      cached.scaleX !== scaleX ||
+      cached.scaleY !== scaleY ||
+      cached.rotateX !== rotateX ||
+      cached.rotateY !== rotateY ||
+      cached.rotateZ !== rotateZ
+    ) {
+      const transformString = `translate3d(${x}px, ${y}px, ${z}px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) rotateZ(${rotateZ}deg) scale(${scaleX}, ${scaleY})`;
       element.style.transform = transformString;
+      transformCache.set(element, { x, y, z, scaleX, scaleY, rotateX, rotateY, rotateZ });
     }
 
     if (transform.opacity !== undefined && element.style.opacity !== String(transform.opacity)) {
@@ -54,3 +66,8 @@ export class DomCompositor {
     element.style.willChange = 'auto';
   }
 }
+
+/** Backwards-compatibility alias */
+export const DomCompositor = TransformWriter;
+export type DomCompositor = TransformWriter;
+

@@ -4,7 +4,7 @@
  * Strictly under 650 LOC.
  */
 
-import { SpringConfig } from './types';
+import { SpringConfig, SpringState } from './types';
 
 /**
  * Standard linear interpolation
@@ -48,28 +48,41 @@ export function mapRange(
 /**
  * Analytical Spring Integration for micro-interactions and smooth scroll
  * Solves damped harmonic oscillator differential equation.
+ * Zero-allocation capable when passing an existing SpringState in `out`.
  */
 export function springStep(
   current: number,
   target: number,
   velocity: number,
   config: SpringConfig,
-  dt: number
-): { position: number; velocity: number; settled: boolean } {
+  dt: number,
+  out?: SpringState
+): SpringState {
   const { stiffness, damping, mass, precision = 0.001 } = config;
+  // Strictly clamp dt to 33ms to prevent semi-implicit Euler divergence on tab restore / lag spikes
+  const safeDt = Math.min(Math.max(dt, 0), 0.033);
   const delta = current - target;
   const springForce = -stiffness * delta;
   const dampingForce = -damping * velocity;
   const acceleration = (springForce + dampingForce) / mass;
 
-  const nextVelocity = velocity + acceleration * dt;
-  const nextPosition = current + nextVelocity * dt;
+  const nextVelocity = velocity + acceleration * safeDt;
+  const nextPosition = current + nextVelocity * safeDt;
 
   const settled = Math.abs(nextVelocity) < precision && Math.abs(nextPosition - target) < precision;
+  const resolvedPos = settled ? target : nextPosition;
+  const resolvedVel = settled ? 0 : nextVelocity;
+
+  if (out) {
+    out.position = resolvedPos;
+    out.velocity = resolvedVel;
+    out.settled = settled;
+    return out;
+  }
 
   return {
-    position: settled ? target : nextPosition,
-    velocity: settled ? 0 : nextVelocity,
+    position: resolvedPos,
+    velocity: resolvedVel,
     settled,
   };
 }

@@ -31,9 +31,6 @@ const FeatureItemCard: React.FC<{ item: FeatureItem }> = ({ item }) => {
   return (
     <div
       ref={magnetic.ref as React.RefObject<HTMLDivElement>}
-      style={magnetic.style}
-      onMouseMove={magnetic.bind.onMouseMove}
-      onMouseLeave={magnetic.bind.onMouseLeave}
       className="flex items-center gap-3.5 p-2 rounded-xl group transition-colors cursor-default select-none"
     >
       <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shrink-0 group-hover:border-white/25 group-hover:bg-white/10 transition-all duration-300 shadow-sm">
