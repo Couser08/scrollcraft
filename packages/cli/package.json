@@ -1,0 +1,22 @@
+{
+  "name": "scrollcraft",
+  "version": "0.1.0",
+  "description": "Command-line interface to add high-performance ScrollCraft Pro components to React & Next.js projects",
+  "bin": {
+    "scrollcraft": "./bin/scrollcraft.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "commander": "^12.1.0",
+    "picocolors": "^1.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.9.0",
+    "typescript": "^5.6.3"
+  }
+}
