@@ -27,7 +27,7 @@ export const DOCS_CATEGORIES: DocCategory[] = [
     id: 'getting-started',
     title: 'Getting Started',
     items: [
-      { id: 'introduction', title: 'Introduction' },
+      { id: 'introduction', title: 'Introduction & Mental Model' },
       { id: 'installation', title: 'Installation' },
       { id: 'setup', title: 'Next.js App Router Setup' },
     ],
@@ -50,6 +50,17 @@ export const DOCS_CATEGORIES: DocCategory[] = [
       { id: 'use-scrollcraft', title: 'useScrollCraft', badge: 'Core' },
       { id: 'use-parallax', title: 'useParallax', badge: 'Headless' },
       { id: 'use-reveal', title: 'useReveal', badge: 'Headless' },
+      { id: 'use-pin', title: 'usePin', badge: 'Headless' },
+    ],
+  },
+  {
+    id: 'r3f',
+    title: '3D & Canvas (R3F)',
+    items: [
+      { id: 'r3f-overview', title: '3D Scroll Architecture', badge: 'New' },
+      { id: 'r3f-three-tier', title: 'WAAPI vs Fallback Bridge' },
+      { id: 'use-scroll-3d', title: 'useScroll3D Hook', badge: 'Pull-based' },
+      { id: 'r3f-recipes', title: 'Three.js Scene Recipe' },
     ],
   },
   {
@@ -61,6 +72,15 @@ export const DOCS_CATEGORIES: DocCategory[] = [
       { id: 'benchmark', title: 'Engine Comparison' },
     ],
   },
+  {
+    id: 'recipes',
+    title: 'Production Recipes',
+    items: [
+      { id: 'recipe-sticky-narrative', title: 'Sticky Narrative Cards' },
+      { id: 'recipe-horizontal-scroll', title: 'Horizontal Gallery Scrub' },
+      { id: 'recipe-3d-scroll', title: '3D Kinetic Product Canvas' },
+    ],
+  },
 ];
 
 export const PARALLAX_PROPS: PropRow[] = [
@@ -69,14 +89,14 @@ export const PARALLAX_PROPS: PropRow[] = [
     type: 'boolean',
     defaultValue: 'false',
     description:
-      'When true, renders children directly using Radix-style Slot composition. No extraneous wrapper <div> is injected into the DOM.',
+      'When true, renders children directly using Radix-style Slot composition. Zero extra wrapper <div> injected.',
   },
   {
     name: 'speed',
     type: 'number',
     defaultValue: '0.2',
     description:
-      'Parallax intensity multiplier. Positive values lag behind natural scroll; negative values scroll faster.',
+      'Parallax intensity multiplier. Positive values lag behind scroll; negative values scroll faster.',
   },
   {
     name: 'direction',
@@ -110,7 +130,7 @@ export const REVEAL_PROPS: PropRow[] = [
   },
   {
     name: 'variant',
-    type: "'fade' | 'slide-up' | 'slide-down' | 'scale' | 'blur'",
+    type: "'slide-up' | 'slide-down' | 'fade' | 'scale' | 'blur'",
     defaultValue: "'slide-up'",
     description: 'Transition animation variant applied upon intersecting viewport trigger.',
   },
@@ -153,7 +173,7 @@ export const PIN_PROPS: PropRow[] = [
     type: 'boolean',
     defaultValue: 'true',
     description:
-      'When true, injects spacer height so content following the pinned card does not overlap prematurely.',
+      'When true, preserves scroll spacing so subsequent content does not overlap prematurely.',
   },
   {
     name: 'start',
@@ -168,6 +188,21 @@ export const PIN_PROPS: PropRow[] = [
     defaultValue: "'+=100%'",
     description:
       'Scroll distance duration through which the element remains pinned.',
+  },
+];
+
+export const PIN_CONTAINER_PROPS: PropRow[] = [
+  {
+    name: 'height',
+    type: 'string | number',
+    defaultValue: "'200vh'",
+    description: 'Explicit scroll travel track height for pinned card transitions.',
+  },
+  {
+    name: 'className',
+    type: 'string',
+    defaultValue: "''",
+    description: 'Optional styling classes merged onto container.',
   },
 ];
 
@@ -221,5 +256,20 @@ export const PROVIDER_PROPS: PropRow[] = [
     defaultValue: 'true',
     description:
       'Watches document body with ResizeObserver and document.fonts.ready to recalculate scroll bounds dynamically.',
+  },
+];
+
+export const USE_SCROLL_3D_PROPS: PropRow[] = [
+  {
+    name: 'target',
+    type: 'Element | null',
+    required: true,
+    description: 'DOM element whose scroll intersection or timeline triggers 3D updates.',
+  },
+  {
+    name: 'options.axis',
+    type: "'block' | 'inline'",
+    defaultValue: "'block'",
+    description: 'Scroll orientation axis: block (vertical) or inline (horizontal).',
   },
 ];

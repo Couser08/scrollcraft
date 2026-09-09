@@ -1,13 +1,14 @@
 'use client';
 
 /**
- * Docs Section: Reactive Hooks (useScrollState, useScrollCraft, useParallax, useReveal)
+ * Docs Section: Reactive Hooks (useScrollState, useScrollCraft, useParallax, useReveal, usePin)
+ * Aligned with ScrollCraft design tokens and performance guidelines.
  * Strictly under 650 LOC.
  */
 
 import React from 'react';
 import { CodeViewer } from '@/components/ui/code-viewer';
-import { DocsTable } from '../docs-table';
+import { DocsTable, PropRow } from '../docs-table';
 import { DocsCallout } from '../docs-callout';
 
 interface DocHooksProps {
@@ -16,9 +17,9 @@ interface DocHooksProps {
 
 const USE_SCROLL_STATE_CODE = `import { useScrollState } from '@scrollcraft/react';
 
-export function ScrollHUD() {
+export function ScrollTelemetryHUD() {
   // Selectively subscribe to only the metrics needed.
-  // Uses useSyncExternalStore with shallow-memoization.
+  // Backed by useSyncExternalStore with shallow comparison.
   // Will NEVER trigger re-renders in parent components!
   const { velocity, progress } = useScrollState((m) => ({
     velocity: Math.abs(Math.round(m.velocity)),
@@ -26,20 +27,24 @@ export function ScrollHUD() {
   }));
 
   return (
-    <div className="hud-badge">
-      <span>Progress: {progress}%</span>
-      <span>Speed: {velocity}px/s</span>
+    <div className="flex items-center gap-4 px-4 py-2 rounded-xl bg-white border border-[#E5E7EB] shadow-xs font-mono text-xs">
+      <span className="text-[#6B7280]">
+        Progress: <strong className="text-[#0A0A0A]">{progress}%</strong>
+      </span>
+      <span className="text-[#6B7280]">
+        Speed: <strong className="text-[#FF5A1F]">{velocity}px/s</strong>
+      </span>
     </div>
   );
 }`;
 
 const USE_SCROLLCRAFT_CODE = `import { useScrollCraft } from '@scrollcraft/react';
 
-export function BackToTopButton() {
-  const { scrollTo, resize, isReady } = useScrollCraft();
+export function NavigationControls() {
+  const { scrollTo, resize, isReady, getMetrics } = useScrollCraft();
 
   const handleScrollToTop = () => {
-    // Programmatic smooth scroll to top
+    // Programmatic smooth scroll with cubic easing
     scrollTo(0, {
       duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -47,7 +52,11 @@ export function BackToTopButton() {
   };
 
   return (
-    <button onClick={handleScrollToTop} disabled={!isReady}>
+    <button
+      onClick={handleScrollToTop}
+      disabled={!isReady}
+      className="px-4 py-2 rounded-xl bg-[#0A0A0A] text-white text-xs font-semibold hover:bg-[#262626] transition-colors"
+    >
       Scroll to Top
     </button>
   );
@@ -56,84 +65,102 @@ export function BackToTopButton() {
 const USE_PARALLAX_CODE = `import { useRef } from 'react';
 import { useParallax } from '@scrollcraft/react';
 
-export function CustomParallaxElement() {
+export function HeadlessCard() {
   const cardRef = useRef<HTMLDivElement>(null);
 
-  // Headless hook: attaches direct DOM transform writes
+  // Headless hook: writes directly to node.style.transform during render phase
   useParallax(cardRef, {
     speed: 0.25,
     direction: 'vertical',
+    clamp: [-150, 150],
   });
 
   return (
-    <div ref={cardRef} className="my-custom-card">
-      <h3>Headless Parallax Element</h3>
+    <div ref={cardRef} className="p-8 rounded-2xl bg-white border border-[#E5E7EB] shadow-sm">
+      <h3 className="text-xl font-bold text-[#0A0A0A]">Headless Parallax</h3>
+      <p className="text-xs text-[#6B7280] mt-1">Direct GPU writes without Slot wrappers.</p>
     </div>
   );
 }`;
+
+const USE_REVEAL_CODE = `import { useRef } from 'react';
+import { useReveal } from '@scrollcraft/react';
+
+export function HeadlessRevealItem() {
+  const itemRef = useRef<HTMLDivElement>(null);
+
+  useReveal(itemRef, {
+    variant: 'slide-up',
+    threshold: 0.2,
+    duration: 0.6,
+  });
+
+  return (
+    <div ref={itemRef} className="p-6 rounded-2xl bg-white border border-[#E5E7EB]">
+      <h4 className="font-bold text-[#0A0A0A]">Headless Intersection Trigger</h4>
+    </div>
+  );
+}`;
+
+const USE_PIN_CODE = `import { useRef } from 'react';
+import { usePin } from '@scrollcraft/react';
+
+export function HeadlessPinnedBlock() {
+  const pinRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  usePin(pinRef, containerRef, {
+    start: 'top top',
+    end: '+=150%',
+    pinSpacing: true,
+  });
+
+  return (
+    <div ref={containerRef} className="h-[250vh]">
+      <div ref={pinRef} className="h-screen w-full flex items-center justify-center">
+        <h2>Sticky Section via usePin</h2>
+      </div>
+    </div>
+  );
+}`;
+
+const SCROLL_METRICS_ROWS: PropRow[] = [
+  { name: 'scroll', type: 'number', description: 'Current scroll offset in pixels.' },
+  { name: 'target', type: 'number', description: 'Target destination scroll offset.' },
+  { name: 'velocity', type: 'number', description: 'Current scroll velocity in pixels per frame.' },
+  { name: 'progress', type: 'number', description: 'Normalized document scroll progress (0.0 to 1.0).' },
+  { name: 'direction', type: '1 | -1 | 0', description: 'Scroll direction (1 = forward, -1 = backward, 0 = stationary).' },
+  { name: 'maxScroll', type: 'number', description: 'Total scrollable distance of the active target container.' },
+];
 
 export const DocHooks: React.FC<DocHooksProps> = ({ hookId }) => {
   if (hookId === 'use-scroll-state') {
     return (
       <div className="flex flex-col gap-8">
         <header className="flex flex-col gap-2">
-          <div className="text-xs font-mono font-semibold text-blue-600 uppercase tracking-wider">
+          <div className="text-xs font-mono font-semibold text-[#FF5A1F] uppercase tracking-wider">
             Reactive Hooks
           </div>
-          <h1 className="text-4xl font-extrabold tracking-tight text-zinc-950 font-mono">
+          <h1 className="text-4xl font-extrabold tracking-tight text-[#0A0A0A] font-mono">
             useScrollState
           </h1>
-          <p className="text-lg text-zinc-600 leading-relaxed max-w-3xl">
-            Selective reactive state subscriber built on <code className="font-mono text-zinc-900 text-sm">useSyncExternalStore</code>.
-            Subscribe to real-time scroll velocity, direction, or progress without forcing root re-renders.
+          <p className="text-lg text-[#6B7280] leading-relaxed max-w-3xl">
+            Selective reactive state subscriber built on <code className="font-mono text-[#0A0A0A] text-sm">useSyncExternalStore</code>. Subscribe to real-time velocity, direction, or progress without forcing root re-renders.
           </p>
         </header>
 
         <section id="usage" className="flex flex-col gap-4">
-          <h2 className="text-2xl font-bold tracking-tight text-zinc-900">
-            Usage
+          <h2 className="text-2xl font-bold tracking-tight text-[#0A0A0A]">
+            Usage & Selective Subscription
           </h2>
-          <CodeViewer code={USE_SCROLL_STATE_CODE} fileName="scroll-hud.tsx" />
+          <CodeViewer code={USE_SCROLL_STATE_CODE} fileName="scroll-telemetry-hud.tsx" />
         </section>
+
+        <DocsTable title="ScrollMetrics Reference" props={SCROLL_METRICS_ROWS} />
 
         <DocsCallout type="tip" title="Zero Root Re-renders">
-          By isolating <code className="font-mono text-xs text-blue-700">useScrollState</code> inside leaf display components (like a HUD badge or percentage counter), the rest of your React component tree stays completely idle while numbers update seamlessly at 120 FPS.
+          By isolating <code className="font-mono text-xs text-[#FF5A1F]">useScrollState</code> inside leaf display components (such as a HUD badge or scroll percentage indicator), the rest of your React component tree stays completely idle while numbers update seamlessly at 120 FPS.
         </DocsCallout>
-
-        <section id="metrics-reference" className="flex flex-col gap-4">
-          <h2 className="text-2xl font-bold tracking-tight text-zinc-900">
-            ScrollMetrics Interface
-          </h2>
-          <DocsTable
-            props={[
-              {
-                name: 'scroll',
-                type: 'number',
-                description: 'Current vertical or horizontal scroll offset in pixels.',
-              },
-              {
-                name: 'limit',
-                type: 'number',
-                description: 'Maximum scrollable boundary (scrollHeight - clientHeight).',
-              },
-              {
-                name: 'velocity',
-                type: 'number',
-                description: 'Current scroll inertia velocity in pixels per frame.',
-              },
-              {
-                name: 'direction',
-                type: '1 | -1 | 0',
-                description: '1 for downward scroll, -1 for upward scroll, 0 when settled.',
-              },
-              {
-                name: 'progress',
-                type: 'number',
-                description: 'Normalized scroll progress between 0.0 and 1.0.',
-              },
-            ]}
-          />
-        </section>
       </div>
     );
   }
@@ -142,82 +169,120 @@ export const DocHooks: React.FC<DocHooksProps> = ({ hookId }) => {
     return (
       <div className="flex flex-col gap-8">
         <header className="flex flex-col gap-2">
-          <div className="text-xs font-mono font-semibold text-blue-600 uppercase tracking-wider">
-            Context Access
+          <div className="text-xs font-mono font-semibold text-[#FF5A1F] uppercase tracking-wider">
+            Reactive Hooks
           </div>
-          <h1 className="text-4xl font-extrabold tracking-tight text-zinc-950 font-mono">
+          <h1 className="text-4xl font-extrabold tracking-tight text-[#0A0A0A] font-mono">
             useScrollCraft
           </h1>
-          <p className="text-lg text-zinc-600 leading-relaxed max-w-3xl">
-            Access the underlying inertia scroll engine context for programmatic scrolling, manual boundary resizing, and lifecycle control.
+          <p className="text-lg text-[#6B7280] leading-relaxed max-w-3xl">
+            Imperative controller providing programmatic access to the underlying ScrollCraft engine.
           </p>
         </header>
 
         <section id="usage" className="flex flex-col gap-4">
-          <h2 className="text-2xl font-bold tracking-tight text-zinc-900">
-            Usage
+          <h2 className="text-2xl font-bold tracking-tight text-[#0A0A0A]">
+            Usage & Programmatic Scrolling
           </h2>
-          <CodeViewer code={USE_SCROLLCRAFT_CODE} fileName="back-to-top.tsx" />
+          <CodeViewer code={USE_SCROLLCRAFT_CODE} fileName="navigation-controls.tsx" />
         </section>
 
-        <section id="methods-reference" className="flex flex-col gap-4">
-          <h2 className="text-2xl font-bold tracking-tight text-zinc-900">
-            Context Methods
+        <div className="p-4 rounded-xl border border-[#E5E7EB] bg-white font-mono text-xs space-y-2">
+          <div className="text-[#0A0A0A] font-bold pb-2 border-b border-[#E5E7EB]">
+            Exposed Engine Methods:
+          </div>
+          <div className="text-[#6B7280]">
+            <span className="text-[#0A0A0A] font-semibold">scrollTo(target, options?)</span>: Smoothly animate to coordinate or selector.
+          </div>
+          <div className="text-[#6B7280]">
+            <span className="text-[#0A0A0A] font-semibold">resize()</span>: Recalculate container limits and bounding geometries.
+          </div>
+          <div className="text-[#6B7280]">
+            <span className="text-[#0A0A0A] font-semibold">getMetrics()</span>: Read immediate snapshot of current scroll metrics.
+          </div>
+          <div className="text-[#6B7280]">
+            <span className="text-[#0A0A0A] font-semibold">subscribe(callback)</span>: Direct microtask subscriber outside React lifecycle.
+          </div>
+        </div>
+
+        <DocsCallout type="note" title="Route Changes">
+          Upon client-side route transitions in Next.js App Router, call <code className="font-mono text-xs text-[#FF5A1F]">resize()</code> to recalibrate bounds for newly rendered content without jumping the scroll position.
+        </DocsCallout>
+      </div>
+    );
+  }
+
+  if (hookId === 'use-parallax') {
+    return (
+      <div className="flex flex-col gap-8">
+        <header className="flex flex-col gap-2">
+          <div className="text-xs font-mono font-semibold text-[#FF5A1F] uppercase tracking-wider">
+            Headless Hooks
+          </div>
+          <h1 className="text-4xl font-extrabold tracking-tight text-[#0A0A0A] font-mono">
+            useParallax
+          </h1>
+          <p className="text-lg text-[#6B7280] leading-relaxed max-w-3xl">
+            Headless parallax hook that attaches direct GPU transforms to an existing element ref without needing JSX wrapper components.
+          </p>
+        </header>
+
+        <section id="usage" className="flex flex-col gap-4">
+          <h2 className="text-2xl font-bold tracking-tight text-[#0A0A0A]">
+            Usage
           </h2>
-          <DocsTable
-            props={[
-              {
-                name: 'scrollTo',
-                type: '(target: number | string | HTMLElement, options?) => void',
-                description: 'Programmatically scroll to a pixel offset, CSS selector, or DOM node with custom easing and duration.',
-              },
-              {
-                name: 'resize',
-                type: '() => void',
-                description: 'Manually recalculate scroll limits and layout dimensions if DOM structure mutated.',
-              },
-              {
-                name: 'isReady',
-                type: 'boolean',
-                description: 'True once the engine has mounted and calibrated client dimensions.',
-              },
-              {
-                name: 'reducedMotion',
-                type: 'boolean',
-                description: 'True if user has prefers-reduced-motion active in OS settings.',
-              },
-            ]}
-          />
+          <CodeViewer code={USE_PARALLAX_CODE} fileName="headless-card.tsx" />
         </section>
       </div>
     );
   }
 
-  // Headless hook (useParallax or useReveal)
+  if (hookId === 'use-reveal') {
+    return (
+      <div className="flex flex-col gap-8">
+        <header className="flex flex-col gap-2">
+          <div className="text-xs font-mono font-semibold text-[#FF5A1F] uppercase tracking-wider">
+            Headless Hooks
+          </div>
+          <h1 className="text-4xl font-extrabold tracking-tight text-[#0A0A0A] font-mono">
+            useReveal
+          </h1>
+          <p className="text-lg text-[#6B7280] leading-relaxed max-w-3xl">
+            Headless viewport trigger hook attaching hardware-accelerated entry styles directly to any DOM node.
+          </p>
+        </header>
+
+        <section id="usage" className="flex flex-col gap-4">
+          <h2 className="text-2xl font-bold tracking-tight text-[#0A0A0A]">
+            Usage
+          </h2>
+          <CodeViewer code={USE_REVEAL_CODE} fileName="headless-reveal-item.tsx" />
+        </section>
+      </div>
+    );
+  }
+
+  // use-pin
   return (
     <div className="flex flex-col gap-8">
       <header className="flex flex-col gap-2">
-        <div className="text-xs font-mono font-semibold text-blue-600 uppercase tracking-wider">
+        <div className="text-xs font-mono font-semibold text-[#FF5A1F] uppercase tracking-wider">
           Headless Hooks
         </div>
-        <h1 className="text-4xl font-extrabold tracking-tight text-zinc-950 font-mono">
-          useParallax &amp; useReveal
+        <h1 className="text-4xl font-extrabold tracking-tight text-[#0A0A0A] font-mono">
+          usePin
         </h1>
-        <p className="text-lg text-zinc-600 leading-relaxed max-w-3xl">
-          Low-level ref-based hooks for attaching high-performance scroll effects to custom DOM elements without wrapping components.
+        <p className="text-lg text-[#6B7280] leading-relaxed max-w-3xl">
+          Headless sticky locking hook supporting custom travel thresholds and automated ancestor diagnostics.
         </p>
       </header>
 
       <section id="usage" className="flex flex-col gap-4">
-        <h2 className="text-2xl font-bold tracking-tight text-zinc-900">
-          Headless Integration Example
+        <h2 className="text-2xl font-bold tracking-tight text-[#0A0A0A]">
+          Usage
         </h2>
-        <CodeViewer code={USE_PARALLAX_CODE} fileName="custom-card.tsx" />
+        <CodeViewer code={USE_PIN_CODE} fileName="headless-pinned-block.tsx" />
       </section>
-
-      <DocsCallout type="note" title="When to use Headless Hooks vs Primitives">
-        Use the <code className="font-mono text-xs text-blue-700">&lt;Parallax asChild&gt;</code> primitive for standard JSX template trees. Use <code className="font-mono text-xs text-blue-700">useParallax(ref)</code> when building custom design system components or third-party canvas / WebGL overlays where direct ref access is already present.
-      </DocsCallout>
     </div>
   );
 };

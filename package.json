@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "turbo dev",
+    "dev:clean": "pnpm --filter web clean && turbo dev",
     "build": "turbo build",
     "lint": "turbo lint",
     "clean": "turbo clean"

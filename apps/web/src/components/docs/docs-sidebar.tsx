@@ -7,7 +7,7 @@
  */
 
 import React from 'react';
-import { Search } from 'lucide-react';
+import { Search, Sparkles, Box, BookOpen, Layers, Cpu, ChefHat } from 'lucide-react';
 import { DOCS_CATEGORIES } from './docs-data';
 
 interface DocsSidebarProps {
@@ -17,6 +17,15 @@ interface DocsSidebarProps {
   onSearchChange: (query: string) => void;
 }
 
+const CATEGORY_ICONS: Record<string, React.ReactNode> = {
+  'getting-started': <BookOpen className="w-3.5 h-3.5 text-[#FF5A1F]" />,
+  primitives: <Layers className="w-3.5 h-3.5 text-[#FF5A1F]" />,
+  hooks: <Sparkles className="w-3.5 h-3.5 text-[#FF5A1F]" />,
+  r3f: <Box className="w-3.5 h-3.5 text-[#FF5A1F]" />,
+  architecture: <Cpu className="w-3.5 h-3.5 text-[#FF5A1F]" />,
+  recipes: <ChefHat className="w-3.5 h-3.5 text-[#FF5A1F]" />,
+};
+
 export const DocsSidebar: React.FC<DocsSidebarProps> = ({
   activeSection,
   onSelectSection,
@@ -24,17 +33,29 @@ export const DocsSidebar: React.FC<DocsSidebarProps> = ({
   onSearchChange,
 }) => {
   return (
-    <aside className="w-full lg:w-64 shrink-0 flex flex-col gap-6 select-none">
-      {/* Search Input */}
+    <aside className="w-full lg:w-64 shrink-0 flex flex-col gap-5 select-none">
+      {/* Search Input with Shortcut Badge */}
       <div className="relative w-full">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 pointer-events-none" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9CA3AF] pointer-events-none" />
         <input
           type="text"
           value={searchQuery}
-          onChange={(e) => onSearchChange(e.target.value)}
-          placeholder="Search docs..."
-          className="w-full pl-9 pr-3.5 py-1.5 rounded-lg bg-zinc-50 border border-zinc-200 text-xs text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all"
+          onChange={(e) => onSelectChange(e.target.value)}
+          placeholder="Filter documentation..."
+          className="w-full pl-9 pr-12 py-2 rounded-xl bg-white border border-[#E5E7EB] text-xs text-[#0A0A0A] placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#FF5A1F]/20 focus:border-[#FF5A1F] transition-all shadow-xs"
         />
+        {searchQuery ? (
+          <button
+            onClick={() => onSearchChange('')}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-[#9CA3AF] hover:text-[#0A0A0A] cursor-pointer"
+          >
+            Clear
+          </button>
+        ) : (
+          <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-mono px-1.5 py-0.5 rounded bg-[#F3F4F6] text-[#6B7280] border border-[#E5E7EB] pointer-events-none">
+            ⌘K
+          </span>
+        )}
       </div>
 
       {/* Grouped Categories */}
@@ -48,9 +69,12 @@ export const DocsSidebar: React.FC<DocsSidebarProps> = ({
 
           return (
             <div key={category.id} className="flex flex-col gap-1.5">
-              <h4 className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 px-3">
-                {category.title}
-              </h4>
+              <div className="flex items-center gap-2 px-2.5 py-1">
+                {CATEGORY_ICONS[category.id]}
+                <h4 className="text-[11px] font-bold uppercase tracking-wider text-[#0A0A0A]">
+                  {category.title}
+                </h4>
+              </div>
               <ul className="flex flex-col gap-0.5">
                 {matchingItems.map((item) => {
                   const isActive = activeSection === item.id;
@@ -58,10 +82,10 @@ export const DocsSidebar: React.FC<DocsSidebarProps> = ({
                     <li key={item.id}>
                       <button
                         onClick={() => onSelectSection(item.id)}
-                        className={`w-full flex items-center justify-between px-3 py-1.5 rounded-md text-xs font-medium transition-all text-left cursor-pointer ${
+                        className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-medium transition-all text-left cursor-pointer ${
                           isActive
-                            ? 'bg-blue-50 text-blue-700 font-semibold border-l-2 border-blue-600 rounded-l-none'
-                            : 'text-zinc-600 hover:text-zinc-950 hover:bg-zinc-100/70'
+                            ? 'bg-[#FFF7ED] text-[#FF5A1F] font-semibold border border-[#FFEDD5] shadow-xs'
+                            : 'text-[#6B7280] hover:text-[#0A0A0A] hover:bg-[#F3F4F6]'
                         }`}
                       >
                         <span className="truncate">{item.title}</span>
@@ -69,8 +93,8 @@ export const DocsSidebar: React.FC<DocsSidebarProps> = ({
                           <span
                             className={`text-[10px] font-mono px-1.5 py-0.2 rounded border ${
                               isActive
-                                ? 'bg-blue-100 text-blue-800 border-blue-200'
-                                : 'bg-zinc-100 text-zinc-500 border-zinc-200'
+                                ? 'bg-[#FF5A1F] text-white border-[#FF5A1F]'
+                                : 'bg-[#F3F4F6] text-[#6B7280] border-[#E5E7EB]'
                             }`}
                           >
                             {item.badge}
@@ -87,4 +111,8 @@ export const DocsSidebar: React.FC<DocsSidebarProps> = ({
       </div>
     </aside>
   );
+
+  function onSelectChange(val: string) {
+    onSearchChange(val);
+  }
 };

@@ -2,7 +2,7 @@
 
 /**
  * Documentation Right Table of Contents (On this page)
- * Sticky in-page anchor tracking.
+ * Sticky in-page anchor tracking with ScrollCraft brand tokens.
  * Strictly under 650 LOC.
  */
 
@@ -36,8 +36,8 @@ const TocLink: React.FC<{
         aria-current={isActive ? 'location' : undefined}
         className={`text-xs text-left transition-colors cursor-pointer block truncate w-full ${
           isActive
-            ? 'text-blue-600 font-semibold -ml-[13px] border-l-2 border-blue-600 pl-2.5'
-            : 'text-zinc-500 hover:text-zinc-900'
+            ? 'text-[#FF5A1F] font-semibold -ml-[13px] border-l-2 border-[#FF5A1F] pl-2.5'
+            : 'text-[#6B7280] hover:text-[#0A0A0A]'
         }`}
       >
         {item.title}
@@ -71,10 +71,10 @@ export const DocsToc: React.FC<DocsTocProps> = ({
   return (
     <div className="hidden xl:block w-52 shrink-0 select-none">
       <div className="sticky top-24 flex flex-col gap-3">
-        <h4 className="text-[11px] font-bold uppercase tracking-wider text-zinc-400">
+        <h4 className="text-[11px] font-bold uppercase tracking-wider text-[#9CA3AF]">
           On This Page
         </h4>
-        <ul className="flex flex-col gap-1.5 border-l border-zinc-200 pl-3">
+        <ul className="flex flex-col gap-1.5 border-l border-[#E5E7EB] pl-3">
           {items.map((item) => (
             <TocLink
               key={item.id}
