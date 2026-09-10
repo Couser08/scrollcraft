@@ -26,7 +26,7 @@ export function ActShowcase() {
           Zero Re-renders • 120 FPS • Smooth Scrolling • 
         </VelocityMarquee>
         <VelocityMarquee 
-          baseVelocity={2} 
+          baseSpeed={2}
           className="text-6xl md:text-8xl font-bold tracking-tighter text-transparent bg-clip-text whitespace-nowrap"
           style={{ WebkitTextStroke: '2px rgba(255,255,255,0.5)' }}
         >
