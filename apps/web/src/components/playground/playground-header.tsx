@@ -1,39 +1,79 @@
 'use client';
 
-/**
- * Playground Header with Display Typography & Handwritten Doodle
- * Strictly under 650 LOC.
- */
-
 import React from 'react';
-import { PlaygroundDoodle } from '@/components/ui/examples-doodles';
+import {
+  Share2,
+  Check,
+  RotateCcw,
+  Sparkles,
+} from 'lucide-react';
 
-export const PlaygroundHeader: React.FC = () => {
+interface PlaygroundHeaderProps {
+  onShare: () => void;
+  onReset: () => void;
+  shareCopied: boolean;
+}
+
+export const PlaygroundHeader: React.FC<PlaygroundHeaderProps> = ({
+  onShare,
+  onReset,
+  shareCopied,
+}) => {
   return (
-    <div className="relative w-full mb-8 select-none">
-      <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
-        <div>
-          {/* Eyebrow */}
-          <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-400 mb-2 block">
-            Playground
+    <div className="relative w-full flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-zinc-200/80 select-none">
+      {/* Left Title & Eyebrow */}
+      <div>
+        <div className="flex items-center gap-2 mb-2">
+          <span className="px-2.5 py-0.5 rounded-full bg-[#FFF7ED] border border-[#FFEDD5] text-[#FF5A1F] text-[11px] font-mono font-bold tracking-wider uppercase">
+            ScrollCraft Sandbox
           </span>
-
-          {/* Headline */}
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-zinc-950 leading-tight mb-3">
-            Build. Experiment. Create.
-          </h1>
-
-          {/* Subtitle */}
-          <p className="text-sm sm:text-base text-zinc-600 max-w-2xl leading-relaxed">
-            Try ScrollCraft in your browser. Tweak the code, see the results in real-time,
-            and create stunning scroll animations instantly.
-          </p>
+          <span className="text-zinc-400 text-xs hidden sm:inline">•</span>
+          <span className="text-zinc-500 text-xs hidden sm:inline font-medium">
+            Isolated iframe Execution • 60 FPS Compositor
+          </span>
         </div>
 
-        {/* Top Right Handwritten Doodle */}
-        <div className="hidden lg:block shrink-0 pt-2 pr-8">
-          <PlaygroundDoodle />
-        </div>
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-zinc-950 leading-tight">
+          Interactive Motion Studio
+        </h1>
+
+        <p className="text-xs sm:text-sm text-zinc-600 mt-1 max-w-xl leading-relaxed">
+          Tweak spring physics, compare ScrollCraft against GSAP & CSS, and export syntax-highlighted React 19 / Next.js 15 JSX code.
+        </p>
+      </div>
+
+      {/* Right Controls: Share Link & Reset */}
+      <div className="flex items-center gap-3 shrink-0">
+        {/* Share Button (Encodes state into URL and copies) */}
+        <button
+          type="button"
+          onClick={onShare}
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white hover:bg-zinc-50 border border-zinc-200 text-xs font-semibold text-zinc-800 transition-all cursor-pointer shadow-2xs active:scale-95"
+          title="Copy shareable link with current configuration parameters"
+        >
+          {shareCopied ? (
+            <>
+              <Check className="w-3.5 h-3.5 text-emerald-600" />
+              <span className="text-emerald-700 font-bold">Link Copied!</span>
+            </>
+          ) : (
+            <>
+              <Share2 className="w-3.5 h-3.5 text-zinc-600" />
+              <span>Share Config</span>
+            </>
+          )}
+        </button>
+
+        {/* 1-Click Reset to Default */}
+        <button
+          type="button"
+          onClick={onReset}
+          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 text-xs font-semibold text-zinc-700 transition-colors cursor-pointer shadow-2xs"
+          title="Reset parameters to defaults"
+        >
+          <RotateCcw className="w-3.5 h-3.5 text-zinc-500" />
+          <span>Reset</span>
+        </button>
       </div>
     </div>
   );

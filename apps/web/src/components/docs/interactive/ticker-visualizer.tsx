@@ -136,8 +136,8 @@ node.style.opacity = progress.toFixed(3);`,
               <p className="text-xs text-[#6B7280] leading-relaxed mb-4">
                 {PHASES[selectedPhase - 1].description}
               </p>
-              <div className="rounded-lg bg-[#0A0A0A] p-3.5 text-xs font-mono text-zinc-100 overflow-x-auto">
-                <pre className="text-[12px] leading-relaxed text-emerald-400">
+              <div className="rounded-lg bg-[#F8FAFC] border border-zinc-200/90 p-3.5 text-xs font-mono text-zinc-900 overflow-x-auto">
+                <pre className="text-[12px] leading-relaxed text-zinc-800 font-mono">
                   {PHASES[selectedPhase - 1].codeSnippet}
                 </pre>
               </div>

@@ -11,7 +11,6 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ScrollCraftLogo } from '@/components/ui/scrollcraft-logo';
 import { Terminal, Check, Copy, Sun, Menu, X } from 'lucide-react';
-import { GithubIcon } from '@/components/ui/social-icons';
 
 export const HeaderNav: React.FC = () => {
   const pathname = usePathname();
@@ -28,8 +27,6 @@ export const HeaderNav: React.FC = () => {
     { href: '/', label: 'Overview' },
     { href: '/docs', label: 'Documentation' },
     { href: '/playground', label: 'Playground' },
-    { href: 'https://github.com/Couser08/scrollcraft', label: 'Changelog', external: true },
-    { href: 'https://github.com/Couser08/scrollcraft', label: 'GitHub', external: true },
   ];
 
   return (
@@ -44,20 +41,6 @@ export const HeaderNav: React.FC = () => {
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-[#6B7280]">
           {navLinks.map((link) => {
             const isActive = link.href === '/' ? pathname === '/' : pathname === link.href;
-
-            if (link.external) {
-              return (
-                <a
-                  key={link.label}
-                  href={link.href}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="hover:text-[#0A0A0A] transition-colors py-1.5"
-                >
-                  {link.label}
-                </a>
-              );
-            }
 
             return (
               <Link
@@ -76,19 +59,8 @@ export const HeaderNav: React.FC = () => {
           })}
         </nav>
 
-        {/* Right: GitHub Star Badge, CLI Command, Theme Toggle */}
+        {/* Right: Search Bar, CLI Command, Theme Toggle */}
         <div className="flex items-center gap-2.5">
-          {/* GitHub Star Badge */}
-          <a
-            href="https://github.com/Couser08/scrollcraft"
-            target="_blank"
-            rel="noreferrer"
-            className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-[#E5E7EB] bg-white hover:bg-[#F3F4F6] text-xs font-medium text-[#0A0A0A] transition-colors shadow-2xs"
-            title="Star ScrollCraft on GitHub"
-          >
-            <GithubIcon className="w-3.5 h-3.5 text-[#0A0A0A]" />
-            <span className="font-semibold">1.2k</span>
-          </a>
 
           {/* Search Bar */}
           <button
@@ -144,19 +116,6 @@ export const HeaderNav: React.FC = () => {
         <div className="md:hidden border-t border-[#E5E7EB] bg-white px-4 py-4 space-y-2">
           {navLinks.map((link) => {
             const isActive = link.href === '/' ? pathname === '/' : pathname === link.href;
-            if (link.external) {
-              return (
-                <a
-                  key={link.label}
-                  href={link.href}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="block px-3 py-2 rounded-md text-sm font-medium text-[#6B7280] hover:bg-[#F3F4F6] hover:text-[#0A0A0A]"
-                >
-                  {link.label}
-                </a>
-              );
-            }
             return (
               <Link
                 key={link.href}

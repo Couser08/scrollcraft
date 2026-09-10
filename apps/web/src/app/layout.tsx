@@ -18,12 +18,12 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className="bg-white text-zinc-950 min-h-screen antialiased selection:bg-blue-100 selection:text-blue-900 font-sans"
+        className="bg-white text-zinc-950 min-h-screen antialiased selection:bg-blue-100 selection:text-blue-900 font-sans flex flex-col"
         suppressHydrationWarning
       >
         <ScrollProvider smooth={true}>
           <HeaderNav />
-          <main className="relative flex flex-col min-h-screen">
+          <main className="relative flex-1 flex flex-col min-h-0">
             {children}
           </main>
           <ModernFooter />

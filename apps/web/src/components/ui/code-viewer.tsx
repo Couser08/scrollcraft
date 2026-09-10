@@ -86,30 +86,38 @@ export const CodeViewer: React.FC<CodeViewerProps> = React.memo(({
 
   return (
     <div
-      className={`rounded-xl bg-[#f8fafc] border border-zinc-200 shadow-sm overflow-hidden text-xs font-mono select-text ${className}`}
+      className={`rounded-xl bg-[#F8FAFC] border border-zinc-200/90 shadow-2xs overflow-hidden text-xs font-mono select-text transition-all ${className}`}
     >
       {/* Titlebar */}
-      <div className="flex items-center justify-between px-3.5 py-2.5 bg-zinc-100/80 border-b border-zinc-200">
-        <div className="flex items-center gap-2">
-          <div className="w-2.5 h-2.5 rounded-full bg-zinc-300" />
-          <div className="w-2.5 h-2.5 rounded-full bg-zinc-300" />
-          <div className="w-2.5 h-2.5 rounded-full bg-zinc-300" />
-          {fileName && (
-            <span className="text-[11px] text-zinc-600 font-medium ml-1.5">
-              {fileName}
+      <div className="flex items-center justify-between px-4 py-2.5 bg-[#F1F5F9]/80 border-b border-zinc-200/80">
+        <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-1.5">
+            <div className="w-2.5 h-2.5 rounded-full bg-zinc-300" />
+            <div className="w-2.5 h-2.5 rounded-full bg-zinc-300" />
+            <div className="w-2.5 h-2.5 rounded-full bg-zinc-300" />
+          </div>
+          {fileName ? (
+            <div className="flex items-center gap-1.5 ml-1">
+              <span className="text-[11px] text-zinc-700 font-semibold font-mono tracking-tight">
+                {fileName}
+              </span>
+            </div>
+          ) : (
+            <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-zinc-500 ml-1">
+              Code
             </span>
           )}
         </div>
 
         <button
           onClick={onCopy}
-          className="flex items-center gap-1.5 px-2 py-1 rounded bg-white hover:bg-zinc-50 border border-zinc-200 text-[11px] text-zinc-600 hover:text-zinc-950 transition-all cursor-pointer"
-          title="Copy code"
+          className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white hover:bg-zinc-50 border border-zinc-200 text-[11px] text-zinc-700 hover:text-zinc-950 transition-all cursor-pointer shadow-2xs active:scale-95"
+          title="Copy code snippet"
         >
           {copied ? (
             <>
               <Check className="w-3 h-3 text-emerald-600" />
-              <span className="text-emerald-700 font-medium">Copied</span>
+              <span className="text-emerald-700 font-medium">Copied!</span>
             </>
           ) : (
             <>
@@ -120,16 +128,16 @@ export const CodeViewer: React.FC<CodeViewerProps> = React.memo(({
         </button>
       </div>
 
-      {/* Code Area with Line Numbers */}
-      <div className="p-4 overflow-y-auto max-h-[500px] leading-relaxed bg-[#f8fafc]">
-        <table className="w-full border-collapse table-fixed">
+      {/* Code Area: Light theme, dynamic height without vertical scrollbar */}
+      <div className="p-4 overflow-x-auto overflow-y-visible leading-relaxed bg-[#F8FAFC]">
+        <table className="w-full border-collapse">
           <tbody>
             {tokenizedLines.map((tokens, idx) => (
-              <tr key={idx} className="hover:bg-zinc-100/50 transition-colors">
-                <td className="pr-4 text-right text-zinc-300 select-none w-8 align-top font-mono text-[11px]">
+              <tr key={idx} className="hover:bg-zinc-200/30 transition-colors">
+                <td className="pr-4 text-right text-zinc-400 select-none w-8 align-top font-mono text-[11px]">
                   {idx + 1}
                 </td>
-                <td className="text-zinc-900 whitespace-pre-wrap break-words font-mono text-xs w-full">
+                <td className="text-zinc-900 whitespace-pre font-mono text-[13px] leading-6 w-full">
                   {tokens}
                 </td>
               </tr>

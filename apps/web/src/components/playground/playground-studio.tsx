@@ -1,152 +1,166 @@
 'use client';
 
 /**
- * PlaygroundStudio: Interactive live studio client island with dynamic imports
- * Strictly under 650 LOC.
+ * PlaygroundStudio: Master Interactive Motion Island
+ * Truly sandboxed via iframe execution, syntax highlighted, with 3-way engine comparisons.
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
-import dynamic from 'next/dynamic';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { PlaygroundSidebar } from '@/components/playground/playground-sidebar';
-import { PlaygroundHeader } from '@/components/playground/playground-header';
-import { PlaygroundControls } from '@/components/playground/playground-controls';
-import { PLAYGROUND_PRESETS, PlaygroundPreset } from '@/data/playground.data';
-
-const PlaygroundEditor = dynamic(
-  () => import('@/components/playground/playground-editor').then((m) => m.PlaygroundEditor),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="h-[460px] rounded-2xl bg-zinc-900 border border-zinc-800 animate-pulse flex items-center justify-center text-zinc-600 text-xs font-mono">
-        Loading Code Studio...
-      </div>
-    ),
-  }
-);
-
-const PlaygroundPreview = dynamic(
-  () => import('@/components/playground/playground-preview').then((m) => m.PlaygroundPreview),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="h-[460px] rounded-2xl bg-zinc-50 border border-zinc-200 animate-pulse flex items-center justify-center text-zinc-400 text-xs font-mono">
-        Rendering Engine Preview...
-      </div>
-    ),
-  }
-);
+import { PlaygroundHeader } from './playground-header';
+import { PlaygroundSidebar } from './playground-sidebar';
+import { PlaygroundSandbox } from './playground-sandbox';
+import { PlaygroundControls } from './playground-controls';
+import { PlaygroundEditor } from './playground-editor';
+import { PlaygroundShowdown } from './playground-showdown';
+import { PlaygroundProCta } from './playground-pro-cta';
+import {
+  ShowcaseId,
+  PlaygroundConfig,
+  PlaygroundVibe,
+  SHOWCASES,
+  VIBE_PRESETS,
+} from './playground-types';
 
 export function PlaygroundStudio() {
   const searchParams = useSearchParams();
-  const presetQuery = searchParams.get('preset');
 
-  const [selectedPresetId, setSelectedPresetId] = useState<string>(
-    presetQuery || 'hero-reveal'
-  );
-  const [searchQuery, setSearchQuery] = useState('');
-
-  // Find active preset
-  const activePreset =
-    PLAYGROUND_PRESETS.find((p) => p.id === selectedPresetId) ||
-    PLAYGROUND_PRESETS[0];
-
-  // Editable Code state
-  const [htmlCode, setHtmlCode] = useState(activePreset.html);
-  const [cssCode, setCssCode] = useState(activePreset.css);
-  const [jsCode, setJsCode] = useState(activePreset.js);
-
-  // Active Controls state
-  const [controls, setControls] = useState<PlaygroundPreset['controls']>(
-    activePreset.controls
-  );
-
-  // Sync when preset changes
-  useEffect(() => {
-    if (presetQuery) {
-      const found = PLAYGROUND_PRESETS.find((p) => p.id === presetQuery);
-      if (found) {
-        setSelectedPresetId(found.id);
-        setHtmlCode(found.html);
-        setCssCode(found.css);
-        setJsCode(found.js);
-        setControls(found.controls);
-      }
+  // Read initial showcase from URL query if present
+  const initialShowcaseId = useMemo<ShowcaseId>(() => {
+    const p = searchParams.get('showcase') || searchParams.get('preset');
+    if (p && SHOWCASES.some((s) => s.id === p)) {
+      return p as ShowcaseId;
     }
-  }, [presetQuery]);
+    return 'hero-parallax';
+  }, [searchParams]);
 
-  const handleSelectPreset = useCallback((id: string) => {
-    const found = PLAYGROUND_PRESETS.find((p) => p.id === id);
-    if (found) {
-      setSelectedPresetId(found.id);
-      setHtmlCode(found.html);
-      setCssCode(found.css);
-      setJsCode(found.js);
-      setControls(found.controls);
+  const showcaseMeta = useMemo(
+    () => SHOWCASES.find((s) => s.id === initialShowcaseId) || SHOWCASES[0],
+    [initialShowcaseId]
+  );
+
+  const [selectedShowcaseId, setSelectedShowcaseId] = useState<ShowcaseId>(initialShowcaseId);
+  const [shareCopied, setShareCopied] = useState(false);
+
+  // Initialize config state
+  const [config, setConfig] = useState<PlaygroundConfig>(() => {
+    const base = showcaseMeta.defaultConfig;
+    const urlVibe = searchParams.get('vibe') as PlaygroundVibe | null;
+    const urlSpeed = searchParams.get('speed');
+    const urlStiffness = searchParams.get('stiffness');
+    const urlDamping = searchParams.get('damping');
+    const urlDuration = searchParams.get('duration');
+
+    return {
+      ...base,
+      vibe: urlVibe && VIBE_PRESETS.some((v) => v.id === urlVibe) ? urlVibe : base.vibe,
+      speed: urlSpeed ? parseFloat(urlSpeed) : base.speed,
+      stiffness: urlStiffness ? parseInt(urlStiffness) : base.stiffness,
+      damping: urlDamping ? parseInt(urlDamping) : base.damping,
+      duration: urlDuration ? parseFloat(urlDuration) : base.duration,
+    };
+  });
+
+  // Handle showcase change from sidebar
+  const handleSelectShowcase = useCallback((id: ShowcaseId) => {
+    setSelectedShowcaseId(id);
+    const target = SHOWCASES.find((s) => s.id === id);
+    if (target) {
+      setConfig(target.defaultConfig);
     }
   }, []);
 
-  const handleCodeChange = useCallback((tab: 'html' | 'css' | 'js', value: string) => {
-    if (tab === 'html') setHtmlCode(value);
-    else if (tab === 'css') setCssCode(value);
-    else setJsCode(value);
+  // Handle vibe preset click
+  const handleSelectVibe = useCallback((vibeId: PlaygroundVibe) => {
+    const foundVibe = VIBE_PRESETS.find((v) => v.id === vibeId);
+    if (!foundVibe) return;
+
+    setConfig((prev) => ({
+      ...prev,
+      vibe: vibeId,
+      ...foundVibe.config,
+    }));
   }, []);
 
+  // Update specific parameters
+  const handleConfigChange = useCallback((updated: Partial<PlaygroundConfig>) => {
+    setConfig((prev) => ({ ...prev, ...updated }));
+  }, []);
+
+  // Reset to default settings
   const handleReset = useCallback(() => {
-    setHtmlCode(activePreset.html);
-    setCssCode(activePreset.css);
-    setJsCode(activePreset.js);
-    setControls(activePreset.controls);
-  }, [activePreset]);
+    const current = SHOWCASES.find((s) => s.id === selectedShowcaseId) || SHOWCASES[0];
+    setConfig(current.defaultConfig);
+  }, [selectedShowcaseId]);
 
-  const handleControlChange = useCallback(
-    <K extends keyof PlaygroundPreset['controls']>(
-      key: K,
-      value: PlaygroundPreset['controls'][K]
-    ) => {
-      setControls((prev) => ({ ...prev, [key]: value }));
-    },
-    []
-  );
+  // Share URL: encodes all current params cleanly and copies
+  const handleShare = useCallback(() => {
+    if (typeof window === 'undefined') return;
+
+    const params = new URLSearchParams();
+    params.set('showcase', config.showcaseId);
+    params.set('vibe', config.vibe);
+    params.set('speed', config.speed.toFixed(2));
+    params.set('duration', config.duration.toFixed(2));
+    params.set('stiffness', config.stiffness.toString());
+    params.set('damping', config.damping.toString());
+
+    const shareUrl = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+    navigator.clipboard.writeText(shareUrl);
+    setShareCopied(true);
+    setTimeout(() => setShareCopied(false), 2500);
+
+    // Update browser address bar without reload
+    window.history.replaceState(null, '', shareUrl);
+  }, [config]);
 
   return (
-    <div className="w-full min-h-screen bg-white text-zinc-950 pb-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-10 flex flex-col lg:flex-row gap-10">
-        {/* Left Sidebar */}
-        <div className="lg:w-56 shrink-0">
+    <div className="w-full min-h-screen bg-[#FAFAF9] text-zinc-950 pb-32">
+      <div className="max-w-[1440px] mx-auto px-6 sm:px-8 lg:px-12 pt-10 sm:pt-14 flex flex-col gap-12">
+        {/* Header with Title & Share/Reset */}
+        <PlaygroundHeader
+          onShare={handleShare}
+          onReset={handleReset}
+          shareCopied={shareCopied}
+        />
+
+        {/* Studio Workspace */}
+        <div className="flex flex-col lg:flex-row gap-12">
+          {/* Left Sidebar: Showcase Primitives */}
           <PlaygroundSidebar
-            selectedPresetId={selectedPresetId}
-            onSelectPreset={handleSelectPreset}
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
+            selectedShowcaseId={selectedShowcaseId}
+            onSelectShowcase={handleSelectShowcase}
           />
-        </div>
 
-        {/* Main Workspace */}
-        <div className="flex-1 min-w-0 flex flex-col gap-8">
-          {/* Header */}
-          <PlaygroundHeader />
+          {/* Main Studio Canvas & Controls */}
+          <div className="flex-1 min-w-0 flex flex-col gap-12">
+            {/* Top 2-Column: Tokenized Code Editor & Isolated Sandboxed Canvas */}
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-10 min-h-[500px]">
+              {/* Left: Real-time Syntax Highlighted Code Studio */}
+              <div className="flex flex-col">
+                <PlaygroundEditor config={config} />
+              </div>
 
-          {/* Middle 2-Column Area: Editor & Live Preview */}
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 min-h-[460px]">
-            {/* Left: Multi-Tab Code Editor */}
-            <PlaygroundEditor
-              html={htmlCode}
-              css={cssCode}
-              js={jsCode}
-              onCodeChange={handleCodeChange}
+              {/* Right: Isolated Sandbox with 3-Way Engine Switcher & 3-Way Viewport */}
+              <div className="flex flex-col">
+                <PlaygroundSandbox config={config} onReset={handleReset} />
+              </div>
+            </div>
+
+            {/* Bottom: Motion Controls (Vibes, Core params, Advanced physics) */}
+            <PlaygroundControls
+              config={config}
+              onChange={handleConfigChange}
               onReset={handleReset}
+              onSelectVibe={handleSelectVibe}
             />
 
-            {/* Right: Interactive Live Preview */}
-            <PlaygroundPreview preset={activePreset} controls={controls} />
-          </div>
+            {/* 3-Way Architecture Showdown Benchmark */}
+            <PlaygroundShowdown />
 
-          {/* Bottom 3-Card Interactive Control Panels */}
-          <PlaygroundControls
-            controls={controls}
-            onChange={handleControlChange}
-          />
+            {/* Pro Kit Conversion Banner */}
+            <PlaygroundProCta />
+          </div>
         </div>
       </div>
     </div>

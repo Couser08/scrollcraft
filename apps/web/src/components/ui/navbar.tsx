@@ -32,14 +32,9 @@ export const Navbar: React.FC = () => {
           <a href="#pricing" className="hover:text-white transition-colors">
             Pricing
           </a>
-          <a
-            href="https://github.com"
-            target="_blank"
-            rel="noreferrer"
-            className="hover:text-white transition-colors flex items-center gap-1"
-          >
-            <Terminal className="w-3 h-3" />
-            <span>GitHub</span>
+          <a href="/playground" className="hover:text-white transition-colors flex items-center gap-1">
+            <Sparkles className="w-3 h-3 text-[#FF5A1F]" />
+            <span>Playground</span>
           </a>
         </div>
 

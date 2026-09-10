@@ -64,16 +64,14 @@ export const CtaBanner: React.FC = () => {
                 <ArrowRight className="w-4 h-4 text-zinc-950 transition-transform duration-200 group-hover:translate-x-1" />
               </a>
 
-              {/* Bordered Button: Star on GitHub */}
-              <a
-                href="https://github.com/Couser08/scrollcraft"
-                target="_blank"
-                rel="noreferrer"
+              {/* Bordered Button: Try Playground */}
+              <Link
+                href="/playground"
                 className="inline-flex items-center gap-2.5 px-5 py-3 rounded-full bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-700/80 text-white font-semibold text-sm tracking-tight transition-all duration-200 active:scale-95 shadow-2xs backdrop-blur-md"
               >
-                <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                <span>Star on GitHub</span>
-              </a>
+                <Sparkles className="w-4 h-4 text-[#FF5A1F]" />
+                <span>Try Playground</span>
+              </Link>
             </div>
           </div>
         </div>

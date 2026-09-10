@@ -1,165 +1,146 @@
 'use client';
 
-/**
- * Playground Left Sidebar Presets Selector
- * Strictly under 650 LOC.
- */
-
-import React from 'react';
+import React, { useState } from 'react';
 import {
-  Search,
-  Play,
-  Type,
   Layers,
   Sparkles,
-  ArrowRight,
   MoveHorizontal,
-  Box,
   Compass,
+  Zap,
+  MousePointer,
+  ChevronRight,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from 'lucide-react';
+import { ShowcaseId, SHOWCASES } from './playground-types';
 
 interface PlaygroundSidebarProps {
-  selectedPresetId: string;
-  onSelectPreset: (id: string) => void;
-  searchQuery: string;
-  onSearchChange: (q: string) => void;
+  selectedShowcaseId: ShowcaseId;
+  onSelectShowcase: (id: ShowcaseId) => void;
 }
 
 export const PlaygroundSidebar: React.FC<PlaygroundSidebarProps> = ({
-  selectedPresetId,
-  onSelectPreset,
-  searchQuery,
-  onSearchChange,
+  selectedShowcaseId,
+  onSelectShowcase,
 }) => {
-  const getIcon = (id: string) => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  const getIcon = (id: ShowcaseId) => {
     switch (id) {
-      case 'hero-reveal':
-      case 'fade-in':
-      case 'slide-up':
-        return <Play className="w-3.5 h-3.5" />;
-      case 'staggered-text':
-      case 'text-mask':
-        return <Type className="w-3.5 h-3.5" />;
-      case 'scale-scroll':
-      case '3d-transform':
-        return <Box className="w-3.5 h-3.5" />;
-      case 'parallax-section':
-      case 'sticky-element':
-      case 'pinned-sections':
-        return <Layers className="w-3.5 h-3.5" />;
-      case 'horizontal-scroll':
-        return <MoveHorizontal className="w-3.5 h-3.5" />;
+      case 'hero-parallax':
+        return <Layers className="w-4 h-4 text-[#FF5A1F]" />;
+      case 'reveal-stagger':
+        return <Sparkles className="w-4 h-4 text-[#FF5A1F]" />;
+      case 'velocity-marquee':
+        return <MoveHorizontal className="w-4 h-4 text-[#FF5A1F]" />;
+      case 'magnetic-card':
+        return <MousePointer className="w-4 h-4 text-[#FF5A1F]" />;
       default:
-        return <Compass className="w-3.5 h-3.5" />;
+        return <Compass className="w-4 h-4 text-[#FF5A1F]" />;
     }
   };
 
-  const sections = [
-    {
-      title: 'GET STARTED',
-      items: [
-        { id: 'hero-reveal', name: 'Hero Reveal' },
-        { id: 'fade-in', name: 'Fade In', target: 'hero-reveal' },
-        { id: 'slide-up', name: 'Slide Up', target: 'hero-reveal' },
-        { id: 'staggered-text', name: 'Staggered Text' },
-        { id: 'scale-scroll', name: 'Scale on Scroll' },
-      ],
-    },
-    {
-      title: 'LAYOUT',
-      items: [
-        { id: 'parallax-section', name: 'Parallax Section' },
-        { id: 'sticky-element', name: 'Sticky Element', target: 'parallax-section' },
-        { id: 'scroll-progress', name: 'Scroll Progress', target: 'hero-reveal' },
-        { id: 'horizontal-scroll', name: 'Horizontal Scroll', target: 'parallax-section' },
-        { id: 'image-gallery', name: 'Image Gallery', target: 'parallax-section' },
-      ],
-    },
-    {
-      title: 'CREATIVE',
-      items: [
-        { id: 'text-mask', name: 'Text Mask', target: 'staggered-text' },
-        { id: '3d-transform', name: '3D Transform', target: 'scale-scroll' },
-        { id: 'smooth-scroll', name: 'Smooth Scroll', target: 'hero-reveal' },
-        { id: 'scroll-draw', name: 'Scroll Draw', target: 'staggered-text' },
-        { id: 'pinned-sections', name: 'Pinned Sections', target: 'parallax-section' },
-      ],
-    },
-  ];
-
   return (
-    <aside className="w-full lg:w-56 shrink-0 flex flex-col gap-6 select-none">
-      {/* Search Bar */}
-      <div className="relative">
-        <Search className="w-3.5 h-3.5 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2" />
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => onSearchChange(e.target.value)}
-          placeholder="Search examples..."
-          className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-zinc-200 bg-zinc-50/70 text-xs text-zinc-800 placeholder:text-zinc-400 focus:outline-hidden focus:ring-1 focus:ring-blue-600 focus:bg-white transition-all"
-        />
-      </div>
-
-      {/* Sections List */}
-      <div className="flex flex-col gap-5">
-        {sections.map((sec) => (
-          <div key={sec.title} className="flex flex-col gap-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 px-3 mb-1">
-              {sec.title}
-            </span>
-
-            {sec.items
-              .filter(
-                (item) =>
-                  !searchQuery ||
-                  item.name.toLowerCase().includes(searchQuery.toLowerCase())
-              )
-              .map((item) => {
-                const targetId = item.target || item.id;
-                const isSelected = selectedPresetId === item.id || selectedPresetId === targetId;
-
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => onSelectPreset(targetId)}
-                    className={`flex items-center gap-2.5 px-3 py-1.5 rounded-xl text-xs font-medium transition-all text-left cursor-pointer ${
-                      isSelected
-                        ? 'bg-blue-50 text-blue-700 font-semibold shadow-2xs'
-                        : 'text-zinc-600 hover:text-zinc-950 hover:bg-zinc-100/70'
-                    }`}
-                  >
-                    <span className={isSelected ? 'text-blue-600' : 'text-zinc-400'}>
-                      {getIcon(item.id)}
-                    </span>
-                    <span className="truncate">{item.name}</span>
-                  </button>
-                );
-              })}
-          </div>
-        ))}
-      </div>
-
-      {/* Have an Idea Card */}
-      <div className="p-4 rounded-2xl bg-zinc-50/80 border border-zinc-200/80 flex flex-col items-start gap-2.5">
-        <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 border border-blue-200/80 flex items-center justify-center shadow-2xs">
-          <Sparkles className="w-4 h-4 fill-current" />
-        </div>
-        <div>
-          <h4 className="text-xs font-bold text-zinc-900">Have an idea?</h4>
-          <p className="text-[11px] text-zinc-500 mt-0.5 leading-relaxed">
-            Share it with the community and get featured.
-          </p>
-        </div>
+    <aside
+      className={`shrink-0 flex flex-col gap-5 select-none transition-all duration-300 ease-in-out ${
+        isCollapsed ? 'w-16 lg:w-16' : 'w-full lg:w-60'
+      }`}
+    >
+      <div className="flex items-center justify-between px-1">
+        {!isCollapsed && (
+          <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider hidden lg:block">
+            Primitives & Recipes
+          </span>
+        )}
         <button
-          type="button"
-          className="mt-1 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-zinc-200 text-xs font-semibold text-zinc-800 bg-white hover:bg-zinc-50 transition-colors shadow-2xs cursor-pointer"
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-950 hover:bg-zinc-100 transition-colors hidden lg:block ml-auto"
+          title={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
         >
-          <span>Submit Example</span>
-          <ArrowRight className="w-3 h-3 text-zinc-600" />
+          {isCollapsed ? <PanelLeftOpen className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
         </button>
       </div>
+
+      {/* Showcases List */}
+      <nav className="flex flex-row lg:flex-col gap-2 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0">
+        {SHOWCASES.map((item) => {
+          const isSelected = selectedShowcaseId === item.id;
+          return (
+            <button
+              key={item.id}
+              onClick={() => onSelectShowcase(item.id)}
+              className={`p-3 rounded-2xl border text-left transition-all cursor-pointer flex items-center shrink-0 min-w-[200px] lg:min-w-0 ${
+                isCollapsed ? 'justify-center lg:p-3' : 'justify-between lg:p-3.5'
+              } ${
+                isSelected
+                  ? 'bg-white border-[#FF5A1F] shadow-sm ring-2 ring-[#FF5A1F]/15'
+                  : 'bg-zinc-50/70 border-zinc-200/80 hover:bg-white hover:border-zinc-300'
+              }`}
+              title={isCollapsed ? item.title : undefined}
+            >
+              <div className="flex items-center gap-3">
+                <div
+                  className={`w-8 h-8 rounded-xl flex items-center justify-center transition-colors shrink-0 ${
+                    isSelected ? 'bg-[#FFF7ED]' : 'bg-white border border-zinc-200/60'
+                  }`}
+                >
+                  {getIcon(item.id)}
+                </div>
+                {!isCollapsed && (
+                  <div className="hidden lg:block">
+                    <h4
+                      className={`text-xs font-bold ${
+                        isSelected ? 'text-zinc-950' : 'text-zinc-700'
+                      }`}
+                    >
+                      {item.title}
+                    </h4>
+                    <span className="text-[10px] text-zinc-400 font-medium block">
+                      {item.category}
+                    </span>
+                  </div>
+                )}
+                {/* Mobile view still shows full content */}
+                <div className="lg:hidden">
+                  <h4
+                    className={`text-xs font-bold ${
+                      isSelected ? 'text-zinc-950' : 'text-zinc-700'
+                    }`}
+                  >
+                    {item.title}
+                  </h4>
+                  <span className="text-[10px] text-zinc-400 font-medium block">
+                    {item.category}
+                  </span>
+                </div>
+              </div>
+
+              {!isCollapsed && (
+                <div className="hidden lg:block">
+                  {isSelected ? (
+                    <span className="w-2 h-2 rounded-full bg-[#FF5A1F] block" />
+                  ) : (
+                    <ChevronRight className="w-3.5 h-3.5 text-zinc-300" />
+                  )}
+                </div>
+              )}
+            </button>
+          );
+        })}
+      </nav>
+
+      {/* Architecture Spec Card */}
+      {!isCollapsed && (
+        <div className="hidden lg:flex flex-col gap-2 p-4 rounded-2xl bg-zinc-50 border border-zinc-200/70 text-zinc-600 text-xs">
+          <div className="flex items-center gap-1.5 font-bold text-zinc-900 text-[11px] uppercase tracking-wider">
+            <Zap className="w-3.5 h-3.5 text-[#FF5A1F]" />
+            <span>Pure Compositor</span>
+          </div>
+          <p className="text-[11px] text-zinc-500 leading-relaxed">
+            Zero React state churn during scroll. Directly updates DOM transforms via GPU thread.
+          </p>
+        </div>
+      )}
     </aside>
   );
 };

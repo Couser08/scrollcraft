@@ -8,7 +8,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { GithubIcon } from '@/components/ui/social-icons';
+import { Sparkles } from 'lucide-react';
 import { Reveal } from '@scrollcraft/react';
 
 export const CtaBannerRedesign: React.FC = () => {
@@ -22,7 +22,7 @@ export const CtaBannerRedesign: React.FC = () => {
               Ready to build something amazing?
             </h3>
             <p className="text-sm sm:text-base text-[#6B7280] mt-2 leading-relaxed">
-              Explore the documentation, try the playground, or give us a star on GitHub.
+              Explore the interactive playground and documentation to elevate your next project.
             </p>
           </div>
 
@@ -36,16 +36,14 @@ export const CtaBannerRedesign: React.FC = () => {
               View Documentation
             </Link>
 
-            {/* Star on GitHub Button */}
-            <a
-              href="https://github.com/Couser08/scrollcraft"
-              target="_blank"
-              rel="noreferrer"
+            {/* Try Playground Button */}
+            <Link
+              href="/playground"
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white hover:bg-[#FAFAF9] border border-[#E5E7EB] text-[#0A0A0A] font-semibold text-sm transition-colors shadow-2xs"
             >
-              <GithubIcon className="w-4 h-4 text-[#0A0A0A]" />
-              <span>Star on GitHub</span>
-            </a>
+              <Sparkles className="w-4 h-4 text-[#FF5A1F]" />
+              <span>Try Playground</span>
+            </Link>
           </div>
         </div>
       </Reveal>

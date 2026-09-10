@@ -29,10 +29,10 @@ export const PRICING_TIERS: PricingTier[] = [
       'Direct GPU compositor transform pipeline',
       'Declarative <scroll.div> and hooks',
       'Next.js 15 & React 19 full SSR support',
-      'Community GitHub support',
+      'Community Discord & Docs support',
     ],
     ctaText: 'Use Free Core',
-    ctaHref: 'https://github.com',
+    ctaHref: '/docs',
   },
   {
     id: 'pro-single',

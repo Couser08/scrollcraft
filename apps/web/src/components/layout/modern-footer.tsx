@@ -9,14 +9,21 @@
 import React from 'react';
 import Link from 'next/link';
 import { ScrollCraftLogo } from '@/components/ui/scrollcraft-logo';
+import { usePathname } from 'next/navigation';
 import {
-  GithubIcon,
   TwitterIcon,
   DiscordIcon,
   YoutubeIcon,
 } from '@/components/ui/social-icons';
 
 export const ModernFooter: React.FC = () => {
+  const pathname = usePathname();
+
+  // On documentation route, the docs shell manages its own viewport height and footer
+  if (pathname?.startsWith('/docs')) {
+    return null;
+  }
+
   return (
     <footer className="w-full bg-[#FAFAF9] border-t border-[#E5E7EB] py-12 px-4 sm:px-6 lg:px-8 mt-20">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
@@ -33,42 +40,20 @@ export const ModernFooter: React.FC = () => {
 
         {/* Center: Navigation Links */}
         <nav className="flex items-center gap-6 text-xs sm:text-sm font-medium text-[#6B7280]">
+          <Link href="/" className="hover:text-[#0A0A0A] transition-colors">
+            Overview
+          </Link>
           <Link href="/docs" className="hover:text-[#0A0A0A] transition-colors">
             Documentation
           </Link>
-          <Link href="/design-system" className="hover:text-[#0A0A0A] transition-colors">
-            Design System
+          <Link href="/playground" className="hover:text-[#0A0A0A] transition-colors">
+            Playground
           </Link>
-          <a
-            href="https://github.com/Couser08/scrollcraft"
-            target="_blank"
-            rel="noreferrer"
-            className="hover:text-[#0A0A0A] transition-colors"
-          >
-            Changelog
-          </a>
-          <a
-            href="https://github.com/Couser08/scrollcraft"
-            target="_blank"
-            rel="noreferrer"
-            className="hover:text-[#0A0A0A] transition-colors"
-          >
-            GitHub
-          </a>
         </nav>
 
         {/* Right: Social Icons & Copyright */}
         <div className="flex flex-col sm:flex-row items-center gap-4 text-xs text-[#6B7280]">
           <div className="flex items-center gap-3">
-            <a
-              href="https://github.com/Couser08/scrollcraft"
-              target="_blank"
-              rel="noreferrer"
-              className="p-1.5 rounded-md hover:bg-white text-[#6B7280] hover:text-[#0A0A0A] transition-colors"
-              aria-label="GitHub"
-            >
-              <GithubIcon className="w-4 h-4" />
-            </a>
             <a
               href="https://discord.com"
               target="_blank"

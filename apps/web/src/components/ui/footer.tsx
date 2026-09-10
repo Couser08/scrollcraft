@@ -29,13 +29,11 @@ export const Footer: React.FC = () => {
             Commercial License
           </a>
           <a
-            href="https://github.com"
-            target="_blank"
-            rel="noreferrer"
+            href="/playground"
             className="hover:text-zinc-300 transition-colors flex items-center gap-1"
           >
-            <Terminal className="w-3 h-3" />
-            <span>GitHub</span>
+            <Sparkles className="w-3 h-3 text-[#FF5A1F]" />
+            <span>Playground</span>
           </a>
         </div>
 

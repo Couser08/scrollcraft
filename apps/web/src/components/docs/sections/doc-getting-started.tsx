@@ -259,9 +259,9 @@ export const DocGettingStarted: React.FC<DocGettingStartedProps> = ({
               </button>
             </div>
 
-            <div className="p-4 bg-[#0A0A0A] text-zinc-100 font-mono text-xs overflow-x-auto flex items-center justify-between">
-              <span className="text-[#FF5A1F] mr-2 select-none">$</span>
-              <span className="flex-1 select-all">{PM_COMMANDS[selectedPm]}</span>
+            <div className="p-4 bg-[#F8FAFC] text-zinc-900 font-mono text-xs overflow-x-auto flex items-center justify-between border-t border-zinc-200/80">
+              <span className="text-[#FF5A1F] font-bold mr-2 select-none">$</span>
+              <span className="flex-1 select-all font-medium">{PM_COMMANDS[selectedPm]}</span>
             </div>
           </div>
         </section>
