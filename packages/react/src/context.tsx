@@ -111,22 +111,52 @@ export const ScrollProvider: React.FC<ScrollProviderProps> = ({
       }
     }
 
-    // Route change handling (non-destructive resize, opt-in reset to top)
+    // SPA Route change handling (Next.js App Router, React Router, etc)
+    // Intercept pushState and replaceState to detect client-side navigations
+    const patchHistory = () => {
+      if (typeof window === 'undefined') return;
+      const w = window as any;
+      if (!w._scPatched) {
+        const originalPush = history.pushState;
+        history.pushState = function (...args) {
+          const result = originalPush.apply(this, args);
+          window.dispatchEvent(new Event('sc-routechange'));
+          return result;
+        };
+        const originalReplace = history.replaceState;
+        history.replaceState = function (...args) {
+          const result = originalReplace.apply(this, args);
+          window.dispatchEvent(new Event('sc-routechange'));
+          return result;
+        };
+        w._scPatched = true;
+      }
+    };
+    
+    patchHistory();
+
     const handleRouteChange = (isPop: boolean) => {
+      // Defer slightly to allow React/Next.js to render the new route DOM
       requestAnimationFrame(() => {
-        if (!isPop && autoResetOnRouteChange) {
-          engine?.scrollTo(0, { immediate: true });
-        }
-        engine?.resize();
+        setTimeout(() => {
+          if (!isPop && autoResetOnRouteChange) {
+            engine?.scrollTo(0, { immediate: true });
+          }
+          engine?.resize();
+        }, 50);
       });
     };
 
     const onPopState = () => handleRouteChange(true);
+    const onPushState = () => handleRouteChange(false);
+    
     window.addEventListener('popstate', onPopState);
+    window.addEventListener('sc-routechange', onPushState);
 
     return () => {
       motionQuery.removeEventListener('change', onMotionChange);
       window.removeEventListener('popstate', onPopState);
+      window.removeEventListener('sc-routechange', onPushState);
       if (autoRecalc) {
         window.removeEventListener('resize', handleResize);
         if (resizeRafId !== null) cancelAnimationFrame(resizeRafId);

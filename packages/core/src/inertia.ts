@@ -58,7 +58,7 @@ export class InertiaEngine {
     this.lenis.on('scroll', this.onLenisScroll);
 
     // Drive Lenis tick through ScrollCraft's global 3-phase Ticker (update phase)
-    ticker.add(this.taskId, 'update', (dt, el, currentTime) => {
+    ticker.add(this.taskId, 'update', (_dt, _el, currentTime) => {
       if (this.lenis) {
         // Use exact RAF timestamp to prevent micro-stutters
         this.lenis.raf(currentTime);

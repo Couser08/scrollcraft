@@ -1,9 +1,6 @@
 import type { Metadata } from 'next';
 import { ScrollProvider } from '@scrollcraft/react';
-import { HeaderNav } from '@/components/layout/header-nav';
-import { ModernFooter } from '@/components/layout/modern-footer';
 import '@/styles/globals.css';
-
 export const metadata: Metadata = {
   title: 'ScrollCraft — Animate on Scroll, Beautifully',
   description:

@@ -26,7 +26,7 @@ export class TextRevealSolver {
    * Called during the 'update' phase of the Ticker.
    * Calculates what portion of the text should be revealed.
    */
-  public update(scrollY: number, windowHeight: number) {
+  public update(_scrollY: number, windowHeight: number): void {
     if (!this.container || this.chars.length === 0) return;
 
     const rect = this.container.getBoundingClientRect();
