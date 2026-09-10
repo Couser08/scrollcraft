@@ -7,7 +7,7 @@
 
 import React from 'react';
 import { Button } from './button';
-import { Sparkles, Terminal } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
   return (

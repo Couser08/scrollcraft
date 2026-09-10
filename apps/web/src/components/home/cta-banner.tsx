@@ -7,7 +7,8 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { ArrowRight, Star } from 'lucide-react';
+import Link from 'next/link';
+import { ArrowRight, Sparkles } from 'lucide-react';
 import { CtaBannerDoodle } from '@/components/ui/doodle-arrow';
 import { CTA_BANNER_DATA } from '@/data/home-redesign.data';
 

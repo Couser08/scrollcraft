@@ -5,7 +5,6 @@ import {
   Share2,
   Check,
   RotateCcw,
-  Sparkles,
 } from 'lucide-react';
 
 interface PlaygroundHeaderProps {

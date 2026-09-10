@@ -25,12 +25,12 @@ export type EngineMode = 'scrollcraft' | 'gsap' | 'css' | 'split';
 
 interface PlaygroundSandboxProps {
   config: PlaygroundConfig;
-  onReset: () => void;
+  onReset?: () => void;
 }
 
 export const PlaygroundSandbox: React.FC<PlaygroundSandboxProps> = ({
   config,
-  onReset,
+  onReset: _onReset,
 }) => {
   const [viewport, setViewport] = useState<ViewportMode>('desktop');
   const [engineMode, setEngineMode] = useState<EngineMode>('scrollcraft');

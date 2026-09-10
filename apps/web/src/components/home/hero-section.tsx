@@ -7,6 +7,7 @@
 
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { ArrowRight, Sparkles, Zap, Code, ChevronDown } from 'lucide-react';
 import { CodeWindow } from '@/components/ui/code-window';
 import { HeroDoodleArrow } from '@/components/ui/doodle-arrow';

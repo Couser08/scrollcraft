@@ -7,13 +7,10 @@ import {
   Tablet,
   Smartphone,
   RotateCcw,
-  Sparkles,
   Zap,
-  Play,
-  Pause,
   AlertCircle,
 } from 'lucide-react';
-import { Parallax, Reveal, VelocityMarquee, useMagnetic } from '@scrollcraft/react';
+import { VelocityMarquee, useMagnetic } from '@scrollcraft/react';
 import { PlaygroundConfig, ViewportMode } from './playground-types';
 import { useFpsMeter } from './use-fps-meter';
 

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Zap, AlertTriangle, ShieldCheck, Gauge, Layers, Cpu } from 'lucide-react';
+import { Zap, AlertTriangle, ShieldCheck } from 'lucide-react';
 import { useFpsMeter } from './use-fps-meter';
 
 export const PlaygroundShowdown: React.FC = () => {
@@ -41,7 +41,7 @@ export const PlaygroundShowdown: React.FC = () => {
 
   // 3. ScrollCraft: spring-damped, compositor-accelerated subpixel smooth
   const craftProgress = 1 - Math.pow(1 - scrollProgress, 2.5);
-  const craftOffset = (craftProgress * 120).toFixed(2);
+  const craftOffset = craftProgress * 120;
   const craftOpacity = Math.min(1, Math.max(0.15, craftProgress * 1.1)).toFixed(3);
   const craftScale = (0.92 + craftProgress * 0.08).toFixed(3);
 

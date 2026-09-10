@@ -8,8 +8,6 @@ import {
   ChevronUp,
   HelpCircle,
   RotateCcw,
-  Zap,
-  Gauge,
   SlidersHorizontal,
 } from 'lucide-react';
 import {

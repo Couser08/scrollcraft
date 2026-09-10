@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Sparkles, ArrowRight, ShieldCheck, Zap, Code2, Layers } from 'lucide-react';
+import { Sparkles, ArrowRight, ShieldCheck, Zap, Code2 } from 'lucide-react';
 
 export const PlaygroundProCta: React.FC = () => {
   return (

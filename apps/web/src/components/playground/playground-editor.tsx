@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Copy, Check, Terminal, Sparkles } from 'lucide-react';
+import { Copy, Check, Terminal } from 'lucide-react';
 import { PlaygroundConfig } from './playground-types';
 import { SyntaxHighlighter } from './syntax-highlighter';
 
@@ -15,7 +15,7 @@ export const PlaygroundEditor: React.FC<PlaygroundEditorProps> = ({ config }) =>
 
   // Generate dynamic JSX based on the active showcase and current parameters
   const generateSnippet = () => {
-    const { showcaseId, speed, duration, direction, easing, stiffness, damping, distance, mass } =
+    const { showcaseId, speed, duration, direction, stiffness, damping, distance } =
       config;
 
     switch (showcaseId) {

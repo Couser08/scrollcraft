@@ -5,7 +5,7 @@
  * Truly sandboxed via iframe execution, syntax highlighted, with 3-way engine comparisons.
  */
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { PlaygroundHeader } from './playground-header';
 import { PlaygroundSidebar } from './playground-sidebar';

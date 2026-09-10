@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import { Sparkles, Terminal, Heart } from 'lucide-react';
+import { Sparkles, Heart } from 'lucide-react';
 
 export const Footer: React.FC = () => {
   return (
