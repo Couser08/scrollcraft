@@ -20,7 +20,7 @@ export function ActShowcase() {
       {/* Velocity Marquee */}
       <div className="w-full mb-32 -mx-6 w-[calc(100%+3rem)]">
         <VelocityMarquee 
-          baseVelocity={-2} 
+          baseSpeed={-2} 
           className="text-6xl md:text-8xl font-bold tracking-tighter text-zinc-100 uppercase whitespace-nowrap"
         >
           Zero Re-renders • 120 FPS • Smooth Scrolling • 
