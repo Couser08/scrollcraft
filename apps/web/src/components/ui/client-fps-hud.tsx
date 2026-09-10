@@ -11,3 +11,4 @@ export const ClientFpsHud = dynamic(
   () => import('./fps-hud').then((m) => m.FpsHud),
   { ssr: false }
 );
+

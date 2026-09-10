@@ -16,3 +16,4 @@ export const TrafficLights: React.FC<{ className?: string }> = ({ className = ''
     </div>
   );
 };
+

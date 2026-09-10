@@ -10,19 +10,19 @@
   --font-sans: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-  /* Surfaces & Backgrounds: Warm Minimal Architecture */
-  --color-canvas-bg: #fafaf9;
-  --color-canvas-surface: #ffffff;
-  --color-canvas-card: #ffffff;
-  --color-canvas-subtle: #f3f4f6;
-  --color-canvas-dark: #0a0a0a;
+  /* Surfaces & Backgrounds: Warm Minimal Architecture -> Premium Dark */
+  --color-canvas-bg: #050505;
+  --color-canvas-surface: #0a0a0a;
+  --color-canvas-card: #0a0a0a;
+  --color-canvas-subtle: #18181b;
+  --color-canvas-dark: #000000;
 
   /* Primary Brand: ScrollCraft Orange */
   --color-brand-primary: #ff5a1f;
   --color-brand-primary-hover: #e54800;
-  --color-brand-orange-tint: #fff7ed;
-  --color-brand-orange-border: #ffedd5;
-  --color-brand-orange-ring: rgba(255, 90, 31, 0.2);
+  --color-brand-orange-tint: rgba(255, 90, 31, 0.1);
+  --color-brand-orange-border: rgba(255, 90, 31, 0.2);
+  --color-brand-orange-ring: rgba(255, 90, 31, 0.25);
 
   /* Legacy brand color aliases mapped cleanly */
   --color-brand-blue: #ff5a1f;
@@ -30,24 +30,24 @@
   --color-brand-blue-light: #fff7ed;
   --color-brand-blue-border: #ffedd5;
 
-  /* Typography: Ink & Secondary */
-  --color-text-primary: #0a0a0a;
-  --color-text-secondary: #6b7280;
-  --color-text-muted: #9ca3af;
-  --color-text-dim: #d1d5db;
-  --color-text-inverse: #ffffff;
+  /* Typography: Ink & Secondary -> Dark Mode Text */
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #a1a1aa;
+  --color-text-muted: #71717a;
+  --color-text-dim: #52525b;
+  --color-text-inverse: #000000;
 
   /* Status Colors */
-  --color-status-success: #16a34a;
-  --color-status-warning: #f59e0b;
-  --color-status-error: #ef4444;
-  --color-status-info: #3b82f6;
+  --color-status-success: #34d399;
+  --color-status-warning: #fbbf24;
+  --color-status-error: #f87171;
+  --color-status-info: #60a5fa;
 
-  /* Architectural Borders */
-  --color-border-default: #e5e7eb;
-  --color-border-subtle: #f3f4f6;
-  --color-border-card: #e5e7eb;
-  --color-border-dark: #262626;
+  /* Architectural Borders -> Dark Mode */
+  --color-border-default: rgba(255, 255, 255, 0.1);
+  --color-border-subtle: rgba(255, 255, 255, 0.05);
+  --color-border-card: rgba(255, 255, 255, 0.1);
+  --color-border-dark: rgba(255, 255, 255, 0.2);
 
   /* Spacing Scale (4, 8, 12, 16, 24, 32, 48) */
   --spacing-1: 4px;

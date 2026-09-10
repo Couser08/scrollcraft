@@ -146,10 +146,10 @@ export const QuickstartStepsRedesign: React.FC = () => {
               <div className="rounded-xl bg-[#FAFAF9] border border-[#E5E7EB] p-3.5 flex items-center justify-between font-mono text-xs text-[#0A0A0A]">
                 <pre className="text-xs leading-relaxed text-[#0A0A0A] overflow-x-auto">
                   <code>
-                    &lt;<span className="text-[#2563EB] font-semibold">Parallax</span>{' '}
+                    &lt;<span className="text-[#FF5A1F] font-semibold">Parallax</span>{' '}
                     <span className="text-[#EA580C]">asChild</span>&gt;{'\n'}
                     {'  '}&lt;<span className="text-[#0284C7] font-semibold">YourComponent</span> /&gt;{'\n'}
-                    &lt;/<span className="text-[#2563EB] font-semibold">Parallax</span>&gt;
+                    &lt;/<span className="text-[#FF5A1F] font-semibold">Parallax</span>&gt;
                   </code>
                 </pre>
                 <button

@@ -65,11 +65,11 @@ export function HeroCard() {
     <Reveal variant="slide-up" duration={0.6}>
       {/* asChild delegates transforms directly to your div — zero wrapper div! */}
       <Parallax asChild speed={0.15}>
-        <div className="p-8 rounded-2xl bg-white border border-zinc-200 shadow-sm">
-          <h2 className="text-2xl font-bold text-zinc-950">
+        <div className="p-8 rounded-2xl bg-white/5 border border-white/10 shadow-sm">
+          <h2 className="text-2xl font-bold text-white">
             120 FPS Subpixel Motion
           </h2>
-          <p className="mt-2 text-zinc-600">
+          <p className="mt-2 text-zinc-400">
             Zero React re-renders. Direct GPU compositor transforms.
           </p>
         </div>
@@ -93,94 +93,116 @@ export const DocGettingStarted: React.FC<DocGettingStartedProps> = ({
   if (sectionId === 'introduction') {
     return (
       <div className="flex flex-col gap-8">
-        <header className="flex flex-col gap-2">
+        <header className="flex flex-col gap-3">
           <div className="text-xs font-mono font-semibold text-[#FF5A1F] uppercase tracking-wider">
             Getting Started
           </div>
-          <h1 className="text-4xl font-extrabold tracking-tight text-[#0A0A0A]">
-            Introduction & Mental Model
+          <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-zinc-100">
+            Why ScrollCraft Was Born
           </h1>
-          <p className="text-lg text-[#6B7280] leading-relaxed max-w-3xl">
-            A production-grade, React 19 & Next.js 15 (App Router)-native scroll engine engineered for 120 FPS subpixel motion, zero React root re-renders, and headless Radix-style Slot composition.
+          <p className="text-base sm:text-lg text-zinc-400 leading-relaxed max-w-3xl">
+            You spent 6 hours building a fluid scroll interaction for your landing page. On your high-end desktop, it looked flawless. But on an iPhone or Android phone, it dropped to 28 FPS, drained battery, and caused the user to rage-scroll past your content.
+          </p>
+          <p className="text-sm text-zinc-400 leading-relaxed max-w-3xl">
+            Scroll animations in React have been trapped in legacy patterns: 70 kB runtime bundles, forced layout thrashing, component re-renders 120 times every second, and injected wrapper <code className="font-mono text-xs text-zinc-100 bg-white/10 px-1 py-0.5 rounded">&lt;div&gt;</code> tags that shatter your CSS Grid. 
+            <br className="my-1" />
+            <strong>ScrollCraft was engineered to end this status quo.</strong>
           </p>
         </header>
 
-        {/* The Beginner Mental Model */}
+        {/* The 3 Core Invariants */}
         <section id="the-problem" className="flex flex-col gap-4">
-          <h2 className="text-2xl font-bold tracking-tight text-[#0A0A0A]">
-            The Problem with Traditional Web Scroll
+          <h2 className="text-2xl font-bold tracking-tight text-zinc-100">
+            The 3 Unbreakable Invariants of ScrollCraft
           </h2>
-          <p className="text-sm text-[#6B7280] leading-relaxed">
-            Every web developer has tried building scroll animations in React and hit the exact same wall: <strong>stutter, lag, and dropped frames</strong>.
+          <p className="text-sm text-zinc-400 leading-relaxed">
+            Every primitive in ScrollCraft is mathematically designed around three non-negotiable architectural rules:
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-2">
-            <div className="p-4 rounded-xl border border-[#E5E7EB] bg-white shadow-xs">
-              <span className="text-xs font-mono font-bold text-[#FF5A1F]">01. Layout Thrashing</span>
-              <h4 className="text-sm font-bold text-[#0A0A0A] mt-1">Forced Synchronous Layout</h4>
-              <p className="text-xs text-[#6B7280] mt-1 leading-relaxed">
-                Reading <code className="font-mono text-[10px]">offsetTop</code> while writing styles halts the browser engine and forces a recalculation of the entire page layout.
-              </p>
+            <div className="p-5 rounded-2xl border border-white/10 bg-white/5 shadow-xs flex flex-col justify-between">
+              <div>
+                <span className="text-xs font-mono font-bold text-[#FF5A1F]">Invariant 01</span>
+                <h4 className="text-base font-bold text-zinc-100 mt-1">Zero React Re-Renders</h4>
+                <p className="text-xs text-zinc-400 mt-2 leading-relaxed">
+                  Never update React component state (<code className="font-mono text-[10px]">useState(scrollY)</code>) during a scroll event. ScrollCraft mutates GPU transforms directly onto DOM elements via the 3-phase Ticker. React root components stay 100% idle.
+                </p>
+              </div>
+              <div className="mt-4 pt-3 border-t border-white/10 flex items-center gap-1.5 text-[11px] font-mono text-[#16A34A] font-semibold">
+                <span>✓ 0 DOM diffing overhead</span>
+              </div>
             </div>
-            <div className="p-4 rounded-xl border border-[#E5E7EB] bg-white shadow-xs">
-              <span className="text-xs font-mono font-bold text-[#FF5A1F]">02. State Re-rendering</span>
-              <h4 className="text-sm font-bold text-[#0A0A0A] mt-1">Virtual DOM Overkill</h4>
-              <p className="text-xs text-[#6B7280] mt-1 leading-relaxed">
-                Updating <code className="font-mono text-[10px]">useState(scrollY)</code> triggers component re-renders 60 to 120 times every single second, saturating CPU cores.
-              </p>
+
+            <div className="p-5 rounded-2xl border border-white/10 bg-white/5 shadow-xs flex flex-col justify-between">
+              <div>
+                <span className="text-xs font-mono font-bold text-[#FF5A1F]">Invariant 02</span>
+                <h4 className="text-base font-bold text-zinc-100 mt-1">Zero Wrapper Pollution</h4>
+                <p className="text-xs text-zinc-400 mt-2 leading-relaxed">
+                  Traditional scroll libraries inject arbitrary wrapper divs that break CSS Grid, flex stretch, and sticky stacks. ScrollCraft uses headless Radix-grade <code className="font-mono text-[10px]">asChild</code> Slot composition to merge directly onto your existing element.
+                </p>
+              </div>
+              <div className="mt-4 pt-3 border-t border-white/10 flex items-center gap-1.5 text-[11px] font-mono text-[#16A34A] font-semibold">
+                <span>✓ 100% clean DOM hierarchy</span>
+              </div>
             </div>
-            <div className="p-4 rounded-xl border border-[#E5E7EB] bg-white shadow-xs">
-              <span className="text-xs font-mono font-bold text-[#FF5A1F]">03. Wrapper Pollution</span>
-              <h4 className="text-sm font-bold text-[#0A0A0A] mt-1">Broken Flex & Grid</h4>
-              <p className="text-xs text-[#6B7280] mt-1 leading-relaxed">
-                Injecting extra wrapper <code className="font-mono text-[10px]">&lt;div&gt;</code> tags into the DOM shatters CSS Grid layouts, flexbox sizing, and sticky positioning.
-              </p>
+
+            <div className="p-5 rounded-2xl border border-white/10 bg-white/5 shadow-xs flex flex-col justify-between">
+              <div>
+                <span className="text-xs font-mono font-bold text-[#FF5A1F]">Invariant 03</span>
+                <h4 className="text-base font-bold text-zinc-100 mt-1">Native-First Progressive Fallback</h4>
+                <p className="text-xs text-zinc-400 mt-2 leading-relaxed">
+                  Native where possible, JS where necessary. On modern browsers (Chrome/Edge), ScrollCraft drives animations entirely on the CSS compositor thread (<code className="font-mono text-[10px]">view-timeline</code>) with 0 kB main-thread JS cost. On Safari/Firefox, it falls back to a 3-phase microtask Ticker.
+                </p>
+              </div>
+              <div className="mt-4 pt-3 border-t border-white/10 flex items-center gap-1.5 text-[11px] font-mono text-[#16A34A] font-semibold">
+                <span>✓ 120 FPS compositor acceleration</span>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* The ScrollCraft Solution */}
+        {/* The ScrollCraft Architecture */}
         <section id="our-architecture" className="flex flex-col gap-4">
-          <h2 className="text-2xl font-bold tracking-tight text-[#0A0A0A]">
-            The ScrollCraft Architecture
+          <h2 className="text-2xl font-bold tracking-tight text-zinc-100">
+            The 3-Phase Zero-Allocation Loop
           </h2>
-          <p className="text-sm text-[#6B7280] leading-relaxed">
-            ScrollCraft eliminates all three problems with three core architectural pillars:
+          <p className="text-sm text-zinc-400 leading-relaxed">
+            Layout thrashing occurs when JavaScript reads geometry properties (<code className="font-mono text-xs text-zinc-100">getBoundingClientRect()</code>) while interleaving writes (<code className="font-mono text-xs text-zinc-100">element.style.transform</code>). ScrollCraft enforces strict phase separation:
           </p>
 
           <div className="space-y-3">
-            <div className="flex items-start gap-3 p-4 rounded-xl bg-[#FAFAF9] border border-[#E5E7EB]">
-              <div className="p-1 rounded-md bg-[#FFF7ED] text-[#FF5A1F] mt-0.5">
+            <div className="flex items-start gap-3 p-4 rounded-xl bg-[#080808] border border-white/10">
+              <div className="p-1.5 rounded-md bg-[#FF5A1F]/10 text-[#FF5A1F] mt-0.5 shrink-0">
                 <Cpu className="w-4 h-4" />
               </div>
               <div>
-                <h4 className="text-sm font-bold text-[#0A0A0A]">Direct-to-DOM Writes (0 Re-renders)</h4>
-                <p className="text-xs text-[#6B7280] mt-0.5 leading-relaxed">
-                  Primitives write directly to <code className="font-mono text-[11px] text-[#0A0A0A]">node.style.transform = translate3d(...)</code> during the render phase. React component trees stay 100% idle while graphics render at 120 FPS.
+                <h4 className="text-sm font-bold text-zinc-100">Phase 1: Measure (Batch Layout Reads)</h4>
+                <p className="text-xs text-zinc-400 mt-0.5 leading-relaxed">
+                  Geometry reads only occur once on mount and upon window/font resize via a shared <code className="font-mono text-[11px] text-zinc-100">ResizeObserver</code>. Zero layout calculations occur during high-frequency scrolling.
                 </p>
               </div>
             </div>
 
-            <div className="flex items-start gap-3 p-4 rounded-xl bg-[#FAFAF9] border border-[#E5E7EB]">
-              <div className="p-1 rounded-md bg-[#FFF7ED] text-[#FF5A1F] mt-0.5">
+            <div className="flex items-start gap-3 p-4 rounded-xl bg-[#080808] border border-white/10">
+              <div className="p-1.5 rounded-md bg-[#FF5A1F]/10 text-[#FF5A1F] mt-0.5 shrink-0">
                 <Layers className="w-4 h-4" />
               </div>
               <div>
-                <h4 className="text-sm font-bold text-[#0A0A0A]">Zero-Dependency asChild Slot Composition</h4>
-                <p className="text-xs text-[#6B7280] mt-0.5 leading-relaxed">
-                  Bespoke Radix-grade <code className="font-mono text-[11px] text-[#0A0A0A]">Slot</code> implementation merges refs, inline styles, and class names cleanly onto the child without injecting arbitrary wrapper elements.
+                <h4 className="text-sm font-bold text-zinc-100">Phase 2: Update (Pure Math Transformation)</h4>
+                <p className="text-xs text-zinc-400 mt-0.5 leading-relaxed">
+                  Normalized inertia algorithms calculate subpixel offsets, spring damping forces, and velocity momentum without performing any DOM allocations.
                 </p>
               </div>
             </div>
 
-            <div className="flex items-start gap-3 p-4 rounded-xl bg-[#FAFAF9] border border-[#E5E7EB]">
-              <div className="p-1 rounded-md bg-[#FFF7ED] text-[#FF5A1F] mt-0.5">
+            <div className="flex items-start gap-3 p-4 rounded-xl bg-[#080808] border border-white/10">
+              <div className="p-1.5 rounded-md bg-[#FF5A1F]/10 text-[#FF5A1F] mt-0.5 shrink-0">
                 <ShieldCheck className="w-4 h-4" />
               </div>
               <div>
-                <h4 className="text-sm font-bold text-[#0A0A0A]">Next.js App Router Native Integration</h4>
-                <p className="text-xs text-[#6B7280] mt-0.5 leading-relaxed">
-                  Strictly respects Next.js scroll restoration (<code className="font-mono text-[11px] text-[#0A0A0A]">&lt;Link scroll=&#123;false&#125;&gt;</code>) and dynamically recalculates boundaries with <code className="font-mono text-[11px] text-[#0A0A0A]">ResizeObserver</code> and <code className="font-mono text-[11px] text-[#0A0A0A]">document.fonts.ready</code>.
+                <h4 className="text-sm font-bold text-zinc-100">Phase 3: Render (Direct GPU Mutation)</h4>
+                <p className="text-xs text-zinc-400 mt-0.5 leading-relaxed">
+                  Single-pass mutation to <code className="font-mono text-[11px] text-zinc-100">translate3d</code> directly on the element ref. Transforms execute cleanly on the GPU compositor thread without disturbing React reconciliation.
                 </p>
               </div>
             </div>
@@ -189,14 +211,14 @@ export const DocGettingStarted: React.FC<DocGettingStartedProps> = ({
 
         {/* Quick Example */}
         <section id="quick-example" className="flex flex-col gap-4">
-          <h2 className="text-2xl font-bold tracking-tight text-[#0A0A0A]">
+          <h2 className="text-2xl font-bold tracking-tight text-zinc-100">
             Quick Code Preview
           </h2>
           <CodeViewer code={QUICK_USAGE_CODE} fileName="components/hero-card.tsx" />
         </section>
 
-        <DocsCallout type="tip" title="GSAP & Locomotive Migration">
-          ScrollCraft provides the visual power and buttery inertia of GSAP ScrollTrigger and Locomotive, but wrapped inside a modern React 19 architecture with zero licensing fees and zero DOM bloat.
+        <DocsCallout type="tip" title="Designed for React 19 & Next.js 15 App Router">
+          ScrollCraft is built from the ground up for modern server component architectures. It respects Next.js scroll restoration, supports client boundary slots without hydration flickers, and provides zero bundle weight on static pages.
         </DocsCallout>
       </div>
     );
@@ -209,22 +231,22 @@ export const DocGettingStarted: React.FC<DocGettingStartedProps> = ({
           <div className="text-xs font-mono font-semibold text-[#FF5A1F] uppercase tracking-wider">
             Getting Started
           </div>
-          <h1 className="text-4xl font-extrabold tracking-tight text-[#0A0A0A]">
+          <h1 className="text-4xl font-extrabold tracking-tight text-zinc-100">
             Installation
           </h1>
-          <p className="text-lg text-[#6B7280] leading-relaxed max-w-3xl">
+          <p className="text-lg text-zinc-400 leading-relaxed max-w-3xl">
             Install the core and React packages into your project using your preferred package manager.
           </p>
         </header>
 
         <section id="install-package" className="flex flex-col gap-4">
-          <h2 className="text-2xl font-bold tracking-tight text-[#0A0A0A]">
+          <h2 className="text-2xl font-bold tracking-tight text-zinc-100">
             Choose Package Manager
           </h2>
 
           {/* Package Manager Tab Bar */}
-          <div className="rounded-2xl border border-[#E5E7EB] bg-white overflow-hidden shadow-xs">
-            <div className="flex items-center justify-between px-3 py-2 bg-[#FAFAF9] border-b border-[#E5E7EB]">
+          <div className="rounded-2xl border border-white/10 bg-white/5 overflow-hidden shadow-xs">
+            <div className="flex items-center justify-between px-3 py-2 bg-[#080808] border-b border-white/10">
               <div className="flex items-center gap-1.5">
                 {(['pnpm', 'npm', 'yarn', 'bun'] as const).map((pm) => (
                   <button
@@ -232,8 +254,8 @@ export const DocGettingStarted: React.FC<DocGettingStartedProps> = ({
                     onClick={() => setSelectedPm(pm)}
                     className={`px-3 py-1 rounded-lg text-xs font-mono font-semibold transition-all cursor-pointer ${
                       selectedPm === pm
-                        ? 'bg-white text-[#FF5A1F] border border-[#FFEDD5] shadow-xs'
-                        : 'text-[#6B7280] hover:text-[#0A0A0A]'
+                        ? 'bg-white/5 text-[#FF5A1F] border border-[#FFEDD5] shadow-xs'
+                        : 'text-zinc-400 hover:text-zinc-100'
                     }`}
                   >
                     {pm}
@@ -243,7 +265,7 @@ export const DocGettingStarted: React.FC<DocGettingStartedProps> = ({
 
               <button
                 onClick={handleCopyPm}
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-[#E5E7EB] text-xs text-[#0A0A0A] hover:border-[#D1D5DB] transition-all cursor-pointer shadow-xs"
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-xs text-zinc-100 hover:border-[#D1D5DB] transition-all cursor-pointer shadow-xs"
               >
                 {copiedPm ? (
                   <>
@@ -259,7 +281,7 @@ export const DocGettingStarted: React.FC<DocGettingStartedProps> = ({
               </button>
             </div>
 
-            <div className="p-4 bg-[#F8FAFC] text-zinc-900 font-mono text-xs overflow-x-auto flex items-center justify-between border-t border-zinc-200/80">
+            <div className="p-4 bg-[#000] text-zinc-100 font-mono text-xs overflow-x-auto flex items-center justify-between border-t border-white/10/80">
               <span className="text-[#FF5A1F] font-bold mr-2 select-none">$</span>
               <span className="flex-1 select-all font-medium">{PM_COMMANDS[selectedPm]}</span>
             </div>
@@ -267,23 +289,23 @@ export const DocGettingStarted: React.FC<DocGettingStartedProps> = ({
         </section>
 
         <section id="requirements" className="flex flex-col gap-4">
-          <h2 className="text-2xl font-bold tracking-tight text-[#0A0A0A]">
+          <h2 className="text-2xl font-bold tracking-tight text-zinc-100">
             System Requirements
           </h2>
-          <div className="overflow-hidden rounded-xl border border-[#E5E7EB] bg-white">
+          <div className="overflow-hidden rounded-xl border border-white/10 bg-white/5">
             <table className="w-full text-left text-xs font-mono">
-              <tbody className="divide-y divide-[#F3F4F6]">
-                <tr className="hover:bg-[#FAFAF9]">
-                  <td className="py-3 px-4 text-[#6B7280] font-sans font-medium">React Version</td>
-                  <td className="py-3 px-4 font-bold text-[#0A0A0A]">^18.0.0 || ^19.0.0</td>
+              <tbody className="divide-y divide-white/10">
+                <tr className="hover:bg-[#080808]">
+                  <td className="py-3 px-4 text-zinc-400 font-sans font-medium">React Version</td>
+                  <td className="py-3 px-4 font-bold text-zinc-100">^18.0.0 || ^19.0.0</td>
                 </tr>
-                <tr className="hover:bg-[#FAFAF9]">
-                  <td className="py-3 px-4 text-[#6B7280] font-sans font-medium">Next.js (Recommended)</td>
-                  <td className="py-3 px-4 font-bold text-[#0A0A0A]">^14.0.0 || ^15.0.0 (App Router)</td>
+                <tr className="hover:bg-[#080808]">
+                  <td className="py-3 px-4 text-zinc-400 font-sans font-medium">Next.js (Recommended)</td>
+                  <td className="py-3 px-4 font-bold text-zinc-100">^14.0.0 || ^15.0.0 (App Router)</td>
                 </tr>
-                <tr className="hover:bg-[#FAFAF9]">
-                  <td className="py-3 px-4 text-[#6B7280] font-sans font-medium">TypeScript</td>
-                  <td className="py-3 px-4 font-bold text-[#0A0A0A]">&gt;= 5.0 (Strict mode compliant)</td>
+                <tr className="hover:bg-[#080808]">
+                  <td className="py-3 px-4 text-zinc-400 font-sans font-medium">TypeScript</td>
+                  <td className="py-3 px-4 font-bold text-zinc-100">&gt;= 5.0 (Strict mode compliant)</td>
                 </tr>
               </tbody>
             </table>
@@ -300,23 +322,23 @@ export const DocGettingStarted: React.FC<DocGettingStartedProps> = ({
         <div className="text-xs font-mono font-semibold text-[#FF5A1F] uppercase tracking-wider">
           Getting Started
         </div>
-        <h1 className="text-4xl font-extrabold tracking-tight text-[#0A0A0A]">
+        <h1 className="text-4xl font-extrabold tracking-tight text-zinc-100">
           Next.js App Router Setup
         </h1>
-        <p className="text-lg text-[#6B7280] leading-relaxed max-w-3xl">
+        <p className="text-lg text-zinc-400 leading-relaxed max-w-3xl">
           Wrap your root layout with ScrollProvider to initialize inertia normalization and the 3-phase ticker.
         </p>
       </header>
 
       <section id="provider-setup" className="flex flex-col gap-4">
-        <h2 className="text-2xl font-bold tracking-tight text-[#0A0A0A]">
+        <h2 className="text-2xl font-bold tracking-tight text-zinc-100">
           Root Layout Integration
         </h2>
         <CodeViewer code={SETUP_CODE} fileName="app/layout.tsx" />
       </section>
 
       <section id="provider-props" className="flex flex-col gap-4">
-        <h2 className="text-2xl font-bold tracking-tight text-[#0A0A0A]">
+        <h2 className="text-2xl font-bold tracking-tight text-zinc-100">
           ScrollProvider Configuration
         </h2>
         <DocsTable title="Provider Props" props={PROVIDER_PROPS} />
@@ -328,3 +350,4 @@ export const DocGettingStarted: React.FC<DocGettingStartedProps> = ({
     </div>
   );
 };
+

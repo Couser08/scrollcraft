@@ -37,7 +37,7 @@ const TocLink: React.FC<{
         className={`text-xs text-left transition-colors cursor-pointer block truncate w-full ${
           isActive
             ? 'text-[#FF5A1F] font-semibold -ml-[13px] border-l-2 border-[#FF5A1F] pl-2.5'
-            : 'text-[#6B7280] hover:text-[#0A0A0A]'
+            : 'text-zinc-400 hover:text-white'
         }`}
       >
         {item.title}
@@ -71,10 +71,10 @@ export const DocsToc: React.FC<DocsTocProps> = ({
   return (
     <div className="hidden xl:block w-52 shrink-0 select-none">
       <div className="sticky top-6 flex flex-col gap-4">
-        <h4 className="text-[11px] font-mono font-semibold uppercase tracking-wider text-zinc-400">
+        <h4 className="text-[11px] font-mono font-semibold uppercase tracking-wider text-zinc-500">
           On This Page
         </h4>
-        <ul className="flex flex-col gap-1.5 border-l border-zinc-200/80 pl-3">
+        <ul className="flex flex-col gap-1.5 border-l border-white/10 pl-3">
           {items.map((item) => (
             <TocLink
               key={item.id}
@@ -86,14 +86,14 @@ export const DocsToc: React.FC<DocsTocProps> = ({
         </ul>
 
         {/* Quick Utilities */}
-        <div className="pt-4 mt-2 border-t border-zinc-200/60 flex flex-col gap-2 text-xs text-zinc-500">
+        <div className="pt-4 mt-2 border-t border-white/10 flex flex-col gap-2 text-xs text-zinc-500">
           <button
             onClick={() => {
               const el = document.querySelector('main');
               if (el) el.scrollTo({ top: 0, behavior: 'smooth' });
               else window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
-            className="text-left hover:text-zinc-950 transition-colors cursor-pointer"
+            className="text-left hover:text-white transition-colors cursor-pointer"
           >
             Scroll to top ↑
           </button>
@@ -102,3 +102,4 @@ export const DocsToc: React.FC<DocsTocProps> = ({
     </div>
   );
 };
+

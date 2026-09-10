@@ -58,9 +58,10 @@ export class InertiaEngine {
     this.lenis.on('scroll', this.onLenisScroll);
 
     // Drive Lenis tick through ScrollCraft's global 3-phase Ticker (update phase)
-    ticker.add(this.taskId, 'update', () => {
+    ticker.add(this.taskId, 'update', (dt, el, currentTime) => {
       if (this.lenis) {
-        this.lenis.raf(performance.now());
+        // Use exact RAF timestamp to prevent micro-stutters
+        this.lenis.raf(currentTime);
       }
     });
   }
@@ -152,6 +153,8 @@ export class InertiaEngine {
     };
   }
 
+  private scrollStateTimeout: number | null = null;
+
   private onLenisScroll = (e: LenisScrollEvent): void => {
     const scroll = e.scroll ?? window.scrollY ?? 0;
     const limit = e.limit ?? Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
@@ -168,8 +171,39 @@ export class InertiaEngine {
     this.metrics.target = e.targetScroll ?? scroll;
     this.metrics.maxScroll = limit;
 
+    this.updatePerformanceAttributes(Math.abs(velocity));
     this.notify();
   };
+
+  private updatePerformanceAttributes(absVelocity: number): void {
+    if (typeof document === 'undefined') return;
+    
+    const html = document.documentElement;
+    let state = 'idle';
+    
+    if (absVelocity > 15) {
+      state = 'fast';
+    } else if (absVelocity > 0.1) {
+      state = 'scrolling';
+    }
+
+    if (html.getAttribute('data-scroll-state') !== state) {
+      html.setAttribute('data-scroll-state', state);
+    }
+
+    // Debounce the return to idle to prevent thrashing
+    if (this.scrollStateTimeout !== null) {
+      window.clearTimeout(this.scrollStateTimeout);
+    }
+
+    if (state !== 'idle') {
+      this.scrollStateTimeout = window.setTimeout(() => {
+        if (typeof document !== 'undefined') {
+          document.documentElement.setAttribute('data-scroll-state', 'idle');
+        }
+      }, 150);
+    }
+  }
 
   private notify(): void {
     for (const sub of this.subscribers) {

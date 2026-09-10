@@ -34,27 +34,27 @@ export const Scroll3DPlayground: React.FC = () => {
   }, [progress]);
 
   return (
-    <div className="my-6 rounded-2xl border border-[#E5E7EB] bg-[#FAFAF9] overflow-hidden shadow-xs">
+    <div className="my-6 rounded-2xl border border-white/10 bg-[#080808] overflow-hidden shadow-xs">
       {/* Top Header */}
-      <div className="flex items-center justify-between px-4 py-3 bg-white border-b border-[#E5E7EB]">
+      <div className="flex items-center justify-between px-4 py-3 bg-white/5 border-b border-white/10">
         <div className="flex items-center gap-2">
           <span className="flex h-2 w-2 rounded-full bg-[#FF5A1F]" />
-          <span className="text-xs font-bold uppercase tracking-wider text-[#0A0A0A]">
+          <span className="text-xs font-bold uppercase tracking-wider text-zinc-100">
             @scrollcraft/r3f Bridge Simulator
           </span>
-          <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#FFF7ED] text-[#FF5A1F] border border-[#FFEDD5] font-semibold">
+          <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#FF5A1F]/10 text-[#FF5A1F] border border-[#FFEDD5] font-semibold">
             Zero RAF Conflicts
           </span>
         </div>
 
         {/* Tier Mode Selector */}
-        <div className="flex items-center gap-1 bg-[#F3F4F6] p-0.5 rounded-lg text-xs font-medium">
+        <div className="flex items-center gap-1 bg-white/10 p-0.5 rounded-lg text-xs font-medium">
           <button
             onClick={() => setTierMode('tier1')}
             className={`px-2 py-0.5 rounded-md transition-all cursor-pointer ${
               tierMode === 'tier1'
-                ? 'bg-white text-[#0A0A0A] shadow-xs font-semibold'
-                : 'text-[#6B7280] hover:text-[#0A0A0A]'
+                ? 'bg-white/5 text-zinc-100 shadow-xs font-semibold'
+                : 'text-zinc-400 hover:text-zinc-100'
             }`}
           >
             Tier 1: WAAPI Bridge
@@ -63,8 +63,8 @@ export const Scroll3DPlayground: React.FC = () => {
             onClick={() => setTierMode('tier2')}
             className={`px-2 py-0.5 rounded-md transition-all cursor-pointer ${
               tierMode === 'tier2'
-                ? 'bg-white text-[#0A0A0A] shadow-xs font-semibold'
-                : 'text-[#6B7280] hover:text-[#0A0A0A]'
+                ? 'bg-white/5 text-zinc-100 shadow-xs font-semibold'
+                : 'text-zinc-400 hover:text-zinc-100'
             }`}
           >
             Tier 2: JS Fallback
@@ -78,7 +78,7 @@ export const Scroll3DPlayground: React.FC = () => {
         <div className="md:col-span-5 flex flex-col gap-4">
           <div>
             <div className="flex items-center justify-between text-xs mb-1.5">
-              <span className="font-medium text-[#0A0A0A]">Virtual ViewTimeline Progress</span>
+              <span className="font-medium text-zinc-100">Virtual ViewTimeline Progress</span>
               <span className="font-mono text-[#FF5A1F] font-semibold">{Math.round(progress * 100)}%</span>
             </div>
             <input
@@ -97,29 +97,29 @@ export const Scroll3DPlayground: React.FC = () => {
           </div>
 
           {/* Real-time useScroll3D Metrics Box */}
-          <div className="p-3.5 rounded-xl border border-[#E5E7EB] bg-white shadow-xs font-mono text-xs space-y-2">
-            <div className="flex items-center justify-between text-[11px] border-b border-[#E5E7EB] pb-2 font-sans font-semibold text-[#0A0A0A]">
+          <div className="p-3.5 rounded-xl border border-white/10 bg-white/5 shadow-xs font-mono text-xs space-y-2">
+            <div className="flex items-center justify-between text-[11px] border-b border-white/10 pb-2 font-sans font-semibold text-zinc-100">
               <span>useScroll3D metrics.current</span>
               <span className="flex items-center gap-1 text-[10px] text-emerald-600 font-mono">
                 <Activity className="w-3 h-3 animate-pulse" />
                 Synchronous
               </span>
             </div>
-            <div className="flex justify-between text-[#6B7280]">
+            <div className="flex justify-between text-zinc-400">
               <span>progress:</span>
-              <span className="text-[#0A0A0A] font-semibold">{progress.toFixed(3)}</span>
+              <span className="text-zinc-100 font-semibold">{progress.toFixed(3)}</span>
             </div>
-            <div className="flex justify-between text-[#6B7280]">
+            <div className="flex justify-between text-zinc-400">
               <span>velocity:</span>
-              <span className="text-[#0A0A0A] font-semibold">{velocity.toFixed(3)}</span>
+              <span className="text-zinc-100 font-semibold">{velocity.toFixed(3)}</span>
             </div>
-            <div className="flex justify-between text-[#6B7280]">
+            <div className="flex justify-between text-zinc-400">
               <span>direction:</span>
-              <span className="text-[#0A0A0A] font-semibold">
+              <span className="text-zinc-100 font-semibold">
                 {direction === 1 ? '+1 (Forward)' : direction === -1 ? '-1 (Backward)' : '0 (Idle)'}
               </span>
             </div>
-            <div className="flex justify-between text-[#6B7280] pt-1 border-t border-dashed border-[#E5E7EB]">
+            <div className="flex justify-between text-zinc-400 pt-1 border-t border-dashed border-white/10">
               <span>active engine:</span>
               <span className="text-[#FF5A1F] font-semibold">
                 {tierMode === 'tier1' ? 'probe.currentTime' : 'ResizeObserver Fallback'}
@@ -130,7 +130,7 @@ export const Scroll3DPlayground: React.FC = () => {
 
         {/* 3D Visual Canvas */}
         <div className="md:col-span-7 flex flex-col gap-2">
-          <div className="relative h-64 sm:h-72 rounded-xl border border-[#E5E7EB] bg-gradient-to-b from-[#FAFAF9] to-white overflow-hidden flex items-center justify-center p-6 shadow-inner">
+          <div className="relative h-64 sm:h-72 rounded-xl border border-white/10 bg-gradient-to-b from-[#FAFAF9] to-white overflow-hidden flex items-center justify-center p-6 shadow-inner">
             {/* Background Grid */}
             <div
               className="absolute inset-0 opacity-30"
@@ -151,11 +151,11 @@ export const Scroll3DPlayground: React.FC = () => {
             >
               {/* Front Face */}
               <div className="w-36 h-36 rounded-2xl bg-gradient-to-br from-white to-[#FAFAF9] border-2 border-[#FF5A1F] shadow-2xl flex flex-col items-center justify-center p-4 text-center">
-                <span className="p-2 rounded-xl bg-[#FFF7ED] text-[#FF5A1F] mb-2 shadow-xs">
+                <span className="p-2 rounded-xl bg-[#FF5A1F]/10 text-[#FF5A1F] mb-2 shadow-xs">
                   <Box className="w-6 h-6" />
                 </span>
-                <span className="text-xs font-bold text-[#0A0A0A]">Three.js Mesh</span>
-                <span className="text-[10px] font-mono text-[#6B7280] mt-0.5">
+                <span className="text-xs font-bold text-zinc-100">Three.js Mesh</span>
+                <span className="text-[10px] font-mono text-zinc-400 mt-0.5">
                   useFrame(tick)
                 </span>
               </div>
@@ -174,3 +174,4 @@ export const Scroll3DPlayground: React.FC = () => {
     </div>
   );
 };
+

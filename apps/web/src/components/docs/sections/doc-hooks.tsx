@@ -27,11 +27,11 @@ export function ScrollTelemetryHUD() {
   }));
 
   return (
-    <div className="flex items-center gap-4 px-4 py-2 rounded-xl bg-white border border-[#E5E7EB] shadow-xs font-mono text-xs">
-      <span className="text-[#6B7280]">
-        Progress: <strong className="text-[#0A0A0A]">{progress}%</strong>
+    <div className="flex items-center gap-4 px-4 py-2 rounded-xl bg-white/5 border border-white/10 shadow-xs font-mono text-xs">
+      <span className="text-zinc-400">
+        Progress: <strong className="text-zinc-100">{progress}%</strong>
       </span>
-      <span className="text-[#6B7280]">
+      <span className="text-zinc-400">
         Speed: <strong className="text-[#FF5A1F]">{velocity}px/s</strong>
       </span>
     </div>
@@ -76,9 +76,9 @@ export function HeadlessCard() {
   });
 
   return (
-    <div ref={cardRef} className="p-8 rounded-2xl bg-white border border-[#E5E7EB] shadow-sm">
-      <h3 className="text-xl font-bold text-[#0A0A0A]">Headless Parallax</h3>
-      <p className="text-xs text-[#6B7280] mt-1">Direct GPU writes without Slot wrappers.</p>
+    <div ref={cardRef} className="p-8 rounded-2xl bg-white/5 border border-white/10 shadow-sm">
+      <h3 className="text-xl font-bold text-zinc-100">Headless Parallax</h3>
+      <p className="text-xs text-zinc-400 mt-1">Direct GPU writes without Slot wrappers.</p>
     </div>
   );
 }`;
@@ -96,8 +96,8 @@ export function HeadlessRevealItem() {
   });
 
   return (
-    <div ref={itemRef} className="p-6 rounded-2xl bg-white border border-[#E5E7EB]">
-      <h4 className="font-bold text-[#0A0A0A]">Headless Intersection Trigger</h4>
+    <div ref={itemRef} className="p-6 rounded-2xl bg-white/5 border border-white/10">
+      <h4 className="font-bold text-zinc-100">Headless Intersection Trigger</h4>
     </div>
   );
 }`;
@@ -141,16 +141,16 @@ export const DocHooks: React.FC<DocHooksProps> = ({ hookId }) => {
           <div className="text-xs font-mono font-semibold text-[#FF5A1F] uppercase tracking-wider">
             Reactive Hooks
           </div>
-          <h1 className="text-4xl font-extrabold tracking-tight text-[#0A0A0A] font-mono">
+          <h1 className="text-4xl font-extrabold tracking-tight text-zinc-100 font-mono">
             useScrollState
           </h1>
-          <p className="text-lg text-[#6B7280] leading-relaxed max-w-3xl">
-            Selective reactive state subscriber built on <code className="font-mono text-[#0A0A0A] text-sm">useSyncExternalStore</code>. Subscribe to real-time velocity, direction, or progress without forcing root re-renders.
+          <p className="text-lg text-zinc-400 leading-relaxed max-w-3xl">
+            Selective reactive state subscriber built on <code className="font-mono text-zinc-100 text-sm">useSyncExternalStore</code>. Subscribe to real-time velocity, direction, or progress without forcing root re-renders.
           </p>
         </header>
 
         <section id="usage" className="flex flex-col gap-4">
-          <h2 className="text-2xl font-bold tracking-tight text-[#0A0A0A]">
+          <h2 className="text-2xl font-bold tracking-tight text-zinc-100">
             Usage & Selective Subscription
           </h2>
           <CodeViewer code={USE_SCROLL_STATE_CODE} fileName="scroll-telemetry-hud.tsx" />
@@ -172,36 +172,36 @@ export const DocHooks: React.FC<DocHooksProps> = ({ hookId }) => {
           <div className="text-xs font-mono font-semibold text-[#FF5A1F] uppercase tracking-wider">
             Reactive Hooks
           </div>
-          <h1 className="text-4xl font-extrabold tracking-tight text-[#0A0A0A] font-mono">
+          <h1 className="text-4xl font-extrabold tracking-tight text-zinc-100 font-mono">
             useScrollCraft
           </h1>
-          <p className="text-lg text-[#6B7280] leading-relaxed max-w-3xl">
+          <p className="text-lg text-zinc-400 leading-relaxed max-w-3xl">
             Imperative controller providing programmatic access to the underlying ScrollCraft engine.
           </p>
         </header>
 
         <section id="usage" className="flex flex-col gap-4">
-          <h2 className="text-2xl font-bold tracking-tight text-[#0A0A0A]">
+          <h2 className="text-2xl font-bold tracking-tight text-zinc-100">
             Usage & Programmatic Scrolling
           </h2>
           <CodeViewer code={USE_SCROLLCRAFT_CODE} fileName="navigation-controls.tsx" />
         </section>
 
-        <div className="p-4 rounded-xl border border-[#E5E7EB] bg-white font-mono text-xs space-y-2">
-          <div className="text-[#0A0A0A] font-bold pb-2 border-b border-[#E5E7EB]">
+        <div className="p-4 rounded-xl border border-white/10 bg-white/5 font-mono text-xs space-y-2">
+          <div className="text-zinc-100 font-bold pb-2 border-b border-white/10">
             Exposed Engine Methods:
           </div>
-          <div className="text-[#6B7280]">
-            <span className="text-[#0A0A0A] font-semibold">scrollTo(target, options?)</span>: Smoothly animate to coordinate or selector.
+          <div className="text-zinc-400">
+            <span className="text-zinc-100 font-semibold">scrollTo(target, options?)</span>: Smoothly animate to coordinate or selector.
           </div>
-          <div className="text-[#6B7280]">
-            <span className="text-[#0A0A0A] font-semibold">resize()</span>: Recalculate container limits and bounding geometries.
+          <div className="text-zinc-400">
+            <span className="text-zinc-100 font-semibold">resize()</span>: Recalculate container limits and bounding geometries.
           </div>
-          <div className="text-[#6B7280]">
-            <span className="text-[#0A0A0A] font-semibold">getMetrics()</span>: Read immediate snapshot of current scroll metrics.
+          <div className="text-zinc-400">
+            <span className="text-zinc-100 font-semibold">getMetrics()</span>: Read immediate snapshot of current scroll metrics.
           </div>
-          <div className="text-[#6B7280]">
-            <span className="text-[#0A0A0A] font-semibold">subscribe(callback)</span>: Direct microtask subscriber outside React lifecycle.
+          <div className="text-zinc-400">
+            <span className="text-zinc-100 font-semibold">subscribe(callback)</span>: Direct microtask subscriber outside React lifecycle.
           </div>
         </div>
 
@@ -219,16 +219,16 @@ export const DocHooks: React.FC<DocHooksProps> = ({ hookId }) => {
           <div className="text-xs font-mono font-semibold text-[#FF5A1F] uppercase tracking-wider">
             Headless Hooks
           </div>
-          <h1 className="text-4xl font-extrabold tracking-tight text-[#0A0A0A] font-mono">
+          <h1 className="text-4xl font-extrabold tracking-tight text-zinc-100 font-mono">
             useParallax
           </h1>
-          <p className="text-lg text-[#6B7280] leading-relaxed max-w-3xl">
+          <p className="text-lg text-zinc-400 leading-relaxed max-w-3xl">
             Headless parallax hook that attaches direct GPU transforms to an existing element ref without needing JSX wrapper components.
           </p>
         </header>
 
         <section id="usage" className="flex flex-col gap-4">
-          <h2 className="text-2xl font-bold tracking-tight text-[#0A0A0A]">
+          <h2 className="text-2xl font-bold tracking-tight text-zinc-100">
             Usage
           </h2>
           <CodeViewer code={USE_PARALLAX_CODE} fileName="headless-card.tsx" />
@@ -244,16 +244,16 @@ export const DocHooks: React.FC<DocHooksProps> = ({ hookId }) => {
           <div className="text-xs font-mono font-semibold text-[#FF5A1F] uppercase tracking-wider">
             Headless Hooks
           </div>
-          <h1 className="text-4xl font-extrabold tracking-tight text-[#0A0A0A] font-mono">
+          <h1 className="text-4xl font-extrabold tracking-tight text-zinc-100 font-mono">
             useReveal
           </h1>
-          <p className="text-lg text-[#6B7280] leading-relaxed max-w-3xl">
+          <p className="text-lg text-zinc-400 leading-relaxed max-w-3xl">
             Headless viewport trigger hook attaching hardware-accelerated entry styles directly to any DOM node.
           </p>
         </header>
 
         <section id="usage" className="flex flex-col gap-4">
-          <h2 className="text-2xl font-bold tracking-tight text-[#0A0A0A]">
+          <h2 className="text-2xl font-bold tracking-tight text-zinc-100">
             Usage
           </h2>
           <CodeViewer code={USE_REVEAL_CODE} fileName="headless-reveal-item.tsx" />
@@ -269,16 +269,16 @@ export const DocHooks: React.FC<DocHooksProps> = ({ hookId }) => {
         <div className="text-xs font-mono font-semibold text-[#FF5A1F] uppercase tracking-wider">
           Headless Hooks
         </div>
-        <h1 className="text-4xl font-extrabold tracking-tight text-[#0A0A0A] font-mono">
+        <h1 className="text-4xl font-extrabold tracking-tight text-zinc-100 font-mono">
           usePin
         </h1>
-        <p className="text-lg text-[#6B7280] leading-relaxed max-w-3xl">
+        <p className="text-lg text-zinc-400 leading-relaxed max-w-3xl">
           Headless sticky locking hook supporting custom travel thresholds and automated ancestor diagnostics.
         </p>
       </header>
 
       <section id="usage" className="flex flex-col gap-4">
-        <h2 className="text-2xl font-bold tracking-tight text-[#0A0A0A]">
+        <h2 className="text-2xl font-bold tracking-tight text-zinc-100">
           Usage
         </h2>
         <CodeViewer code={USE_PIN_CODE} fileName="headless-pinned-block.tsx" />
@@ -286,3 +286,4 @@ export const DocHooks: React.FC<DocHooksProps> = ({ hookId }) => {
     </div>
   );
 };
+

@@ -21,7 +21,8 @@ interface RevealEntry {
 
 export class GlobalRevealObserver {
   private static instance: GlobalRevealObserver | null = null;
-  private observer: IntersectionObserver | null = null;
+  // Use a map to support multiple threshold requirements efficiently
+  private observers: Map<number, IntersectionObserver> = new Map();
   private entries: Map<Element, RevealEntry> = new Map();
 
   private constructor() {}
@@ -33,34 +34,36 @@ export class GlobalRevealObserver {
     return GlobalRevealObserver.instance;
   }
 
-  private initObserver(threshold: number): void {
-    if (typeof window === 'undefined') return;
-    if (this.observer) return;
+  private getObserver(threshold: number): IntersectionObserver {
+    if (typeof window === 'undefined') throw new Error('Cannot init observer on server');
+    
+    if (!this.observers.has(threshold)) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            const target = entry.target as HTMLElement;
+            const data = this.entries.get(target);
+            if (!data) continue;
 
-    this.observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          const target = entry.target as HTMLElement;
-          const data = this.entries.get(target);
-          if (!data) continue;
+            // Robust check: if it's intersecting, OR if it's already above the viewport (we scrolled past it fast)
+            if (entry.isIntersecting || entry.boundingClientRect.top < 0) {
+              data.hasRevealed = true;
+              this.applyRevealedState(target, data.options);
 
-          if (entry.isIntersecting) {
-            data.hasRevealed = true;
-            this.applyRevealedState(target, data.options);
-
-            if (data.options.once) {
-              this.unobserve(target);
+              if (data.options.once) {
+                this.unobserve(target);
+              }
+            } else if (!data.options.once && data.hasRevealed) {
+              data.hasRevealed = false;
+              this.applyHiddenState(target, data.options);
             }
-          } else if (!data.options.once && data.hasRevealed) {
-            data.hasRevealed = false;
-            this.applyHiddenState(target, data.options);
           }
-        }
-      },
-      {
-        threshold, // Note: For truly robust thresholds with a single observer, we might need an array of thresholds or multiple observers. We'll use 0.15 as a generic baseline, or create an observer per threshold. For simplicity and performance, a single 0.15 threshold is standard.
-      }
-    );
+        },
+        { threshold }
+      );
+      this.observers.set(threshold, observer);
+    }
+    return this.observers.get(threshold)!;
   }
 
   private getHiddenTransform(direction: string, distance: number): string {
@@ -86,6 +89,8 @@ export class GlobalRevealObserver {
   }
 
   public observe(element: HTMLElement, options: RevealOptions): void {
+    if (typeof window === 'undefined') return;
+
     const fullOptions: Required<RevealOptions> = {
       direction: options.direction ?? 'up',
       distance: options.distance ?? 32,
@@ -95,20 +100,43 @@ export class GlobalRevealObserver {
       once: options.once ?? true,
     };
 
+    // Safety: If element is taller than window, IntersectionObserver might never hit 0.15 threshold
+    // We dynamically clamp the threshold to ensure it triggers
+    const wh = window.innerHeight;
+    const rect = element.getBoundingClientRect();
+    let safeThreshold = fullOptions.threshold;
+    if (rect.height > wh * 0.8) {
+      safeThreshold = 0.05; // Drop threshold for massive elements
+    }
+
     this.entries.set(element, { element, options: fullOptions, hasRevealed: false });
 
-    // Initialize with the first requested threshold (acceptable compromise for O(1) observer)
-    this.initObserver(fullOptions.threshold);
-    
-    // Set initial state
-    element.style.willChange = 'opacity, transform';
-    this.applyHiddenState(element, fullOptions);
-    
-    this.observer?.observe(element);
+    // Initial State Check: If already well within or above viewport on mount, reveal instantly without transition delay
+    if (rect.top < wh * 0.8) {
+      const data = this.entries.get(element)!;
+      data.hasRevealed = true;
+      element.style.opacity = '1';
+      element.style.transform = 'translate3d(0, 0, 0)';
+      
+      if (fullOptions.once) return; // Don't even observe if it's 'once' and already visible
+    } else {
+      element.style.willChange = 'opacity, transform';
+      this.applyHiddenState(element, fullOptions);
+    }
+
+    const observer = this.getObserver(safeThreshold);
+    observer.observe(element);
   }
 
   public unobserve(element: HTMLElement): void {
-    this.observer?.unobserve(element);
+    const data = this.entries.get(element);
+    if (!data) return;
+
+    // We must find which observer it was in
+    for (const observer of this.observers.values()) {
+      observer.unobserve(element);
+    }
+    
     this.entries.delete(element);
     element.style.willChange = '';
   }

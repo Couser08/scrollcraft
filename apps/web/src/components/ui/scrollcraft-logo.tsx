@@ -80,9 +80,9 @@ export const ScrollCraftLogo: React.FC<ScrollCraftLogoProps> = ({
 
   if (variant === 'lockup-light') {
     return (
-      <div className={`inline-flex items-center gap-2.5 px-4 py-2.5 rounded-[12px] bg-white border border-[#E5E7EB] text-[#0A0A0A] shadow-sm ${className}`}>
+      <div className={`inline-flex items-center gap-2.5 px-4 py-2.5 rounded-[12px] bg-white/5 border border-white/10 text-zinc-100 shadow-sm ${className}`}>
         <ScrollCraftEmblem size={22} color="#FFFFFF" background="#FF5A1F" />
-        <span className="font-bold tracking-tight text-[#0A0A0A] text-sm">ScrollCraft</span>
+        <span className="font-bold tracking-tight text-zinc-100 text-sm">ScrollCraft</span>
       </div>
     );
   }
@@ -90,12 +90,12 @@ export const ScrollCraftLogo: React.FC<ScrollCraftLogoProps> = ({
   return (
     <div className={`inline-flex items-center gap-2.5 select-none ${className}`}>
       <ScrollCraftEmblem size={sizeConfig.iconSize} />
-      <span className={`${sizeConfig.textSize} text-[#0A0A0A] tracking-tight font-sans`}>
+      <span className={`${sizeConfig.textSize} text-zinc-100 tracking-tight font-sans`}>
         ScrollCraft
       </span>
       {variant === 'badge' && (
         <span
-          className={`${sizeConfig.badgeSize} rounded-full font-mono font-medium bg-[#F3F4F6] text-[#6B7280] border border-[#E5E7EB] leading-none`}
+          className={`${sizeConfig.badgeSize} rounded-full font-mono font-medium bg-white/10 text-zinc-400 border border-white/10 leading-none`}
         >
           {badgeText}
         </span>
@@ -103,3 +103,4 @@ export const ScrollCraftLogo: React.FC<ScrollCraftLogoProps> = ({
     </div>
   );
 };
+

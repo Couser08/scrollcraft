@@ -33,8 +33,8 @@ const viewportHeight = window.innerHeight;`,
       name: 'Phase 2: Update',
       subtitle: 'Pure Memory Math',
       badge: 'Zero DOM Touch',
-      color: 'border-[#FF5A1F] bg-[#FFF7ED]/50 text-[#FF5A1F]',
-      tagBg: 'bg-[#FFF7ED] text-[#FF5A1F] border border-[#FFEDD5]',
+      color: 'border-[#FF5A1F] bg-[#FF5A1F]/10/50 text-[#FF5A1F]',
+      tagBg: 'bg-[#FF5A1F]/10 text-[#FF5A1F] border border-[#FFEDD5]',
       description:
         'Subpixel lerp calculations, spring physics, velocity derivation, and timeline normalization occur purely in V8 memory without accessing any DOM properties.',
       codeSnippet: `// Phase 2: Memory Calculations
@@ -58,22 +58,22 @@ node.style.opacity = progress.toFixed(3);`,
   ];
 
   return (
-    <div className="my-6 rounded-2xl border border-[#E5E7EB] bg-[#FAFAF9] overflow-hidden shadow-xs">
+    <div className="my-6 rounded-2xl border border-white/10 bg-[#080808] overflow-hidden shadow-xs">
       {/* Top Bar */}
-      <div className="flex items-center justify-between px-4 py-3 bg-white border-b border-[#E5E7EB]">
+      <div className="flex items-center justify-between px-4 py-3 bg-white/5 border-b border-white/10">
         <div className="flex items-center gap-2">
           <span className="flex h-2 w-2 rounded-full bg-[#FF5A1F]" />
-          <span className="text-xs font-bold uppercase tracking-wider text-[#0A0A0A]">
+          <span className="text-xs font-bold uppercase tracking-wider text-zinc-100">
             Architecture Pipeline Visualizer
           </span>
         </div>
-        <div className="flex items-center gap-1 bg-[#F3F4F6] p-0.5 rounded-lg text-xs font-medium">
+        <div className="flex items-center gap-1 bg-white/10 p-0.5 rounded-lg text-xs font-medium">
           <button
             onClick={() => setActiveTab('pipeline')}
             className={`px-2.5 py-1 rounded-md transition-all cursor-pointer ${
               activeTab === 'pipeline'
-                ? 'bg-white text-[#0A0A0A] shadow-xs font-semibold'
-                : 'text-[#6B7280] hover:text-[#0A0A0A]'
+                ? 'bg-white/5 text-zinc-100 shadow-xs font-semibold'
+                : 'text-zinc-400 hover:text-zinc-100'
             }`}
           >
             3-Phase Flow
@@ -82,8 +82,8 @@ node.style.opacity = progress.toFixed(3);`,
             onClick={() => setActiveTab('comparison')}
             className={`px-2.5 py-1 rounded-md transition-all cursor-pointer ${
               activeTab === 'comparison'
-                ? 'bg-white text-[#0A0A0A] shadow-xs font-semibold'
-                : 'text-[#6B7280] hover:text-[#0A0A0A]'
+                ? 'bg-white/5 text-zinc-100 shadow-xs font-semibold'
+                : 'text-zinc-400 hover:text-zinc-100'
             }`}
           >
             Reflow vs 120 FPS
@@ -104,40 +104,40 @@ node.style.opacity = progress.toFixed(3);`,
                     onClick={() => setSelectedPhase(p.step)}
                     className={`p-4 rounded-xl border text-left transition-all cursor-pointer ${
                       isSelected
-                        ? 'border-[#FF5A1F] bg-white shadow-md ring-1 ring-[#FF5A1F]/20'
-                        : 'border-[#E5E7EB] bg-white hover:border-[#D1D5DB]'
+                        ? 'border-[#FF5A1F] bg-white/5 shadow-md ring-1 ring-[#FF5A1F]/20'
+                        : 'border-white/10 bg-white/5 hover:border-[#D1D5DB]'
                     }`}
                   >
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-mono font-bold text-[#6B7280]">
+                      <span className="text-xs font-mono font-bold text-zinc-400">
                         STEP 0{p.step}
                       </span>
                       <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-semibold ${p.tagBg}`}>
                         {p.badge}
                       </span>
                     </div>
-                    <h4 className="text-sm font-bold text-[#0A0A0A]">{p.name}</h4>
-                    <p className="text-xs text-[#6B7280] mt-0.5">{p.subtitle}</p>
+                    <h4 className="text-sm font-bold text-zinc-100">{p.name}</h4>
+                    <p className="text-xs text-zinc-400 mt-0.5">{p.subtitle}</p>
                   </button>
                 );
               })}
             </div>
 
             {/* Selected Phase Detail & Code Preview */}
-            <div className="p-5 rounded-xl border border-[#E5E7EB] bg-white shadow-xs">
+            <div className="p-5 rounded-xl border border-white/10 bg-white/5 shadow-xs">
               <div className="flex items-center gap-2 mb-2">
-                <span className="p-1 rounded-md bg-[#FFF7ED] text-[#FF5A1F]">
+                <span className="p-1 rounded-md bg-[#FF5A1F]/10 text-[#FF5A1F]">
                   <Cpu className="w-4 h-4" />
                 </span>
-                <h3 className="text-sm font-bold text-[#0A0A0A]">
+                <h3 className="text-sm font-bold text-zinc-100">
                   {PHASES[selectedPhase - 1].name}: {PHASES[selectedPhase - 1].subtitle}
                 </h3>
               </div>
-              <p className="text-xs text-[#6B7280] leading-relaxed mb-4">
+              <p className="text-xs text-zinc-400 leading-relaxed mb-4">
                 {PHASES[selectedPhase - 1].description}
               </p>
-              <div className="rounded-lg bg-[#F8FAFC] border border-zinc-200/90 p-3.5 text-xs font-mono text-zinc-900 overflow-x-auto">
-                <pre className="text-[12px] leading-relaxed text-zinc-800 font-mono">
+              <div className="rounded-lg bg-[#000] border border-white/10/90 p-3.5 text-xs font-mono text-zinc-100 overflow-x-auto">
+                <pre className="text-[12px] leading-relaxed text-zinc-300 font-mono">
                   {PHASES[selectedPhase - 1].codeSnippet}
                 </pre>
               </div>
@@ -157,7 +157,7 @@ node.style.opacity = progress.toFixed(3);`,
                   <p>
                     <code className="font-mono text-[11px] bg-rose-100 text-rose-900 px-1 py-0.5 rounded">window.addEventListener(&apos;scroll&apos;)</code>
                   </p>
-                  <p className="text-[#6B7280]">
+                  <p className="text-zinc-400">
                     Interleaving <code className="font-mono text-[10px] text-rose-800">element.offsetTop</code> (Read) with <code className="font-mono text-[10px] text-rose-800">element.style.top</code> (Write) causes browser layout thrashing. The main JS thread stalls repeatedly to recalculate geometry.
                   </p>
                 </div>
@@ -179,7 +179,7 @@ node.style.opacity = progress.toFixed(3);`,
                   <p>
                     <code className="font-mono text-[11px] bg-emerald-100 text-emerald-900 px-1 py-0.5 rounded">Zero-Allocation Compositor Writes</code>
                   </p>
-                  <p className="text-[#6B7280]">
+                  <p className="text-zinc-400">
                     Strict separation: All Reads executed first, calculations computed in memory, and all GPU writes flushed in a single render pass. Zero React component re-renders per frame.
                   </p>
                 </div>
@@ -195,3 +195,4 @@ node.style.opacity = progress.toFixed(3);`,
     </div>
   );
 };
+

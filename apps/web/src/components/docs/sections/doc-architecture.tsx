@@ -9,61 +9,61 @@
 import React from 'react';
 import { DocsCallout } from '../docs-callout';
 import { TickerVisualizer } from '../interactive/ticker-visualizer';
-import { Check, X, Shield, Sparkles } from 'lucide-react';
+import { Shield, Sparkles } from 'lucide-react';
 
 interface DocArchitectureProps {
   sectionId: string;
 }
 
-const BENCHMARK_DATA = [
+const ARCHITECTURE_PARADIGMS = [
   {
-    feature: 'Architecture Model',
-    scrollcraft: 'Direct GPU (0 re-renders)',
-    gsap: 'Imperative Plugin',
-    framer: 'Component State (Re-renders)',
-    locomotive: 'DOM Virtual Scroll Transform',
+    feature: 'Execution Pipeline',
+    scrollcraft: 'Compositor Thread Native + 3-Phase Microtask Fallback',
+    virtual: 'Window wheel hijacking & transform styles',
+    stateDriven: 'React requestAnimationFrame state diffing',
+    pureCss: 'Pure CSS animation-timeline: view()',
   },
   {
-    feature: 'React 19 & Next.js 15 Native',
-    scrollcraft: true,
-    gsap: false,
-    framer: true,
-    locomotive: false,
+    feature: 'DOM Hierarchy Impact',
+    scrollcraft: 'Headless asChild (Zero wrapper divs injected)',
+    virtual: 'Injected wrapper divs & synthetic spacers',
+    stateDriven: 'Requires wrapper motion.div nodes',
+    pureCss: 'Native styles on existing element',
   },
   {
-    feature: 'Radix asChild Composition',
-    scrollcraft: true,
-    gsap: false,
-    framer: false,
-    locomotive: false,
+    feature: 'React Re-render Cost',
+    scrollcraft: '0 Re-renders (Direct ref GPU mutations)',
+    virtual: '0 to 60 re-renders per second',
+    stateDriven: '60 to 120 re-renders per second (CPU heavy)',
+    pureCss: '0 Re-renders (Executed outside JS)',
   },
   {
-    feature: 'Compositor 3D Bridge (@scrollcraft/r3f)',
-    scrollcraft: true,
-    gsap: false,
-    framer: false,
-    locomotive: false,
+    feature: 'Cross-Browser Consistency',
+    scrollcraft: 'Universal (Native on Chrome/Edge, JS on Safari/Firefox)',
+    virtual: 'Inconsistent touch & trackpad momentum',
+    stateDriven: 'Consistent but high CPU/battery draw',
+    pureCss: 'Incomplete (No native Safari/Firefox support)',
   },
   {
-    feature: 'Dual-Layer Reduced Motion (a11y)',
-    scrollcraft: true,
-    gsap: false,
-    framer: 'Partial',
-    locomotive: false,
+    feature: 'App Router & Hydration Safety',
+    scrollcraft: 'Hydration-safe Slot composition & boundary observers',
+    virtual: 'Severe hydration mismatch & scroll lock bugs',
+    stateDriven: 'High client-bundle penalty on server components',
+    pureCss: 'Hydration-safe CSS attributes',
+  },
+  {
+    feature: 'A11y & Reduced Motion',
+    scrollcraft: 'Dual-Layer (Automated OS detection + manual opt-out)',
+    virtual: 'Often ignores OS prefers-reduced-motion',
+    stateDriven: 'Requires custom hook guards',
+    pureCss: 'Requires manual media queries',
   },
   {
     feature: 'Core Bundle Footprint',
-    scrollcraft: '< 4.2 KB (brotli)',
-    gsap: '~ 24 KB',
-    framer: '~ 32 KB',
-    locomotive: '~ 18 KB',
-  },
-  {
-    feature: 'License / Pricing',
-    scrollcraft: 'MIT (100% Free Core)',
-    gsap: 'Restricted Commercial (Club GSAP)',
-    framer: 'MIT',
-    locomotive: 'MIT',
+    scrollcraft: '< 4.2 KB (brotli, tree-shakeable)',
+    virtual: '18 - 35 KB',
+    stateDriven: '28 - 45 KB',
+    pureCss: '0 KB JS runtime',
   },
 ];
 
@@ -77,10 +77,10 @@ export const DocArchitecture: React.FC<DocArchitectureProps> = ({
           <div className="text-xs font-mono font-semibold text-[#FF5A1F] uppercase tracking-wider">
             Engine Architecture
           </div>
-          <h1 className="text-4xl font-extrabold tracking-tight text-[#0A0A0A]">
+          <h1 className="text-4xl font-extrabold tracking-tight text-zinc-100">
             3-Phase Ticker Pipeline
           </h1>
-          <p className="text-lg text-[#6B7280] leading-relaxed max-w-3xl">
+          <p className="text-lg text-zinc-400 leading-relaxed max-w-3xl">
             How ScrollCraft completely eliminates layout thrashing, avoids forced synchronous reflows, and locks in 120 FPS frame consistency.
           </p>
         </header>
@@ -89,23 +89,23 @@ export const DocArchitecture: React.FC<DocArchitectureProps> = ({
         <TickerVisualizer />
 
         <section className="flex flex-col gap-4">
-          <h2 className="text-2xl font-bold tracking-tight text-[#0A0A0A]">
+          <h2 className="text-2xl font-bold tracking-tight text-zinc-100">
             The Zero-Allocation Microtask Loop
           </h2>
-          <p className="text-sm text-[#6B7280] leading-relaxed">
-            In standard JavaScript animation libraries, reading layout properties (like <code className="font-mono text-xs text-rose-800 bg-rose-50 px-1 py-0.5 rounded">getBoundingClientRect()</code>) in the middle of writing styles (<code className="font-mono text-xs text-[#0A0A0A] bg-[#F3F4F6] px-1 py-0.5 rounded">el.style.transform = ...</code>) forces the browser to halt execution and recalculate page layout synchronously.
+          <p className="text-sm text-zinc-400 leading-relaxed">
+            In standard JavaScript animation libraries, reading layout properties (like <code className="font-mono text-xs text-rose-800 bg-rose-50 px-1 py-0.5 rounded">getBoundingClientRect()</code>) in the middle of writing styles (<code className="font-mono text-xs text-zinc-100 bg-white/10 px-1 py-0.5 rounded">el.style.transform = ...</code>) forces the browser to halt execution and recalculate page layout synchronously.
           </p>
-          <p className="text-sm text-[#6B7280] leading-relaxed">
-            ScrollCraft operates a persistent 3-phase Ticker executed via <code className="font-mono text-xs text-[#0A0A0A] bg-[#F3F4F6] px-1 py-0.5 rounded">requestAnimationFrame</code>:
+          <p className="text-sm text-zinc-400 leading-relaxed">
+            ScrollCraft operates a persistent 3-phase Ticker executed via <code className="font-mono text-xs text-zinc-100 bg-white/10 px-1 py-0.5 rounded">requestAnimationFrame</code>:
           </p>
-          <div className="space-y-2 text-xs text-[#0A0A0A]">
-            <div className="p-3 rounded-lg border border-[#E5E7EB] bg-white">
+          <div className="space-y-2 text-xs text-zinc-100">
+            <div className="p-3 rounded-lg border border-white/10 bg-white/5">
               <strong>Phase 1: Measure</strong> — Reads window scroll, cached client rectangles, and screen dimensions. Absolutely zero DOM style writes permitted.
             </div>
-            <div className="p-3 rounded-lg border border-[#E5E7EB] bg-white">
+            <div className="p-3 rounded-lg border border-white/10 bg-white/5">
               <strong>Phase 2: Update</strong> — Subpixel lerp math, spring physics, and kinetic damping computed purely in V8 memory without accessing any DOM properties.
             </div>
-            <div className="p-3 rounded-lg border border-[#E5E7EB] bg-white">
+            <div className="p-3 rounded-lg border border-white/10 bg-white/5">
               <strong>Phase 3: Render</strong> — Batched GPU flush. Applies <code className="font-mono text-[11px] text-[#FF5A1F]">translate3d</code> and <code className="font-mono text-[11px] text-[#FF5A1F]">opacity</code> styles directly to registered element refs.
             </div>
           </div>
@@ -125,39 +125,39 @@ export const DocArchitecture: React.FC<DocArchitectureProps> = ({
           <div className="text-xs font-mono font-semibold text-[#FF5A1F] uppercase tracking-wider">
             Accessibility (a11y)
           </div>
-          <h1 className="text-4xl font-extrabold tracking-tight text-[#0A0A0A]">
+          <h1 className="text-4xl font-extrabold tracking-tight text-zinc-100">
             Dual-Layer Reduced Motion
           </h1>
-          <p className="text-lg text-[#6B7280] leading-relaxed max-w-3xl">
+          <p className="text-lg text-zinc-400 leading-relaxed max-w-3xl">
             Built-in OS-level vestibular disorder protection. ScrollCraft automatically honors user accessibility preferences out of the box.
           </p>
         </header>
 
         <section className="flex flex-col gap-4">
-          <h2 className="text-2xl font-bold tracking-tight text-[#0A0A0A]">
+          <h2 className="text-2xl font-bold tracking-tight text-zinc-100">
             How Dual-Layer Protection Operates
           </h2>
-          <div className="space-y-3 text-sm text-[#6B7280] leading-relaxed">
+          <div className="space-y-3 text-sm text-zinc-400 leading-relaxed">
             <p>
               When a user has enabled &ldquo;Reduce Motion&rdquo; in macOS, Windows, iOS, or Android settings, ScrollCraft responds at two distinct layers:
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-5 rounded-xl border border-[#E5E7EB] bg-white shadow-xs">
+              <div className="p-5 rounded-xl border border-white/10 bg-white/5 shadow-xs">
                 <div className="flex items-center gap-2 text-[#FF5A1F] font-bold text-xs uppercase mb-2">
                   <Shield className="w-4 h-4" />
                   <span>Layer 1: Base Scroll</span>
                 </div>
-                <p className="text-xs text-[#6B7280] leading-relaxed">
+                <p className="text-xs text-zinc-400 leading-relaxed">
                   Inertia smoothing is disabled. The page tracks 1:1 with native hardware scroll without lag or momentum damping.
                 </p>
               </div>
-              <div className="p-5 rounded-xl border border-[#E5E7EB] bg-white shadow-xs">
+              <div className="p-5 rounded-xl border border-white/10 bg-white/5 shadow-xs">
                 <div className="flex items-center gap-2 text-[#FF5A1F] font-bold text-xs uppercase mb-2">
                   <Sparkles className="w-4 h-4" />
                   <span>Layer 2: Element Transforms</span>
                 </div>
-                <p className="text-xs text-[#6B7280] leading-relaxed">
-                  <code className="font-mono text-[10px] text-[#0A0A0A]">&lt;Parallax&gt;</code> zeroes out displacement (<code className="font-mono text-[10px]">translate3d(0, 0, 0)</code>), while <code className="font-mono text-[10px] text-[#0A0A0A]">&lt;Reveal&gt;</code> immediately reveals content with <code className="font-mono text-[10px]">opacity: 1</code>.
+                <p className="text-xs text-zinc-400 leading-relaxed">
+                  <code className="font-mono text-[10px] text-zinc-100">&lt;Parallax&gt;</code> zeroes out displacement (<code className="font-mono text-[10px]">translate3d(0, 0, 0)</code>), while <code className="font-mono text-[10px] text-zinc-100">&lt;Reveal&gt;</code> immediately reveals content with <code className="font-mono text-[10px]">opacity: 1</code>.
                 </p>
               </div>
             </div>
@@ -178,77 +178,49 @@ export const DocArchitecture: React.FC<DocArchitectureProps> = ({
         <div className="text-xs font-mono font-semibold text-[#FF5A1F] uppercase tracking-wider">
           Architecture & Perf
         </div>
-        <h1 className="text-4xl font-extrabold tracking-tight text-[#0A0A0A]">
+        <h1 className="text-4xl font-extrabold tracking-tight text-zinc-100">
           Engine Comparison
         </h1>
-        <p className="text-lg text-[#6B7280] leading-relaxed max-w-3xl">
+        <p className="text-lg text-zinc-400 leading-relaxed max-w-3xl">
           Direct feature-by-feature and architectural comparison with other popular web animation toolkits.
         </p>
       </header>
 
       <section className="flex flex-col gap-4">
-        <h2 className="text-2xl font-bold tracking-tight text-[#0A0A0A]">
-          Feature & Performance Matrix
+        <h2 className="text-2xl font-bold tracking-tight text-zinc-100">
+          Architectural Paradigms Compared
         </h2>
+        <p className="text-sm text-zinc-400 leading-relaxed">
+          How different scroll engineering paradigms handle thread execution, DOM manipulation, and React rendering:
+        </p>
 
-        <div className="overflow-x-auto rounded-2xl border border-[#E5E7EB] bg-white shadow-xs">
-          <table className="w-full text-left text-xs text-[#0A0A0A] border-collapse">
+        <div className="w-full rounded-2xl border border-white/10 bg-white/5 shadow-xs overflow-hidden">
+          <table className="w-full text-left text-xs text-zinc-100 border-collapse">
             <thead>
-              <tr className="border-b border-[#E5E7EB] bg-[#FAFAF9] text-[11px] font-bold uppercase tracking-wider text-[#6B7280]">
-                <th className="py-3.5 px-4">Feature / Metric</th>
-                <th className="py-3.5 px-4 text-[#FF5A1F] font-extrabold">ScrollCraft</th>
-                <th className="py-3.5 px-4">GSAP ScrollTrigger</th>
-                <th className="py-3.5 px-4">Framer Motion</th>
-                <th className="py-3.5 px-4">Locomotive</th>
+              <tr className="border-b border-white/10 bg-[#080808] text-[11px] font-bold uppercase tracking-wider text-zinc-400">
+                <th className="py-3.5 px-4 w-[20%]">Dimension</th>
+                <th className="py-3.5 px-4 w-[30%] text-[#FF5A1F] font-extrabold bg-[#FF5A1F]/10/40">
+                  ScrollCraft (Hybrid)
+                </th>
+                <th className="py-3.5 px-4 w-[25%]">Virtual / Hijacked</th>
+                <th className="py-3.5 px-4 w-[25%]">Component State</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#F3F4F6]">
-              {BENCHMARK_DATA.map((row, idx) => (
-                <tr key={idx} className="hover:bg-[#FAFAF9]/60 transition-colors">
-                  <td className="py-3.5 px-4 font-semibold text-[#0A0A0A]">
+              {ARCHITECTURE_PARADIGMS.map((row, idx) => (
+                <tr key={idx} className="hover:bg-[#080808]/60 transition-colors">
+                  <td className="py-3.5 px-4 font-semibold text-zinc-100 align-top">
                     {row.feature}
                   </td>
-                  <td className="py-3.5 px-4 font-semibold text-[#FF5A1F] bg-[#FFF7ED]/30">
-                    {typeof row.scrollcraft === 'boolean' ? (
-                      <span className="inline-flex items-center gap-1 text-emerald-600 font-bold">
-                        <Check className="w-3.5 h-3.5" /> Yes
-                      </span>
-                    ) : (
-                      row.scrollcraft
-                    )}
+                  <td className="py-3.5 px-4 font-medium text-zinc-100 bg-[#FF5A1F]/10/20 align-top break-words">
+                    <span className="text-[#FF5A1F] font-bold mr-1">✦</span>
+                    {row.scrollcraft}
                   </td>
-                  <td className="py-3.5 px-4 text-[#6B7280]">
-                    {typeof row.gsap === 'boolean' ? (
-                      row.gsap ? (
-                        <Check className="w-3.5 h-3.5 text-emerald-600" />
-                      ) : (
-                        <X className="w-3.5 h-3.5 text-rose-500" />
-                      )
-                    ) : (
-                      row.gsap
-                    )}
+                  <td className="py-3.5 px-4 text-zinc-400 align-top break-words">
+                    {row.virtual}
                   </td>
-                  <td className="py-3.5 px-4 text-[#6B7280]">
-                    {typeof row.framer === 'boolean' ? (
-                      row.framer ? (
-                        <Check className="w-3.5 h-3.5 text-emerald-600" />
-                      ) : (
-                        <X className="w-3.5 h-3.5 text-rose-500" />
-                      )
-                    ) : (
-                      row.framer
-                    )}
-                  </td>
-                  <td className="py-3.5 px-4 text-[#6B7280]">
-                    {typeof row.locomotive === 'boolean' ? (
-                      row.locomotive ? (
-                        <Check className="w-3.5 h-3.5 text-emerald-600" />
-                      ) : (
-                        <X className="w-3.5 h-3.5 text-rose-500" />
-                      )
-                    ) : (
-                      row.locomotive
-                    )}
+                  <td className="py-3.5 px-4 text-zinc-400 align-top break-words">
+                    {row.stateDriven}
                   </td>
                 </tr>
               ))}
@@ -257,9 +229,10 @@ export const DocArchitecture: React.FC<DocArchitectureProps> = ({
         </div>
       </section>
 
-      <DocsCallout type="tip" title="No Commercial Licensing Hurdles">
-        Unlike GSAP&apos;s commercial licensing tiers for paid end products, ScrollCraft Core is 100% MIT-licensed and free to use across unlimited commercial client projects.
+      <DocsCallout type="tip" title="Headless Architecture by Principle">
+        ScrollCraft is built to be a permanent, unopinionated foundational primitive in your frontend stack. Because it adheres strictly to standard DOM transforms and Radix-style Slot composition, it never locks your codebase into proprietary runtime architectures.
       </DocsCallout>
     </div>
   );
 };
+

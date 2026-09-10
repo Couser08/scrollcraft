@@ -120,20 +120,20 @@ export const DocR3F: React.FC<DocR3FProps> = ({ sectionId }) => {
           <div className="text-xs font-mono font-semibold text-[#FF5A1F] uppercase tracking-wider">
             3D & Canvas Integration
           </div>
-          <h1 className="text-4xl font-extrabold tracking-tight text-[#0A0A0A]">
+          <h1 className="text-4xl font-extrabold tracking-tight text-zinc-100">
             3D Scroll Architecture
           </h1>
-          <p className="text-lg text-[#6B7280] leading-relaxed max-w-3xl">
+          <p className="text-lg text-zinc-400 leading-relaxed max-w-3xl">
             Why synchronizing 3D WebGL scenes with browser scroll has historically been broken — and how ScrollCraft solved it.
           </p>
         </header>
 
         <section className="flex flex-col gap-4">
-          <h2 className="text-2xl font-bold tracking-tight text-[#0A0A0A]">
+          <h2 className="text-2xl font-bold tracking-tight text-zinc-100">
             The Double-RAF Dilemma
           </h2>
-          <p className="text-sm text-[#6B7280] leading-relaxed">
-            In standard React Three Fiber setups, developers typically listen to scroll via <code className="font-mono text-xs text-[#0A0A0A] bg-[#F3F4F6] px-1 py-0.5 rounded">window.addEventListener(&apos;scroll&apos;)</code> and write the offset to React state (<code className="font-mono text-xs text-[#0A0A0A] bg-[#F3F4F6] px-1 py-0.5 rounded">useState</code>).
+          <p className="text-sm text-zinc-400 leading-relaxed">
+            In standard React Three Fiber setups, developers typically listen to scroll via <code className="font-mono text-xs text-zinc-100 bg-white/10 px-1 py-0.5 rounded">window.addEventListener(&apos;scroll&apos;)</code> and write the offset to React state (<code className="font-mono text-xs text-zinc-100 bg-white/10 px-1 py-0.5 rounded">useState</code>).
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-2">
             <div className="p-4 rounded-xl border border-rose-200 bg-rose-50/50">
@@ -141,7 +141,7 @@ export const DocR3F: React.FC<DocR3FProps> = ({ sectionId }) => {
                 <AlertTriangle className="w-4 h-4" />
                 <span>The Naive Push Anti-Pattern</span>
               </div>
-              <p className="text-xs text-[#6B7280] leading-relaxed">
+              <p className="text-xs text-zinc-400 leading-relaxed">
                 Scroll events push state updates into React. React initiates a full reconciliation re-render cycle 60 times a second. Meanwhile, R3F&apos;s internal WebGL loop is also requesting frames. Both loops fight for CPU budget, resulting in severe micro-stuttering and dropped frames.
               </p>
             </div>
@@ -150,7 +150,7 @@ export const DocR3F: React.FC<DocR3FProps> = ({ sectionId }) => {
                 <CheckCircle2 className="w-4 h-4" />
                 <span>ScrollCraft Pull Architecture</span>
               </div>
-              <p className="text-xs text-[#6B7280] leading-relaxed">
+              <p className="text-xs text-zinc-400 leading-relaxed">
                 <code className="font-mono font-semibold text-emerald-800">useScroll3D</code> eliminates React state entirely. Instead of pushing scroll into React, the Three.js loop <strong>pulls</strong> compositor metrics on-demand via <code className="font-mono text-emerald-800">tick()</code> strictly inside <code className="font-mono text-emerald-800">useFrame</code>.
               </p>
             </div>
@@ -158,7 +158,7 @@ export const DocR3F: React.FC<DocR3FProps> = ({ sectionId }) => {
         </section>
 
         <section className="flex flex-col gap-4">
-          <h2 className="text-2xl font-bold tracking-tight text-[#0A0A0A]">
+          <h2 className="text-2xl font-bold tracking-tight text-zinc-100">
             Quick Installation
           </h2>
           <CodeViewer code={R3F_INSTALL_CODE} fileName="terminal" />
@@ -178,10 +178,10 @@ export const DocR3F: React.FC<DocR3FProps> = ({ sectionId }) => {
           <div className="text-xs font-mono font-semibold text-[#FF5A1F] uppercase tracking-wider">
             3D & Canvas Integration
           </div>
-          <h1 className="text-4xl font-extrabold tracking-tight text-[#0A0A0A]">
+          <h1 className="text-4xl font-extrabold tracking-tight text-zinc-100">
             The WAAPI Bridge Architecture
           </h1>
-          <p className="text-lg text-[#6B7280] leading-relaxed max-w-3xl">
+          <p className="text-lg text-zinc-400 leading-relaxed max-w-3xl">
             Synchronous compositor timeline interrogation with zero layout reflows and cross-browser fallback.
           </p>
         </header>
@@ -190,29 +190,29 @@ export const DocR3F: React.FC<DocR3FProps> = ({ sectionId }) => {
         <Scroll3DPlayground />
 
         <section className="flex flex-col gap-4">
-          <h2 className="text-2xl font-bold tracking-tight text-[#0A0A0A]">
+          <h2 className="text-2xl font-bold tracking-tight text-zinc-100">
             How the WAAPI Probe Operates
           </h2>
-          <p className="text-sm text-[#6B7280] leading-relaxed">
-            Chromium (Chrome, Edge 115+) supports native CSS <code className="font-mono text-xs text-[#0A0A0A] bg-[#F3F4F6] px-1 py-0.5 rounded">ViewTimeline</code>. Rather than waiting for JavaScript intersection observer callbacks, ScrollCraft binds a dummy Web Animations API (WAAPI) probe directly to the native timeline.
+          <p className="text-sm text-zinc-400 leading-relaxed">
+            Chromium (Chrome, Edge 115+) supports native CSS <code className="font-mono text-xs text-zinc-100 bg-white/10 px-1 py-0.5 rounded">ViewTimeline</code>. Rather than waiting for JavaScript intersection observer callbacks, ScrollCraft binds a dummy Web Animations API (WAAPI) probe directly to the native timeline.
           </p>
           <CodeViewer code={WAAPI_EXPLAINER_CODE} fileName="packages/r3f/src/createTimelineReader.ts" />
         </section>
 
         <section className="flex flex-col gap-4">
-          <h2 className="text-2xl font-bold tracking-tight text-[#0A0A0A]">
+          <h2 className="text-2xl font-bold tracking-tight text-zinc-100">
             Graceful Degradation (Safari & Firefox)
           </h2>
-          <p className="text-sm text-[#6B7280] leading-relaxed">
-            In browsers where CSS <code className="font-mono text-xs text-[#0A0A0A] bg-[#F3F4F6] px-1 py-0.5 rounded">ViewTimeline</code> is not yet implemented (Safari and Firefox), ScrollCraft automatically falls back to <code className="font-mono text-xs text-[#0A0A0A] bg-[#F3F4F6] px-1 py-0.5 rounded">createFallbackReader</code> from <code className="font-mono text-xs text-[#FF5A1F] bg-[#FFF7ED] px-1 py-0.5 rounded">@scrollcraft/core</code>.
+          <p className="text-sm text-zinc-400 leading-relaxed">
+            In browsers where CSS <code className="font-mono text-xs text-zinc-100 bg-white/10 px-1 py-0.5 rounded">ViewTimeline</code> is not yet implemented (Safari and Firefox), ScrollCraft automatically falls back to <code className="font-mono text-xs text-zinc-100 bg-white/10 px-1 py-0.5 rounded">createFallbackReader</code> from <code className="font-mono text-xs text-[#FF5A1F] bg-[#FF5A1F]/10 px-1 py-0.5 rounded">@scrollcraft/core</code>.
           </p>
-          <p className="text-sm text-[#6B7280] leading-relaxed">
-            The fallback uses a background <code className="font-mono text-xs text-[#0A0A0A]">ResizeObserver</code> to measure element dimensions outside the animation loop, guaranteeing that <code className="font-mono text-xs text-[#0A0A0A]">tick()</code> never forces a layout reflow.
+          <p className="text-sm text-zinc-400 leading-relaxed">
+            The fallback uses a background <code className="font-mono text-xs text-zinc-100">ResizeObserver</code> to measure element dimensions outside the animation loop, guaranteeing that <code className="font-mono text-xs text-zinc-100">tick()</code> never forces a layout reflow.
           </p>
         </section>
 
         <DocsCallout type="note" title="Memory Leak Protection">
-          Unattached Web Animations API instances can leak memory if not properly garbage-collected during Next.js client-side route transitions. <code className="font-mono text-xs text-[#FF5A1F]">useScroll3D</code> guarantees that <code className="font-mono text-xs text-[#0A0A0A]">reader.destroy()</code> and <code className="font-mono text-xs text-[#0A0A0A]">probe.cancel()</code> are strictly called whenever the canvas unmounts.
+          Unattached Web Animations API instances can leak memory if not properly garbage-collected during Next.js client-side route transitions. <code className="font-mono text-xs text-[#FF5A1F]">useScroll3D</code> guarantees that <code className="font-mono text-xs text-zinc-100">reader.destroy()</code> and <code className="font-mono text-xs text-zinc-100">probe.cancel()</code> are strictly called whenever the canvas unmounts.
         </DocsCallout>
       </div>
     );
@@ -225,16 +225,16 @@ export const DocR3F: React.FC<DocR3FProps> = ({ sectionId }) => {
           <div className="text-xs font-mono font-semibold text-[#FF5A1F] uppercase tracking-wider">
             API Reference
           </div>
-          <h1 className="text-4xl font-extrabold tracking-tight text-[#0A0A0A] font-mono">
+          <h1 className="text-4xl font-extrabold tracking-tight text-zinc-100 font-mono">
             useScroll3D
           </h1>
-          <p className="text-lg text-[#6B7280] leading-relaxed max-w-3xl">
-            Pull-based React Three Fiber hook providing synchronous compositor metrics inside <code className="font-mono text-sm text-[#0A0A0A]">useFrame</code>.
+          <p className="text-lg text-zinc-400 leading-relaxed max-w-3xl">
+            Pull-based React Three Fiber hook providing synchronous compositor metrics inside <code className="font-mono text-sm text-zinc-100">useFrame</code>.
           </p>
         </header>
 
         <section className="flex flex-col gap-4">
-          <h2 className="text-2xl font-bold tracking-tight text-[#0A0A0A]">
+          <h2 className="text-2xl font-bold tracking-tight text-zinc-100">
             Hook Signature
           </h2>
           <div className="p-4 rounded-xl bg-[#0A0A0A] text-zinc-100 font-mono text-xs overflow-x-auto">
@@ -255,18 +255,18 @@ export const DocR3F: React.FC<DocR3FProps> = ({ sectionId }) => {
         </section>
 
         <section className="flex flex-col gap-4">
-          <h2 className="text-2xl font-bold tracking-tight text-[#0A0A0A]">
+          <h2 className="text-2xl font-bold tracking-tight text-zinc-100">
             Scroll3DMetrics Structure
           </h2>
-          <div className="p-4 rounded-xl border border-[#E5E7EB] bg-white font-mono text-xs space-y-2">
-            <div className="text-[#6B7280]">
-              <span className="text-[#0A0A0A] font-bold">progress</span>: number (0.0 to 1.0 normalized intersection completion)
+          <div className="p-4 rounded-xl border border-white/10 bg-white/5 font-mono text-xs space-y-2">
+            <div className="text-zinc-400">
+              <span className="text-zinc-100 font-bold">progress</span>: number (0.0 to 1.0 normalized intersection completion)
             </div>
-            <div className="text-[#6B7280]">
-              <span className="text-[#0A0A0A] font-bold">velocity</span>: number (frame-to-frame delta for inertia distortion)
+            <div className="text-zinc-400">
+              <span className="text-zinc-100 font-bold">velocity</span>: number (frame-to-frame delta for inertia distortion)
             </div>
-            <div className="text-[#6B7280]">
-              <span className="text-[#0A0A0A] font-bold">direction</span>: 1 | -1 | 0 (1 = forward/down, -1 = backward/up)
+            <div className="text-zinc-400">
+              <span className="text-zinc-100 font-bold">direction</span>: 1 | -1 | 0 (1 = forward/down, -1 = backward/up)
             </div>
           </div>
         </section>
@@ -274,7 +274,7 @@ export const DocR3F: React.FC<DocR3FProps> = ({ sectionId }) => {
         <DocsTable title="useScroll3D Parameters" props={USE_SCROLL_3D_PROPS} />
 
         <DocsCallout type="warning" title="Canvas Guard">
-          <code className="font-mono text-xs text-[#FF5A1F]">useScroll3D</code> includes an internal Three context guard. If invoked outside of an R3F <code className="font-mono text-xs text-[#0A0A0A]">&lt;Canvas&gt;</code> tree, it immediately surfaces a helpful diagnostic error: <code className="font-mono text-xs text-rose-700 bg-rose-50 px-1 py-0.5 rounded">&quot;[ScrollCraft] useScroll3D must be called inside a &lt;Canvas&gt; component.&quot;</code>
+          <code className="font-mono text-xs text-[#FF5A1F]">useScroll3D</code> includes an internal Three context guard. If invoked outside of an R3F <code className="font-mono text-xs text-zinc-100">&lt;Canvas&gt;</code> tree, it immediately surfaces a helpful diagnostic error: <code className="font-mono text-xs text-rose-700 bg-rose-50 px-1 py-0.5 rounded">&quot;[ScrollCraft] useScroll3D must be called inside a &lt;Canvas&gt; component.&quot;</code>
         </DocsCallout>
       </div>
     );
@@ -287,24 +287,25 @@ export const DocR3F: React.FC<DocR3FProps> = ({ sectionId }) => {
         <div className="text-xs font-mono font-semibold text-[#FF5A1F] uppercase tracking-wider">
           Production Examples
         </div>
-        <h1 className="text-4xl font-extrabold tracking-tight text-[#0A0A0A]">
+        <h1 className="text-4xl font-extrabold tracking-tight text-zinc-100">
           Three.js Scene Recipe
         </h1>
-        <p className="text-lg text-[#6B7280] leading-relaxed max-w-3xl">
+        <p className="text-lg text-zinc-400 leading-relaxed max-w-3xl">
           Complete, production-ready Next.js 15 App Router recipe integrating React Three Fiber with ScrollCraft.
         </p>
       </header>
 
       <section className="flex flex-col gap-4">
-        <h2 className="text-2xl font-bold tracking-tight text-[#0A0A0A]">
+        <h2 className="text-2xl font-bold tracking-tight text-zinc-100">
           Copy-Paste Implementation
         </h2>
         <CodeViewer code={R3F_BASIC_USAGE_CODE} fileName="components/scroll-scene.tsx" />
       </section>
 
       <DocsCallout type="tip" title="Next.js SSR Safety">
-        Ensure your Three.js canvas component includes <code className="font-mono text-xs text-[#FF5A1F]">&apos;use client&apos;</code> at line 1. <code className="font-mono text-xs text-[#0A0A0A]">useScroll3D</code> internally guards its layout hooks against SSR evaluation so Server Components will never crash.
+        Ensure your Three.js canvas component includes <code className="font-mono text-xs text-[#FF5A1F]">&apos;use client&apos;</code> at line 1. <code className="font-mono text-xs text-zinc-100">useScroll3D</code> internally guards its layout hooks against SSR evaluation so Server Components will never crash.
       </DocsCallout>
     </div>
   );
 };
+

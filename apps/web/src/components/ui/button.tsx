@@ -33,7 +33,7 @@ export const Button: React.FC<ButtonProps> = ({
   let variantStyles = '';
   if (variant === 'primary') {
     variantStyles =
-      'bg-white text-zinc-950 hover:bg-zinc-100 shadow-[0_0_24px_rgba(255,255,255,0.25)] hover:shadow-[0_0_32px_rgba(255,255,255,0.4)] active:scale-95';
+      'bg-white/5 text-white hover:bg-white/10 shadow-[0_0_24px_rgba(255,255,255,0.25)] hover:shadow-[0_0_32px_rgba(255,255,255,0.4)] active:scale-95';
   } else if (variant === 'secondary') {
     variantStyles =
       'bg-zinc-900/80 text-white border border-white/10 hover:border-white/20 hover:bg-zinc-800/80 backdrop-blur-md active:scale-95';
@@ -65,3 +65,4 @@ export const Button: React.FC<ButtonProps> = ({
     </button>
   );
 };
+

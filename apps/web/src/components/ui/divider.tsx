@@ -14,3 +14,4 @@ export const Divider: React.FC<{ className?: string }> = ({ className = '' }) =>
     </div>
   );
 };
+

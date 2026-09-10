@@ -14,7 +14,7 @@ declare global {
   }
 }
 
-export type TickerCallback = (deltaTime: number, elapsedTime: number) => void;
+export type TickerCallback = (deltaTime: number, elapsedTime: number, currentTime: number) => void;
 
 export interface TickerTask {
   id: string;

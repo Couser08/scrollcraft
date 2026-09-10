@@ -118,19 +118,19 @@ export class Ticker {
     // Phase 1: Read/Measure (Layout reads isolated to prevent thrashing)
     const mTasks = this.measureTasksArray;
     for (let i = 0; i < mTasks.length; i++) {
-      mTasks[i](dt, this.elapsedTime);
+      mTasks[i](dt, this.elapsedTime, currentTime);
     }
 
     // Phase 2: Math/Physics Calculations
     const uTasks = this.updateTasksArray;
     for (let i = 0; i < uTasks.length; i++) {
-      uTasks[i](dt, this.elapsedTime);
+      uTasks[i](dt, this.elapsedTime, currentTime);
     }
 
     // Phase 3: Direct DOM GPU Compositor writes
     const rTasks = this.renderTasksArray;
     for (let i = 0; i < rTasks.length; i++) {
-      rTasks[i](dt, this.elapsedTime);
+      rTasks[i](dt, this.elapsedTime, currentTime);
     }
 
     this.rafId = requestAnimationFrame(this.tick);

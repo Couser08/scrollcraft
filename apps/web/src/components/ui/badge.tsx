@@ -21,16 +21,17 @@ export const Badge: React.FC<BadgeProps> = ({
 }) => {
   return (
     <div
-      className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/90 text-zinc-900 border border-white/20 shadow-sm backdrop-blur-md select-none ${className}`}
+      className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/5/90 text-zinc-100 border border-white/20 shadow-sm backdrop-blur-md select-none ${className}`}
     >
       {icon ? (
         icon
       ) : (
         <Sparkles className="w-4 h-4 text-amber-500 fill-amber-400" />
       )}
-      <span className="text-xs font-semibold tracking-wider uppercase text-zinc-800">
+      <span className="text-xs font-semibold tracking-wider uppercase text-zinc-300">
         {children}
       </span>
     </div>
   );
 };
+

@@ -159,7 +159,7 @@ export const FpsHud: React.FC = () => {
           </div>
 
           {/* Progress bar */}
-          <div className="w-full h-1.5 rounded-full bg-white/10 overflow-hidden">
+          <div className="w-full h-1.5 rounded-full bg-white/5/10 overflow-hidden">
             <div
               ref={progressBarRef}
               className="h-full bg-gradient-to-r from-blue-500 to-cyan-400 transition-all duration-75"
@@ -171,3 +171,4 @@ export const FpsHud: React.FC = () => {
     </div>
   );
 };
+

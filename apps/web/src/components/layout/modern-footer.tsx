@@ -25,21 +25,21 @@ export const ModernFooter: React.FC = () => {
   }
 
   return (
-    <footer className="w-full bg-[#FAFAF9] border-t border-[#E5E7EB] py-12 px-4 sm:px-6 lg:px-8 mt-20">
+    <footer className="w-full bg-[#FAFAF9] border-t border-[#E7E5E4] py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
         {/* Left: Brand & Tagline */}
         <div className="flex flex-col sm:flex-row items-center gap-3 text-center sm:text-left">
           <Link href="/">
             <ScrollCraftLogo variant="full" size="md" />
           </Link>
-          <span className="hidden sm:inline-block text-[#9CA3AF]">•</span>
-          <span className="text-[#6B7280] text-xs font-normal">
-            Build smoother experiences.
+          <span className="hidden sm:inline-block text-[#A8A29E]">•</span>
+          <span className="text-[#78716C] text-xs font-normal">
+            Declarative scroll for modern React.
           </span>
         </div>
 
         {/* Center: Navigation Links */}
-        <nav className="flex items-center gap-6 text-xs sm:text-sm font-medium text-[#6B7280]">
+        <nav className="flex items-center gap-6 text-xs sm:text-sm font-medium text-[#78716C]">
           <Link href="/" className="hover:text-[#0A0A0A] transition-colors">
             Overview
           </Link>
@@ -51,14 +51,14 @@ export const ModernFooter: React.FC = () => {
           </Link>
         </nav>
 
-        {/* Right: Social Icons & Copyright */}
-        <div className="flex flex-col sm:flex-row items-center gap-4 text-xs text-[#6B7280]">
+        {/* Right: Copyright */}
+        <div className="flex flex-col sm:flex-row items-center gap-4 text-xs text-[#78716C]">
           <div className="flex items-center gap-3">
             <a
               href="https://discord.com"
               target="_blank"
               rel="noreferrer"
-              className="p-1.5 rounded-md hover:bg-white text-[#6B7280] hover:text-[#0A0A0A] transition-colors"
+              className="p-1.5 rounded-md hover:bg-white text-[#78716C] hover:text-[#0A0A0A] transition-colors"
               aria-label="Discord"
             >
               <DiscordIcon className="w-4 h-4" />
@@ -67,7 +67,7 @@ export const ModernFooter: React.FC = () => {
               href="https://twitter.com"
               target="_blank"
               rel="noreferrer"
-              className="p-1.5 rounded-md hover:bg-white text-[#6B7280] hover:text-[#0A0A0A] transition-colors"
+              className="p-1.5 rounded-md hover:bg-white text-[#78716C] hover:text-[#0A0A0A] transition-colors"
               aria-label="Twitter"
             >
               <TwitterIcon className="w-4 h-4" />
@@ -76,18 +76,13 @@ export const ModernFooter: React.FC = () => {
               href="https://youtube.com"
               target="_blank"
               rel="noreferrer"
-              className="p-1.5 rounded-md hover:bg-white text-[#6B7280] hover:text-[#0A0A0A] transition-colors"
+              className="p-1.5 rounded-md hover:bg-white text-[#78716C] hover:text-[#0A0A0A] transition-colors"
               aria-label="YouTube"
             >
               <YoutubeIcon className="w-4 h-4" />
             </a>
           </div>
-
-          <div className="flex items-center gap-2">
-            <span>Made with <span className="text-[#EF4444]">❤️</span> for the web.</span>
-            <span>•</span>
-            <span>© 2025 ScrollCraft.</span>
-          </div>
+          <span>© 2026 ScrollCraft</span>
         </div>
       </div>
     </footer>

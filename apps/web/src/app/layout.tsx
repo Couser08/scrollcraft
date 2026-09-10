@@ -22,11 +22,9 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <ScrollProvider smooth={true}>
-          <HeaderNav />
           <main className="relative flex-1 flex flex-col min-h-0">
             {children}
           </main>
-          <ModernFooter />
         </ScrollProvider>
       </body>
     </html>

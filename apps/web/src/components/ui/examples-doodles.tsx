@@ -62,7 +62,7 @@ export const TryItYourselfDoodle: React.FC<{ className?: string }> = ({ classNam
           strokeLinejoin="round"
         />
       </svg>
-      <span className="font-handwriting text-base sm:text-lg text-zinc-600 font-medium tracking-wide whitespace-nowrap">
+      <span className="font-handwriting text-base sm:text-lg text-zinc-400 font-medium tracking-wide whitespace-nowrap">
         Try it yourself.<br />No setup needed.
       </span>
     </div>
@@ -99,3 +99,4 @@ export const PlaygroundDoodle: React.FC<{ className?: string }> = ({ className =
     </div>
   );
 };
+

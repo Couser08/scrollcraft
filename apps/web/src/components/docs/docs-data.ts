@@ -40,6 +40,9 @@ export const DOCS_CATEGORIES: DocCategory[] = [
       { id: 'reveal', title: '<Reveal />', badge: 'Slot' },
       { id: 'pin', title: '<Pin />', badge: 'Sticky' },
       { id: 'scroll-progress', title: '<ScrollProgress />', badge: 'Slot' },
+      { id: 'velocity-marquee', title: '<VelocityMarquee />', badge: 'Kinetic' },
+      { id: 'horizontal-scroll', title: '<HorizontalScroll />', badge: 'Gallery' },
+      { id: 'scroll-sequence', title: '<ScrollSequence />', badge: 'Canvas' },
     ],
   },
   {
@@ -51,6 +54,7 @@ export const DOCS_CATEGORIES: DocCategory[] = [
       { id: 'use-parallax', title: 'useParallax', badge: 'Headless' },
       { id: 'use-reveal', title: 'useReveal', badge: 'Headless' },
       { id: 'use-pin', title: 'usePin', badge: 'Headless' },
+      { id: 'use-magnetic', title: 'useMagnetic', badge: 'Spring' },
     ],
   },
   {
@@ -271,5 +275,107 @@ export const USE_SCROLL_3D_PROPS: PropRow[] = [
     type: "'block' | 'inline'",
     defaultValue: "'block'",
     description: 'Scroll orientation axis: block (vertical) or inline (horizontal).',
+  },
+];
+
+export const VELOCITY_MARQUEE_PROPS: PropRow[] = [
+  {
+    name: 'baseSpeed',
+    type: 'number',
+    defaultValue: '1',
+    description: 'Default continuous crawling speed in pixels per frame when stationary.',
+  },
+  {
+    name: 'velocityMultiplier',
+    type: 'number',
+    defaultValue: '0.05',
+    description: 'Acceleration factor applied to instantaneous user scroll velocity.',
+  },
+  {
+    name: 'direction',
+    type: "'left' | 'right'",
+    defaultValue: "'left'",
+    description: 'Horizontal flow direction of the marquee track.',
+  },
+  {
+    name: 'maxSpeed',
+    type: 'number',
+    defaultValue: '50',
+    description: 'Maximum velocity clamp in pixels per frame to prevent visual shearing.',
+  },
+  {
+    name: 'className',
+    type: 'string',
+    defaultValue: "''",
+    description: 'Tailwind or CSS classes merged onto outer container.',
+  },
+];
+
+export const HORIZONTAL_SCROLL_PROPS: PropRow[] = [
+  {
+    name: 'speed',
+    type: 'number',
+    defaultValue: '2',
+    description: 'Scroll distance multiplier relative to viewport height (e.g. 2 = 200vh total scroll travel).',
+  },
+  {
+    name: 'className',
+    type: 'string',
+    defaultValue: "''",
+    description: 'Classes applied to the outer pinned scroll container.',
+  },
+  {
+    name: 'innerClassName',
+    type: 'string',
+    defaultValue: "''",
+    description: 'Classes applied to the inner horizontally translating sliding track.',
+  },
+];
+
+export const SCROLL_SEQUENCE_PROPS: PropRow[] = [
+  {
+    name: 'frames',
+    type: 'string[]',
+    required: true,
+    description: 'Array of sequential image URLs to preload and scrub on canvas.',
+  },
+  {
+    name: 'height',
+    type: 'string',
+    defaultValue: "'300vh'",
+    description: 'CSS height defining the total scroll travel budget for scrubbing through frames.',
+  },
+  {
+    name: 'speed',
+    type: 'number',
+    defaultValue: '1.5',
+    description: 'Scrub sensitivity multiplier across the image frame array.',
+  },
+  {
+    name: 'className',
+    type: 'string',
+    defaultValue: "''",
+    description: 'Classes merged onto canvas container.',
+  },
+];
+
+export const USE_MAGNETIC_PROPS: PropRow[] = [
+  {
+    name: 'targetRef',
+    type: 'RefObject<HTMLElement>',
+    required: true,
+    description: 'Target element to apply magnetic spring physics pull towards cursor.',
+  },
+  {
+    name: 'strength',
+    type: 'number',
+    defaultValue: '0.3',
+    description: 'Magnetic attraction intensity towards pointer position.',
+  },
+  {
+    name: 'radius',
+    type: 'number',
+    defaultValue: '150',
+    description: 'Distance threshold in pixels within which the element detects and attracts pointer.',
   },
 ];

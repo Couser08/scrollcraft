@@ -30,22 +30,22 @@ export function StickyNarrative() {
   return (
     <PinContainer className="h-[300vh]">
       <Pin asChild start="top top" end="+=100%">
-        <section className="h-screen w-full flex items-center justify-center bg-[#FAFAF9] p-6">
+        <section className="h-screen w-full flex items-center justify-center bg-[#080808] p-6">
           <div className="max-w-4xl w-full grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             {/* Left: Sticky Headline */}
             <div>
               <span className="text-xs font-mono font-bold text-[#FF5A1F] uppercase">Architecture</span>
-              <h2 className="text-4xl font-extrabold text-[#0A0A0A] mt-2">Built for Performance</h2>
+              <h2 className="text-4xl font-extrabold text-zinc-100 mt-2">Built for Performance</h2>
             </div>
 
             {/* Right: Sequenced Kinetic Cards */}
             <div className="space-y-4">
               {CHAPTERS.map((chap) => (
                 <Reveal key={chap.step} variant="slide-up" duration={0.5}>
-                  <div className="p-6 rounded-2xl bg-white border border-[#E5E7EB] shadow-xs">
+                  <div className="p-6 rounded-2xl bg-white/5 border border-white/10 shadow-xs">
                     <span className="text-xs font-mono font-bold text-[#9CA3AF]">{chap.step}</span>
-                    <h3 className="text-lg font-bold text-[#0A0A0A] mt-1">{chap.title}</h3>
-                    <p className="text-xs text-[#6B7280] mt-1">{chap.desc}</p>
+                    <h3 className="text-lg font-bold text-zinc-100 mt-1">{chap.title}</h3>
+                    <p className="text-xs text-zinc-400 mt-1">{chap.desc}</p>
                   </div>
                 </Reveal>
               ))}
@@ -129,7 +129,7 @@ export function Kinetic3DHero() {
         <Parallax asChild speed={0.3}>
           <div className="absolute z-10 text-center pointer-events-none">
             <Reveal variant="slide-up">
-              <h1 className="text-6xl font-extrabold text-[#0A0A0A] tracking-tight">
+              <h1 className="text-6xl font-extrabold text-zinc-100 tracking-tight">
                 Kinetic Dimension
               </h1>
             </Reveal>
@@ -155,23 +155,23 @@ export const DocRecipes: React.FC<DocRecipesProps> = ({ recipeId }) => {
           <div className="text-xs font-mono font-semibold text-[#FF5A1F] uppercase tracking-wider">
             Cookbook Recipe
           </div>
-          <h1 className="text-4xl font-extrabold tracking-tight text-[#0A0A0A]">
+          <h1 className="text-4xl font-extrabold tracking-tight text-zinc-100">
             Sticky Narrative Cards
           </h1>
-          <p className="text-lg text-[#6B7280] leading-relaxed max-w-3xl">
+          <p className="text-lg text-zinc-400 leading-relaxed max-w-3xl">
             Build Apple-style product storytelling where the viewport locks in place while cards transition seamlessly.
           </p>
         </header>
 
         <section className="flex flex-col gap-4">
-          <h2 className="text-2xl font-bold tracking-tight text-[#0A0A0A]">
+          <h2 className="text-2xl font-bold tracking-tight text-zinc-100">
             Component Implementation
           </h2>
           <CodeViewer code={STICKY_NARRATIVE_CODE} fileName="components/sticky-narrative.tsx" />
         </section>
 
         <DocsCallout type="tip" title="CSS Sticky Optimization">
-          Because ScrollCraft uses native CSS <code className="font-mono text-xs text-[#0A0A0A]">position: sticky</code> rather than DOM spacers, surrounding grid columns and flex child elements will never suffer jitter or unexpected layout collapses.
+          Because ScrollCraft uses native CSS <code className="font-mono text-xs text-zinc-100">position: sticky</code> rather than DOM spacers, surrounding grid columns and flex child elements will never suffer jitter or unexpected layout collapses.
         </DocsCallout>
       </div>
     );
@@ -184,16 +184,16 @@ export const DocRecipes: React.FC<DocRecipesProps> = ({ recipeId }) => {
           <div className="text-xs font-mono font-semibold text-[#FF5A1F] uppercase tracking-wider">
             Cookbook Recipe
           </div>
-          <h1 className="text-4xl font-extrabold tracking-tight text-[#0A0A0A]">
+          <h1 className="text-4xl font-extrabold tracking-tight text-zinc-100">
             Horizontal Gallery Scrub
           </h1>
-          <p className="text-lg text-[#6B7280] leading-relaxed max-w-3xl">
+          <p className="text-lg text-zinc-400 leading-relaxed max-w-3xl">
             Translate vertical wheel & touch scroll into a buttery-smooth horizontal showroom gallery without hijacking native browser scroll physics.
           </p>
         </header>
 
         <section className="flex flex-col gap-4">
-          <h2 className="text-2xl font-bold tracking-tight text-[#0A0A0A]">
+          <h2 className="text-2xl font-bold tracking-tight text-zinc-100">
             Component Implementation
           </h2>
           <CodeViewer code={HORIZONTAL_SCROLL_CODE} fileName="components/horizontal-gallery.tsx" />
@@ -213,16 +213,16 @@ export const DocRecipes: React.FC<DocRecipesProps> = ({ recipeId }) => {
         <div className="text-xs font-mono font-semibold text-[#FF5A1F] uppercase tracking-wider">
           Cookbook Recipe
         </div>
-        <h1 className="text-4xl font-extrabold tracking-tight text-[#0A0A0A]">
+        <h1 className="text-4xl font-extrabold tracking-tight text-zinc-100">
           3D Kinetic Product Canvas
         </h1>
-        <p className="text-lg text-[#6B7280] leading-relaxed max-w-3xl">
+        <p className="text-lg text-zinc-400 leading-relaxed max-w-3xl">
           Integrate React Three Fiber WebGL with ScrollCraft Parallax for an Awwwards-winning kinetic hero presentation.
         </p>
       </header>
 
       <section className="flex flex-col gap-4">
-        <h2 className="text-2xl font-bold tracking-tight text-[#0A0A0A]">
+        <h2 className="text-2xl font-bold tracking-tight text-zinc-100">
           Component Implementation
         </h2>
         <CodeViewer code={THREE_D_HERO_CODE} fileName="components/kinetic-3d-hero.tsx" />
@@ -234,3 +234,4 @@ export const DocRecipes: React.FC<DocRecipesProps> = ({ recipeId }) => {
     </div>
   );
 };
+

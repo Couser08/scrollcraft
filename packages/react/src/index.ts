@@ -21,6 +21,8 @@ export * from './primitives/scroll-progress';
 export * from './components/velocity-marquee';
 export * from './components/horizontal-scroll';
 export * from './components/scroll-sequence';
+export * from './components/text-reveal';
+
 
 // Hooks
 export * from './hooks/useParallax';

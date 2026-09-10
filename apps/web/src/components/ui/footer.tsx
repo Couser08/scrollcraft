@@ -17,7 +17,7 @@ export const Footer: React.FC = () => {
             <Sparkles className="w-3.5 h-3.5" />
           </div>
           <span className="font-semibold text-white">ScrollCraft Engine</span>
-          <span className="text-zinc-600">|</span>
+          <span className="text-zinc-400">|</span>
           <span>Engineered for React & Next.js</span>
         </div>
 
@@ -46,3 +46,4 @@ export const Footer: React.FC = () => {
     </footer>
   );
 };
+

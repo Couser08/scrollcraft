@@ -1,50 +1,44 @@
 import type { Metadata } from 'next';
-import React, { Suspense } from 'react';
-import { HeroSectionRedesign } from '@/components/home/hero-section-redesign';
-import { PrimitivesSectionRedesign } from '@/components/home/primitives-section-redesign';
-import { ShowcaseBentoRedesign } from '@/components/home/showcase-bento-redesign';
-import { ArchitectureComparisonRedesign } from '@/components/home/architecture-comparison-redesign';
-import { QuickstartStepsRedesign } from '@/components/home/quickstart-steps-redesign';
-import { CtaBannerRedesign } from '@/components/home/cta-banner-redesign';
-import { ClientFpsHud } from '@/components/ui/client-fps-hud';
+import React from 'react';
+
+// New V3 "Premium Storyline" Components
+import { V3Header } from '@/components/home/v3/v3-header';
+import { Act1Hero } from '@/components/home/v3/act-1-hero';
+import { Act2Problem } from '@/components/home/v3/act-2-problem';
+import { Act3Engine } from '@/components/home/v3/act-3-engine';
+import { ActShowcase } from '@/components/home/v3/act-showcase';
+import { Act4CTA } from '@/components/home/v3/act-4-cta';
+import { PerformanceHUD } from '@/components/home/v3/performance-hud';
+import { V3Footer } from '@/components/home/v3/v3-footer';
 
 export const metadata: Metadata = {
-  title: 'ScrollCraft — Scroll experiences for modern web.',
+  title: 'ScrollCraft — The Ultimate React Scroll Engine',
   description:
-    'High-performance scroll primitives for React and Next.js. Direct GPU compositor writes, zero React re-renders, and no wrapper pollution.',
+    'High-performance scroll toolkit for React and Next.js. Direct DOM writes, zero React re-renders.',
   openGraph: {
-    title: 'ScrollCraft — Scroll experiences for modern web.',
+    title: 'ScrollCraft — The Ultimate React Scroll Engine',
     description:
-      'High-performance scroll primitives for React and Next.js. Direct GPU compositor writes, zero React re-renders, and no wrapper pollution.',
+      'High-performance scroll toolkit for React and Next.js. Direct DOM writes, zero React re-renders.',
     type: 'website',
   },
 };
 
 export default function HomePage() {
   return (
-    <div className="relative w-full min-h-screen bg-[#FAFAF9] text-[#0A0A0A] overflow-x-hidden selection:bg-[#FF5A1F]/20 selection:text-[#FF5A1F]">
-      {/* 1. Grand Hero Section (Image 2) */}
-      <HeroSectionRedesign />
+    // Scoped strictly to this page to prevent bleeding into other pages if they rely on layout.tsx's light mode base
+    <div className="relative w-full min-h-screen bg-[#050505] text-zinc-100 overflow-x-hidden selection:bg-zinc-800 selection:text-white font-sans antialiased">
+      <V3Header />
+      
+      <main className="flex flex-col w-full items-center justify-start">
+        <Act1Hero />
+        <Act2Problem />
+        <Act3Engine />
+        <ActShowcase />
+        <Act4CTA />
+      </main>
 
-      {/* 2. Four Composable Primitives Grid (Image 2) */}
-      <PrimitivesSectionRedesign />
-
-      {/* 3. See What You Can Build (Bento Showcase with 3D Kinetic Cards) */}
-      <ShowcaseBentoRedesign />
-
-      {/* 4. Engine Architecture Compared & Modern React Stack (Image 2) */}
-      <ArchitectureComparisonRedesign />
-
-      {/* 5. Get Started In Minutes (3 Step Cards, Image 2) */}
-      <QuickstartStepsRedesign />
-
-      {/* 6. Ready to build something amazing? CTA Banner (Image 2) */}
-      <CtaBannerRedesign />
-
-      {/* 7. Zero Re-render Performance Telemetry Island */}
-      <Suspense fallback={null}>
-        <ClientFpsHud />
-      </Suspense>
+      <V3Footer />
+      <PerformanceHUD />
     </div>
   );
 }

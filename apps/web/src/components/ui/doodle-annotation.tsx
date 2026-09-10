@@ -10,7 +10,7 @@ export const DoodleAnnotation: React.FC<{ className?: string; text?: string }> =
     <div className={`flex flex-col items-center select-none pointer-events-none ${className}`}>
       <span
         style={{ fontFamily: "'Caveat', 'Comic Sans MS', cursive, sans-serif" }}
-        className="text-xs sm:text-sm font-bold text-[#0A0A0A] -rotate-6 tracking-wide"
+        className="text-xs sm:text-sm font-bold text-zinc-100 -rotate-6 tracking-wide"
       >
         {text}
       </span>
@@ -20,7 +20,7 @@ export const DoodleAnnotation: React.FC<{ className?: string; text?: string }> =
         viewBox="0 0 44 36"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className="text-[#0A0A0A] -scale-x-100 rotate-12 -mt-1"
+        className="text-zinc-100 -scale-x-100 rotate-12 -mt-1"
       >
         {/* Curved hand-drawn arrow pointing to preview */}
         <path
@@ -34,3 +34,4 @@ export const DoodleAnnotation: React.FC<{ className?: string; text?: string }> =
     </div>
   );
 };
+

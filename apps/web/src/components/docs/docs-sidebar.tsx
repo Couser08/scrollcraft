@@ -42,17 +42,17 @@ export const DocsSidebar: React.FC<DocsSidebarProps> = ({
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder="Filter docs..."
-          className="w-full pl-8 pr-12 py-1.5 rounded-lg bg-white border border-zinc-200/90 text-xs text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 focus:border-zinc-400 transition-all shadow-2xs"
+          className="w-full pl-8 pr-12 py-1.5 rounded-lg bg-white/5/5 border border-white/10 text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-white/10 focus:border-white/20 transition-all shadow-2xs"
         />
         {searchQuery ? (
           <button
             onClick={() => onSearchChange('')}
-            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-zinc-400 hover:text-zinc-700 cursor-pointer"
+            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-zinc-500 hover:text-zinc-300 cursor-pointer"
           >
             Clear
           </button>
         ) : (
-          <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-mono px-1 py-0.5 rounded bg-zinc-100 text-zinc-500 border border-zinc-200/60 pointer-events-none">
+          <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-mono px-1 py-0.5 rounded bg-white/5/5 text-zinc-500 border border-white/10 pointer-events-none">
             ⌘K
           </span>
         )}
@@ -75,7 +75,7 @@ export const DocsSidebar: React.FC<DocsSidebarProps> = ({
                   {category.title}
                 </h4>
               </div>
-              <ul className="flex flex-col gap-0.5 border-l border-zinc-200/70 ml-3.5 pl-2">
+              <ul className="flex flex-col gap-0.5 border-l border-white/10 ml-3.5 pl-2">
                 {matchingItems.map((item) => {
                   const isActive = activeSection === item.id;
                   return (
@@ -84,8 +84,8 @@ export const DocsSidebar: React.FC<DocsSidebarProps> = ({
                         onClick={() => onSelectSection(item.id)}
                         className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-md text-xs transition-all text-left cursor-pointer ${
                           isActive
-                            ? 'text-[#FF5A1F] font-semibold bg-[#FF5A1F]/8 border-l-2 -ml-[9px] pl-[17px] border-[#FF5A1F]'
-                            : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100/70'
+                            ? 'text-[#FF5A1F] font-semibold bg-[#FF5A1F]/10 border-l-2 -ml-[9px] pl-[17px] border-[#FF5A1F]'
+                            : 'text-zinc-400 hover:text-white hover:bg-white/5/5'
                         }`}
                       >
                         <span className="truncate">{item.title}</span>
@@ -93,8 +93,8 @@ export const DocsSidebar: React.FC<DocsSidebarProps> = ({
                           <span
                             className={`text-[9px] font-mono uppercase tracking-tight px-1.5 py-0.5 rounded border ${
                               isActive
-                                ? 'bg-[#FF5A1F]/15 text-[#FF5A1F] border-[#FF5A1F]/30 font-semibold'
-                                : 'bg-zinc-100 text-zinc-500 border-zinc-200/70'
+                                ? 'bg-[#FF5A1F]/20 text-[#FF5A1F] border-[#FF5A1F]/30 font-semibold'
+                                : 'bg-white/5/5 text-zinc-400 border-white/10'
                             }`}
                           >
                             {item.badge}
@@ -112,3 +112,4 @@ export const DocsSidebar: React.FC<DocsSidebarProps> = ({
     </aside>
   );
 };
+

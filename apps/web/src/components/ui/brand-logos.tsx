@@ -60,3 +60,4 @@ export const BrandLogos: React.FC<{ className?: string }> = ({ className = '' })
     </div>
   );
 };
+
