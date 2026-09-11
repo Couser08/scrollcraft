@@ -1,10 +1,9 @@
 'use client';
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Reveal } from '@scrollcraft/react';
 
 function Counter({ end, suffix = '', prefix = '' }: { end: number, suffix?: string, prefix?: string }) {
-  const [count, setCount] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -18,12 +17,15 @@ function Counter({ end, suffix = '', prefix = '' }: { end: number, suffix?: stri
           const progress = Math.min(elapsed / duration, 1);
           // Ease out expo
           const easeProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
-          setCount(Math.floor(easeProgress * end));
+          
+          if (ref.current) {
+            ref.current.innerText = `${prefix}${Math.floor(easeProgress * end)}${suffix}`;
+          }
           
           if (progress < 1) {
             requestAnimationFrame(update);
-          } else {
-            setCount(end);
+          } else if (ref.current) {
+            ref.current.innerText = `${prefix}${end}${suffix}`;
           }
         };
         requestAnimationFrame(update);
@@ -33,9 +35,9 @@ function Counter({ end, suffix = '', prefix = '' }: { end: number, suffix?: stri
 
     if (ref.current) observer.observe(ref.current);
     return () => observer.disconnect();
-  }, [end]);
+  }, [end, prefix, suffix]);
 
-  return <div ref={ref}>{prefix}{count}{suffix}</div>;
+  return <div ref={ref}>{prefix}0{suffix}</div>;
 }
 
 export function PerformanceSection() {

@@ -4,16 +4,18 @@ import React, { useRef, useEffect } from 'react';
 import { HorizontalScrollSolver, HorizontalScrollOptions, ticker } from '@scrollcraft/core';
 import { useScrollCraft } from '../context';
 
-interface HorizontalScrollProps extends HorizontalScrollOptions {
+export interface HorizontalScrollProps extends HorizontalScrollOptions {
   children: React.ReactNode;
   className?: string;
   innerClassName?: string;
+  stickyClassName?: string;
 }
 
 export const HorizontalScroll: React.FC<HorizontalScrollProps> = ({
   children,
   className = '',
   innerClassName = '',
+  stickyClassName = 'sticky top-0 h-screen w-full overflow-hidden flex items-center',
   speed
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -55,7 +57,7 @@ export const HorizontalScroll: React.FC<HorizontalScrollProps> = ({
       // Multiply height by speed to create scrollable space. Assuming speed is multiplier of 100vh.
       style={{ height: `${(speed ?? 2) * 100}vh` }}
     >
-      <div className="sticky top-0 h-screen w-full overflow-hidden flex items-center">
+      <div className={stickyClassName}>
         <div ref={trackRef} className={`flex flex-nowrap w-max ${innerClassName}`}>
           {children}
         </div>

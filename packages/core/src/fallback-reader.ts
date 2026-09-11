@@ -6,10 +6,20 @@
 
 import { clamp } from './math';
 
+export interface TimelineReader {
+  read(): number;
+  destroy(): void;
+}
+
 export function createFallbackReader(
   subject: Element,
   axis: 'block' | 'inline' = 'block'
-) {
+) : TimelineReader {
+  // R3F effects should never normally run on the server, but keeping this factory
+  // total makes direct imports and test environments safe as well.
+  if (typeof window === 'undefined') {
+    return { read: () => 0, destroy: () => {} };
+  }
   // We use ResizeObserver to keep measurements updated without forcing layout in the read loop
   let elementTop = 0;
   let elementHeight = 0;

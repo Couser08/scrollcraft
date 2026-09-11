@@ -4,6 +4,7 @@
  */
 
 export * from './types';
+export * from './driver';
 export * from './math';
 export * from './ticker';
 export * from './inertia';

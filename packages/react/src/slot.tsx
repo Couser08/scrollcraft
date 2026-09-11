@@ -58,8 +58,11 @@ export const Slot = forwardRef<HTMLElement, SlotProps>((props, forwardedRef) => 
   }
 
   const child = children as React.ReactElement<Record<string, any>>;
-  // Cross-version ref extraction: React 19 props.ref vs legacy child.ref
-  const childRef = (child.props as Record<string, any>)?.ref ?? (child as any).ref;
+  // React 19 exposes refs through props. React 18 still needs element.ref, but
+  // only access that legacy field on React 18 to avoid React 19 deprecation noise.
+  const propsRef = (child.props as Record<string, any>)?.ref;
+  const majorVersion = parseInt(React.version, 10);
+  const childRef = propsRef ?? (majorVersion >= 19 ? undefined : (child as any).ref);
 
   // Merge style non-destructively
   const mergedStyle: CSSProperties = {

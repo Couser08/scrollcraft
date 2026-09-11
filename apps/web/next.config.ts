@@ -21,6 +21,15 @@ const nextConfig: NextConfig = {
     optimizePackageImports: ['lucide-react']
   },
   reactStrictMode: true,
+  async redirects() {
+    return [
+      {
+        source: '/design-system',
+        destination: '/docs',
+        permanent: true,
+      },
+    ];
+  },
   webpack: (config) => {
     if (process.platform === 'win32' && config.context && config.context.charAt(1) === ':') {
       config.context = config.context.charAt(0).toUpperCase() + config.context.slice(1);

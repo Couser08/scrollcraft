@@ -1,21 +1,35 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { useScrollCraft, ScrollMetrics } from '@scrollcraft/react';
 
 export function Navbar() {
-  const [scrolled, setScrolled] = useState(false);
+  const navRef = useRef<HTMLElement>(null);
+  const { subscribe } = useScrollCraft();
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    let wasScrolled: boolean | null = null;
+    const unsub = subscribe((metrics: ScrollMetrics) => {
+      const isScrolled = metrics.scroll > 50;
+      if (isScrolled === wasScrolled) return;
+      wasScrolled = isScrolled;
+
+      if (navRef.current) {
+        if (isScrolled) {
+          navRef.current.classList.add('bg-[#050505]/80', 'backdrop-blur-md', 'border-b', 'border-white/5', 'py-4');
+          navRef.current.classList.remove('bg-transparent', 'py-6');
+        } else {
+          navRef.current.classList.add('bg-transparent', 'py-6');
+          navRef.current.classList.remove('bg-[#050505]/80', 'backdrop-blur-md', 'border-b', 'border-white/5', 'py-4');
+        }
+      }
+    });
+    return () => unsub();
+  }, [subscribe]);
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-[#050505]/80 backdrop-blur-md border-b border-white/5 py-4' : 'bg-transparent py-6'}`}>
+    <header ref={navRef} className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-transparent py-6">
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
         
         <div className="flex items-center gap-12">

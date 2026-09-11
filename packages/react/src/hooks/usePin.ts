@@ -7,7 +7,7 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
-import { ticker, PinSolver } from '@scrollcraft/core';
+import { ticker, PinSolver, GlobalResizeManager } from '@scrollcraft/core';
 import { useScrollCraft } from '../context';
 import { PinOptions } from '../types';
 
@@ -53,7 +53,7 @@ export function usePin<T extends HTMLElement = HTMLDivElement>(
     node.style.top = `${top}px`;
 
     // Dev diagnostic
-    if (process.env.NODE_ENV !== 'production') {
+    if (typeof process !== 'undefined' && process.env?.NODE_ENV !== 'production') {
       let parent = node.parentElement;
       while (parent && parent !== document.body && parent !== document.documentElement) {
         const computed = window.getComputedStyle(parent);
@@ -71,18 +71,13 @@ export function usePin<T extends HTMLElement = HTMLDivElement>(
     const solver = new PinSolver(node, {
       duration,
       topOffset: top,
+      disableTransform: options.disableTransform ?? true,
     });
 
     const measureGeometry = () => solver.measure();
-    window.addEventListener('resize', measureGeometry, { passive: true });
-
-    let resizeObserver: ResizeObserver | null = null;
-    if (typeof ResizeObserver !== 'undefined') {
-      resizeObserver = new ResizeObserver(() => measureGeometry());
-      resizeObserver.observe(node);
-      if (node.parentElement) {
-        resizeObserver.observe(node.parentElement);
-      }
+    const unobserve = GlobalResizeManager.observe(node, measureGeometry);
+    if (typeof document !== 'undefined' && 'fonts' in document) {
+      document.fonts.ready.then(measureGeometry);
     }
 
     const taskId = taskIdRef.current;
@@ -111,16 +106,15 @@ export function usePin<T extends HTMLElement = HTMLDivElement>(
     });
 
     return () => {
-      window.removeEventListener('resize', measureGeometry);
-      resizeObserver?.disconnect();
+      unobserve();
       ticker.remove(taskId);
+      solver.destroy();
       if (node) {
         node.style.position = '';
         node.style.top = '';
-        node.style.transform = '';
       }
     };
-  }, [top, duration, targetRef, trackState, engine]);
+  }, [top, duration, options.disableTransform, targetRef, trackState, engine]);
 
   return {
     ref: targetRef,

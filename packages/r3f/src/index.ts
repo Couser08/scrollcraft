@@ -3,7 +3,7 @@
  * Strictly under 650 LOC.
  */
 
-import { useRef, useLayoutEffect } from 'react';
+import { useEffect, useRef, useCallback, useMemo } from 'react';
 import { useThree } from '@react-three/fiber';
 import { createTimelineReader } from './createTimelineReader';
 import { createFallbackReader } from '@scrollcraft/core';
@@ -18,12 +18,9 @@ export function useScroll3D(
   target: Element | null,
   options?: { axis?: 'block' | 'inline' }
 ) {
-  // Graceful error if called outside R3F <Canvas>
-  try {
-    useThree();
-  } catch (e) {
-    throw new Error('[ScrollCraft] useScroll3D must be called inside a <Canvas> component.');
-  }
+  // Let R3F report its native, actionable Canvas-context error. Hooks must never
+  // be invoked conditionally or from inside a try/catch.
+  useThree();
 
   // Mutable refs to prevent React state invalidation loops inside useFrame
   const metrics = useRef<Scroll3DMetrics>({ progress: 0, velocity: 0, direction: 0 });
@@ -31,11 +28,7 @@ export function useScroll3D(
   
   const readerRef = useRef<{ read: () => number; destroy: () => void } | null>(null);
 
-  // useLayoutEffect is critical for synchronously attaching to DOM before painting,
-  // but we must guard against SSR context (Next.js)
-  const useSafeLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : () => {};
-
-  useSafeLayoutEffect(() => {
+  useEffect(() => {
     if (!target) return;
 
     // Feature Detection + Fallback Strategy (Tier 1 vs Tier 2)
@@ -51,7 +44,7 @@ export function useScroll3D(
 
   // The consumer explicitly calls this tick() function inside their R3F useFrame.
   // This guarantees we never double-pump the RequestAnimationFrame loop.
-  const tick = (): Scroll3DMetrics => {
+  const tick = useCallback((): Scroll3DMetrics => {
     if (!readerRef.current) return metrics.current;
 
     const p = readerRef.current.read();
@@ -64,9 +57,9 @@ export function useScroll3D(
     prevProgress.current = p;
     
     return metrics.current;
-  };
+  }, []);
 
-  return { metrics, tick };
+  return useMemo(() => ({ metrics, tick }), [tick]);
 }
 
 export * from './createTimelineReader';

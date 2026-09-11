@@ -9,12 +9,15 @@ import { clamp } from './math';
 import { ScrollDriver, DriverState } from './driver';
 import { Capabilities } from './feature-detection';
 import { injectNativeStyles } from './native-styles';
+import { TransformComposer } from './dom';
 
 export interface ParallaxOptions {
   speed?: number;
   direction?: 'vertical' | 'horizontal';
   min?: number;
   max?: number;
+  /** Driver selection: 'js' (120 FPS direct composite writes), 'native' (CSS view-timeline), or 'auto' (default: 'js') */
+  driver?: 'auto' | 'js' | 'native';
 }
 
 export interface ParallaxState extends DriverState {
@@ -28,7 +31,9 @@ export interface ParallaxState extends DriverState {
 class JSParallaxDriver implements ScrollDriver {
   private elementTop: number = 0;
   private elementHeight: number = 0;
-  private windowHeight: number = 0;
+  private elementLeft: number = 0;
+  private elementWidth: number = 0;
+  private viewportSize: number = 0;
   private state: ParallaxState = { offset: 0 };
 
   constructor(
@@ -39,21 +44,27 @@ class JSParallaxDriver implements ScrollDriver {
   public measure(): void {
     if (typeof window === 'undefined') return;
     const rect = this.element.getBoundingClientRect();
-    const scrollTop = window.scrollY || window.pageYOffset;
-    
     let currentOffset = this.state.offset;
-    if (this.options.direction === 'horizontal') currentOffset = 0;
-    
-    this.elementTop = rect.top + scrollTop - currentOffset;
-    this.elementHeight = rect.height;
-    this.windowHeight = window.innerHeight;
+    if (this.options.direction === 'vertical') {
+      const scrollTop = window.scrollY || window.pageYOffset;
+      this.elementTop = rect.top + scrollTop - currentOffset;
+      this.elementHeight = rect.height;
+      this.viewportSize = window.innerHeight;
+    } else {
+      const scrollLeft = window.scrollX || window.pageXOffset;
+      this.elementLeft = rect.left + scrollLeft - currentOffset;
+      this.elementWidth = rect.width;
+      this.viewportSize = window.innerWidth;
+    }
   }
 
-  public update(scrollY: number): ParallaxState {
-    if (this.windowHeight === 0) return this.state;
+  public update(scrollOffset: number): ParallaxState {
+    if (this.viewportSize === 0) return this.state;
 
-    const viewportCenter = scrollY + (this.windowHeight / 2);
-    const elementCenter = this.elementTop + (this.elementHeight / 2);
+    const viewportCenter = scrollOffset + (this.viewportSize / 2);
+    const elementCenter = this.options.direction === 'vertical'
+      ? this.elementTop + (this.elementHeight / 2)
+      : this.elementLeft + (this.elementWidth / 2);
     const distanceFromCenter = viewportCenter - elementCenter;
 
     let offset = distanceFromCenter * this.options.speed;
@@ -63,12 +74,17 @@ class JSParallaxDriver implements ScrollDriver {
     return this.state;
   }
 
+  private lastRenderedOffset: number | null = null;
+
   public render(): void {
+    if (this.lastRenderedOffset === this.state.offset) return;
+    this.lastRenderedOffset = this.state.offset;
+
     const formattedOffset = this.state.offset.toFixed(2);
     if (this.options.direction === 'vertical') {
-      this.element.style.transform = `translate3d(0, ${formattedOffset}px, 0)`;
+      TransformComposer.set(this.element, 'parallax', `translate3d(0, ${formattedOffset}px, 0)`);
     } else {
-      this.element.style.transform = `translate3d(${formattedOffset}px, 0, 0)`;
+      TransformComposer.set(this.element, 'parallax', `translate3d(${formattedOffset}px, 0, 0)`);
     }
   }
 
@@ -77,7 +93,7 @@ class JSParallaxDriver implements ScrollDriver {
   }
 
   public destroy(): void {
-    this.element.style.transform = '';
+    TransformComposer.clear(this.element, 'parallax');
   }
 }
 
@@ -167,9 +183,13 @@ export class ParallaxSolver {
       direction: options?.direction ?? 'vertical',
       min: options?.min ?? -Number.MAX_VALUE,
       max: options?.max ?? Number.MAX_VALUE,
+      driver: options?.driver ?? 'auto',
     };
 
-    if (Capabilities.get().isNativeReady) {
+    // When driver is explicitly 'native' and browser supports view-timeline, use NativeParallaxDriver.
+    // Otherwise, default to JSParallaxDriver (direct compositor writes, zero layout reads on scroll,
+    // avoids Chromium unregistered CSS variable keyframe drop and Lenis window.scrollTo conflicts).
+    if (opts.driver === 'native' && Capabilities.get().isNativeReady) {
       this.driver = new NativeParallaxDriver(element, opts);
     } else {
       this.driver = new JSParallaxDriver(element, opts);

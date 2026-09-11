@@ -5,7 +5,8 @@
  */
 
 import { ScrollDriver, DriverState } from './driver';
-import { clamp, lerp } from './math';
+import { clamp, damp } from './math';
+import { TransformComposer } from './dom';
 
 export interface MarqueeOptions {
   baseSpeed?: number;
@@ -47,7 +48,7 @@ export class VelocityMarqueeSolver implements ScrollDriver {
     }
   }
 
-  public update(_scrollY: number, velocity: number = 0): MarqueeState {
+  public update(_scrollY: number, velocity: number = 0, deltaTime: number = 1 / 60): MarqueeState {
     if (this.elementWidth === 0) return this.state;
 
     // The target speed is base + (scroll velocity * multiplier)
@@ -55,11 +56,11 @@ export class VelocityMarqueeSolver implements ScrollDriver {
     const targetSpeed = clamp(rawTargetSpeed, this.options.baseSpeed, this.options.maxSpeed);
 
     // Smooth damp the speed so it decays nicely
-    this.currentSpeed = lerp(this.currentSpeed, targetSpeed, 0.1);
+    this.currentSpeed = damp(this.currentSpeed, targetSpeed, 8, deltaTime);
 
     const dirMultiplier = this.options.direction === 'left' ? -1 : 1;
     
-    this.state.position += this.currentSpeed * dirMultiplier;
+    this.state.position += this.currentSpeed * dirMultiplier * (deltaTime * 60);
 
     // Infinite loop wrap
     if (this.options.direction === 'left' && this.state.position <= -this.elementWidth) {
@@ -73,7 +74,7 @@ export class VelocityMarqueeSolver implements ScrollDriver {
 
   public render(): void {
     // 3D translate for hardware acceleration
-    this.element.style.transform = `translate3d(${this.state.position.toFixed(2)}px, 0, 0)`;
+    TransformComposer.set(this.element, 'marquee', `translate3d(${this.state.position.toFixed(2)}px, 0, 0)`);
   }
 
   public getState(): MarqueeState {
@@ -81,6 +82,6 @@ export class VelocityMarqueeSolver implements ScrollDriver {
   }
 
   public destroy(): void {
-    this.element.style.transform = '';
+    TransformComposer.clear(this.element, 'marquee');
   }
 }

@@ -4,7 +4,7 @@ import React, { useRef, useEffect } from 'react';
 import { VelocityMarqueeSolver, MarqueeOptions, ticker } from '@scrollcraft/core';
 import { useScrollCraft } from '../context';
 
-interface VelocityMarqueeProps extends MarqueeOptions {
+export interface VelocityMarqueeProps extends MarqueeOptions {
   children: React.ReactNode;
   className?: string;
 }
@@ -41,10 +41,10 @@ export const VelocityMarquee: React.FC<VelocityMarqueeProps> = ({
     // We need to measure once after fonts/layout loads
     requestAnimationFrame(() => measure());
 
-    ticker.add(taskId, 'update', () => {
+    ticker.add(taskId, 'update', (dt) => {
       const scrollY = engine?.getMetrics().scroll ?? (window.scrollY || window.pageYOffset);
       const velocity = engine?.getMetrics().velocity ?? 0;
-      solver.update(scrollY, velocity);
+      solver.update(scrollY, velocity, dt);
     });
 
     ticker.add(taskId, 'render', () => {

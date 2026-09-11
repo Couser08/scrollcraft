@@ -16,6 +16,14 @@ declare global {
 
 export type TickerCallback = (deltaTime: number, elapsedTime: number, currentTime: number) => void;
 
+export interface TickerError {
+  id: string;
+  phase: TickerPhase;
+  error: unknown;
+}
+
+export type TickerErrorHandler = (event: TickerError) => void;
+
 export interface TickerTask {
   id: string;
   phase: TickerPhase;

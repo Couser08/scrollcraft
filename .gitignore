@@ -11,6 +11,9 @@ dist/
 # Turborepo cache
 .turbo/
 *.tsbuildinfo
+test-results/
+playwright-report/
+blob-report/
 
 # Environment files
 .env

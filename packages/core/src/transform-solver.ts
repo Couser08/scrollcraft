@@ -181,7 +181,22 @@ export class TransformSolver {
     this.isVisible = this.progress > 0 && this.progress < 1;
   }
 
+  private lastRenderedProgress: number | null = null;
+  private lastRenderedValues: Record<string, number> = {};
+
   public render(): void {
+    let hasChanges = false;
+    for (const key in this.currentValues) {
+      if (this.currentValues[key] !== this.lastRenderedValues[key]) {
+        hasChanges = true;
+        break;
+      }
+    }
+    if (!hasChanges && this.lastRenderedProgress === this.progress) return;
+    
+    this.lastRenderedProgress = this.progress;
+    Object.assign(this.lastRenderedValues, this.currentValues);
+
     // Only flush styles if visible or just exited visibility
     if (!this.isVisible && !this.wasVisible && this.progress === 0) return;
     
@@ -202,7 +217,7 @@ export class TransformSolver {
     if (v.skewY !== undefined) transformStr += `skewY(${v.skewY}deg) `;
     
     if (transformStr) {
-      this.element.style.transform = transformStr.trim();
+      TransformComposer.set(this.element, 'scroll-transform', transformStr.trim());
     }
     
     if (v.opacity !== undefined) this.element.style.opacity = v.opacity.toString();
@@ -220,9 +235,10 @@ export class TransformSolver {
   }
 
   public destroy(): void {
-    if (this.snapTimeout) {
+    if (this.snapTimeout && typeof window !== 'undefined') {
       window.clearTimeout(this.snapTimeout);
     }
+    TransformComposer.clear(this.element, 'scroll-transform');
     this.element.style.willChange = '';
   }
 }

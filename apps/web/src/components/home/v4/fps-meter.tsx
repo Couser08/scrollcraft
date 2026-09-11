@@ -10,16 +10,24 @@ export function FPSMeter() {
   useEffect(() => {
     let frameCount = 0;
     let lastTime = performance.now();
+    let lastDrawTime = performance.now();
     let animationFrameId: number;
     const history: number[] = new Array(60).fill(16.7);
     let historyIdx = 0;
 
     const tick = (currentTime: number) => {
+      // Pause updates if document tab is backgrounded
+      if (document.hidden) {
+        lastTime = currentTime;
+        animationFrameId = requestAnimationFrame(tick);
+        return;
+      }
+
       frameCount++;
       const delta = currentTime - lastTime;
 
-      // Update every ~500ms
-      if (delta >= 500) {
+      // Update FPS readout every ~400ms
+      if (delta >= 400) {
         const fps = Math.min(Math.round((frameCount * 1000) / delta), 120);
         const ms = (delta / frameCount).toFixed(1);
 
@@ -34,8 +42,9 @@ export function FPSMeter() {
       history[historyIdx] = delta / frameCount || 16.7;
       historyIdx = (historyIdx + 1) % history.length;
 
-      // Draw graph
-      if (canvasRef.current) {
+      // Throttle canvas draw to ~120ms (eliminates idle GPU draw loops)
+      if (currentTime - lastDrawTime >= 120 && canvasRef.current) {
+        lastDrawTime = currentTime;
         const ctx = canvasRef.current.getContext('2d');
         if (ctx) {
           const w = canvasRef.current.width;

@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import {
+import type {
   InertiaConfig,
   ScrollMetrics,
   SpringConfig,
@@ -12,13 +12,21 @@ import {
   InertiaEngine,
 } from '@scrollcraft/core';
 
+export type {
+  InertiaConfig,
+  ScrollMetrics,
+  SpringConfig,
+  ElementTransform,
+  InertiaEngine,
+};
+
 export interface ScrollProviderProps {
   children: React.ReactNode;
   /** Whether to enable inertia smooth scrolling. Default: true */
   smooth?: boolean | Partial<InertiaConfig>;
   /**
-   * Reset scroll position to 0 on Next.js App Router route change.
-   * Default: false (preserves Next.js native scroll restoration and back/forward history).
+   * @deprecated Framework-agnostic packages cannot reliably observe Next.js App Router
+   * transitions. Call scrollTo(0) from your router transition instead.
    */
   autoResetOnRouteChange?: boolean;
   /**
@@ -64,6 +72,8 @@ export interface ParallaxOptions {
   max?: number;
   /** Disable transform if prefers-reduced-motion is active. Default: true */
   respectReducedMotion?: boolean;
+  /** Driver selection: 'js' (120 FPS direct composite writes), 'native' (CSS view-timeline), or 'auto' (default: 'js') */
+  driver?: 'auto' | 'js' | 'native';
 }
 
 export interface ParallaxProps extends React.HTMLAttributes<HTMLElement>, ParallaxOptions {
@@ -104,6 +114,8 @@ export interface PinOptions {
   onProgress?: (progress: number) => void;
   /** Whether to trigger React state updates for progress and pinOffsetY. Default: false */
   trackState?: boolean;
+  /** Disable writing translate3d transform (e.g. when using native CSS position: sticky). Default: false */
+  disableTransform?: boolean;
 }
 
 export interface PinProps extends Omit<React.HTMLAttributes<HTMLElement>, 'onProgress'>, PinOptions {

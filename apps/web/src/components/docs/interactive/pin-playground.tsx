@@ -1,151 +1,198 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Pin as PinIcon, CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Pin, PinContainer } from '@scrollcraft/react';
+import { PlaygroundShell } from './playground-shell';
+import { Pin as PinIcon, ShieldCheck, Zap } from 'lucide-react';
 
 export const PinPlayground: React.FC = () => {
-  const [scrollSimulation, setScrollSimulation] = useState<number>(30);
+  const [pinDuration, setPinDuration] = useState<number>(140); // vh
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  // When scrollSimulation is between 20% and 80%, the card is PINNED
-  const isPinned = scrollSimulation >= 20 && scrollSimulation <= 80;
+  // Telemetry DOM refs for zero React re-renders on scroll
+  const progressTextRef = useRef<HTMLSpanElement>(null);
+  const statusBadgeRef = useRef<HTMLSpanElement>(null);
+  const progressBarRef = useRef<HTMLDivElement>(null);
 
-  // Visual card Y position
-  let cardTranslateY = 0;
-  if (scrollSimulation < 20) {
-    cardTranslateY = (scrollSimulation / 20) * 40;
-  } else if (scrollSimulation <= 80) {
-    cardTranslateY = 40; // Locked in place!
-  } else {
-    cardTranslateY = 40 + ((scrollSimulation - 80) / 20) * 60; // Released
-  }
+  const handleScrollToProgress = (fraction: number) => {
+    const el = containerRef.current;
+    if (!el || typeof window === 'undefined') return;
+
+    const rect = el.getBoundingClientRect();
+    const scrollTop = window.scrollY || window.pageYOffset;
+    const elTop = rect.top + scrollTop;
+    const totalDistance = rect.height - window.innerHeight;
+    const targetScrollY = elTop + fraction * totalDistance;
+
+    window.scrollTo({ top: targetScrollY, behavior: 'smooth' });
+  };
+
+  const codeSnippet = `<PinContainer height="${pinDuration}vh" className="relative w-full">
+  {/* Locks seamlessly in place without fake dummy spacers */}
+  <Pin top={90} onProgress={(p) => updateHud(p)}>
+    <div className="p-6 rounded-2xl bg-zinc-900 border border-zinc-800 shadow-2xl">
+      <h3 className="text-xl font-bold text-white">Sticky Narrative Focus</h3>
+      <p className="text-xs text-zinc-400">Locked for ${pinDuration}vh of scroll travel</p>
+    </div>
+  </Pin>
+</PinContainer>`;
 
   return (
-    <div className="my-6 rounded-xl border border-zinc-800/80 bg-[#09090b] overflow-hidden shadow-2xl">
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 bg-[#0d0d10] border-b border-zinc-800/80">
-        <div className="flex items-center gap-2">
-          <span className="flex h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
-          <span className="text-xs font-bold uppercase tracking-wider text-zinc-200">
-            Interactive Pin Contract Stage
-          </span>
-          <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 font-semibold">
-            &lt;Pin /&gt;
-          </span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span
-            className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-semibold border ${
-              isPinned
-                ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
-                : 'bg-zinc-900 text-zinc-500 border-zinc-800'
-            }`}
-          >
-            {isPinned ? 'STATUS: PINNED (LOCKED)' : 'STATUS: UNPINNED (FLOW)'}
-          </span>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="p-4 sm:p-6 grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
-        {/* Left Controls */}
-        <div className="md:col-span-5 flex flex-col gap-4">
+    <PlaygroundShell
+      title="<Pin /> Sticky Contract Sandbox"
+      badge="@scrollcraft/react"
+      driverType="sticky"
+      onReset={() => setPinDuration(140)}
+      codeSnippet={codeSnippet}
+      codeFileName="PinNarrative.tsx"
+      controls={
+        <div className="flex flex-col gap-3.5">
           <div>
-            <div className="flex items-center justify-between text-xs mb-1.5">
-              <span className="font-medium text-zinc-200">Simulate Scroll Distance</span>
-              <span className="font-mono text-blue-400 font-semibold">{scrollSimulation}%</span>
+            <div className="flex items-center justify-between text-xs mb-1.5 font-mono">
+              <span className="text-zinc-300 font-medium">Pin Duration Budget</span>
+              <span className="text-blue-400 font-semibold">{pinDuration}vh</span>
             </div>
             <input
               type="range"
-              min="0"
-              max="100"
-              value={scrollSimulation}
-              onChange={(e) => setScrollSimulation(Number(e.target.value))}
+              min="100"
+              max="220"
+              step="20"
+              value={pinDuration}
+              onChange={(e) => setPinDuration(Number(e.target.value))}
               className="w-full accent-blue-500 h-1.5 bg-zinc-800 rounded-lg cursor-pointer"
             />
             <div className="flex justify-between text-[10px] text-zinc-500 mt-1 font-mono">
-              <span>0% (Entry)</span>
-              <span>20% - 80% (Pinned Zone)</span>
-              <span>100% (Release)</span>
+              <span>100vh (Compact)</span>
+              <span>140vh (Balanced)</span>
+              <span>220vh (Extended)</span>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setScrollSimulation((s) => Math.max(0, s - 20))}
-              className="flex-1 flex items-center justify-center gap-1 py-1.5 px-3 rounded-lg border border-zinc-800 bg-zinc-900 hover:bg-zinc-800 text-xs font-mono text-zinc-300 transition-colors"
-            >
-              <ChevronUp className="w-3.5 h-3.5" />
-              <span>Step Back</span>
-            </button>
-            <button
-              onClick={() => setScrollSimulation((s) => Math.min(100, s + 20))}
-              className="flex-1 flex items-center justify-center gap-1 py-1.5 px-3 rounded-lg border border-zinc-800 bg-zinc-900 hover:bg-zinc-800 text-xs font-mono text-zinc-300 transition-colors"
-            >
-              <ChevronDown className="w-3.5 h-3.5" />
-              <span>Step Forward</span>
-            </button>
-          </div>
-
-          <div className="p-3.5 rounded-xl border border-zinc-800/80 bg-[#0c0c0e] font-mono text-xs space-y-1.5">
-            <div className="flex items-center justify-between text-white font-semibold pb-1 border-b border-zinc-800/60">
-              <span className="flex items-center gap-1.5">
-                <PinIcon className="w-3.5 h-3.5 text-blue-400" />
-                <span>Zero Dummy Spacers</span>
-              </span>
-              <span className="text-emerald-400 text-[10px]">Active</span>
-            </div>
-            <div className="text-[11px] text-zinc-400">
-              • Position: <code className="text-zinc-200">sticky top-0</code>
-            </div>
-            <div className="text-[11px] text-zinc-400">
-              • Ancestor overflow diagnostic auto-scan
-            </div>
-            <div className="text-[11px] text-zinc-400">
-              • Pin progress: <span className="text-blue-400 font-semibold">{isPinned ? Math.round(((scrollSimulation - 20) / 60) * 100) : 0}%</span>
+          <div>
+            <label className="text-xs font-mono text-zinc-400 block mb-1.5">
+              Jump through Sticky Zone
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                onClick={() => handleScrollToProgress(0)}
+                className="py-1.5 px-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs font-mono text-zinc-300 hover:text-white transition-colors cursor-pointer"
+              >
+                Entry (0%)
+              </button>
+              <button
+                onClick={() => handleScrollToProgress(0.5)}
+                className="py-1.5 px-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs font-mono text-zinc-300 hover:text-white transition-colors cursor-pointer"
+              >
+                Locked (50%)
+              </button>
+              <button
+                onClick={() => handleScrollToProgress(1.0)}
+                className="py-1.5 px-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs font-mono text-zinc-300 hover:text-white transition-colors cursor-pointer"
+              >
+                Release (100%)
+              </button>
             </div>
           </div>
         </div>
+      }
+      telemetry={
+        <>
+          <div className="flex items-center justify-between">
+            <span className="text-zinc-400">Sticky Pin State:</span>
+            <span ref={statusBadgeRef} className="text-zinc-400 font-mono">
+              UNPINNED (FLOW)
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-zinc-400">Pin Budget Progress:</span>
+            <span ref={progressTextRef} className="text-blue-400 font-bold font-mono">
+              0.0%
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-zinc-400">DOM Spacers Injected:</span>
+            <span className="text-emerald-400 font-semibold font-mono">
+              0 dummy divs (Pure CSS)
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-zinc-400">Layout Hierarchy:</span>
+            <span className="text-white font-mono">Grid & Flex Safe</span>
+          </div>
+        </>
+      }
+    >
+      <div className="flex flex-col gap-3">
+        <div className="text-[11px] font-mono text-zinc-400 flex items-center justify-between">
+          <span className="flex items-center gap-1.5">
+            <PinIcon className="w-3.5 h-3.5 text-blue-400" />
+            <span>Real &lt;Pin /&gt; Narrative Container ({pinDuration}vh)</span>
+          </span>
+          <span className="text-zinc-500">Scroll down to lock card in place</span>
+        </div>
 
-        {/* Right Stage */}
-        <div className="md:col-span-7 flex flex-col items-center">
-          <div className="w-full h-[260px] rounded-2xl border border-zinc-800/80 bg-[#060608] overflow-hidden relative shadow-2xl p-4 flex flex-col justify-start">
-            {/* Track boundary visualizer */}
-            <div className="absolute inset-x-4 top-4 bottom-4 border border-dashed border-zinc-800 rounded-xl pointer-events-none flex items-start justify-end p-2">
-              <span className="text-[10px] font-mono text-zinc-600">PIN TRACK BOUNDARY (200vh)</span>
-            </div>
-
-            {/* Pinned Element */}
-            <div
-              className={`relative z-10 p-5 rounded-xl border transition-all duration-150 w-full max-w-sm mx-auto shadow-2xl ${
-                isPinned
-                  ? 'bg-zinc-900 border-blue-500/50 shadow-blue-500/10'
-                  : 'bg-zinc-950 border-zinc-800'
-              }`}
-              style={{
-                transform: `translate3d(0, ${cardTranslateY}px, 0)`,
+        {/* Real <PinContainer> and <Pin> from @scrollcraft/react */}
+        <div
+          ref={containerRef}
+          className="rounded-2xl border border-zinc-800/80 bg-[#060608] overflow-hidden shadow-inner relative p-4"
+        >
+          <PinContainer height={`${pinDuration}vh`} className="w-full">
+            <Pin
+              top={90}
+              onProgress={(p) => {
+                const norm = Math.max(0, Math.min(1, p));
+                if (progressTextRef.current) {
+                  progressTextRef.current.textContent = `${(norm * 100).toFixed(1)}%`;
+                }
+                if (statusBadgeRef.current) {
+                  if (norm > 0.02 && norm < 0.98) {
+                    statusBadgeRef.current.textContent = 'PINNED (LOCKED) 📌';
+                    statusBadgeRef.current.className = 'text-emerald-400 font-bold font-mono';
+                  } else {
+                    statusBadgeRef.current.textContent = 'UNPINNED (FLOW)';
+                    statusBadgeRef.current.className = 'text-zinc-400 font-mono';
+                  }
+                }
+                if (progressBarRef.current) {
+                  progressBarRef.current.style.transform = `scaleX(${norm})`;
+                }
               }}
             >
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <div className={`w-2.5 h-2.5 rounded-full ${isPinned ? 'bg-emerald-400 animate-pulse' : 'bg-zinc-600'}`} />
-                  <span className="text-xs font-mono font-bold text-white uppercase">
-                    {isPinned ? 'Locked in Viewport' : 'Free Scroll'}
-                  </span>
+              <div className="p-6 rounded-2xl bg-zinc-900/95 border border-zinc-700/80 shadow-2xl flex flex-col justify-between max-w-md mx-auto backdrop-blur-md">
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 font-bold">
+                      STICKY STORYTELLING
+                    </span>
+                    <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                  </div>
+                  <h4 className="text-base font-extrabold text-white mb-1.5">
+                    Zero Spacer Injection
+                  </h4>
+                  <p className="text-xs text-zinc-400 leading-relaxed">
+                    This element sticks natively via CSS <code className="text-zinc-200">position: sticky</code> while you scroll through the {pinDuration}vh container. It never injects dummy height spacers.
+                  </p>
                 </div>
-                {isPinned && (
-                  <span className="text-[10px] font-mono text-emerald-400 flex items-center gap-1">
-                    <CheckCircle2 className="w-3 h-3" /> PINNED
-                  </span>
-                )}
+
+                {/* Progress bar inside the pinned card */}
+                <div className="mt-5 pt-3 border-t border-zinc-800/80 space-y-1.5">
+                  <div className="flex items-center justify-between text-[10px] font-mono text-zinc-500">
+                    <span>PIN BUDGET METRIC</span>
+                    <Zap className="w-3 h-3 text-blue-400" />
+                  </div>
+                  <div className="w-full h-1.5 bg-zinc-950 rounded-full overflow-hidden border border-zinc-800">
+                    <div
+                      ref={progressBarRef}
+                      className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 origin-left transition-transform duration-75 will-change-transform"
+                      style={{ transform: 'scaleX(0)' }}
+                    />
+                  </div>
+                </div>
               </div>
-              <h4 className="text-sm font-bold text-white">Sticky Narrative Headline</h4>
-              <p className="text-xs text-zinc-400 mt-1">
-                Pin keeps this story anchor visible while surrounding content flows smoothly.
-              </p>
-            </div>
-          </div>
+            </Pin>
+          </PinContainer>
         </div>
       </div>
-    </div>
+    </PlaygroundShell>
   );
 };

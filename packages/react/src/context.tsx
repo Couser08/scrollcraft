@@ -64,6 +64,7 @@ export const ScrollProvider: React.FC<ScrollProviderProps> = ({
   }
 
   useEffect(() => {
+    let isMounted = true;
     if (typeof window === 'undefined') return;
 
     // Detect user OS reduced motion preferences
@@ -91,6 +92,12 @@ export const ScrollProvider: React.FC<ScrollProviderProps> = ({
       setIsReady(true);
     }
 
+    if (autoResetOnRouteChange && typeof process !== 'undefined' && process.env?.NODE_ENV !== 'production') {
+      console.warn(
+        '[ScrollCraft] autoResetOnRouteChange is deprecated. Call scrollTo(0) from your router transition instead.'
+      );
+    }
+
     // Window resize handling (debounced via requestAnimationFrame, no body ResizeObserver loop)
     let resizeRafId: number | null = null;
     const handleResize = () => {
@@ -106,7 +113,7 @@ export const ScrollProvider: React.FC<ScrollProviderProps> = ({
 
       if (typeof document !== 'undefined' && 'fonts' in document) {
         document.fonts.ready.then(() => {
-          engine?.resize();
+          if (isMounted) engine?.resize();
         });
       }
     }
@@ -133,6 +140,7 @@ export const ScrollProvider: React.FC<ScrollProviderProps> = ({
     }
 
     return () => {
+      isMounted = false;
       motionQuery.removeEventListener('change', onMotionChange);
       if (autoRecalc) {
         window.removeEventListener('resize', handleResize);

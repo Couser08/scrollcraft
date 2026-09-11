@@ -73,10 +73,10 @@ export class DrawSolver {
 
     if (this.element.getTotalLength) {
       this.totalLength = this.element.getTotalLength();
-      this.element.style.strokeDasharray = `${this.totalLength} ${this.totalLength}`;
       
       // Initialize offset correctly based on direction
       if (!this.hasDrawn) {
+        this.element.style.strokeDasharray = `${this.totalLength} ${this.totalLength}`;
         if (this.options.direction === 'reverse') {
           this.element.style.strokeDashoffset = `-${this.totalLength}`;
         } else {
@@ -144,6 +144,7 @@ export class DrawSolver {
   }
 
   public destroy(): void {
-    // cleanup
+    this.element.style.strokeDasharray = '';
+    this.element.style.strokeDashoffset = '';
   }
 }

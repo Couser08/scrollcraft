@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { Parallax, Reveal } from '@scrollcraft/react';
 
 export function HeroSection() {
@@ -10,13 +11,34 @@ export function HeroSection() {
       {/* Background Image Panels */}
       <div className="absolute inset-0 z-0 flex justify-center items-center gap-2 opacity-60">
         <Parallax speed={-0.15} className="w-[30%] h-[120%] overflow-hidden relative">
-          <div className="absolute inset-0 bg-[url('/images/hero-mountain.jpg')] bg-cover bg-center bg-no-repeat" style={{ backgroundPosition: 'left center' }} />
+          <Image
+            src="/images/hero-mountain.webp"
+            alt="Hero mountain left panel"
+            fill
+            priority
+            sizes="30vw"
+            className="object-cover object-left"
+          />
         </Parallax>
         <Parallax speed={-0.05} className="w-[40%] h-[120%] overflow-hidden relative">
-          <div className="absolute inset-0 bg-[url('/images/hero-mountain.jpg')] bg-cover bg-center bg-no-repeat" />
+          <Image
+            src="/images/hero-mountain.webp"
+            alt="Hero mountain center panel"
+            fill
+            priority
+            sizes="40vw"
+            className="object-cover object-center"
+          />
         </Parallax>
         <Parallax speed={-0.15} className="w-[30%] h-[120%] overflow-hidden relative">
-          <div className="absolute inset-0 bg-[url('/images/hero-mountain.jpg')] bg-cover bg-center bg-no-repeat" style={{ backgroundPosition: 'right center' }} />
+          <Image
+            src="/images/hero-mountain.webp"
+            alt="Hero mountain right panel"
+            fill
+            priority
+            sizes="30vw"
+            className="object-cover object-right"
+          />
         </Parallax>
         {/* Gradient Overlay for text readability */}
         <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/40 to-[#050505]/80 pointer-events-none" />
@@ -77,7 +99,7 @@ export function HeroSection() {
       </div>
 
       {/* Scroll Indicator */}
-      <Parallax speed={-0.3} className="absolute right-8 bottom-1/2 translate-y-1/2 flex flex-col items-center gap-4 z-20 mix-blend-difference hidden md:flex">
+      <Parallax speed={-0.3} className="absolute right-8 bottom-1/2 translate-y-1/2 flex flex-col items-center gap-4 z-20 hidden md:flex">
         <span className="text-xs font-mono text-zinc-400">01</span>
         <div className="w-[1px] h-32 bg-zinc-800 relative">
           <div className="absolute top-0 left-0 w-full h-1/3 bg-white" />

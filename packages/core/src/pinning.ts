@@ -5,6 +5,7 @@
  */
 
 import { clamp } from './math';
+import { TransformComposer } from './dom';
 
 export const DEFAULT_PIN_DURATION = 800;
 
@@ -15,6 +16,8 @@ export interface PinOptions {
   topOffset?: number;
   /** Callback on pin progress (0.0 to 1.0) */
   onProgress?: (progress: number) => void;
+  /** Disable writing translate3d transform (e.g. when using native CSS position: sticky). Default: false */
+  disableTransform?: boolean;
 }
 
 export interface PinState {
@@ -39,6 +42,7 @@ export class PinSolver {
       duration: options?.duration ?? (typeof window !== 'undefined' ? window.innerHeight : DEFAULT_PIN_DURATION),
       topOffset: options?.topOffset ?? 0,
       onProgress: options?.onProgress ?? (() => {}),
+      disableTransform: options?.disableTransform ?? false,
     };
     this.measure();
   }
@@ -85,15 +89,27 @@ export class PinSolver {
   /**
    * Phase 3: Direct GPU transform application
    */
+  private lastRenderedOffsetY: number | null = null;
+
   public render(): void {
+    if (this.options.disableTransform) return;
+    if (this.lastRenderedOffsetY === this.state.pinOffsetY) return;
+    this.lastRenderedOffsetY = this.state.pinOffsetY;
+
     if (this.state.pinOffsetY > 0) {
-      this.element.style.transform = `translate3d(0px, ${this.state.pinOffsetY}px, 0px)`;
+      TransformComposer.set(this.element, 'pin', `translate3d(0px, ${this.state.pinOffsetY}px, 0px)`);
     } else {
-      this.element.style.transform = '';
+      TransformComposer.clear(this.element, 'pin');
     }
   }
 
   public getState(): PinState {
     return this.state;
+  }
+
+  public destroy(): void {
+    if (!this.options.disableTransform) {
+      TransformComposer.clear(this.element, 'pin');
+    }
   }
 }

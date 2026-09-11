@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { Parallax, Reveal } from '@scrollcraft/react';
 
 export function CTASection() {
@@ -20,7 +21,13 @@ export function CTASection() {
         <Reveal distance={80} duration={1.2}>
           <div className="w-full h-full opacity-30">
             <Parallax speed={-0.1} className="w-full h-[120%] -top-[10%] relative">
-              <div className="absolute inset-0 bg-[url('/images/cta-mountains.jpg')] bg-cover bg-center mix-blend-screen" />
+              <Image
+                src="/images/hero_mountain_dark.webp"
+                alt="Mountains CTA background"
+                fill
+                sizes="100vw"
+                className="object-cover object-center"
+              />
               <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-[#050505]" />
             </Parallax>
           </div>

@@ -4,13 +4,43 @@ import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { DocsSidebar } from './docs-sidebar';
 import { TocItem } from './docs-toc';
 import { DOCS_CATEGORIES } from './docs-data';
-import { CommandPalette } from './command-palette';
+import dynamic from 'next/dynamic';
 import { DocGettingStarted } from './sections/doc-getting-started';
-import { DocPrimitives } from './sections/doc-primitives';
-import { DocHooks } from './sections/doc-hooks';
-import { DocArchitecture } from './sections/doc-architecture';
-import { DocR3F } from './sections/doc-r3f';
-import { DocRecipes } from './sections/doc-recipes';
+
+const SectionLoading = () => (
+  <div className="flex flex-col gap-6 animate-pulse py-12">
+    <div className="h-6 w-32 bg-zinc-850 rounded-md" />
+    <div className="h-12 w-3/4 bg-zinc-800 rounded-lg" />
+    <div className="h-4 w-full bg-zinc-900 rounded" />
+    <div className="h-4 w-5/6 bg-zinc-900 rounded" />
+    <div className="h-72 w-full bg-zinc-900/60 rounded-2xl border border-zinc-800" />
+  </div>
+);
+
+const DocPrimitives = dynamic(
+  () => import('./sections/doc-primitives').then((mod) => mod.DocPrimitives),
+  { loading: SectionLoading }
+);
+const DocHooks = dynamic(
+  () => import('./sections/doc-hooks').then((mod) => mod.DocHooks),
+  { loading: SectionLoading }
+);
+const DocArchitecture = dynamic(
+  () => import('./sections/doc-architecture').then((mod) => mod.DocArchitecture),
+  { loading: SectionLoading }
+);
+const DocR3F = dynamic(
+  () => import('./sections/doc-r3f').then((mod) => mod.DocR3F),
+  { loading: SectionLoading }
+);
+const DocRecipes = dynamic(
+  () => import('./sections/doc-recipes').then((mod) => mod.DocRecipes),
+  { loading: SectionLoading }
+);
+const CommandPalette = dynamic(
+  () => import('./command-palette').then((mod) => mod.CommandPalette),
+  { ssr: false }
+);
 import {
   Menu,
   X,

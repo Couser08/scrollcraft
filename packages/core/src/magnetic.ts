@@ -7,6 +7,7 @@
 import { springStep } from './math';
 import { SpringConfig, SpringState } from './types';
 import { ticker } from './ticker';
+import { TransformComposer } from './dom';
 
 export interface MagneticOptions {
   strength?: number;
@@ -29,7 +30,8 @@ export class MagneticSolver {
   private taskId: string;
   
   private isHovering: boolean = false;
-  private cachedRect: DOMRect | null = null;
+  private isTicking: boolean = false;
+  private cachedAbsoluteRect: { left: number; top: number; width: number; height: number } | null = null;
 
   constructor(element: HTMLElement, options?: MagneticOptions) {
     this.element = element;
@@ -52,7 +54,16 @@ export class MagneticSolver {
   }
 
   private measureRect = () => {
-    this.cachedRect = this.element.getBoundingClientRect();
+    if (typeof window === 'undefined') return;
+    const rect = this.element.getBoundingClientRect();
+    const scrollX = window.scrollX || window.pageXOffset;
+    const scrollY = window.scrollY || window.pageYOffset;
+    this.cachedAbsoluteRect = {
+      left: rect.left + scrollX,
+      top: rect.top + scrollY,
+      width: rect.width,
+      height: rect.height,
+    };
   };
 
   private onMouseEnter = () => {
@@ -62,12 +73,18 @@ export class MagneticSolver {
   };
 
   private onMouseMove = (e: MouseEvent) => {
-    if (!this.cachedRect) this.measureRect();
-    const rect = this.cachedRect;
-    if (!rect) return;
+    if (!this.cachedAbsoluteRect) this.measureRect();
+    const absRect = this.cachedAbsoluteRect;
+    if (!absRect) return;
 
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
+    const scrollX = window.scrollX || window.pageXOffset;
+    const scrollY = window.scrollY || window.pageYOffset;
+    
+    const left = absRect.left - scrollX;
+    const top = absRect.top - scrollY;
+
+    const centerX = left + absRect.width / 2;
+    const centerY = top + absRect.height / 2;
 
     const deltaX = e.clientX - centerX;
     const deltaY = e.clientY - centerY;
@@ -88,27 +105,29 @@ export class MagneticSolver {
     this.isHovering = false;
     this.targetX = 0;
     this.targetY = 0;
-    this.cachedRect = null;
+    this.cachedAbsoluteRect = null;
     this.ensureTicker();
   };
 
   private bindEvents() {
+    if (typeof window === 'undefined') return;
     this.element.addEventListener('mouseenter', this.onMouseEnter);
     this.element.addEventListener('mousemove', this.onMouseMove);
     this.element.addEventListener('mouseleave', this.onMouseLeave);
     
-    // Also re-measure on global resize or scroll if hovering
     window.addEventListener('resize', this.measureRect, { passive: true });
-    window.addEventListener('scroll', this.measureRect, { passive: true });
   }
 
   public destroy() {
+    if (typeof window === 'undefined') return;
     this.element.removeEventListener('mouseenter', this.onMouseEnter);
     this.element.removeEventListener('mousemove', this.onMouseMove);
     this.element.removeEventListener('mouseleave', this.onMouseLeave);
     window.removeEventListener('resize', this.measureRect);
-    window.removeEventListener('scroll', this.measureRect);
     ticker.remove(this.taskId);
+    ticker.remove(this.taskId + '-render');
+    this.isTicking = false;
+    TransformComposer.clear(this.element, 'magnetic');
   }
 
   private ensureTicker() {
@@ -116,8 +135,8 @@ export class MagneticSolver {
     if (this.stateX.settled && this.stateY.settled && this.targetX === 0 && this.targetY === 0 && !this.isHovering) {
       return; // fully idle
     }
-    
-    // We add to 'render' phase because this is pointer-driven, but properly we should separate update/render
+    if (this.isTicking) return;
+    this.isTicking = true;
     ticker.add(this.taskId, 'update', this.update);
     ticker.add(this.taskId + '-render', 'render', this.render);
   }
@@ -127,12 +146,14 @@ export class MagneticSolver {
     springStep(this.stateY.position, this.targetY, this.stateY.velocity, this.springConfig, dt, this.stateY);
     
     if (this.stateX.settled && this.stateY.settled && this.targetX === 0 && this.targetY === 0) {
+      TransformComposer.clear(this.element, 'magnetic');
       ticker.remove(this.taskId);
       ticker.remove(this.taskId + '-render');
+      this.isTicking = false;
     }
   };
 
   private render = () => {
-    this.element.style.transform = `translate3d(${this.stateX.position.toFixed(2)}px, ${this.stateY.position.toFixed(2)}px, 0)`;
+    TransformComposer.set(this.element, 'magnetic', `translate3d(${this.stateX.position.toFixed(2)}px, ${this.stateY.position.toFixed(2)}px, 0)`);
   };
 }

@@ -4,6 +4,8 @@
  * Strictly under 650 LOC.
  */
 
+import { TransformComposer } from './dom';
+
 export interface RevealOptions {
   direction?: 'up' | 'down' | 'left' | 'right' | 'none';
   distance?: number;
@@ -79,13 +81,13 @@ export class GlobalRevealObserver {
   private applyHiddenState(element: HTMLElement, options: Required<RevealOptions>): void {
     element.style.transition = `opacity ${options.duration}s cubic-bezier(0.16, 1, 0.3, 1), transform ${options.duration}s cubic-bezier(0.16, 1, 0.3, 1)`;
     element.style.opacity = '0';
-    element.style.transform = this.getHiddenTransform(options.direction, options.distance);
+    TransformComposer.set(element, 'reveal', this.getHiddenTransform(options.direction, options.distance));
   }
 
   private applyRevealedState(element: HTMLElement, options: Required<RevealOptions>): void {
     element.style.transition = `opacity ${options.duration}s cubic-bezier(0.16, 1, 0.3, 1) ${options.delay}s, transform ${options.duration}s cubic-bezier(0.16, 1, 0.3, 1) ${options.delay}s`;
     element.style.opacity = '1';
-    element.style.transform = 'translate3d(0, 0, 0)';
+    TransformComposer.set(element, 'reveal', 'translate3d(0, 0, 0)');
   }
 
   public observe(element: HTMLElement, options: RevealOptions): void {
@@ -116,9 +118,12 @@ export class GlobalRevealObserver {
       const data = this.entries.get(element)!;
       data.hasRevealed = true;
       element.style.opacity = '1';
-      element.style.transform = 'translate3d(0, 0, 0)';
+      TransformComposer.set(element, 'reveal', 'translate3d(0, 0, 0)');
       
-      if (fullOptions.once) return; // Don't even observe if it's 'once' and already visible
+      if (fullOptions.once) {
+        this.entries.delete(element);
+        return; // Don't even observe if it's 'once' and already visible
+      }
     } else {
       element.style.willChange = 'opacity, transform';
       this.applyHiddenState(element, fullOptions);
@@ -139,6 +144,22 @@ export class GlobalRevealObserver {
     
     this.entries.delete(element);
     element.style.willChange = '';
+    element.style.transition = '';
+    element.style.opacity = '';
+    TransformComposer.clear(element, 'reveal');
+  }
+
+  /** Releases pooled observers during application teardown and tests. */
+  public destroy(): void {
+    for (const observer of this.observers.values()) observer.disconnect();
+    this.observers.clear();
+    for (const entry of this.entries.values()) {
+      entry.element.style.willChange = '';
+      entry.element.style.transition = '';
+      entry.element.style.opacity = '';
+      TransformComposer.clear(entry.element, 'reveal');
+    }
+    this.entries.clear();
   }
 }
 

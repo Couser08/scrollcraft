@@ -8,7 +8,7 @@
  */
 
 import { useEffect } from 'react';
-import { ticker, ParallaxSolver } from '@scrollcraft/core';
+import { ticker, ParallaxSolver, GlobalResizeManager, TransformComposer } from '@scrollcraft/core';
 import { useScrollCraft } from '../context';
 import { ParallaxOptions } from '../types';
 
@@ -24,7 +24,9 @@ export function useParallax<T extends HTMLElement>(
     if (!node || typeof window === 'undefined') return;
 
     if (reducedMotion && respectReducedMotion) {
-      node.style.transform = '';
+      if (node) {
+        TransformComposer.clear(node, 'parallax');
+      }
       return;
     }
 
@@ -34,24 +36,20 @@ export function useParallax<T extends HTMLElement>(
     const solver = new ParallaxSolver(node, options);
     const taskId = `parallax-${Math.random().toString(36).slice(2, 8)}`;
 
-    // Re-measure on resize and DOM mutations
+    // Re-measure on window resize and font readiness (zero layout reads on scroll)
     const measureGeometry = () => solver.measure();
-    window.addEventListener('resize', measureGeometry, { passive: true });
-
-    let resizeObserver: ResizeObserver | null = null;
-    if (typeof ResizeObserver !== 'undefined') {
-      resizeObserver = new ResizeObserver(() => measureGeometry());
-      resizeObserver.observe(node);
-      if (node.parentElement) {
-        resizeObserver.observe(node.parentElement);
-      }
+    const unobserve = GlobalResizeManager.observe(node, measureGeometry);
+    if (typeof document !== 'undefined' && 'fonts' in document) {
+      document.fonts.ready.then(measureGeometry);
     }
 
     // Register strictly separated Ticker phases
     ticker.add(taskId, 'update', () => {
       // Get global metrics from engine, NO DOM READS
-      const scrollY = engine?.getMetrics().scroll ?? (window.scrollY || window.pageYOffset);
-      solver.update(scrollY);
+      const scrollOffset = options.direction === 'horizontal'
+        ? (window.scrollX || window.pageXOffset)
+        : (engine?.getMetrics().scroll ?? (window.scrollY || window.pageYOffset));
+      solver.update(scrollOffset);
     });
 
     ticker.add(taskId, 'render', () => {
@@ -59,13 +57,12 @@ export function useParallax<T extends HTMLElement>(
     });
 
     return () => {
-      window.removeEventListener('resize', measureGeometry);
-      resizeObserver?.disconnect();
+      unobserve();
       ticker.remove(taskId);
+      solver.destroy();
       if (node) {
         node.style.willChange = '';
-        node.style.transform = '';
       }
     };
-  }, [options.speed, options.direction, options.min, options.max, reducedMotion, respectReducedMotion, targetRef, engine]);
+  }, [options.speed, options.direction, options.min, options.max, options.driver, reducedMotion, respectReducedMotion, targetRef, engine]);
 }

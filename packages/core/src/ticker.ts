@@ -4,7 +4,7 @@
  * Strictly under 650 LOC.
  */
 
-import { TickerCallback, TickerPhase } from './types';
+import { TickerCallback, TickerErrorHandler, TickerPhase } from './types';
 
 export const MIN_DELTA_TIME = 0.001;
 export const MAX_DELTA_TIME = 0.033;
@@ -16,9 +16,11 @@ export class Ticker {
   private updateTasks: Map<string, TickerCallback> = new Map();
   private renderTasks: Map<string, TickerCallback> = new Map();
 
-  private measureTasksArray: TickerCallback[] = [];
-  private updateTasksArray: TickerCallback[] = [];
-  private renderTasksArray: TickerCallback[] = [];
+  private measureTasksArray: Array<[string, TickerCallback]> = [];
+  private updateTasksArray: Array<[string, TickerCallback]> = [];
+  private renderTasksArray: Array<[string, TickerCallback]> = [];
+  private taskArraysDirty = true;
+  private errorHandler: TickerErrorHandler | null = null;
 
   private isRunning: boolean = false;
   private visibilityBound: boolean = false;
@@ -36,23 +38,39 @@ export class Ticker {
   }
 
   private syncTaskArrays(): void {
-    this.measureTasksArray = Array.from(this.measureTasks.values());
-    this.updateTasksArray = Array.from(this.updateTasks.values());
-    this.renderTasksArray = Array.from(this.renderTasks.values());
+    if (!this.taskArraysDirty) return;
+    this.measureTasksArray = Array.from(this.measureTasks.entries());
+    this.updateTasksArray = Array.from(this.updateTasks.entries());
+    this.renderTasksArray = Array.from(this.renderTasks.entries());
+    this.taskArraysDirty = false;
   }
 
   /**
    * Register a task in one of three engine phases
    */
   public add(id: string, phase: TickerPhase, callback: TickerCallback): void {
+    // Remove from other phases to prevent multi-phase collision
     if (phase === 'measure') {
-      this.measureTasks.set(id, callback);
+      this.updateTasks.delete(id);
+      this.renderTasks.delete(id);
     } else if (phase === 'update') {
-      this.updateTasks.set(id, callback);
+      this.measureTasks.delete(id);
+      this.renderTasks.delete(id);
     } else {
-      this.renderTasks.set(id, callback);
+      this.measureTasks.delete(id);
+      this.updateTasks.delete(id);
     }
-
+    const tasks = phase === 'measure'
+      ? this.measureTasks
+      : phase === 'update'
+        ? this.updateTasks
+        : this.renderTasks;
+    if (tasks.get(id) === callback) {
+      this.ensureRunning();
+      return;
+    }
+    tasks.set(id, callback);
+    this.taskArraysDirty = true;
     this.syncTaskArrays();
     this.ensureRunning();
   }
@@ -64,7 +82,7 @@ export class Ticker {
     this.measureTasks.delete(id);
     this.updateTasks.delete(id);
     this.renderTasks.delete(id);
-
+    this.taskArraysDirty = true;
     this.syncTaskArrays();
 
     if (
@@ -73,6 +91,35 @@ export class Ticker {
       this.renderTasks.size === 0
     ) {
       this.stop();
+    }
+  }
+
+  /** Reports task failures without allowing one consumer to stop the engine. */
+  public setErrorHandler(handler: TickerErrorHandler | null): void {
+    this.errorHandler = handler;
+  }
+
+  private runPhase(
+    phase: TickerPhase,
+    tasks: Array<[string, TickerCallback]>,
+    dt: number,
+    currentTime: number
+  ): void {
+    for (let i = 0; i < tasks.length; i++) {
+      const [id, callback] = tasks[i];
+      try {
+        callback(dt, this.elapsedTime, currentTime);
+      } catch (error) {
+        try {
+          if (this.errorHandler) {
+            this.errorHandler({ id, phase, error });
+          } else if (typeof console !== 'undefined') {
+            console.error(`[ScrollCraft] ticker task "${id}" failed during ${phase}.`, error);
+          }
+        } catch {
+          // Diagnostics must never be able to interrupt the RAF loop either.
+        }
+      }
     }
   }
 
@@ -116,24 +163,17 @@ export class Ticker {
     this.elapsedTime += dt;
 
     // Phase 1: Read/Measure (Layout reads isolated to prevent thrashing)
-    const mTasks = this.measureTasksArray;
-    for (let i = 0; i < mTasks.length; i++) {
-      mTasks[i](dt, this.elapsedTime, currentTime);
-    }
+    this.runPhase('measure', this.measureTasksArray, dt, currentTime);
 
     // Phase 2: Math/Physics Calculations
-    const uTasks = this.updateTasksArray;
-    for (let i = 0; i < uTasks.length; i++) {
-      uTasks[i](dt, this.elapsedTime, currentTime);
-    }
+    this.runPhase('update', this.updateTasksArray, dt, currentTime);
 
     // Phase 3: Direct DOM GPU Compositor writes
-    const rTasks = this.renderTasksArray;
-    for (let i = 0; i < rTasks.length; i++) {
-      rTasks[i](dt, this.elapsedTime, currentTime);
-    }
+    this.runPhase('render', this.renderTasksArray, dt, currentTime);
 
-    this.rafId = requestAnimationFrame(this.tick);
+    if (this.isRunning) {
+      this.rafId = requestAnimationFrame(this.tick);
+    }
   };
 }
 

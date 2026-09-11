@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useEffect } from 'react';
-import { TextRevealSolver, ticker } from '@scrollcraft/core';
+import { GlobalResizeManager, TextRevealSolver, ticker } from '@scrollcraft/core';
 import { useScrollCraft } from '../context';
 
 export interface TextRevealProps {
@@ -15,8 +15,9 @@ export interface TextRevealProps {
 export const TextReveal: React.FC<TextRevealProps> = ({ 
   children, 
   className = '',
-  range = [0, 1] 
+  range
 }) => {
+  const [rangeStart = 0, rangeEnd = 1] = range ?? [];
   const containerRef = useRef<HTMLParagraphElement>(null);
   const charsRef = useRef<(HTMLSpanElement | null)[]>([]);
   const { engine } = useScrollCraft();
@@ -28,21 +29,26 @@ export const TextReveal: React.FC<TextRevealProps> = ({
     
     if (!container || chars.length === 0) return;
 
-    const solver = new TextRevealSolver(container, chars, { range });
+    const solver = new TextRevealSolver(container, chars, { range: [rangeStart, rangeEnd] });
     const taskId = `text-reveal-${Math.random().toString(36).slice(2, 8)}`;
 
-    ticker.add(taskId, 'update', () => {
+    const measure = () => solver.measure();
+    const unobserve = GlobalResizeManager.observe(container, measure);
+    ticker.add(`${taskId}-update`, 'update', () => {
       // Fallback to window native scroll if engine is still hydrating
       const scrollY = engine?.getMetrics().scroll ?? (window.scrollY || window.pageYOffset);
       const wh = window.innerHeight;
       solver.update(scrollY, wh);
     });
+    ticker.add(`${taskId}-render`, 'render', () => solver.render());
 
     return () => {
-      ticker.remove(taskId);
+      unobserve();
+      ticker.remove(`${taskId}-update`);
+      ticker.remove(`${taskId}-render`);
       solver.destroy();
     };
-  }, [engine, range]);
+  }, [engine, rangeStart, rangeEnd]);
 
   // Splitting purely by letters as per current requirement
   const letters = children.split('');

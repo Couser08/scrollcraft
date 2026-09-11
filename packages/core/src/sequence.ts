@@ -9,14 +9,17 @@ import { clamp } from './math';
 export interface SequenceOptions {
   frames: string[]; // Array of image URLs
   speed?: number; // Adjust scroll sensitivity
+  /** Cap canvas density to avoid excessive mobile GPU memory. Default: 2. */
+  maxDpr?: number;
 }
 
 export class SequenceSolver {
   private elementTop: number = 0;
   private maxScrollDistance: number = 0;
   private windowHeight: number = 0;
-  private images: HTMLImageElement[] = [];
+  private images: Array<HTMLImageElement | null> = [];
   private loaded: boolean = false;
+  private destroyed = false;
   
   private currentFrame: number = 0;
   private targetFrame: number = 0;
@@ -31,26 +34,39 @@ export class SequenceSolver {
     this.options = {
       frames: options.frames,
       speed: options.speed ?? 1.5,
+      maxDpr: options.maxDpr ?? 2,
     };
     this.preload();
   }
 
   private preload() {
-    let loadedCount = 0;
+    let settledCount = 0;
     const total = this.options.frames.length;
 
     this.options.frames.forEach((src, index) => {
       const img = new Image();
-      img.src = src;
-      img.onload = () => {
-        loadedCount++;
-        if (loadedCount === total) {
-          this.loaded = true;
-          this.measure();
-          // Draw first frame immediately
-          this.drawFrame(0);
+      const settle = () => {
+        if (this.destroyed) return;
+        settledCount++;
+        if (settledCount === total) {
+          this.loaded = this.images.some(Boolean);
+          if (this.loaded) {
+            this.measure();
+            const firstLoaded = this.images.findIndex(Boolean);
+            this.currentFrame = Math.max(firstLoaded, 0);
+            this.targetFrame = this.currentFrame;
+            this.drawFrame(this.currentFrame);
+          }
         }
       };
+      img.onload = () => {
+        settle();
+      };
+      img.onerror = () => {
+        this.images[index] = null;
+        settle();
+      };
+      img.src = src;
       this.images[index] = img;
     });
   }
@@ -69,11 +85,11 @@ export class SequenceSolver {
     this.maxScrollDistance = rect.height - this.windowHeight;
 
     // Adjust canvas resolution for high-DPI displays
-    const dpr = window.devicePixelRatio || 1;
+    const dpr = Math.min(window.devicePixelRatio || 1, this.options.maxDpr);
     this.canvas.width = rect.width * dpr;
     this.canvas.height = rect.height * dpr;
     const ctx = this.canvas.getContext('2d');
-    if (ctx) ctx.scale(dpr, dpr);
+    if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 
   public update(scrollY: number): void {
@@ -98,12 +114,19 @@ export class SequenceSolver {
     const ctx = this.canvas.getContext('2d');
     if (!ctx) return;
 
-    const img = this.images[index];
-    if (!img) return;
+    let img = this.images[index];
+    if (!img) {
+      // A failed image must not blank the whole sequence; use the nearest available frame.
+      for (let distance = 1; distance < this.images.length && !img; distance++) {
+        img = this.images[index - distance] ?? this.images[index + distance] ?? null;
+      }
+    }
+    if (!img || img.width === 0 || img.height === 0) return;
 
     // Draw image to fill the canvas like object-fit: cover
-    const canvasWidth = this.canvas.width / (window.devicePixelRatio || 1);
-    const canvasHeight = this.canvas.height / (window.devicePixelRatio || 1);
+    const dpr = Math.min(window.devicePixelRatio || 1, this.options.maxDpr);
+    const canvasWidth = this.canvas.width / dpr;
+    const canvasHeight = this.canvas.height / dpr;
     const imgRatio = img.width / img.height;
     const canvasRatio = canvasWidth / canvasHeight;
     
@@ -126,7 +149,15 @@ export class SequenceSolver {
   }
 
   public destroy(): void {
-    // Cleanup memory
+    this.destroyed = true;
+    for (const image of this.images) {
+      if (image) {
+        image.onload = null;
+        image.onerror = null;
+        image.src = '';
+      }
+    }
     this.images = [];
+    this.loaded = false;
   }
 }

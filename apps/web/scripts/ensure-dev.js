@@ -52,7 +52,7 @@ try {
   // Silent fallback
 }
 
-// Ensure required dev directories exist
+// Ensure required dev directories and manifests exist
 try {
   if (!fs.existsSync(nextDir)) {
     fs.mkdirSync(nextDir, { recursive: true });
@@ -60,6 +60,31 @@ try {
   const serverDir = path.join(nextDir, 'server');
   if (!fs.existsSync(serverDir)) {
     fs.mkdirSync(serverDir, { recursive: true });
+  }
+  const routesManifest = path.join(nextDir, 'routes-manifest.json');
+  if (!fs.existsSync(routesManifest)) {
+    fs.writeFileSync(
+      routesManifest,
+      JSON.stringify(
+        {
+          version: 3,
+          pages404: true,
+          caseSensitive: false,
+          basePath: '',
+          redirects: [],
+          headers: [],
+          dynamicRoutes: [],
+          staticRoutes: [],
+          dataRoutes: [],
+          rsc: {
+            header: 'RSC',
+            varyHeader: 'RSC, Next-Router-State-Tree, Next-Router-Prefetch',
+          },
+        },
+        null,
+        2
+      )
+    );
   }
 } catch (e) {
   // Silent fallback

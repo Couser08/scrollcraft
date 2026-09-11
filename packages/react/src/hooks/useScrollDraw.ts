@@ -25,10 +25,17 @@ export function useScrollDraw<T extends SVGGeometryElement = SVGPathElement>(
 
     const taskId = `draw-${Math.random().toString(36).slice(2, 8)}`;
     
-    // Register to ticker
-    ticker.add(`${taskId}-measure`, 'measure', () => {
-      solver.measure();
-    });
+    const measureGeometry = () => solver.measure();
+    window.addEventListener('resize', measureGeometry, { passive: true });
+
+    let resizeObserver: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== 'undefined') {
+      resizeObserver = new ResizeObserver(() => measureGeometry());
+      resizeObserver.observe(element);
+      if (element.parentElement) {
+        resizeObserver.observe(element.parentElement);
+      }
+    }
 
     let currentScroll = 0;
     let currentVelocity = 0;
@@ -51,10 +58,15 @@ export function useScrollDraw<T extends SVGGeometryElement = SVGPathElement>(
 
     return () => {
       unsubscribe();
-      ticker.remove(`${taskId}-measure`);
+      window.removeEventListener('resize', measureGeometry);
+      resizeObserver?.disconnect();
       ticker.remove(`${taskId}-update`);
       ticker.remove(`${taskId}-render`);
       solver.destroy();
+      if (element) {
+        element.style.strokeDasharray = '';
+        element.style.strokeDashoffset = '';
+      }
       solverRef.current = null;
     };
   }, [reducedMotion, subscribe]);

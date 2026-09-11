@@ -101,7 +101,7 @@ export const HowItWorks: React.FC = () => {
                   {/* Left: Architecture Photography */}
                   <div className="relative h-44 sm:h-56 rounded-xl overflow-hidden bg-zinc-100 shadow-2xs">
                     <Image
-                      src="/images/how-it-works-arch.jpg"
+                      src="/images/how-it-works-arch.webp"
                       alt="Modern architectural facade"
                       fill
                       sizes="(max-width: 640px) 100vw, 50vw"

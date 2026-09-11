@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { Parallax, Reveal } from '@scrollcraft/react';
 
 export function ImmersiveSection() {
@@ -10,7 +11,13 @@ export function ImmersiveSection() {
       {/* Cinematic Background via native Parallax primitive */}
       <div className="absolute inset-0 z-0">
         <Parallax speed={-0.2} className="w-full h-[140%] -top-[20%] relative">
-          <div className="w-full h-full bg-[url('/images/cinematic_landscape.jpg')] bg-cover bg-center" />
+          <Image
+            src="/images/cinematic_landscape.webp"
+            alt="Cinematic landscape background"
+            fill
+            sizes="100vw"
+            className="object-cover object-center"
+          />
         </Parallax>
       </div>
 

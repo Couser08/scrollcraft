@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { Parallax, Reveal } from '@scrollcraft/react';
 
 export function MotionSection() {
@@ -43,7 +44,13 @@ export function MotionSection() {
         <div className="w-full lg:w-2/3 relative h-[70vh] rounded-3xl overflow-hidden bg-zinc-900 border border-white/10 group">
           
           <Parallax speed={0.15} className="absolute inset-[-10%] w-[120%] h-[120%]">
-            <div className="w-full h-full bg-[url('/images/parallax_fabric.jpg')] bg-cover bg-center" />
+            <Image
+              src="/images/parallax_fabric.webp"
+              alt="Parallax fabric texture"
+              fill
+              sizes="(max-width: 1024px) 100vw, 66vw"
+              className="object-cover"
+            />
           </Parallax>
 
           {/* Labels Overlay */}

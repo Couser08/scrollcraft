@@ -21,7 +21,7 @@ export const StackedCards: React.FC<StackedCardsProps> = ({ cards, className = '
                 style={{ 
                   zIndex: index, 
                   // Add subtle scaling based on depth
-                  transform: `scale(${1 - (cards.length - 1 - index) * 0.05})`
+                  transform: `scale(${Math.max(0.6, 1 - (cards.length - 1 - index) * 0.05)})`
                 }}
               >
                 {card}

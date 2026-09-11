@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Pin, PinContainer, Reveal, Parallax } from '@scrollcraft/react';
+import Image from 'next/image';
+import { Parallax, Reveal, Pin, PinContainer } from '@scrollcraft/react';
 
 export function PlaygroundSection() {
   const [tab, setTab] = useState<'react' | 'next'>('react');
@@ -88,7 +89,15 @@ export function PlaygroundSection() {
                 <div className="w-full lg:w-1/2 relative bg-zinc-900 overflow-hidden border-l border-white/5">
                   <div className="absolute inset-0 flex items-center justify-center p-8">
                     <Parallax speed={-0.2} className="w-full h-full relative">
-                      <div className="w-full h-[150%] -top-[25%] absolute bg-[url('/images/hero_mountain_dark.jpg')] bg-cover bg-center rounded-xl" />
+                      <div className="w-full h-[150%] -top-[25%] absolute overflow-hidden rounded-xl">
+                        <Image
+                          src="/images/hero_mountain_dark.webp"
+                          alt="Hero mountain dark demo"
+                          fill
+                          sizes="(max-width: 1024px) 100vw, 50vw"
+                          className="object-cover"
+                        />
+                      </div>
                     </Parallax>
                     <Reveal direction="up" delay={0.2} className="absolute bottom-12 right-12 text-white font-mono text-xs flex flex-col items-end">
                       <div className="w-[1px] h-12 bg-white/50 mb-2" />

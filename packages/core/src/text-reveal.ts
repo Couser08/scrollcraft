@@ -15,6 +15,8 @@ export class TextRevealSolver {
   private container: HTMLElement;
   private chars: HTMLElement[];
   private range: [number, number];
+  private containerTop = 0;
+  private opacities: number[] = [];
 
   constructor(container: HTMLElement, chars: HTMLElement[], options: TextRevealOptions = {}) {
     this.container = container;
@@ -22,14 +24,15 @@ export class TextRevealSolver {
     this.range = options.range || [0, 1];
   }
 
-  /**
-   * Called during the 'update' phase of the Ticker.
-   * Calculates what portion of the text should be revealed.
-   */
+  /** Phase 1: capture layout once, never while calculating character values. */
+  public measure(): void {
+    if (typeof window === 'undefined') return;
+    this.containerTop = this.container.getBoundingClientRect().top + (window.scrollY || window.pageYOffset);
+  }
+
+  /** Phase 2: calculate opacity values without DOM reads or writes. */
   public update(_scrollY: number, windowHeight: number): void {
     if (!this.container || this.chars.length === 0) return;
-
-    const rect = this.container.getBoundingClientRect();
     
     // Element enters screen at windowHeight, and we consider it "revealed" fully 
     // when it reaches slightly above the middle of the screen
@@ -37,7 +40,8 @@ export class TextRevealSolver {
     const end = windowHeight * 0.4; 
     
     // Map bounding rect top to a 0-1 progress value
-    let rawProgress = mapRange(start, end, 0, 1, rect.top);
+    const viewportTop = this.containerTop - _scrollY;
+    let rawProgress = mapRange(start, end, 0, 1, viewportTop);
     let progress = clamp(rawProgress, 0, 1);
 
     // Apply specific user range if defined
@@ -46,23 +50,31 @@ export class TextRevealSolver {
 
     const totalChars = this.chars.length;
     
-    // Direct DOM write (0 re-renders)
+    this.opacities.length = totalChars;
     for (let i = 0; i < totalChars; i++) {
-      const char = this.chars[i];
       const charProgressStart = i / totalChars;
       const charProgressEnd = (i + 1) / totalChars;
       
       const charOpacity = mapRange(charProgressStart, charProgressEnd, 0.1, 1, progress);
       const clampedOpacity = clamp(charOpacity, 0.1, 1);
       
-      // Setting inline style avoids React diffing entirely
-      char.style.opacity = clampedOpacity.toString();
+      this.opacities[i] = clampedOpacity;
+    }
+  }
+
+  /** Phase 3: write the values calculated in update. */
+  public render(): void {
+    for (let i = 0; i < this.chars.length; i++) {
+      const newOpacity = String(this.opacities[i] ?? 0.1);
+      if (this.chars[i].style.opacity !== newOpacity) {
+        this.chars[i].style.opacity = newOpacity;
+      }
     }
   }
 
   public destroy() {
     this.chars.forEach(char => {
-      char.style.opacity = '1';
+      char.style.opacity = '';
     });
   }
 }
