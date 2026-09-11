@@ -17,6 +17,9 @@ if (process.platform === 'win32') {
 
 const nextConfig: NextConfig = {
   transpilePackages: ['@scrollcraft/core', '@scrollcraft/react'],
+  experimental: {
+    optimizePackageImports: ['lucide-react']
+  },
   reactStrictMode: true,
   webpack: (config) => {
     if (process.platform === 'win32' && config.context && config.context.charAt(1) === ':') {

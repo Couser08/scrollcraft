@@ -1,45 +1,37 @@
 'use client';
 
-/**
- * Real-Engine Interactive Horizontal Gallery Scrub Sandbox
- * Demonstrates pinning vertical scroll and converting it to horizontal card sliding.
- * Strictly under 650 LOC.
- */
-
-import React, { useState, useRef } from 'react';
-import { Zap } from 'lucide-react';
+import React, { useState } from 'react';
+import { ChevronLeft, ChevronRight, Zap } from 'lucide-react';
 
 const SLIDES = [
-  { id: '01', title: 'Compositor Acceleration', desc: 'Hardware translate3d pipeline with zero layout thrashing.', tag: '120 FPS' },
-  { id: '02', title: 'Headless asChild Slot', desc: 'No wrapper divs injected. Seamless CSS Grid compatibility.', tag: 'Radix Pattern' },
-  { id: '03', title: 'Native ViewTimeline', desc: 'Compositor-level execution on Chromium browsers with 0 kB JS cost.', tag: 'CSS Spec' },
-  { id: '04', title: 'Dual-Layer Reduced Motion', desc: 'Automated OS accessibility detection with immediate fallback.', tag: 'A11y First' },
+  { id: '01', title: 'Compositor Acceleration', desc: 'Hardware translate3d pipeline with zero layout thrashing or main-thread lockup.', tag: '120 FPS' },
+  { id: '02', title: 'Headless asChild Slot', desc: 'No dummy wrapper divs injected. Seamless CSS Grid and Flexbox compatibility.', tag: 'Radix Pattern' },
+  { id: '03', title: 'Native ViewTimeline', desc: 'Compositor-level execution on Chromium browsers with 0 kB JS execution cost.', tag: 'CSS Spec' },
+  { id: '04', title: 'Dual-Layer Reduced Motion', desc: 'Automated OS accessibility detection with immediate static fallback.', tag: 'A11y First' },
 ];
 
 export const HorizontalPlayground: React.FC = () => {
   const [scrubProgress, setScrubProgress] = useState(0);
-  const containerRef = useRef<HTMLDivElement>(null);
 
   // Translate progress into pixel displacement across cards
-  // 4 cards of width 240px + 16px gap = ~1000px total width
-  const maxSlideDistance = 450;
+  const maxSlideDistance = 420;
   const currentOffset = -(scrubProgress / 100) * maxSlideDistance;
 
   return (
-    <div className="my-6 rounded-2xl border border-white/10 bg-[#080808] overflow-hidden shadow-xs">
+    <div className="my-6 rounded-xl border border-zinc-800/80 bg-[#09090b] overflow-hidden shadow-2xl">
       {/* Top Header */}
-      <div className="flex items-center justify-between px-4 py-3 bg-white/5 border-b border-white/10">
+      <div className="flex items-center justify-between px-4 py-3 bg-[#0d0d10] border-b border-zinc-800/80">
         <div className="flex items-center gap-2">
-          <span className="flex h-2 w-2 rounded-full bg-[#FF5A1F] animate-pulse" />
-          <span className="text-xs font-bold uppercase tracking-wider text-zinc-100">
-            Real Engine Sandbox
+          <span className="flex h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
+          <span className="text-xs font-bold uppercase tracking-wider text-zinc-200">
+            Interactive Horizontal Gallery
           </span>
-          <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#FF5A1F]/10 text-[#FF5A1F] border border-[#FFEDD5] font-semibold">
+          <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 font-semibold">
             &lt;HorizontalScroll /&gt;
           </span>
         </div>
         <span className="text-[11px] font-mono text-zinc-400">
-          Scrub Progress: <strong className="text-[#FF5A1F]">{scrubProgress}%</strong>
+          Scroll Scrub: <strong className="text-blue-400">{Math.round(scrubProgress)}%</strong>
         </span>
       </div>
 
@@ -47,8 +39,23 @@ export const HorizontalPlayground: React.FC = () => {
       <div className="p-4 sm:p-6 flex flex-col gap-5">
         <div>
           <div className="flex items-center justify-between text-xs mb-1.5">
-            <span className="font-medium text-zinc-100">Simulated Vertical Scroll Scrub</span>
-            <span className="font-mono text-zinc-500">Slide 1 of 4</span>
+            <span className="font-medium text-zinc-200">Simulate Vertical Scroll Travel</span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setScrubProgress((p) => Math.max(0, p - 25))}
+                className="p-1 rounded bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 text-zinc-400 hover:text-white transition-colors"
+                title="Previous card"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={() => setScrubProgress((p) => Math.min(100, p + 25))}
+                className="p-1 rounded bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 text-zinc-400 hover:text-white transition-colors"
+                title="Next card"
+              >
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
           <input
             type="range"
@@ -56,43 +63,34 @@ export const HorizontalPlayground: React.FC = () => {
             max="100"
             value={scrubProgress}
             onChange={(e) => setScrubProgress(Number(e.target.value))}
-            className="w-full accent-[#FF5A1F] h-1.5 bg-[#E5E7EB] rounded-lg cursor-pointer"
+            className="w-full accent-blue-500 h-1.5 bg-zinc-800 rounded-lg cursor-pointer"
           />
-          <div className="flex justify-between text-[10px] text-[#9CA3AF] mt-1 font-mono">
-            <span>Entry (0%)</span>
-            <span>Midpoint (50%)</span>
-            <span>Exit (100%)</span>
-          </div>
         </div>
 
-        {/* Sliding Horizontal Viewport */}
-        <div className="relative w-full h-56 rounded-2xl bg-[#0A0A0A] p-5 overflow-hidden shadow-inner flex items-center">
+        {/* Viewport Strip */}
+        <div className="w-full overflow-hidden rounded-xl border border-zinc-800/80 bg-[#060608] p-4 relative shadow-inner">
           <div
-            ref={containerRef}
-            style={{
-              transform: `translate3d(${currentOffset}px, 0px, 0px)`,
-              willChange: 'transform',
-            }}
-            className="flex gap-4 select-none transition-transform duration-100 ease-out"
+            className="flex gap-4 transition-transform duration-100 ease-out will-change-transform"
+            style={{ transform: `translate3d(${currentOffset}px, 0px, 0px)` }}
           >
             {SLIDES.map((slide) => (
               <div
                 key={slide.id}
-                className="w-64 shrink-0 rounded-xl bg-zinc-900 border border-zinc-800 p-5 flex flex-col justify-between shadow-xl"
+                className="w-72 sm:w-80 shrink-0 p-5 rounded-xl border border-zinc-800/80 bg-[#0d0d10] shadow-xl flex flex-col justify-between hover:border-zinc-700 transition-colors"
               >
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-mono font-bold text-[#FF5A1F]">{slide.id}</span>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700">
-                    {slide.tag}
-                  </span>
-                </div>
                 <div>
-                  <h4 className="text-sm font-bold text-white mt-2">{slide.title}</h4>
-                  <p className="text-[11px] text-zinc-400 mt-1 leading-relaxed">{slide.desc}</p>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-xs font-mono font-bold text-blue-400">{slide.id}</span>
+                    <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-zinc-900 text-zinc-400 border border-zinc-800">
+                      {slide.tag}
+                    </span>
+                  </div>
+                  <h4 className="text-sm font-bold text-white mb-1.5">{slide.title}</h4>
+                  <p className="text-xs text-zinc-400 leading-relaxed">{slide.desc}</p>
                 </div>
-                <div className="flex items-center gap-1 text-[10px] font-mono text-zinc-500 mt-3 pt-2 border-t border-zinc-800">
-                  <Zap className="w-3 h-3 text-[#16A34A]" />
-                  <span>Hardware Subpixel Interpolation</span>
+                <div className="mt-4 pt-3 border-t border-zinc-800/60 flex items-center justify-between text-[10px] font-mono text-zinc-500">
+                  <span>STICKY BUDGET: 250vh</span>
+                  <Zap className="w-3 h-3 text-emerald-400" />
                 </div>
               </div>
             ))}
@@ -102,4 +100,3 @@ export const HorizontalPlayground: React.FC = () => {
     </div>
   );
 };
-

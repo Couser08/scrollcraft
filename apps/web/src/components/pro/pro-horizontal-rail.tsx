@@ -7,7 +7,7 @@
  */
 
 import React from 'react';
-import { usePin, useScrollTransform } from '@scrollcraft/react';
+import { usePin } from '@scrollcraft/react';
 
 export interface HorizontalRailItem {
   id: string;
@@ -17,10 +17,14 @@ export interface HorizontalRailItem {
 }
 
 export const ProHorizontalRail: React.FC<{ items: HorizontalRailItem[] }> = ({ items }) => {
-  const pin = usePin<HTMLDivElement>({ duration: 1200 });
+  const [progress, setProgress] = React.useState(0);
+  const pin = usePin<HTMLDivElement>({
+    duration: 1200,
+    onProgress: (p) => setProgress(p),
+  });
 
-  // Map progress (0 to 1) to horizontal translation percentage (-65%)
-  const translateX = useScrollTransform(pin.progress, [0, 1], [0, -60]);
+  // Map progress (0 to 1) to horizontal translation percentage (-60%)
+  const translateX = -(progress * 60);
 
   return (
     <div className="relative w-full min-h-[1400px] flex flex-col justify-start py-16 px-6 sm:px-12 overflow-hidden">

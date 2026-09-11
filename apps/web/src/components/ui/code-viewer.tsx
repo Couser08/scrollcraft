@@ -1,33 +1,33 @@
 'use client';
 
-/**
- * Tokenized CodeViewer Syntax Highlighter Component
- * Features GitHub Light / VS Code Light theme with line numbers and copy functionality.
- * Strictly under 650 LOC.
- */
-
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { Check, Copy, WrapText } from 'lucide-react';
 
-interface CodeViewerProps {
+export interface CodeTab {
+  label: string;
   code: string;
+  fileName?: string;
+  language?: string;
+}
+
+interface CodeViewerProps {
+  code?: string;
   fileName?: string;
   className?: string;
   defaultWrap?: boolean;
+  tabs?: CodeTab[];
 }
 
 /**
  * Tokenizes a single line of JSX / TypeScript code into colored spans
  */
 function tokenizeLine(line: string): React.ReactNode[] {
-  // Handle full-line comments
   if (line.trim().startsWith('//')) {
-    return [<span key="comment" className="text-zinc-400 italic">{line}</span>];
+    return [<span key="comment" className="text-zinc-500 italic">{line}</span>];
   }
 
-  // Regex patterns for TypeScript / JSX tokenization
   const tokenRegex =
-    /(\/\*[\s\S]*?\*\/|\/\/.*$)|(".*?"|'.*?'|`.*?`)|(\b(?:import|export|from|const|function|return|default|interface|type|extends)\b)|(<\/?(?:Parallax|Reveal|Pin|PinContainer|ScrollProgress|ScrollProvider|VelocityMarquee|HorizontalScroll|ScrollSequence|motion\.div|div|section|button|h1|h2|h3|p|span)|(?:\/>|>))|(\b(?:asChild|speed|direction|distance|duration|top|bottom|smooth|className|respectReducedMotion|onProgress|velocityMultiplier|baseSpeed|frames|axis)\b)|(\b\d+(?:\.\d+)?\b)|([{}(),;=])/g;
+    /(\/\*[\s\S]*?\*\/|\/\/.*$)|(".*?"|'.*?'|`.*?`)|(\b(?:import|export|from|const|function|return|default|interface|type|extends|let|var|if|else|switch|case|break)\b)|(<\/?(?:Parallax|Reveal|Pin|PinContainer|ScrollProgress|ScrollProvider|VelocityMarquee|HorizontalScroll|ScrollSequence|motion\.div|div|section|button|h1|h2|h3|h4|p|span|table|tr|td|thead|tbody|th|img|Image)|(?:\/>|>))|(\b(?:asChild|speed|direction|distance|duration|top|bottom|smooth|className|respectReducedMotion|onProgress|velocityMultiplier|baseSpeed|frames|axis|ref|delay|once|threshold|autoResetOnRouteChange|autoRecalc)\b)|(\b\d+(?:\.\d+)?\b)|([{}(),;=])/g;
 
   const nodes: React.ReactNode[] = [];
   let lastIndex = 0;
@@ -45,15 +45,15 @@ function tokenizeLine(line: string): React.ReactNode[] {
     } else if (str) {
       nodes.push(<span key={match.index} className="text-emerald-400 font-medium">{str}</span>);
     } else if (keyword) {
-      nodes.push(<span key={match.index} className="text-pink-500 font-semibold">{keyword}</span>);
+      nodes.push(<span key={match.index} className="text-purple-400 font-semibold">{keyword}</span>);
     } else if (tag) {
-      nodes.push(<span key={match.index} className="text-blue-400 font-semibold">{tag}</span>);
+      nodes.push(<span key={match.index} className="text-sky-400 font-semibold">{tag}</span>);
     } else if (prop) {
-      nodes.push(<span key={match.index} className="text-amber-400 font-medium">{prop}</span>);
+      nodes.push(<span key={match.index} className="text-amber-300 font-medium">{prop}</span>);
     } else if (num) {
-      nodes.push(<span key={match.index} className="text-purple-400 font-medium">{num}</span>);
+      nodes.push(<span key={match.index} className="text-indigo-400 font-medium">{num}</span>);
     } else if (punct) {
-      nodes.push(<span key={match.index} className="text-zinc-400">{punct}</span>);
+      nodes.push(<span key={match.index} className="text-zinc-500">{punct}</span>);
     } else {
       nodes.push(full);
     }
@@ -69,44 +69,83 @@ function tokenizeLine(line: string): React.ReactNode[] {
 }
 
 export const CodeViewer: React.FC<CodeViewerProps> = React.memo(({
-  code,
+  code = '',
   fileName,
   className = '',
   defaultWrap = true,
+  tabs,
 }) => {
+  const [activeTabIdx, setActiveTabIdx] = useState(0);
   const [copied, setCopied] = useState(false);
   const [wordWrap, setWordWrap] = useState(defaultWrap);
 
-  const tokenizedLines = React.useMemo(() => {
-    return code.trim().split('\n').map((line) => tokenizeLine(line));
-  }, [code]);
+  const currentCode = tabs && tabs.length > 0 ? tabs[activeTabIdx]?.code || '' : code;
+  const currentFileName = tabs && tabs.length > 0 ? tabs[activeTabIdx]?.fileName || fileName : fileName;
 
-  const onCopy = React.useCallback(() => {
-    navigator.clipboard.writeText(code);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }, [code]);
+  const tokenizedLines = useMemo(() => {
+    return currentCode.trim().split('\n').map((line) => tokenizeLine(line));
+  }, [currentCode]);
+
+  const onCopy = useCallback(() => {
+    if (!currentCode) return;
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(currentCode).then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }).catch(() => {
+        // Fallback
+        const textarea = document.createElement('textarea');
+        textarea.value = currentCode;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      });
+    }
+  }, [currentCode]);
 
   return (
     <div
-      className={`rounded-xl bg-[#000] border border-white/10/90 shadow-2xs overflow-hidden text-xs font-mono select-text transition-all ${className}`}
+      className={`rounded-xl bg-[#09090b] border border-zinc-800/80 shadow-2xl overflow-hidden text-xs font-mono select-text transition-all ${className}`}
     >
-      {/* Titlebar */}
-      <div className="flex items-center justify-between px-4 py-2.5 bg-[#0a0a0a] border-b border-white/10/80">
-        <div className="flex items-center gap-2.5">
-          <div className="flex items-center gap-1.5">
-            <div className="w-2.5 h-2.5 rounded-full bg-zinc-700" />
-            <div className="w-2.5 h-2.5 rounded-full bg-zinc-700" />
-            <div className="w-2.5 h-2.5 rounded-full bg-zinc-700" />
+      {/* Titlebar with Tabs & Actions */}
+      <div className="flex items-center justify-between px-3.5 py-2.5 bg-[#0d0d10] border-b border-zinc-800/80">
+        <div className="flex items-center gap-3">
+          {/* Mac Traffic Lights */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            <div className="w-2.5 h-2.5 rounded-full bg-zinc-700/60" />
+            <div className="w-2.5 h-2.5 rounded-full bg-zinc-700/60" />
+            <div className="w-2.5 h-2.5 rounded-full bg-zinc-700/60" />
           </div>
-          {fileName ? (
-            <div className="flex items-center gap-1.5 ml-1">
-              <span className="text-[11px] text-zinc-400 font-semibold font-mono tracking-tight">
-                {fileName}
-              </span>
+
+          {/* Tabs or Filename */}
+          {tabs && tabs.length > 0 ? (
+            <div className="flex items-center gap-1 bg-zinc-900/90 p-0.5 rounded-lg border border-zinc-800/80">
+              {tabs.map((tab, idx) => (
+                <button
+                  key={tab.label}
+                  onClick={() => {
+                    setActiveTabIdx(idx);
+                    setCopied(false);
+                  }}
+                  className={`px-3 py-1 rounded-md text-xs font-medium font-sans transition-all cursor-pointer ${
+                    activeTabIdx === idx
+                      ? 'bg-zinc-800 text-white shadow-xs font-semibold'
+                      : 'text-zinc-400 hover:text-zinc-200'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
             </div>
+          ) : currentFileName ? (
+            <span className="text-[11px] text-zinc-400 font-semibold font-mono tracking-tight">
+              {currentFileName}
+            </span>
           ) : (
-            <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-zinc-500 ml-1">
+            <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-zinc-500">
               Code
             </span>
           )}
@@ -116,10 +155,10 @@ export const CodeViewer: React.FC<CodeViewerProps> = React.memo(({
           {/* Word Wrap Toggle */}
           <button
             onClick={() => setWordWrap((prev) => !prev)}
-            className={`flex items-center gap-1 px-2 py-1 rounded-md border text-[11px] transition-all cursor-pointer shadow-2xs ${
+            className={`flex items-center gap-1 px-2 py-1 rounded-md border text-[11px] transition-all cursor-pointer ${
               wordWrap
-                ? 'bg-[#FF5A1F]/10 border-[#FF5A1F]/30 text-[#FF5A1F] font-semibold'
-                : 'bg-white/5 hover:bg-white/5 border-white/10 text-zinc-400 hover:text-white'
+                ? 'bg-zinc-800 border-zinc-700 text-white font-medium'
+                : 'bg-zinc-900/60 hover:bg-zinc-800 border-zinc-800 text-zinc-400 hover:text-white'
             }`}
             title={wordWrap ? 'Disable Word Wrap' : 'Enable Word Wrap'}
           >
@@ -127,20 +166,24 @@ export const CodeViewer: React.FC<CodeViewerProps> = React.memo(({
             <span className="hidden sm:inline">Wrap</span>
           </button>
 
-          {/* Copy Button */}
+          {/* Copy Button with Green Tick Feedback */}
           <button
             onClick={onCopy}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/5 hover:bg-white/5 border border-white/10 text-[11px] text-zinc-700 hover:text-white transition-all cursor-pointer shadow-2xs active:scale-95"
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-md border text-[11px] transition-all cursor-pointer shadow-xs active:scale-95 ${
+              copied
+                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 font-medium'
+                : 'bg-zinc-900/80 hover:bg-zinc-800 border-zinc-800 text-zinc-300 hover:text-white'
+            }`}
             title="Copy code snippet"
           >
             {copied ? (
               <>
-                <Check className="w-3 h-3 text-emerald-600" />
-                <span className="text-emerald-700 font-medium">Copied!</span>
+                <Check className="w-3.5 h-3.5 text-emerald-400" />
+                <span className="text-emerald-400 font-medium">Copied!</span>
               </>
             ) : (
               <>
-                <Copy className="w-3 h-3 text-zinc-400" />
+                <Copy className="w-3.5 h-3.5 text-zinc-400" />
                 <span>Copy</span>
               </>
             )}
@@ -148,18 +191,18 @@ export const CodeViewer: React.FC<CodeViewerProps> = React.memo(({
         </div>
       </div>
 
-      {/* Code Area: Light theme with word wrap support */}
-      <div className={`p-4 overflow-y-visible leading-relaxed bg-[#000] ${wordWrap ? 'overflow-x-hidden' : 'overflow-x-auto'}`}>
+      {/* Code Area */}
+      <div className={`p-4 leading-relaxed bg-[#060608] ${wordWrap ? 'overflow-x-hidden' : 'overflow-x-auto'}`}>
         <table className="w-full border-collapse">
           <tbody>
             {tokenizedLines.map((tokens, idx) => (
-              <tr key={idx} className="hover:bg-zinc-200/30 transition-colors">
-                <td className="pr-4 text-right text-zinc-400 select-none w-8 align-top font-mono text-[11px] shrink-0">
+              <tr key={idx} className="hover:bg-zinc-900/40 transition-colors">
+                <td className="pr-4 text-right text-zinc-600 select-none w-8 align-top font-mono text-[11px] shrink-0">
                   {idx + 1}
                 </td>
                 <td
-                  className={`text-zinc-100 font-mono text-[13px] leading-6 w-full ${
-                    wordWrap ? 'whitespace-pre-wrap break-words break-all' : 'whitespace-pre'
+                  className={`text-zinc-200 font-mono text-[12.5px] leading-6 w-full ${
+                    wordWrap ? 'whitespace-pre-wrap break-words' : 'whitespace-pre'
                   }`}
                 >
                   {tokens}
@@ -174,4 +217,3 @@ export const CodeViewer: React.FC<CodeViewerProps> = React.memo(({
 });
 
 CodeViewer.displayName = 'CodeViewer';
-

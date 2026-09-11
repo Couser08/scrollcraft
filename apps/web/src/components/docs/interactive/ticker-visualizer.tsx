@@ -33,8 +33,8 @@ const viewportHeight = window.innerHeight;`,
       name: 'Phase 2: Update',
       subtitle: 'Pure Memory Math',
       badge: 'Zero DOM Touch',
-      color: 'border-[#FF5A1F] bg-[#FF5A1F]/10/50 text-[#FF5A1F]',
-      tagBg: 'bg-[#FF5A1F]/10 text-[#FF5A1F] border border-[#FFEDD5]',
+      color: 'border-blue-500 bg-blue-500/10/50 text-blue-500',
+      tagBg: 'bg-blue-500/10 text-blue-500 border border-[#FFEDD5]',
       description:
         'Subpixel lerp calculations, spring physics, velocity derivation, and timeline normalization occur purely in V8 memory without accessing any DOM properties.',
       codeSnippet: `// Phase 2: Memory Calculations
@@ -62,7 +62,7 @@ node.style.opacity = progress.toFixed(3);`,
       {/* Top Bar */}
       <div className="flex items-center justify-between px-4 py-3 bg-white/5 border-b border-white/10">
         <div className="flex items-center gap-2">
-          <span className="flex h-2 w-2 rounded-full bg-[#FF5A1F]" />
+          <span className="flex h-2 w-2 rounded-full bg-blue-500" />
           <span className="text-xs font-bold uppercase tracking-wider text-zinc-100">
             Architecture Pipeline Visualizer
           </span>
@@ -104,7 +104,7 @@ node.style.opacity = progress.toFixed(3);`,
                     onClick={() => setSelectedPhase(p.step)}
                     className={`p-4 rounded-xl border text-left transition-all cursor-pointer ${
                       isSelected
-                        ? 'border-[#FF5A1F] bg-white/5 shadow-md ring-1 ring-[#FF5A1F]/20'
+                        ? 'border-blue-500 bg-white/5 shadow-md ring-1 ring-blue-500/20'
                         : 'border-white/10 bg-white/5 hover:border-[#D1D5DB]'
                     }`}
                   >
@@ -126,7 +126,7 @@ node.style.opacity = progress.toFixed(3);`,
             {/* Selected Phase Detail & Code Preview */}
             <div className="p-5 rounded-xl border border-white/10 bg-white/5 shadow-xs">
               <div className="flex items-center gap-2 mb-2">
-                <span className="p-1 rounded-md bg-[#FF5A1F]/10 text-[#FF5A1F]">
+                <span className="p-1 rounded-md bg-blue-500/10 text-blue-500">
                   <Cpu className="w-4 h-4" />
                 </span>
                 <h3 className="text-sm font-bold text-zinc-100">

@@ -1,33 +1,39 @@
 'use client';
 
-/**
- * Main Documentation Shell & View Coordinator
- * Orchestrates sidebar, active content section, and table of contents.
- * Aligned with ScrollCraft design tokens and comprehensive ecosystem coverage.
- * Strictly under 650 LOC.
- */
-
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { DocsSidebar } from './docs-sidebar';
-import { DocsToc, TocItem } from './docs-toc';
+import { TocItem } from './docs-toc';
 import { DOCS_CATEGORIES } from './docs-data';
+import { CommandPalette } from './command-palette';
 import { DocGettingStarted } from './sections/doc-getting-started';
 import { DocPrimitives } from './sections/doc-primitives';
 import { DocHooks } from './sections/doc-hooks';
 import { DocArchitecture } from './sections/doc-architecture';
 import { DocR3F } from './sections/doc-r3f';
 import { DocRecipes } from './sections/doc-recipes';
-import { ChevronRight, ArrowLeft, ArrowRight, Menu, X } from 'lucide-react';
+import {
+  Menu,
+  X,
+  Search,
+  ArrowRight,
+  ArrowLeft,
+  ChevronRight,
+  PanelLeftClose,
+  PanelLeftOpen,
+} from 'lucide-react';
+import Link from 'next/link';
 
 const TOC_MAPPING: Record<string, TocItem[]> = {
   introduction: [
     { id: 'the-problem', title: 'The Scroll Problem' },
     { id: 'our-architecture', title: 'The ScrollCraft Solution' },
-    { id: 'quick-example', title: 'Quick Preview' },
+    { id: 'core-principles', title: 'Core Principles' },
+    { id: 'quick-example', title: 'A Quick Example' },
+    { id: 'whats-next', title: "What's Next?" },
   ],
   installation: [
     { id: 'install-package', title: 'Package Manager' },
-    { id: 'requirements', title: 'Requirements' },
+    { id: 'requirements', title: 'System Requirements' },
   ],
   setup: [
     { id: 'provider-setup', title: 'Root Layout Integration' },
@@ -61,81 +67,29 @@ const TOC_MAPPING: Record<string, TocItem[]> = {
     { id: 'sequence-code', title: 'Usage & Syntax' },
     { id: 'sequence-props', title: 'Props Reference' },
   ],
-  'use-scroll-state': [
-    { id: 'usage', title: 'Usage & Subscription' },
-  ],
-  'use-scrollcraft': [
-    { id: 'usage', title: 'Usage & API' },
-  ],
-  'use-parallax': [
-    { id: 'usage', title: 'Usage' },
-  ],
-  'use-reveal': [
-    { id: 'usage', title: 'Usage' },
-  ],
-  'use-pin': [
-    { id: 'usage', title: 'Usage' },
-  ],
-  'use-magnetic': [
-    { id: 'usage', title: 'Usage' },
-  ],
-  'r3f-overview': [
-    { id: 'double-raf', title: 'The Double-RAF Dilemma' },
-  ],
-  'r3f-three-tier': [
-    { id: 'waapi-probe', title: 'WAAPI Probe Engine' },
-  ],
-  'use-scroll-3d': [
-    { id: 'signature', title: 'Hook Signature' },
-  ],
-  'r3f-recipes': [
-    { id: 'recipe', title: 'Three.js Scene Recipe' },
-  ],
   'three-phase-ticker': [
-    { id: 'pipeline', title: '3-Phase Pipeline' },
+    { id: 'ticker-execution', title: 'Execution Pipeline' },
+    { id: 'ticker-api', title: 'Ticker API Reference' },
   ],
   'reduced-motion': [
-    { id: 'protection', title: 'Dual-Layer a11y' },
+    { id: 'a11y-detection', title: 'OS Motion Detection' },
+    { id: 'a11y-fallback', title: 'Graceful Fallback' },
   ],
   benchmark: [
-    { id: 'comparison', title: 'Feature Matrix' },
-  ],
-  'recipe-sticky-narrative': [
-    { id: 'sticky-recipe', title: 'Sticky Narrative' },
-  ],
-  'recipe-horizontal-scroll': [
-    { id: 'horizontal-recipe', title: 'Horizontal Gallery' },
-  ],
-  'recipe-3d-scroll': [
-    { id: '3d-recipe', title: '3D Kinetic Hero' },
+    { id: 'fps-comparison', title: 'FPS Stress Benchmark' },
   ],
 };
 
-export const DocsView: React.FC = () => {
+export function DocsView() {
   const [activeSection, setActiveSection] = useState('introduction');
   const [searchQuery, setSearchQuery] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const contentContainerRef = useRef<HTMLDivElement>(null);
-  const sidebarRef = useRef<HTMLDivElement>(null);
+  const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+  const [activeHeadingId, setActiveHeadingId] = useState<string>('');
+  const sidebarContainerRef = useRef<HTMLDivElement>(null);
 
-  // Keyboard shortcut listener for CMD+K / CTRL+K
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        const input = document.querySelector('input[placeholder="Filter docs..."]') as HTMLInputElement | null;
-        if (input) {
-          input.focus();
-        }
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
-
-  const tocItems = useMemo(() => {
-    return TOC_MAPPING[activeSection] || [];
-  }, [activeSection]);
+  const tocItems = useMemo(() => TOC_MAPPING[activeSection] || [], [activeSection]);
 
   const activeCategory = useMemo(() => {
     return DOCS_CATEGORIES.find((cat) =>
@@ -163,11 +117,59 @@ export const DocsView: React.FC = () => {
       ? flatSections[currentIndex + 1]
       : null;
 
+  // Global shortcut for Command Palette (⌘K / Ctrl+K)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setCommandPaletteOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  // Track active heading on scroll for Right TOC
+  useEffect(() => {
+    if (tocItems.length === 0) return;
+
+    const handleScroll = () => {
+      const scrollPos = window.scrollY + 140;
+      const headingElements = tocItems
+        .map((item) => document.getElementById(item.id))
+        .filter(Boolean) as HTMLElement[];
+
+      for (let i = headingElements.length - 1; i >= 0; i--) {
+        const el = headingElements[i];
+        if (el && el.offsetTop <= scrollPos) {
+          setActiveHeadingId(el.id);
+          return;
+        }
+      }
+      if (headingElements.length > 0 && headingElements[0]) {
+        setActiveHeadingId(headingElements[0].id);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [tocItems, activeSection]);
+
   const handleSelectSection = (id: string) => {
     setActiveSection(id);
     setMobileMenuOpen(false);
-    if (contentContainerRef.current) {
-      contentContainerRef.current.scrollTo({ top: 0, behavior: 'instant' });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const scrollToHeading = (id: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    const el = document.getElementById(id);
+    if (el) {
+      const yOffset = -88; // offset for sticky 64px header + padding
+      const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+      setActiveHeadingId(id);
     }
   };
 
@@ -175,10 +177,29 @@ export const DocsView: React.FC = () => {
     if (['introduction', 'installation', 'setup'].includes(activeSection)) {
       return <DocGettingStarted sectionId={activeSection} />;
     }
-    if (['parallax', 'reveal', 'pin', 'scroll-progress', 'velocity-marquee', 'horizontal-scroll', 'scroll-sequence'].includes(activeSection)) {
+    if (
+      [
+        'parallax',
+        'reveal',
+        'pin',
+        'scroll-progress',
+        'velocity-marquee',
+        'horizontal-scroll',
+        'scroll-sequence',
+      ].includes(activeSection)
+    ) {
       return <DocPrimitives primitiveId={activeSection} />;
     }
-    if (['use-scroll-state', 'use-scrollcraft', 'use-parallax', 'use-reveal', 'use-pin', 'use-magnetic'].includes(activeSection)) {
+    if (
+      [
+        'use-scroll-state',
+        'use-scrollcraft',
+        'use-parallax',
+        'use-reveal',
+        'use-pin',
+        'use-magnetic',
+      ].includes(activeSection)
+    ) {
       return <DocHooks hookId={activeSection} />;
     }
     if (['r3f-overview', 'r3f-three-tier', 'use-scroll-3d', 'r3f-recipes'].includes(activeSection)) {
@@ -187,158 +208,257 @@ export const DocsView: React.FC = () => {
     if (['three-phase-ticker', 'reduced-motion', 'benchmark'].includes(activeSection)) {
       return <DocArchitecture sectionId={activeSection} />;
     }
-    if (['recipe-sticky-narrative', 'recipe-horizontal-scroll', 'recipe-3d-scroll'].includes(activeSection)) {
+    if (
+      [
+        'recipe-sticky-narrative',
+        'recipe-horizontal-scroll',
+        'recipe-3d-scroll',
+      ].includes(activeSection)
+    ) {
       return <DocRecipes recipeId={activeSection} />;
     }
     return <DocGettingStarted sectionId="introduction" />;
   };
 
   return (
-    <div
-      data-lenis-prevent="true"
-      style={{ height: 'calc(100vh - 4rem)', maxHeight: 'calc(100vh - 4rem)' }}
-      className="w-full flex flex-col overflow-hidden bg-[#050505] text-zinc-100"
-    >
-      {/* Top Banner / Breadcrumb Bar */}
-      <div className="shrink-0 h-11 border-b border-white/[0.04] bg-[#0A0A0A]/90 backdrop-blur-md px-4 sm:px-8 z-10 flex items-center justify-between text-xs text-zinc-500">
-        <div className="max-w-7xl w-full mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            {/* Mobile Sidebar Toggle Button */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-1 rounded-md text-zinc-400 hover:text-white border border-white/10 cursor-pointer"
-              aria-label="Toggle navigation menu"
-            >
-              {mobileMenuOpen ? <X className="w-3.5 h-3.5" /> : <Menu className="w-3.5 h-3.5" />}
-            </button>
+    <div className="w-full min-h-screen flex flex-col bg-[#050505] text-zinc-100 font-sans selection:bg-blue-500/20 selection:text-white">
+      {/* Command Palette Modal */}
+      <CommandPalette
+        isOpen={commandPaletteOpen}
+        onClose={() => setCommandPaletteOpen(false)}
+        onSelectSection={handleSelectSection}
+      />
 
-            <span className="font-semibold text-white">Docs</span>
-            <ChevronRight className="w-3.5 h-3.5 text-zinc-400" />
-            <span className="text-zinc-400">{activeCategory?.title || 'Guides'}</span>
-            <ChevronRight className="w-3.5 h-3.5 text-zinc-400" />
-            <span className="font-mono text-[#FF5A1F] font-semibold">
-              {activeItem?.title || activeSection}
-            </span>
-          </div>
-          <div className="hidden sm:flex items-center gap-3">
-            <span className="font-mono text-[11px] px-2 py-0.5 rounded-full bg-white/5/5 text-zinc-300 border border-white/10">
-              ScrollCraft v0.1.0
-            </span>
-            <span className="text-zinc-400">•</span>
-            <span className="text-[11px] text-zinc-500">React 19 & Next.js 15</span>
-          </div>
+      {/* Top Header - Fixed at top of viewport */}
+      <header className="h-16 shrink-0 border-b border-zinc-800/80 bg-[#050505]/95 backdrop-blur-md flex items-center justify-between px-6 z-50 sticky top-0">
+        <div className="flex items-center gap-6 sm:gap-10">
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <div className="w-5 h-5 rounded-full bg-blue-500 shadow-md shadow-blue-500/30 group-hover:scale-105 transition-transform" />
+            <span className="text-xl font-bold tracking-tight text-white">ScrollCraft</span>
+          </Link>
+          <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
+            <Link href="/docs" className="text-white hover:text-white transition-colors">
+              Docs
+            </Link>
+          </nav>
         </div>
-      </div>
 
-      {/* Main Documentation Split Workspace */}
-      <div
-        data-lenis-prevent="true"
-        style={{ height: 'calc(100% - 2.75rem)', maxHeight: 'calc(100% - 2.75rem)' }}
-        className="flex-1 flex overflow-hidden min-h-0 relative"
-      >
-        {/* Left Navigation Sidebar */}
-        <div
-          ref={sidebarRef}
-          data-lenis-prevent="true"
-          style={{ height: '100%', maxHeight: '100%' }}
-          className={`${
-            mobileMenuOpen
-              ? 'fixed inset-y-11 left-0 z-50 w-72 shadow-2xl block bg-[#0A0A0A]'
-              : 'hidden md:block'
-          } w-64 lg:w-72 shrink-0 border-r border-white/[0.04] bg-[#0A0A0A] lg:bg-[#080808] overflow-y-auto overscroll-contain px-4 py-6 transition-all`}
+        {/* Search Bar */}
+        <div className="flex-1 max-w-lg mx-6 hidden sm:block">
+          <button
+            onClick={() => setCommandPaletteOpen(true)}
+            className="w-full flex items-center justify-between bg-zinc-900/80 hover:bg-zinc-900 border border-zinc-800 hover:border-zinc-700 rounded-full h-9 px-3.5 text-sm text-zinc-400 transition-all cursor-pointer shadow-inner group"
+          >
+            <div className="flex items-center gap-2.5">
+              <Search className="w-4 h-4 text-zinc-500 group-hover:text-zinc-300 transition-colors" />
+              <span className="text-zinc-500 group-hover:text-zinc-400 text-xs sm:text-sm">
+                Search documentation, primitives, hooks...
+              </span>
+            </div>
+            <div className="flex items-center gap-1">
+              <kbd className="px-1.5 py-0.5 text-[10px] bg-zinc-800 border border-zinc-700 rounded font-mono text-zinc-400 shadow-xs">
+                ⌘
+              </kbd>
+              <kbd className="px-1.5 py-0.5 text-[10px] bg-zinc-800 border border-zinc-700 rounded font-mono text-zinc-400 shadow-xs">
+                K
+              </kbd>
+            </div>
+          </button>
+        </div>
+
+        {/* Right actions */}
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => setCommandPaletteOpen(true)}
+            className="sm:hidden p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800"
+            title="Search (⌘K)"
+          >
+            <Search className="w-5 h-5" />
+          </button>
+
+          <a
+            href="https://github.com/scrollcraft"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-zinc-400 hover:text-white transition-colors p-1"
+            title="GitHub Repository"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
+            </svg>
+          </a>
+
+          <button
+            onClick={() => handleSelectSection('installation')}
+            className="hidden sm:flex items-center gap-2 bg-white text-black px-4 py-1.5 rounded-full text-sm font-semibold hover:bg-zinc-200 transition-colors shadow-sm cursor-pointer"
+          >
+            Get Started
+            <ArrowRight className="w-4 h-4" />
+          </button>
+
+          {/* Desktop Sidebar Collapse Toggle */}
+          <button
+            onClick={() => setDesktopSidebarOpen(!desktopSidebarOpen)}
+            className="hidden md:flex p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors cursor-pointer"
+            title={desktopSidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
+          >
+            {desktopSidebarOpen ? (
+              <PanelLeftClose className="w-5 h-5" />
+            ) : (
+              <PanelLeftOpen className="w-5 h-5" />
+            )}
+          </button>
+
+          {/* Mobile Menu Toggle */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+          >
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
+        </div>
+      </header>
+
+      {/* Main Container */}
+      <div className="relative w-full max-w-[1600px] mx-auto flex-1">
+        {/* Left Sidebar - Fixed & Isolated with overscroll-contain */}
+        <aside
+          ref={sidebarContainerRef}
+          className={`
+            fixed top-16 bottom-0 left-0 z-40 w-72 bg-[#050505] border-r border-zinc-800/80 px-4 py-6
+            overflow-y-auto overscroll-contain sidebar-scroll
+            ${
+              mobileMenuOpen
+                ? 'block shadow-2xl'
+                : desktopSidebarOpen
+                ? 'hidden md:block'
+                : 'hidden'
+            }
+          `}
         >
+          {/* Version Selector */}
+          <div className="mb-6">
+            <div className="w-full bg-zinc-900/90 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-300 font-mono flex items-center justify-between shadow-xs">
+              <span className="font-semibold text-white">v0.1.0-alpha</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-sans">
+                Latest
+              </span>
+            </div>
+          </div>
+
           <DocsSidebar
             activeSection={activeSection}
             onSelectSection={handleSelectSection}
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
           />
-        </div>
+        </aside>
 
-        {/* Mobile Backdrop Overlay */}
-        {mobileMenuOpen && (
-          <div
-            onClick={() => setMobileMenuOpen(false)}
-            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-xs md:hidden"
-          />
-        )}
-
-        {/* Detailed Page Body */}
-        <div
-          ref={contentContainerRef}
-          data-lenis-prevent="true"
-          style={{ height: '100%', maxHeight: '100%' }}
-          className="flex-1 min-w-0 overflow-y-auto overscroll-contain focus:outline-none bg-[#050505]"
+        {/* Main Content Area */}
+        <main
+          className={`w-full min-h-[calc(100vh-4rem)] transition-[padding] duration-200 ${
+            desktopSidebarOpen ? 'md:pl-72' : 'pl-0'
+          } xl:pr-64`}
         >
-          <div className="max-w-6xl mx-auto px-6 sm:px-10 lg:px-12 py-10 flex gap-12 items-start min-h-full">
-            {/* Center Main Documentation Article */}
-            <div className="flex-1 min-w-0 max-w-3xl pb-20">
-              <article className="prose prose-invert prose-zinc max-w-none">
-                {renderSection()}
-              </article>
-
-              {/* Prev / Next Pagination Cards */}
-              <div className="mt-16 pt-8 border-t border-white/10 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {prevSection ? (
-                  <button
-                    onClick={() => handleSelectSection(prevSection.id)}
-                    className="flex flex-col gap-1 p-4 rounded-xl border border-white/10 bg-white/5/[0.02] hover:border-white/20 hover:bg-white/5/[0.05] transition-all text-left cursor-pointer group shadow-2xs"
-                  >
-                    <div className="flex items-center gap-1.5 text-xs text-zinc-500 group-hover:text-zinc-300">
-                      <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5" />
-                      <span>Previous</span>
-                    </div>
-                    <span className="text-sm font-semibold text-white">
-                      {prevSection.title}
-                    </span>
-                    <span className="text-[11px] font-mono text-zinc-500">
-                      {prevSection.categoryTitle}
-                    </span>
-                  </button>
-                ) : (
-                  <div />
-                )}
-
-                {nextSection && (
-                  <button
-                    onClick={() => handleSelectSection(nextSection.id)}
-                    className="flex flex-col gap-1 p-4 rounded-xl border border-white/10 bg-white/5/[0.02] hover:border-white/20 hover:bg-white/5/[0.05] transition-all text-right cursor-pointer group shadow-2xs sm:ml-auto w-full"
-                  >
-                    <div className="flex items-center justify-end gap-1.5 text-xs text-zinc-500 group-hover:text-zinc-300">
-                      <span>Next</span>
-                      <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
-                    </div>
-                    <span className="text-sm font-semibold text-white">
-                      {nextSection.title}
-                    </span>
-                    <span className="text-[11px] font-mono text-zinc-500">
-                      {nextSection.categoryTitle}
-                    </span>
-                  </button>
-                )}
-              </div>
-
-              {/* Minimalist Professional Documentation Footer */}
-              <div className="mt-14 pt-6 border-t border-white/10/60 flex flex-col sm:flex-row items-center justify-between text-xs text-zinc-500 gap-4">
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold text-zinc-300">ScrollCraft Engine</span>
-                  <span>•</span>
-                  <span>Open Source Apache-2.0 / MIT</span>
-                </div>
-                <div className="flex items-center gap-4">
-                  <a href="/playground" className="hover:text-zinc-100 transition-colors">
-                    Playground
-                  </a>
-                </div>
-              </div>
+          <div className="max-w-4xl mx-auto px-6 sm:px-10 lg:px-12 py-10 lg:py-16">
+            {/* Breadcrumb */}
+            <div className="flex items-center gap-2 text-xs sm:text-sm text-zinc-500 mb-8 font-mono">
+              <Link href="/docs" className="hover:text-zinc-300 transition-colors">
+                Docs
+              </Link>
+              <ChevronRight className="w-3.5 h-3.5 text-zinc-600" />
+              <span>{activeCategory?.title}</span>
+              <ChevronRight className="w-3.5 h-3.5 text-zinc-600" />
+              <span className="text-zinc-200 font-medium">{activeItem?.title}</span>
             </div>
 
-            {/* Right Sticky Table of Contents */}
-            <DocsToc items={tocItems} />
+            {/* Main Article Content */}
+            <article className="prose prose-invert prose-zinc max-w-none">
+              {renderSection()}
+            </article>
+
+            {/* Pagination Cards */}
+            <div className="mt-20 pt-8 border-t border-zinc-800/80 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {prevSection ? (
+                <button
+                  onClick={() => handleSelectSection(prevSection.id)}
+                  className="flex flex-col gap-1 p-5 rounded-xl border border-zinc-800/80 bg-[#09090b] hover:border-zinc-700 transition-all text-left group shadow-lg cursor-pointer"
+                >
+                  <div className="flex items-center gap-1.5 text-xs text-zinc-500 group-hover:text-zinc-300 font-mono mb-1">
+                    <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1" />
+                    <span>Previous</span>
+                  </div>
+                  <span className="text-base font-semibold text-white group-hover:text-blue-400 transition-colors">
+                    {prevSection.title}
+                  </span>
+                  <span className="text-xs text-zinc-500">{prevSection.categoryTitle}</span>
+                </button>
+              ) : (
+                <div />
+              )}
+
+              {nextSection && (
+                <button
+                  onClick={() => handleSelectSection(nextSection.id)}
+                  className="flex flex-col gap-1 p-5 rounded-xl border border-zinc-800/80 bg-[#09090b] hover:border-zinc-700 transition-all text-right items-end group shadow-lg cursor-pointer"
+                >
+                  <div className="flex items-center gap-1.5 text-xs text-zinc-500 group-hover:text-zinc-300 font-mono mb-1">
+                    <span>Next</span>
+                    <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+                  </div>
+                  <span className="text-base font-semibold text-white group-hover:text-blue-400 transition-colors">
+                    {nextSection.title}
+                  </span>
+                  <span className="text-xs text-zinc-500">{nextSection.categoryTitle}</span>
+                </button>
+              )}
+            </div>
           </div>
-        </div>
+        </main>
+
+        {/* Right TOC Sidebar - Fixed & Isolated with overscroll-contain */}
+        <aside className="fixed top-16 bottom-0 right-0 z-30 w-64 px-6 py-12 hidden xl:block border-l border-zinc-800/80 overflow-y-auto overscroll-contain sidebar-scroll bg-[#050505]">
+          <div className="text-xs font-mono font-semibold uppercase tracking-wider text-zinc-400 mb-4">
+            On this page
+          </div>
+
+          {tocItems.length > 0 ? (
+            <div className="flex flex-col border-l border-zinc-800/80 pl-0 relative">
+              {tocItems.map((item) => {
+                const isHeadingActive = activeHeadingId === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={(e) => scrollToHeading(item.id, e)}
+                    className={`text-left pl-3.5 py-1.5 text-xs transition-all cursor-pointer border-l -ml-[1px] leading-relaxed ${
+                      isHeadingActive
+                        ? 'text-white font-semibold border-blue-500'
+                        : 'text-zinc-500 hover:text-zinc-300 border-transparent'
+                    }`}
+                  >
+                    {item.title}
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="text-xs text-zinc-600 italic">Overview section</div>
+          )}
+
+          {/* Feedback Widget */}
+          <div className="mt-12 pt-6 border-t border-zinc-800/60 flex flex-col gap-3 text-xs text-zinc-500">
+            <span className="font-mono text-[11px]">Was this section helpful?</span>
+            <div className="flex gap-2">
+              <button className="px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 hover:border-zinc-700 hover:text-white flex items-center gap-1.5 transition-colors cursor-pointer text-xs">
+                👍 Yes
+              </button>
+              <button className="px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 hover:border-zinc-700 hover:text-white flex items-center gap-1.5 transition-colors cursor-pointer text-xs">
+                👎 No
+              </button>
+            </div>
+          </div>
+        </aside>
       </div>
     </div>
   );
-};
-
+}

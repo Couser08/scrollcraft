@@ -111,55 +111,34 @@ export const ScrollProvider: React.FC<ScrollProviderProps> = ({
       }
     }
 
-    // SPA Route change handling (Next.js App Router, React Router, etc)
-    // Intercept pushState and replaceState to detect client-side navigations
-    const patchHistory = () => {
-      if (typeof window === 'undefined') return;
-      const w = window as any;
-      if (!w._scPatched) {
-        const originalPush = history.pushState;
-        history.pushState = function (...args) {
-          const result = originalPush.apply(this, args);
-          window.dispatchEvent(new Event('sc-routechange'));
-          return result;
-        };
-        const originalReplace = history.replaceState;
-        history.replaceState = function (...args) {
-          const result = originalReplace.apply(this, args);
-          window.dispatchEvent(new Event('sc-routechange'));
-          return result;
-        };
-        w._scPatched = true;
-      }
-    };
-    
-    patchHistory();
+    // Observe DOM mutations to detect route changes and content shifts
+    let resizeObserver: ResizeObserver | null = null;
+    let mutationObserver: MutationObserver | null = null;
 
-    const handleRouteChange = (isPop: boolean) => {
-      // Defer slightly to allow React/Next.js to render the new route DOM
-      requestAnimationFrame(() => {
-        setTimeout(() => {
-          if (!isPop && autoResetOnRouteChange) {
-            engine?.scrollTo(0, { immediate: true });
-          }
+    if (autoRecalc && typeof window !== 'undefined') {
+      const handleDOMChange = () => {
+        requestAnimationFrame(() => {
           engine?.resize();
-        }, 50);
-      });
-    };
+        });
+      };
 
-    const onPopState = () => handleRouteChange(true);
-    const onPushState = () => handleRouteChange(false);
-    
-    window.addEventListener('popstate', onPopState);
-    window.addEventListener('sc-routechange', onPushState);
+      if ('ResizeObserver' in window) {
+        resizeObserver = new ResizeObserver(handleDOMChange);
+        resizeObserver.observe(document.body);
+      } else {
+        // Fallback for older browsers
+        mutationObserver = new MutationObserver(handleDOMChange);
+        mutationObserver.observe(document.body, { childList: true, subtree: true, characterData: true });
+      }
+    }
 
     return () => {
       motionQuery.removeEventListener('change', onMotionChange);
-      window.removeEventListener('popstate', onPopState);
-      window.removeEventListener('sc-routechange', onPushState);
       if (autoRecalc) {
         window.removeEventListener('resize', handleResize);
         if (resizeRafId !== null) cancelAnimationFrame(resizeRafId);
+        resizeObserver?.disconnect();
+        mutationObserver?.disconnect();
       }
       engine?.destroy();
       engineRef.current = null;

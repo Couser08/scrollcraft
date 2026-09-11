@@ -38,11 +38,11 @@ export const Scroll3DPlayground: React.FC = () => {
       {/* Top Header */}
       <div className="flex items-center justify-between px-4 py-3 bg-white/5 border-b border-white/10">
         <div className="flex items-center gap-2">
-          <span className="flex h-2 w-2 rounded-full bg-[#FF5A1F]" />
+          <span className="flex h-2 w-2 rounded-full bg-blue-500" />
           <span className="text-xs font-bold uppercase tracking-wider text-zinc-100">
             @scrollcraft/r3f Bridge Simulator
           </span>
-          <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#FF5A1F]/10 text-[#FF5A1F] border border-[#FFEDD5] font-semibold">
+          <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-500 border border-[#FFEDD5] font-semibold">
             Zero RAF Conflicts
           </span>
         </div>
@@ -79,7 +79,7 @@ export const Scroll3DPlayground: React.FC = () => {
           <div>
             <div className="flex items-center justify-between text-xs mb-1.5">
               <span className="font-medium text-zinc-100">Virtual ViewTimeline Progress</span>
-              <span className="font-mono text-[#FF5A1F] font-semibold">{Math.round(progress * 100)}%</span>
+              <span className="font-mono text-blue-500 font-semibold">{Math.round(progress * 100)}%</span>
             </div>
             <input
               type="range"
@@ -87,7 +87,7 @@ export const Scroll3DPlayground: React.FC = () => {
               max="100"
               value={scrollPosition}
               onChange={(e) => handleSliderChange(Number(e.target.value))}
-              className="w-full accent-[#FF5A1F] h-1.5 bg-[#E5E7EB] rounded-lg cursor-pointer"
+              className="w-full accent-blue-500 h-1.5 bg-[#E5E7EB] rounded-lg cursor-pointer"
             />
             <div className="flex justify-between text-[10px] text-[#9CA3AF] mt-1 font-mono">
               <span>0.0 (Entry)</span>
@@ -121,7 +121,7 @@ export const Scroll3DPlayground: React.FC = () => {
             </div>
             <div className="flex justify-between text-zinc-400 pt-1 border-t border-dashed border-white/10">
               <span>active engine:</span>
-              <span className="text-[#FF5A1F] font-semibold">
+              <span className="text-blue-500 font-semibold">
                 {tierMode === 'tier1' ? 'probe.currentTime' : 'ResizeObserver Fallback'}
               </span>
             </div>
@@ -150,8 +150,8 @@ export const Scroll3DPlayground: React.FC = () => {
               }}
             >
               {/* Front Face */}
-              <div className="w-36 h-36 rounded-2xl bg-gradient-to-br from-white to-[#FAFAF9] border-2 border-[#FF5A1F] shadow-2xl flex flex-col items-center justify-center p-4 text-center">
-                <span className="p-2 rounded-xl bg-[#FF5A1F]/10 text-[#FF5A1F] mb-2 shadow-xs">
+              <div className="w-36 h-36 rounded-2xl bg-gradient-to-br from-white to-[#FAFAF9] border-2 border-blue-500 shadow-2xl flex flex-col items-center justify-center p-4 text-center">
+                <span className="p-2 rounded-xl bg-blue-500/10 text-blue-500 mb-2 shadow-xs">
                   <Box className="w-6 h-6" />
                 </span>
                 <span className="text-xs font-bold text-zinc-100">Three.js Mesh</span>

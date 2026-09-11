@@ -1,43 +1,42 @@
 'use client';
 
-/**
- * Real-Engine Interactive Velocity Marquee Sandbox
- * Mounts @scrollcraft/react <VelocityMarquee> component.
- * Demonstrates infinite modulo wrapping and dynamic scroll velocity acceleration.
- * Strictly under 650 LOC.
- */
-
 import React, { useState } from 'react';
 import { VelocityMarquee } from '@scrollcraft/react';
-import { Activity, RefreshCw } from 'lucide-react';
+import { Activity, RefreshCw, Zap, ArrowLeftRight } from 'lucide-react';
 
 export const MarqueePlayground: React.FC = () => {
-  const [baseSpeed, setBaseSpeed] = useState<number>(1.2);
-  const [velocityMultiplier, setVelocityMultiplier] = useState<number>(0.08);
+  const [baseSpeed, setBaseSpeed] = useState<number>(1.5);
+  const [velocityMultiplier, setVelocityMultiplier] = useState<number>(0.1);
   const [direction, setDirection] = useState<'left' | 'right'>('left');
-  const [key, setKey] = useState(0);
+  const [key, setKey] = useState<number>(0);
+
+  const handleScrollPulse = () => {
+    if (typeof window !== 'undefined') {
+      window.scrollBy({ top: 250, behavior: 'smooth' });
+    }
+  };
 
   return (
-    <div className="my-6 rounded-2xl border border-white/10 bg-[#080808] overflow-hidden shadow-xs">
+    <div className="my-6 rounded-xl border border-zinc-800/80 bg-[#09090b] overflow-hidden shadow-2xl">
       {/* Top Header */}
-      <div className="flex items-center justify-between px-4 py-3 bg-white/5 border-b border-white/10">
+      <div className="flex items-center justify-between px-4 py-3 bg-[#0d0d10] border-b border-zinc-800/80">
         <div className="flex items-center gap-2">
-          <span className="flex h-2 w-2 rounded-full bg-[#FF5A1F] animate-pulse" />
-          <span className="text-xs font-bold uppercase tracking-wider text-zinc-100">
-            Real Engine Sandbox
+          <span className="flex h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
+          <span className="text-xs font-bold uppercase tracking-wider text-zinc-200">
+            Real &lt;VelocityMarquee&gt; Sandbox
           </span>
-          <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#FF5A1F]/10 text-[#FF5A1F] border border-[#FFEDD5] font-semibold">
-            &lt;VelocityMarquee /&gt;
+          <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 font-semibold">
+            @scrollcraft/react
           </span>
         </div>
         <button
           onClick={() => {
-            setBaseSpeed(1.2);
-            setVelocityMultiplier(0.08);
+            setBaseSpeed(1.5);
+            setVelocityMultiplier(0.1);
             setDirection('left');
             setKey((k) => k + 1);
           }}
-          className="flex items-center gap-1 text-[11px] text-zinc-400 hover:text-zinc-100 transition-colors cursor-pointer"
+          className="flex items-center gap-1 text-[11px] text-zinc-400 hover:text-white px-2 py-1 rounded-md transition-colors cursor-pointer"
         >
           <RefreshCw className="w-3 h-3" />
           <span>Reset</span>
@@ -50,95 +49,99 @@ export const MarqueePlayground: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
           <div>
             <div className="flex items-center justify-between text-xs mb-1.5">
-              <span className="font-medium text-zinc-100">Base Crawl Speed</span>
-              <span className="font-mono text-[#FF5A1F] font-semibold">{baseSpeed.toFixed(1)} px/f</span>
+              <span className="font-medium text-zinc-200">Base Crawl Speed</span>
+              <span className="font-mono text-blue-400 font-semibold">{baseSpeed.toFixed(1)} px/f</span>
             </div>
             <input
               type="range"
               min="0.5"
               max="4.0"
-              step="0.1"
+              step="0.2"
               value={baseSpeed}
-              onChange={(e) => setBaseSpeed(Number(e.target.value))}
-              className="w-full accent-[#FF5A1F] h-1.5 bg-[#E5E7EB] rounded-lg cursor-pointer"
+              onChange={(e) => {
+                setBaseSpeed(Number(e.target.value));
+                setKey((k) => k + 1);
+              }}
+              className="w-full accent-blue-500 h-1.5 bg-zinc-800 rounded-lg cursor-pointer"
             />
           </div>
 
           <div>
             <div className="flex items-center justify-between text-xs mb-1.5">
-              <span className="font-medium text-zinc-100">Velocity Multiplier</span>
-              <span className="font-mono text-[#FF5A1F] font-semibold">{velocityMultiplier.toFixed(2)}x</span>
+              <span className="font-medium text-zinc-200">Velocity Multiplier</span>
+              <span className="font-mono text-blue-400 font-semibold">
+                {velocityMultiplier.toFixed(2)}x
+              </span>
             </div>
             <input
               type="range"
-              min="0.02"
-              max="0.2"
-              step="0.01"
+              min="0.05"
+              max="0.3"
+              step="0.02"
               value={velocityMultiplier}
-              onChange={(e) => setVelocityMultiplier(Number(e.target.value))}
-              className="w-full accent-[#FF5A1F] h-1.5 bg-[#E5E7EB] rounded-lg cursor-pointer"
+              onChange={(e) => {
+                setVelocityMultiplier(Number(e.target.value));
+                setKey((k) => k + 1);
+              }}
+              className="w-full accent-blue-500 h-1.5 bg-zinc-800 rounded-lg cursor-pointer"
             />
           </div>
 
-          <div>
-            <label className="text-xs font-medium text-zinc-100 block mb-1.5">
-              Direction Flow
-            </label>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                onClick={() => setDirection('left')}
-                className={`py-1 text-xs font-mono rounded-lg border transition-all cursor-pointer ${
-                  direction === 'left'
-                    ? 'bg-[#0A0A0A] text-white border-[#0A0A0A] font-bold'
-                    : 'bg-white/5 text-zinc-400 border-white/10 hover:text-zinc-100'
-                }`}
-              >
-                ← Left
-              </button>
-              <button
-                onClick={() => setDirection('right')}
-                className={`py-1 text-xs font-mono rounded-lg border transition-all cursor-pointer ${
-                  direction === 'right'
-                    ? 'bg-[#0A0A0A] text-white border-[#0A0A0A] font-bold'
-                    : 'bg-white/5 text-zinc-400 border-white/10 hover:text-zinc-100'
-                }`}
-              >
-                Right →
-              </button>
-            </div>
+          <div className="flex items-center gap-2 pt-2 sm:pt-0">
+            <button
+              onClick={() => {
+                setDirection((d) => (d === 'left' ? 'right' : 'left'));
+                setKey((k) => k + 1);
+              }}
+              className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg border border-zinc-800 bg-zinc-900 hover:bg-zinc-800 text-xs font-mono text-zinc-200 transition-all cursor-pointer"
+            >
+              <ArrowLeftRight className="w-3.5 h-3.5 text-blue-400" />
+              <span>{direction.toUpperCase()}</span>
+            </button>
+
+            <button
+              onClick={handleScrollPulse}
+              className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg border border-blue-500/40 bg-blue-500/10 hover:bg-blue-500/20 text-xs font-mono text-blue-300 font-semibold transition-all cursor-pointer active:scale-95 shadow-lg"
+            >
+              <Zap className="w-3.5 h-3.5 text-blue-400" />
+              <span>Scroll Pulse</span>
+            </button>
           </div>
         </div>
 
-        {/* Live Velocity Marquee Stage Running Real Engine */}
-        <div
-          key={key}
-          className="rounded-2xl border border-white/10 bg-white/5 p-6 shadow-sm overflow-hidden"
-        >
-          <div className="text-[11px] text-zinc-500 font-mono mb-3 flex items-center gap-1.5">
-            <Activity className="w-3.5 h-3.5 text-[#FF5A1F]" />
-            <span>Scroll vertically in your window to trigger dynamic kinetic acceleration:</span>
-          </div>
-
+        {/* Live Running Real Library Marquee Primitive */}
+        <div className="w-full overflow-hidden rounded-xl border border-zinc-800/80 bg-[#060608] py-5 relative shadow-inner">
           <VelocityMarquee
+            key={key}
             baseSpeed={baseSpeed}
             velocityMultiplier={velocityMultiplier}
             direction={direction}
-            className="py-4 border-y border-white/10/80 select-none bg-[#080808]"
           >
-            <div className="flex items-center gap-6 font-mono font-extrabold text-sm sm:text-base tracking-tight text-zinc-100">
+            <div className="flex items-center gap-8 font-mono text-sm sm:text-base font-bold text-white tracking-wider">
               <span>SCROLLCRAFT</span>
-              <span className="w-2 h-2 rounded-full bg-[#FF5A1F]" />
-              <span className="text-[#FF5A1F]">120 FPS KINETIC</span>
-              <span className="w-2 h-2 rounded-full bg-zinc-300" />
-              <span>ZERO JANK</span>
-              <span className="w-2 h-2 rounded-full bg-[#16A34A]" />
-              <span className="text-zinc-400">GPU ACCELERATED</span>
-              <span className="w-2 h-2 rounded-full bg-[#FF5A1F]" />
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+              <span className="text-zinc-400">120 FPS SUBPIXEL</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+              <span className="text-zinc-200">ZERO JANK MOTION</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+              <span className="text-zinc-400">DIRECT COMPOSITOR</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
             </div>
           </VelocityMarquee>
+        </div>
+
+        {/* Telemetry Bar */}
+        <div className="flex flex-wrap items-center justify-between text-xs font-mono text-zinc-400 pt-2 border-t border-zinc-800/60">
+          <div className="flex items-center gap-2">
+            <Activity className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Kinetic Solver:</span>
+            <span className="text-white font-bold">Modulo Wrap Active</span>
+          </div>
+          <div className="text-zinc-500">
+            Scroll this page or click &ldquo;Scroll Pulse&rdquo; to experience real velocity acceleration!
+          </div>
         </div>
       </div>
     </div>
   );
 };
-

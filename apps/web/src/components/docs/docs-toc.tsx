@@ -36,7 +36,7 @@ const TocLink: React.FC<{
         aria-current={isActive ? 'location' : undefined}
         className={`text-xs text-left transition-colors cursor-pointer block truncate w-full ${
           isActive
-            ? 'text-[#FF5A1F] font-semibold -ml-[13px] border-l-2 border-[#FF5A1F] pl-2.5'
+            ? 'text-[white] font-semibold -ml-[13px] border-l-2 border-[white] pl-2.5'
             : 'text-zinc-400 hover:text-white'
         }`}
       >

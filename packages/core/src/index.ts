@@ -20,3 +20,5 @@ export * from './marquee';
 export * from './sequence';
 export * from './fallback-reader';
 export * from './text-reveal';
+export * from './transform-solver';
+export * from './draw-solver';

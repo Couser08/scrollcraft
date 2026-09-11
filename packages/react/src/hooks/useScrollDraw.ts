@@ -1,17 +1,16 @@
 'use client';
 
 import { useEffect, useRef, useLayoutEffect } from 'react';
-import { TransformSolver, TransformSolverOptions, ticker } from '@scrollcraft/core';
+import { DrawSolver, DrawSolverOptions, ticker } from '@scrollcraft/core';
 import { useScrollCraft } from '../context';
 
-export function useScrollTransform<T extends HTMLElement = HTMLDivElement>(
-  options: Omit<TransformSolverOptions, 'onSnap'>
+export function useScrollDraw<T extends SVGGeometryElement = SVGPathElement>(
+  options: DrawSolverOptions
 ) {
   const elementRef = useRef<T>(null);
-  const solverRef = useRef<TransformSolver | null>(null);
-  const { subscribe, reducedMotion, scrollTo } = useScrollCraft();
-  
-  // Memoize options internally if needed, but for now we expect the user to pass a stable reference or we recreate.
+  const solverRef = useRef<DrawSolver | null>(null);
+  const { subscribe, reducedMotion } = useScrollCraft();
+
   const optionsRef = useRef(options);
   optionsRef.current = options;
 
@@ -21,14 +20,10 @@ export function useScrollTransform<T extends HTMLElement = HTMLDivElement>(
     const element = elementRef.current;
     if (!element) return;
 
-    const onSnap = (targetScroll: number) => {
-      scrollTo(targetScroll, { duration: 1 }); // Smooth scroll to target
-    };
-
-    const solver = new TransformSolver(element, { ...optionsRef.current, onSnap });
+    const solver = new DrawSolver(element, optionsRef.current);
     solverRef.current = solver;
 
-    const taskId = `transform-${Math.random().toString(36).slice(2, 8)}`;
+    const taskId = `draw-${Math.random().toString(36).slice(2, 8)}`;
     
     // Register to ticker
     ticker.add(`${taskId}-measure`, 'measure', () => {
@@ -62,7 +57,7 @@ export function useScrollTransform<T extends HTMLElement = HTMLDivElement>(
       solver.destroy();
       solverRef.current = null;
     };
-  }, [reducedMotion, subscribe, scrollTo]); // Deliberately omit options to avoid re-binding if not memoized, though dynamic options might be needed later
+  }, [reducedMotion, subscribe]);
 
   return elementRef;
 }
