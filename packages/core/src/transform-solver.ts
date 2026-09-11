@@ -1,5 +1,6 @@
 import { clamp, damp } from './math';
 import { TimelineSolver, PropertyTimeline, KeyframeSegment } from './timeline';
+import { TransformComposer } from './dom';
 
 export interface TransformProperties {
   x?: [number, number] | number[];
@@ -240,5 +241,8 @@ export class TransformSolver {
     }
     TransformComposer.clear(this.element, 'scroll-transform');
     this.element.style.willChange = '';
+    this.element.style.opacity = '';
+    this.element.style.filter = '';
+    this.element.style.borderRadius = '';
   }
 }
