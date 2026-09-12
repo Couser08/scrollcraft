@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 
 export default function HomePage() {
   return (
-    <div className="relative w-full min-h-screen bg-[#050505] text-zinc-100 overflow-x-hidden selection:bg-zinc-800 selection:text-white font-sans antialiased">
+    <div className="relative w-full min-h-screen bg-[#050505] text-zinc-100 overflow-x-clip selection:bg-zinc-800 selection:text-white font-sans antialiased">
       <Navbar />
       <FPSMeter />
       

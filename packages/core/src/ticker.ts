@@ -46,20 +46,10 @@ export class Ticker {
   }
 
   /**
-   * Register a task in one of three engine phases
+   * Register a task in one of three engine phases.
+   * Tasks in different phases with the same id do not overwrite each other.
    */
   public add(id: string, phase: TickerPhase, callback: TickerCallback): void {
-    // Remove from other phases to prevent multi-phase collision
-    if (phase === 'measure') {
-      this.updateTasks.delete(id);
-      this.renderTasks.delete(id);
-    } else if (phase === 'update') {
-      this.measureTasks.delete(id);
-      this.renderTasks.delete(id);
-    } else {
-      this.measureTasks.delete(id);
-      this.updateTasks.delete(id);
-    }
     const tasks = phase === 'measure'
       ? this.measureTasks
       : phase === 'update'
@@ -71,19 +61,26 @@ export class Ticker {
     }
     tasks.set(id, callback);
     this.taskArraysDirty = true;
-    this.syncTaskArrays();
     this.ensureRunning();
   }
 
   /**
-   * Remove a registered task
+   * Remove a registered task. If phase is omitted, removes from all phases.
    */
-  public remove(id: string): void {
-    this.measureTasks.delete(id);
-    this.updateTasks.delete(id);
-    this.renderTasks.delete(id);
+  public remove(id: string, phase?: TickerPhase): void {
+    if (phase) {
+      const tasks = phase === 'measure'
+        ? this.measureTasks
+        : phase === 'update'
+          ? this.updateTasks
+          : this.renderTasks;
+      tasks.delete(id);
+    } else {
+      this.measureTasks.delete(id);
+      this.updateTasks.delete(id);
+      this.renderTasks.delete(id);
+    }
     this.taskArraysDirty = true;
-    this.syncTaskArrays();
 
     if (
       this.measureTasks.size === 0 &&
@@ -101,12 +98,15 @@ export class Ticker {
 
   private runPhase(
     phase: TickerPhase,
+    map: Map<string, TickerCallback>,
     tasks: Array<[string, TickerCallback]>,
     dt: number,
     currentTime: number
   ): void {
     for (let i = 0; i < tasks.length; i++) {
       const [id, callback] = tasks[i];
+      // Guard: skip task if it was removed earlier in this frame
+      if (!map.has(id)) continue;
       try {
         callback(dt, this.elapsedTime, currentTime);
       } catch (error) {
@@ -134,7 +134,9 @@ export class Ticker {
     if (this.isRunning) return;
     this.isRunning = true;
     this.lastTime = performance.now();
-    this.rafId = requestAnimationFrame(this.tick);
+    if (typeof requestAnimationFrame !== 'undefined') {
+      this.rafId = requestAnimationFrame(this.tick);
+    }
   }
 
   private onVisibilityChange = (): void => {
@@ -148,7 +150,9 @@ export class Ticker {
     if (!this.isRunning) return;
     this.isRunning = false;
     if (this.rafId !== null) {
-      cancelAnimationFrame(this.rafId);
+      if (typeof cancelAnimationFrame !== 'undefined') {
+        cancelAnimationFrame(this.rafId);
+      }
       this.rafId = null;
     }
   }
@@ -163,15 +167,18 @@ export class Ticker {
     this.elapsedTime += dt;
 
     // Phase 1: Read/Measure (Layout reads isolated to prevent thrashing)
-    this.runPhase('measure', this.measureTasksArray, dt, currentTime);
+    if (this.taskArraysDirty) this.syncTaskArrays();
+    this.runPhase('measure', this.measureTasks, this.measureTasksArray, dt, currentTime);
 
     // Phase 2: Math/Physics Calculations
-    this.runPhase('update', this.updateTasksArray, dt, currentTime);
+    if (this.taskArraysDirty) this.syncTaskArrays();
+    this.runPhase('update', this.updateTasks, this.updateTasksArray, dt, currentTime);
 
     // Phase 3: Direct DOM GPU Compositor writes
-    this.runPhase('render', this.renderTasksArray, dt, currentTime);
+    if (this.taskArraysDirty) this.syncTaskArrays();
+    this.runPhase('render', this.renderTasks, this.renderTasksArray, dt, currentTime);
 
-    if (this.isRunning) {
+    if (this.isRunning && typeof requestAnimationFrame !== 'undefined') {
       this.rafId = requestAnimationFrame(this.tick);
     }
   };

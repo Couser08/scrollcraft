@@ -18,7 +18,7 @@ export function CTASection() {
       
       {/* Background Terrain */}
       <div className="absolute inset-0 z-0">
-        <Reveal distance={80} duration={1.2}>
+        <Reveal distance={80} duration={1.2} className="w-full h-full">
           <div className="w-full h-full opacity-30">
             <Parallax speed={-0.1} className="w-full h-[120%] -top-[10%] relative">
               <Image

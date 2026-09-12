@@ -5,6 +5,7 @@
  */
 
 import { clamp } from './math';
+import { GlobalResizeManager } from './dom';
 
 export interface TimelineReader {
   read(): number;
@@ -20,7 +21,7 @@ export function createFallbackReader(
   if (typeof window === 'undefined') {
     return { read: () => 0, destroy: () => {} };
   }
-  // We use ResizeObserver to keep measurements updated without forcing layout in the read loop
+  // We use GlobalResizeManager to keep measurements updated without forcing layout in the read loop
   let elementTop = 0;
   let elementHeight = 0;
   let elementLeft = 0;
@@ -46,13 +47,8 @@ export function createFallbackReader(
   // Initial measure
   measure();
 
-  // Listen to resizes
-  window.addEventListener('resize', measure, { passive: true });
-  let resizeObserver: ResizeObserver | null = null;
-  if (typeof ResizeObserver !== 'undefined') {
-    resizeObserver = new ResizeObserver(() => measure());
-    resizeObserver.observe(subject);
-  }
+  // Listen to resizes via centralized GlobalResizeManager
+  const unobserveResize = GlobalResizeManager.observe(subject, measure);
 
   return {
     read: () => {
@@ -75,8 +71,7 @@ export function createFallbackReader(
       }
     },
     destroy: () => {
-      window.removeEventListener('resize', measure);
-      resizeObserver?.disconnect();
+      unobserveResize();
     }
   };
 }

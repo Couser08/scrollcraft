@@ -17,11 +17,23 @@ export class TransformComposer {
   public static set(element: HTMLElement, owner: string, transform: string): void {
     let state = composedTransforms.get(element);
     if (!state) {
-      state = { base: element.style.transform, parts: new Map(), lastComposed: '' };
+      state = { base: element.style.transform || '', parts: new Map(), lastComposed: '' };
       composedTransforms.set(element, state);
     }
+
+    // Fast path: if the owner's transform hasn't changed, skip composition entirely
+    if (state.parts.get(owner) === transform) return;
     state.parts.set(owner, transform);
-    const composed = [state.base, ...state.parts.values()].filter(Boolean).join(' ').trim();
+
+    // Direct string composition without intermediate array allocations
+    let composed = state.base || '';
+    for (const part of state.parts.values()) {
+      if (part) {
+        composed = composed ? `${composed} ${part}` : part;
+      }
+    }
+    composed = composed.trim();
+
     if (composed !== state.lastComposed) {
       state.lastComposed = composed;
       element.style.transform = composed;
@@ -30,11 +42,17 @@ export class TransformComposer {
 
   public static clear(element: HTMLElement, owner: string): void {
     const state = composedTransforms.get(element);
-    if (!state) return;
+    if (!state || !state.parts.has(owner)) return;
     state.parts.delete(owner);
-    const composed = state.parts.size === 0 
-      ? state.base 
-      : [state.base, ...state.parts.values()].filter(Boolean).join(' ').trim();
+
+    let composed = state.base || '';
+    for (const part of state.parts.values()) {
+      if (part) {
+        composed = composed ? `${composed} ${part}` : part;
+      }
+    }
+    composed = composed.trim();
+
     if (composed !== state.lastComposed) {
       state.lastComposed = composed;
       element.style.transform = composed;

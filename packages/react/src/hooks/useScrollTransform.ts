@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useLayoutEffect } from 'react';
-import { TransformSolver, TransformSolverOptions, ticker } from '@scrollcraft/core';
+import { TransformSolver, TransformSolverOptions, ticker, GlobalResizeManager } from '@scrollcraft/core';
 import { useScrollCraft } from '../context';
 
 export function useScrollTransform<T extends HTMLElement = HTMLDivElement>(
@@ -31,15 +31,12 @@ export function useScrollTransform<T extends HTMLElement = HTMLDivElement>(
     const taskId = `transform-${Math.random().toString(36).slice(2, 8)}`;
     
     const measureGeometry = () => solver.measure();
-    window.addEventListener('resize', measureGeometry, { passive: true });
-
-    let resizeObserver: ResizeObserver | null = null;
-    if (typeof ResizeObserver !== 'undefined') {
-      resizeObserver = new ResizeObserver(() => measureGeometry());
-      resizeObserver.observe(element);
-      if (element.parentElement) {
-        resizeObserver.observe(element.parentElement);
-      }
+    const unobserveElement = GlobalResizeManager.observe(element, measureGeometry);
+    const unobserveParent = element.parentElement
+      ? GlobalResizeManager.observe(element.parentElement, measureGeometry)
+      : () => {};
+    if (typeof document !== 'undefined' && 'fonts' in document) {
+      document.fonts.ready.then(measureGeometry);
     }
 
     let currentScroll = 0;
@@ -63,8 +60,8 @@ export function useScrollTransform<T extends HTMLElement = HTMLDivElement>(
 
     return () => {
       unsubscribe();
-      window.removeEventListener('resize', measureGeometry);
-      resizeObserver?.disconnect();
+      unobserveElement();
+      unobserveParent();
       ticker.remove(`${taskId}-update`);
       ticker.remove(`${taskId}-render`);
       solver.destroy();
