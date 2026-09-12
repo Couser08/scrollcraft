@@ -82,7 +82,7 @@ export const ModernFooter: React.FC = () => {
               <YoutubeIcon className="w-4 h-4" />
             </a>
           </div>
-          <span>© 2026 ScrollCraft</span>
+          <span>© {new Date().getFullYear()} ScrollCraft</span>
         </div>
       </div>
     </footer>

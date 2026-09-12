@@ -17,7 +17,7 @@ export function MarqueeSection() {
         </VelocityMarquee>
         <VelocityMarquee 
           baseSpeed={1.5}
-          className="text-7xl md:text-[140px] font-bold tracking-tighter text-zinc-900 whitespace-nowrap group-hover:opacity-80 transition-opacity mt-4 border-text"
+          className="text-7xl md:text-[140px] font-bold tracking-tighter whitespace-nowrap group-hover:opacity-80 transition-opacity mt-4 border-text"
         >
           VELOCITY &bull; MARQUEE &bull; STICKY &bull; TRANSITIONS &bull;&nbsp;
         </VelocityMarquee>

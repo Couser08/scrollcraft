@@ -15,7 +15,8 @@ export function ImmersiveSection() {
             src="/images/cinematic_landscape.webp"
             alt="Cinematic landscape background"
             fill
-            sizes="100vw"
+            loading="lazy"
+            sizes="(max-width: 768px) 100vw, (max-width: 1440px) 100vw, 1920px"
             className="object-cover object-center"
           />
         </Parallax>

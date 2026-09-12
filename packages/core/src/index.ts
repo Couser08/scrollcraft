@@ -23,3 +23,5 @@ export * from './fallback-reader';
 export * from './text-reveal';
 export * from './transform-solver';
 export * from './draw-solver';
+export * from './visibility';
+export * from './markers';

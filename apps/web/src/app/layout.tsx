@@ -17,6 +17,9 @@ export const metadata: Metadata = {
   title: 'ScrollCraft — Animate on Scroll, Beautifully',
   description:
     'ScrollCraft makes it easy to create smooth, performant and stunning scroll-based animations — without the complexity.',
+  icons: {
+    icon: '/icon.svg',
+  },
 };
 
 export default function RootLayout({
@@ -27,13 +30,17 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} bg-white text-zinc-950 min-h-screen antialiased selection:bg-blue-100 selection:text-blue-900 font-sans flex flex-col`}
+        className={`${geistSans.variable} ${geistMono.variable} bg-[#050505] text-zinc-100 min-h-screen antialiased selection:bg-zinc-800 selection:text-white font-sans flex flex-col`}
         suppressHydrationWarning
       >
-        <ScrollProvider smooth={true}>
-          <main className="relative flex-1 flex flex-col min-h-0">
+        <ScrollProvider
+          smooth={true}
+          respectReducedMotion={true}
+          autoResetOnRouteChange={false}
+        >
+          <div className="relative flex-1 flex flex-col min-h-0">
             {children}
-          </main>
+          </div>
         </ScrollProvider>
       </body>
     </html>

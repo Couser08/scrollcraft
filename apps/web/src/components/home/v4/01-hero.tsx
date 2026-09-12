@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Parallax, Reveal } from '@scrollcraft/react';
 
 export function HeroSection() {
@@ -15,7 +16,6 @@ export function HeroSection() {
             src="/images/hero-mountain.webp"
             alt="Hero mountain left panel"
             fill
-            priority
             sizes="30vw"
             className="object-cover object-left"
           />
@@ -35,7 +35,6 @@ export function HeroSection() {
             src="/images/hero-mountain.webp"
             alt="Hero mountain right panel"
             fill
-            priority
             sizes="30vw"
             className="object-cover object-right"
           />
@@ -68,14 +67,24 @@ export function HeroSection() {
         </Reveal>
 
         <Reveal delay={0.5}>
-          <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center">
-            <button className="px-8 py-4 rounded-full bg-white text-black font-medium hover:scale-105 transition-transform flex items-center gap-2">
-              Get Started
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14m-7-7 7 7-7 7"/></svg>
-            </button>
-            <button className="px-8 py-4 rounded-full border border-white/20 text-white font-medium hover:bg-white/5 transition-colors">
-              Live Playground
-            </button>
+          <div className="flex items-center">
+            <Link
+              href="/docs"
+              className="group relative inline-flex items-center gap-3 px-8 py-4 rounded-full bg-white text-black font-semibold text-base transition-all duration-300 hover:bg-zinc-100 shadow-[0_0_24px_rgba(255,255,255,0.25)] hover:shadow-[0_0_35px_rgba(59,130,246,0.35)]"
+            >
+              <span>Get Started</span>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                className="group-hover:translate-x-1.5 transition-transform duration-300"
+              >
+                <path d="M5 12h14m-7-7 7 7-7 7" />
+              </svg>
+            </Link>
           </div>
         </Reveal>
 
@@ -98,14 +107,16 @@ export function HeroSection() {
         </Reveal>
       </div>
 
-      {/* Scroll Indicator */}
-      <Parallax speed={-0.3} className="absolute right-8 bottom-1/2 translate-y-1/2 flex flex-col items-center gap-4 z-20 hidden md:flex">
-        <span className="text-xs font-mono text-zinc-400">01</span>
-        <div className="w-[1px] h-32 bg-zinc-800 relative">
-          <div className="absolute top-0 left-0 w-full h-1/3 bg-white" />
-        </div>
-        <div className="w-2 h-2 rounded-full border border-white/50" />
-      </Parallax>
+      {/* Scroll Indicator (wrapper handles positioning so Parallax transform doesn't overwrite centering) */}
+      <div className="absolute right-8 top-1/2 -translate-y-1/2 z-20 hidden md:block pointer-events-none">
+        <Parallax speed={-0.25} className="flex flex-col items-center gap-4">
+          <span className="text-xs font-mono text-zinc-400">01</span>
+          <div className="w-[1px] h-28 bg-zinc-800 relative">
+            <div className="absolute top-0 left-0 w-full h-1/3 bg-white" />
+          </div>
+          <div className="w-2 h-2 rounded-full border border-white/50" />
+        </Parallax>
+      </div>
 
     </section>
   );

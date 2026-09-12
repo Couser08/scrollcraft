@@ -1,7 +1,7 @@
 /**
  * Intersection-Based Parallax Engine for ScrollCraft
  * Calculates zero-rerender GPU offsets relative to viewport center.
- * Implements Strategy Pattern (Native CSS view-timeline vs JS Fallback).
+ * Integrated with SmartCompositor and Viewport Culling.
  * Strictly under 650 LOC.
  */
 
@@ -9,7 +9,7 @@ import { clamp } from './math';
 import { ScrollDriver, DriverState } from './driver';
 import { Capabilities } from './feature-detection';
 import { injectNativeStyles } from './native-styles';
-import { TransformComposer } from './dom';
+import { TransformComposer, smartCompositor } from './dom';
 
 export interface ParallaxOptions {
   speed?: number;
@@ -35,11 +35,26 @@ class JSParallaxDriver implements ScrollDriver {
   private elementWidth: number = 0;
   private viewportSize: number = 0;
   private state: ParallaxState = { offset: 0 };
+  private isVisible: boolean = true;
+  private lastRenderedOffset: number | null = null;
 
   constructor(
     private element: HTMLElement,
     private options: Required<ParallaxOptions>
-  ) {}
+  ) {
+    smartCompositor.promote(element);
+  }
+
+  public setVisible(visible: boolean): void {
+    if (this.isVisible === visible) return;
+    this.isVisible = visible;
+
+    if (visible) {
+      smartCompositor.promote(this.element);
+    } else {
+      smartCompositor.demote(this.element, 300);
+    }
+  }
 
   public measure(): void {
     if (typeof window === 'undefined') return;
@@ -59,7 +74,7 @@ class JSParallaxDriver implements ScrollDriver {
   }
 
   public update(scrollOffset: number): ParallaxState {
-    if (this.viewportSize === 0) return this.state;
+    if (!this.isVisible || this.viewportSize === 0) return this.state;
 
     const viewportCenter = scrollOffset + (this.viewportSize / 2);
     const elementCenter = this.options.direction === 'vertical'
@@ -74,9 +89,8 @@ class JSParallaxDriver implements ScrollDriver {
     return this.state;
   }
 
-  private lastRenderedOffset: number | null = null;
-
   public render(): void {
+    if (!this.isVisible) return;
     if (this.lastRenderedOffset === this.state.offset) return;
     this.lastRenderedOffset = this.state.offset;
 
@@ -93,6 +107,7 @@ class JSParallaxDriver implements ScrollDriver {
   }
 
   public destroy(): void {
+    smartCompositor.destroy(this.element);
     TransformComposer.clear(this.element, 'parallax');
   }
 }
@@ -115,27 +130,21 @@ class NativeParallaxDriver implements ScrollDriver {
     this.element.style.animationName = this.options.direction === 'vertical' ? 'sc-parallax-y' : 'sc-parallax-x';
     this.element.style.animationFillMode = 'both';
     this.element.style.animationTimingFunction = 'linear';
-    
-    // Explicitly set will-change for compositor
-    this.element.style.willChange = 'transform';
+    smartCompositor.promote(element);
+  }
+
+  public setVisible(_visible: boolean): void {
+    // Native driver is managed by browser compositor
   }
 
   public measure(): void {
     if (typeof window === 'undefined') return;
-    // We only need to read layout to calculate the start and end offsets for the keyframes.
-    // CSS view() goes from when the element's top enters the viewport bottom (entry 0%)
-    // to when the element's bottom leaves the viewport top (exit 100%).
     const rect = this.element.getBoundingClientRect();
     const windowHeight = window.innerHeight;
     const elementHeight = rect.height;
 
-    // The maximum distance the element moves relative to the center of the viewport
-    // while it is intersecting the viewport.
     const maxDistance = (windowHeight + elementHeight) / 2;
 
-    // CSS keyframes map 0% -> 100% scroll progress to these distances.
-    // At entry 0%, viewport center is above element center by `maxDistance`.
-    // At exit 100%, viewport center is below element center by `maxDistance`.
     let startOffset = maxDistance * this.options.speed;
     let endOffset = -maxDistance * this.options.speed;
 
@@ -147,13 +156,10 @@ class NativeParallaxDriver implements ScrollDriver {
   }
 
   public update(_scrollY: number): ParallaxState {
-    // Native driver doesn't need to compute anything on scroll.
     return this.state;
   }
 
-  public render(): void {
-    // Native driver doesn't need to mutate DOM on scroll.
-  }
+  public render(): void {}
 
   public getState(): ParallaxState {
     return this.state;
@@ -165,7 +171,7 @@ class NativeParallaxDriver implements ScrollDriver {
     this.element.style.animationName = '';
     this.element.style.animationFillMode = '';
     this.element.style.animationTimingFunction = '';
-    this.element.style.willChange = '';
+    smartCompositor.destroy(this.element);
     this.element.style.removeProperty('--sc-parallax-start');
     this.element.style.removeProperty('--sc-parallax-end');
   }
@@ -175,7 +181,7 @@ class NativeParallaxDriver implements ScrollDriver {
  * Public Parallax Solver Factory
  */
 export class ParallaxSolver {
-  private driver: ScrollDriver;
+  private driver: ScrollDriver & { setVisible?: (v: boolean) => void };
 
   constructor(element: HTMLElement, options?: ParallaxOptions) {
     const opts: Required<ParallaxOptions> = {
@@ -186,9 +192,6 @@ export class ParallaxSolver {
       driver: options?.driver ?? 'auto',
     };
 
-    // When driver is explicitly 'native' and browser supports view-timeline, use NativeParallaxDriver.
-    // Otherwise, default to JSParallaxDriver (direct compositor writes, zero layout reads on scroll,
-    // avoids Chromium unregistered CSS variable keyframe drop and Lenis window.scrollTo conflicts).
     if (opts.driver === 'native' && Capabilities.get().isNativeReady) {
       this.driver = new NativeParallaxDriver(element, opts);
     } else {
@@ -196,6 +199,10 @@ export class ParallaxSolver {
     }
 
     this.measure();
+  }
+
+  public setVisible(visible: boolean): void {
+    this.driver.setVisible?.(visible);
   }
 
   public measure(): void {

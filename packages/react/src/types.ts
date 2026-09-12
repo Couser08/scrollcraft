@@ -20,10 +20,25 @@ export type {
   InertiaEngine,
 };
 
+export interface DebugOptions {
+  /** Screen position of the inspector HUD. Default: 'bottom-right' */
+  position?: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
+  /** Start HUD in collapsed pill mode. Default: false */
+  collapsed?: boolean;
+  /** Automatically enable visual markers globally on mount. Default: false */
+  markers?: boolean;
+}
+
 export interface ScrollProviderProps {
   children: React.ReactNode;
   /** Whether to enable inertia smooth scrolling. Default: true */
   smooth?: boolean | Partial<InertiaConfig>;
+  /**
+   * Developer inspector and debugging suite.
+   * When true or configured with DebugOptions, mounts <ScrollInspector /> and enables live telemetry.
+   * When false (default), 0 DOM elements and 0 extra ticker tasks exist.
+   */
+  debug?: boolean | DebugOptions;
   /**
    * @deprecated Framework-agnostic packages cannot reliably observe Next.js App Router
    * transitions. Call scrollTo(0) from your router transition instead.

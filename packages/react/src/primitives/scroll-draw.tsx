@@ -10,8 +10,8 @@ export interface ScrollDrawProps extends Omit<React.SVGAttributes<SVGPathElement
 }
 
 export const ScrollDraw = React.forwardRef<SVGPathElement, ScrollDrawProps>(
-  ({ asChild, start, end, scrub, direction, children, ...props }, forwardedRef) => {
-    const internalRef = useScrollDraw<SVGPathElement>({ start, end: typeof end === 'number' ? `${end}px` : end, scrub, direction });
+  ({ asChild, id, markers, start, end, scrub, direction, children, ...props }, forwardedRef) => {
+    const internalRef = useScrollDraw<SVGPathElement>({ id, markers, start, end: typeof end === 'number' ? `${end}px` : end, scrub, direction });
     const mergedRef = composeRefs(forwardedRef, internalRef);
 
     if (asChild) {

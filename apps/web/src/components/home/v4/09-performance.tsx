@@ -7,9 +7,16 @@ function Counter({ end, suffix = '', prefix = '' }: { end: number, suffix?: stri
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (end === 0) {
+      if (ref.current) ref.current.innerText = `${prefix}0${suffix}`;
+      return;
+    }
+
+    let rafId: number | null = null;
+
     const observer = new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting) {
-        const duration = 1500;
+        const duration = 1200;
         const startTime = performance.now();
 
         const update = (currentTime: number) => {
@@ -23,18 +30,23 @@ function Counter({ end, suffix = '', prefix = '' }: { end: number, suffix?: stri
           }
           
           if (progress < 1) {
-            requestAnimationFrame(update);
+            rafId = requestAnimationFrame(update);
           } else if (ref.current) {
             ref.current.innerText = `${prefix}${end}${suffix}`;
           }
         };
-        requestAnimationFrame(update);
+        rafId = requestAnimationFrame(update);
         observer.disconnect();
       }
-    });
+    }, { threshold: 0.2 });
 
     if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+      }
+    };
   }, [end, prefix, suffix]);
 
   return <div ref={ref}>{prefix}0{suffix}</div>;
@@ -52,9 +64,9 @@ export function PerformanceSection() {
           <Reveal delay={0.1}>
             <div className="flex flex-col">
               <div className="text-5xl md:text-7xl font-bold text-white mb-2 tracking-tighter">
-                <Counter end={3} suffix="kb" />
+                <Counter end={12} prefix="~" suffix="kb" />
               </div>
-              <span className="text-sm text-zinc-500 uppercase tracking-widest font-semibold">Minified Size</span>
+              <span className="text-sm text-zinc-500 uppercase tracking-widest font-semibold">Core Bundle</span>
             </div>
           </Reveal>
           <Reveal delay={0.2}>
@@ -62,15 +74,15 @@ export function PerformanceSection() {
               <div className="text-5xl md:text-7xl font-bold text-white mb-2 tracking-tighter">
                 <Counter end={0} />
               </div>
-              <span className="text-sm text-zinc-500 uppercase tracking-widest font-semibold">Dependencies</span>
+              <span className="text-sm text-zinc-500 uppercase tracking-widest font-semibold">CSS Bloat (Headless)</span>
             </div>
           </Reveal>
           <Reveal delay={0.3}>
             <div className="flex flex-col">
               <div className="text-5xl md:text-7xl font-bold text-white mb-2 tracking-tighter">
-                <Counter end={120} />
+                <Counter end={120} suffix="+" />
               </div>
-              <span className="text-sm text-zinc-500 uppercase tracking-widest font-semibold">FPS</span>
+              <span className="text-sm text-zinc-500 uppercase tracking-widest font-semibold">FPS Ticker Loop</span>
             </div>
           </Reveal>
           <Reveal delay={0.4}>
@@ -78,7 +90,7 @@ export function PerformanceSection() {
               <div className="text-5xl md:text-7xl font-bold text-white mb-2 tracking-tighter">
                 <Counter end={100} suffix="%" />
               </div>
-              <span className="text-sm text-zinc-500 uppercase tracking-widest font-semibold">Native Binds</span>
+              <span className="text-sm text-zinc-500 uppercase tracking-widest font-semibold">Direct GPU Writes</span>
             </div>
           </Reveal>
         </div>

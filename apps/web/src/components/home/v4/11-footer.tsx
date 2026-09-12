@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
 
@@ -16,16 +18,20 @@ export function Footer() {
           </p>
         </div>
 
-        <div className="flex gap-8 text-sm font-medium text-zinc-400">
+        <div className="flex flex-wrap gap-8 text-sm font-medium text-zinc-400">
           <Link href="/docs" className="hover:text-white transition-colors">Documentation</Link>
+          <Link href="/examples" className="hover:text-white transition-colors">Examples</Link>
+          <Link href="/showcase" className="hover:text-white transition-colors">Showcase</Link>
         </div>
 
         <div className="flex items-center gap-6 text-sm font-medium text-zinc-400">
-          <a href="#" className="hover:text-white transition-colors flex items-center gap-2">
+          <a
+            href="https://github.com/ScrollCraft/scrollcraft"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-white transition-colors flex items-center gap-2"
+          >
             GitHub
-          </a>
-          <a href="#" className="hover:text-white transition-colors flex items-center gap-2">
-            Twitter
           </a>
         </div>
         

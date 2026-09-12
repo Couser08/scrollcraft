@@ -10,8 +10,8 @@ export interface ScrollTransformProps extends React.HTMLAttributes<HTMLDivElemen
 }
 
 export const ScrollTransform = React.forwardRef<HTMLDivElement, ScrollTransformProps>(
-  ({ asChild, start, end, properties, scrub, snap, children, ...props }, forwardedRef) => {
-    const internalRef = useScrollTransform<HTMLDivElement>({ start, end, properties, scrub, snap });
+  ({ asChild, id, markers, start, end, properties, scrub, snap, children, ...props }, forwardedRef) => {
+    const internalRef = useScrollTransform<HTMLDivElement>({ id, markers, start, end, properties, scrub, snap });
     const mergedRef = composeRefs(forwardedRef, internalRef);
 
     if (asChild) {

@@ -1,6 +1,9 @@
 import { clamp, damp } from './math';
+import { triggerRegistry } from './markers';
 
 export interface DrawSolverOptions {
+  id?: string;
+  markers?: boolean;
   start?: string; // 'top bottom', 'center center', etc.
   end?: string;
   scrub?: boolean | number;
@@ -10,6 +13,7 @@ export interface DrawSolverOptions {
 export class DrawSolver {
   private element: SVGGeometryElement;
   private options: DrawSolverOptions;
+  public readonly id: string;
   
   private startY: number = 0;
   private endY: number = 0;
@@ -24,11 +28,13 @@ export class DrawSolver {
 
   constructor(element: SVGGeometryElement, options: DrawSolverOptions) {
     this.element = element;
+    this.id = options.id || (`draw-${Math.random().toString(36).slice(2, 8)}`);
     this.options = {
       start: options.start ?? 'top bottom',
       end: options.end ?? 'bottom top',
       direction: options.direction ?? 'forward',
       scrub: options.scrub ?? true,
+      ...options,
     };
   }
 
@@ -70,6 +76,18 @@ export class DrawSolver {
     if (this.options.end?.startsWith('+=')) {
         this.endY = this.startY + parseFloat(this.options.end.replace('+=', ''));
     }
+
+    triggerRegistry.register({
+      id: this.id,
+      type: 'draw',
+      element: this.element,
+      startTrigger: this.options.start || 'top bottom',
+      endTrigger: this.options.end || 'bottom top',
+      startY: this.startY,
+      endY: this.endY,
+      progress: this.progress,
+      markers: this.options.markers,
+    });
 
     if (this.element.getTotalLength) {
       this.totalLength = this.element.getTotalLength();
@@ -115,6 +133,7 @@ export class DrawSolver {
     }
     
     this.isVisible = this.progress > 0 && this.progress < 1;
+    triggerRegistry.updateProgress(this.id, this.progress);
   }
 
   public render(): void {
@@ -144,6 +163,7 @@ export class DrawSolver {
   }
 
   public destroy(): void {
+    triggerRegistry.unregister(this.id);
     this.element.style.strokeDasharray = '';
     this.element.style.strokeDashoffset = '';
   }

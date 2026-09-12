@@ -1,6 +1,7 @@
 import { clamp, damp } from './math';
 import { TimelineSolver, PropertyTimeline, KeyframeSegment } from './timeline';
 import { TransformComposer } from './dom';
+import { triggerRegistry } from './markers';
 
 export interface TransformProperties {
   x?: [number, number] | number[];
@@ -21,6 +22,8 @@ export interface TransformProperties {
 }
 
 export interface TransformSolverOptions {
+  id?: string;
+  markers?: boolean;
   start?: string; // 'top bottom', 'center center', etc.
   end?: string;
   properties: TransformProperties;
@@ -32,6 +35,7 @@ export interface TransformSolverOptions {
 export class TransformSolver {
   private element: HTMLElement;
   private options: TransformSolverOptions;
+  public readonly id: string;
   
   private startY: number = 0;
   private endY: number = 0;
@@ -50,6 +54,7 @@ export class TransformSolver {
 
   constructor(element: HTMLElement, options: TransformSolverOptions) {
     this.element = element;
+    this.id = options.id || (`transform-${Math.random().toString(36).slice(2, 8)}`);
     this.options = {
       start: options.start ?? 'top bottom',
       end: options.end ?? 'bottom top',
@@ -125,6 +130,18 @@ export class TransformSolver {
     
     // Restore transform
     this.element.style.transform = prevTransform;
+
+    triggerRegistry.register({
+      id: this.id,
+      type: 'transform',
+      element: this.element,
+      startTrigger: this.options.start || 'top bottom',
+      endTrigger: this.options.end || 'bottom top',
+      startY: this.startY,
+      endY: this.endY,
+      progress: this.progress,
+      markers: this.options.markers,
+    });
   }
 
   public update(scrollY: number, velocity: number, dt: number, isReducedMotion: boolean = false): void {
@@ -180,6 +197,7 @@ export class TransformSolver {
     }
     
     this.isVisible = this.progress > 0 && this.progress < 1;
+    triggerRegistry.updateProgress(this.id, this.progress);
   }
 
   private lastRenderedProgress: number | null = null;
@@ -240,6 +258,7 @@ export class TransformSolver {
       window.clearTimeout(this.snapTimeout);
     }
     TransformComposer.clear(this.element, 'scroll-transform');
+    triggerRegistry.unregister(this.id);
     this.element.style.willChange = '';
     this.element.style.opacity = '';
     this.element.style.filter = '';

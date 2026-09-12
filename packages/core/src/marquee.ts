@@ -1,12 +1,13 @@
 /**
  * Dynamic Velocity Marquee Solver for ScrollCraft
  * Infinite scrolling track that accelerates based on scroll velocity.
+ * Integrated with SmartCompositor and Viewport Culling.
  * Strictly under 650 LOC.
  */
 
 import { ScrollDriver, DriverState } from './driver';
 import { clamp, damp } from './math';
-import { TransformComposer } from './dom';
+import { TransformComposer, smartCompositor } from './dom';
 
 export interface MarqueeOptions {
   baseSpeed?: number;
@@ -23,7 +24,7 @@ export class VelocityMarqueeSolver implements ScrollDriver {
   private state: MarqueeState = { position: 0 };
   private elementWidth: number = 0;
   private currentSpeed: number = 0;
-
+  private isVisible: boolean = true;
   private options: Required<MarqueeOptions>;
 
   constructor(
@@ -37,7 +38,19 @@ export class VelocityMarqueeSolver implements ScrollDriver {
       maxSpeed: options?.maxSpeed ?? 50,
     };
 
+    smartCompositor.promote(element);
     this.measure();
+  }
+
+  public setVisible(visible: boolean): void {
+    if (this.isVisible === visible) return;
+    this.isVisible = visible;
+
+    if (visible) {
+      smartCompositor.promote(this.element);
+    } else {
+      smartCompositor.demote(this.element, 300);
+    }
   }
 
   public measure(): void {
@@ -49,7 +62,7 @@ export class VelocityMarqueeSolver implements ScrollDriver {
   }
 
   public update(_scrollY: number, velocity: number = 0, deltaTime: number = 1 / 60): MarqueeState {
-    if (this.elementWidth === 0) return this.state;
+    if (!this.isVisible || this.elementWidth === 0) return this.state;
 
     // The target speed is base + (scroll velocity * multiplier)
     const rawTargetSpeed = this.options.baseSpeed + (Math.abs(velocity) * this.options.velocityMultiplier);
@@ -73,6 +86,7 @@ export class VelocityMarqueeSolver implements ScrollDriver {
   }
 
   public render(): void {
+    if (!this.isVisible) return;
     // 3D translate for hardware acceleration
     TransformComposer.set(this.element, 'marquee', `translate3d(${this.state.position.toFixed(2)}px, 0, 0)`);
   }
@@ -82,6 +96,7 @@ export class VelocityMarqueeSolver implements ScrollDriver {
   }
 
   public destroy(): void {
+    smartCompositor.destroy(this.element);
     TransformComposer.clear(this.element, 'marquee');
   }
 }

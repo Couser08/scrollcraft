@@ -5,6 +5,7 @@
  */
 
 import { ElementTransform } from './types';
+import { tierStore } from './feature-detection';
 
 const transformCache = new WeakMap<HTMLElement, ElementTransform>();
 const composedTransforms = new WeakMap<HTMLElement, { base: string; parts: Map<string, string>; lastComposed: string }>();
@@ -125,6 +126,122 @@ export class TransformWriter {
 /** Backwards-compatibility alias */
 export const DomCompositor = TransformWriter;
 export type DomCompositor = TransformWriter;
+
+/**
+ * Autonomous Smart Compositor for ScrollCraft
+ * Manages layer lifecycle with debounced demotion, WeakMap+Set timer tracking,
+ * and a global reject-new budget cap on Tier 1 hardware.
+ * Singleton instance: smartCompositor
+ */
+export class SmartCompositor {
+  private static instance: SmartCompositor | null = null;
+  private demoteTimers = new WeakMap<HTMLElement, ReturnType<typeof setTimeout>>();
+  private companionSet = new Set<HTMLElement>();
+  private promotedElements = new Set<HTMLElement>();
+
+  private constructor() {}
+
+  public static get(): SmartCompositor {
+    if (!SmartCompositor.instance) {
+      SmartCompositor.instance = new SmartCompositor();
+    }
+    return SmartCompositor.instance;
+  }
+
+  /**
+   * Promotes element to compositor layer with willChange: transform.
+   * Cancels any pending demotion. Enforces reject-new cap on Tier 1.
+   */
+  public promote(element: HTMLElement): boolean {
+    if (!element || typeof window === 'undefined') return false;
+
+    // Clear any pending demotion timer
+    const pendingTimer = this.demoteTimers.get(element);
+    if (pendingTimer) {
+      clearTimeout(pendingTimer);
+      this.demoteTimers.delete(element);
+    }
+
+    // Global reject-new cap for Tier 1: max 3 concurrent layers
+    const tier = tierStore.getTier();
+    if (tier === 'low' && this.promotedElements.size >= 3 && !this.promotedElements.has(element)) {
+      return false;
+    }
+
+    element.style.willChange = 'transform';
+    this.promotedElements.add(element);
+    this.companionSet.add(element);
+    return true;
+  }
+
+  /**
+   * Schedules a debounced demotion after motion settles.
+   */
+  public demote(element: HTMLElement, debounceMs: number = 300): void {
+    if (!element || typeof window === 'undefined') return;
+
+    const existingTimer = this.demoteTimers.get(element);
+    if (existingTimer) {
+      clearTimeout(existingTimer);
+    }
+
+    const timer = setTimeout(() => {
+      this.demoteTimers.delete(element);
+      this.promotedElements.delete(element);
+      this.companionSet.delete(element);
+      if (element && element.style) {
+        element.style.willChange = 'auto';
+      }
+    }, debounceMs);
+
+    this.demoteTimers.set(element, timer);
+    this.companionSet.add(element);
+  }
+
+  public isPromoted(element: HTMLElement): boolean {
+    return this.promotedElements.has(element);
+  }
+
+  public getPromotedCount(): number {
+    return this.promotedElements.size;
+  }
+
+  /**
+   * Cleans up an element upon component unmount.
+   */
+  public destroy(element: HTMLElement): void {
+    const timer = this.demoteTimers.get(element);
+    if (timer) {
+      clearTimeout(timer);
+      this.demoteTimers.delete(element);
+    }
+    this.promotedElements.delete(element);
+    this.companionSet.delete(element);
+    if (element && element.style) {
+      element.style.willChange = 'auto';
+    }
+  }
+
+  /**
+   * Global teardown clearing all timers and resetting all tracked elements.
+   */
+  public destroyAll(): void {
+    for (const element of this.companionSet) {
+      const timer = this.demoteTimers.get(element);
+      if (timer) {
+        clearTimeout(timer);
+        this.demoteTimers.delete(element);
+      }
+      if (element && element.style) {
+        element.style.willChange = 'auto';
+      }
+    }
+    this.companionSet.clear();
+    this.promotedElements.clear();
+  }
+}
+
+export const smartCompositor = SmartCompositor.get();
 
 export type GlobalResizeCallback = (entry?: ResizeObserverEntry) => void;
 

@@ -1,7 +1,12 @@
 'use client';
 
 import React, { useRef, useEffect } from 'react';
-import { VelocityMarqueeSolver, MarqueeOptions, ticker } from '@scrollcraft/core';
+import {
+  VelocityMarqueeSolver,
+  MarqueeOptions,
+  ticker,
+  globalVisibilityManager,
+} from '@scrollcraft/core';
 import { useScrollCraft } from '../context';
 
 export interface VelocityMarqueeProps extends MarqueeOptions {
@@ -25,12 +30,12 @@ export const VelocityMarquee: React.FC<VelocityMarqueeProps> = ({
     const track = trackRef.current;
     if (!track) return;
 
-    track.style.willChange = 'transform';
+    // SmartCompositor handles layer promotion dynamically inside solver
     const solver = new VelocityMarqueeSolver(track, {
       baseSpeed,
       velocityMultiplier,
       direction,
-      maxSpeed
+      maxSpeed,
     });
 
     const taskId = `marquee-${Math.random().toString(36).slice(2, 8)}`;
@@ -38,7 +43,6 @@ export const VelocityMarquee: React.FC<VelocityMarqueeProps> = ({
     const measure = () => solver.measure();
     window.addEventListener('resize', measure, { passive: true });
     
-    // We need to measure once after fonts/layout loads
     requestAnimationFrame(() => measure());
 
     ticker.add(taskId, 'update', (dt) => {
@@ -51,7 +55,19 @@ export const VelocityMarquee: React.FC<VelocityMarqueeProps> = ({
       solver.render();
     });
 
+    // Autonomous Viewport Culling
+    const observeTarget = containerRef.current || track;
+    const unobserveVisibility = globalVisibilityManager.observe(observeTarget, (isVisible) => {
+      solver.setVisible(isVisible);
+      if (isVisible) {
+        ticker.resumeTask(taskId);
+      } else {
+        ticker.pauseTask(taskId);
+      }
+    });
+
     return () => {
+      unobserveVisibility();
       window.removeEventListener('resize', measure);
       ticker.remove(taskId);
       solver.destroy();

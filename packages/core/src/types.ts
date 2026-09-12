@@ -28,6 +28,7 @@ export interface TickerTask {
   id: string;
   phase: TickerPhase;
   callback: TickerCallback;
+  dormant?: boolean;
 }
 
 export interface InertiaConfig {
@@ -106,3 +107,30 @@ export interface ElementTransform {
   rotateZ?: number;
   opacity?: number;
 }
+
+export type PerformanceTier = 'high' | 'balanced' | 'low';
+
+export type TierChangeListener = (tier: PerformanceTier) => void;
+
+export type VisibilityCallback = (isVisible: boolean, entry: IntersectionObserverEntry) => void;
+
+export interface VisibilityOptions {
+  rootMargin?: string;
+  threshold?: number | number[];
+}
+
+export type TriggerType = 'transform' | 'draw' | 'pin' | 'custom';
+
+export interface ScrollTriggerRecord {
+  id: string;
+  type: TriggerType;
+  element: Element;
+  startTrigger: string;
+  endTrigger: string;
+  startY: number;
+  endY: number;
+  progress: number;
+  markers?: boolean;
+}
+
+export type TriggerRegistryListener = (triggers: ScrollTriggerRecord[]) => void;

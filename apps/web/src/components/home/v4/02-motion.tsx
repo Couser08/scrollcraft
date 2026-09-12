@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Parallax, Reveal } from '@scrollcraft/react';
 
 export function MotionSection() {
@@ -33,10 +34,23 @@ export function MotionSection() {
           </Reveal>
 
           <Reveal delay={0.3}>
-            <button className="px-6 py-3 rounded-full bg-white text-black font-medium hover:scale-105 transition-transform self-start flex items-center gap-2">
-              Explore Components
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14m-7-7 7 7-7 7"/></svg>
-            </button>
+            <Link
+              href="/examples"
+              className="group inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full bg-white text-black font-semibold text-sm transition-all duration-300 hover:bg-zinc-200 self-start shadow-[0_0_20px_rgba(255,255,255,0.2)]"
+            >
+              <span>Explore Examples</span>
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                className="group-hover:translate-x-1 transition-transform"
+              >
+                <path d="M5 12h14m-7-7 7 7-7 7" />
+              </svg>
+            </Link>
           </Reveal>
         </div>
 
@@ -48,6 +62,7 @@ export function MotionSection() {
               src="/images/parallax_fabric.webp"
               alt="Parallax fabric texture"
               fill
+              loading="lazy"
               sizes="(max-width: 1024px) 100vw, 66vw"
               className="object-cover"
             />

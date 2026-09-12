@@ -17,8 +17,9 @@ import React, {
   useState,
   useSyncExternalStore,
 } from 'react';
-import { InertiaEngine, ScrollMetrics } from '@scrollcraft/core';
+import { InertiaEngine, ScrollMetrics, tierStore, PerformanceTier } from '@scrollcraft/core';
 import { ScrollContextValue, ScrollProviderProps } from './types';
+import { ScrollInspector } from './components/scroll-inspector';
 
 const defaultMetrics: ScrollMetrics = {
   scroll: 0,
@@ -44,6 +45,7 @@ const ScrollContext = createContext<ScrollContextValue>({
 export const ScrollProvider: React.FC<ScrollProviderProps> = ({
   children,
   smooth = true,
+  debug = false,
   autoResetOnRouteChange = false,
   autoRecalc = true,
   respectReducedMotion = true,
@@ -139,8 +141,16 @@ export const ScrollProvider: React.FC<ScrollProviderProps> = ({
       }
     }
 
+    // Invariant: Imperative sync of data-scrollcraft-tier attribute (SSR safe, no hydration mismatch)
+    const unsubTier = tierStore.subscribe((tier) => {
+      if (typeof document !== 'undefined' && document.documentElement) {
+        document.documentElement.setAttribute('data-scrollcraft-tier', tier);
+      }
+    });
+
     return () => {
       isMounted = false;
+      unsubTier();
       motionQuery.removeEventListener('change', onMotionChange);
       if (autoRecalc) {
         window.removeEventListener('resize', handleResize);
@@ -200,6 +210,13 @@ export const ScrollProvider: React.FC<ScrollProviderProps> = ({
   return (
     <ScrollContext.Provider value={contextValue}>
       {children}
+      {debug && (
+        <ScrollInspector
+          position={typeof debug === 'object' ? debug.position : 'bottom-right'}
+          defaultCollapsed={typeof debug === 'object' ? debug.collapsed : false}
+          markers={typeof debug === 'object' ? debug.markers : false}
+        />
+      )}
     </ScrollContext.Provider>
   );
 };
@@ -288,5 +305,18 @@ export function useScrollState<T = ScrollMetrics>(
   const activeSubscribe = enabled ? subscribe : noopSubscribe;
 
   return useSyncExternalStore(activeSubscribe, getSnapshot, getServerSnapshot);
+}
+
+/**
+ * Autonomous Reactive Tier Hook
+ * Subscribes to runtime performance tier changes ('high' | 'balanced' | 'low').
+ * Fully SSR safe (returns 'balanced' on server).
+ */
+export function useScrollCraftTier(): PerformanceTier {
+  return useSyncExternalStore(
+    (callback) => tierStore.subscribe(callback),
+    () => tierStore.getTier(),
+    () => 'balanced'
+  );
 }
 
