@@ -38,10 +38,10 @@ export default function ShowcasePage() {
   return (
     <div className="relative w-full min-h-screen bg-[#050505] text-zinc-100 selection:bg-zinc-800 selection:text-white font-sans antialiased overflow-hidden flex flex-col">
       {/* Background ambient lighting */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-blue-600/10 blur-[130px] pointer-events-none -z-10" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-blue-600/10 blur-[130px] ambient-glow -z-10" />
 
       {/* Header / Nav */}
-      <header className="w-full border-b border-white/5 bg-[#050505]/70 backdrop-blur-xl sticky top-0 z-50">
+      <header className="w-full border-b border-white/5 glass-surface sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-6">
             <Link href="/" className="flex items-center gap-2 group">

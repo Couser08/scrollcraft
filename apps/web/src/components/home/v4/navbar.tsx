@@ -5,34 +5,32 @@ import Link from 'next/link';
 import { useScrollCraft, ScrollMetrics } from '@scrollcraft/react';
 
 export function Navbar() {
-  const navRef = useRef<HTMLElement>(null);
+  const bgRef = useRef<HTMLDivElement>(null);
   const { subscribe } = useScrollCraft();
 
   useEffect(() => {
     let wasScrolled: boolean | null = null;
     const unsub = subscribe((metrics: ScrollMetrics) => {
-      const isScrolled = metrics.scroll > 30;
+      const isScrolled = metrics.scroll > 20;
       if (isScrolled === wasScrolled) return;
       wasScrolled = isScrolled;
 
-      if (navRef.current) {
-        if (isScrolled) {
-          navRef.current.classList.add('glass-surface', 'border-white/10', 'shadow-2xl');
-          navRef.current.classList.remove('bg-transparent', 'border-transparent');
-        } else {
-          navRef.current.classList.add('bg-transparent', 'border-transparent');
-          navRef.current.classList.remove('glass-surface', 'border-white/10', 'shadow-2xl');
-        }
+      if (bgRef.current) {
+        bgRef.current.style.opacity = isScrolled ? '1' : '0';
       }
     });
     return () => unsub();
   }, [subscribe]);
 
   return (
-    <header
-      ref={navRef}
-      className="fixed top-0 left-0 right-0 z-50 h-20 transition-[background-color,border-color,box-shadow,backdrop-filter] duration-300 bg-transparent border-b border-transparent flex items-center"
-    >
+    <header className="fixed top-0 left-0 right-0 z-50 h-20 flex items-center">
+      {/* Isolated GPU Composited Background Layer (Zero Repaint & Zero Blur Interpolation Lag) */}
+      <div
+        ref={bgRef}
+        aria-hidden="true"
+        style={{ opacity: 0, willChange: 'opacity' }}
+        className="absolute inset-0 -z-10 glass-surface border-b border-white/10 shadow-2xl transition-opacity duration-200 pointer-events-none"
+      />
       <div className="max-w-7xl mx-auto px-6 w-full flex items-center justify-between">
         
         <div className="flex items-center gap-10">

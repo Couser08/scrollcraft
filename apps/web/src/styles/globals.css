@@ -85,9 +85,23 @@
   background-color: rgba(5, 5, 5, 0.85);
 }
 
+/* Containment utility for heavy visual surfaces (isolates paint invalidations) */
+.ambient-glow {
+  contain: paint layout;
+  pointer-events: none;
+}
+
 /* Autonomous degradation on Tier 1 (Low-End / Software Mode): Zero blur, clean high-contrast opaque background */
 [data-scrollcraft-tier="low"] .glass-surface {
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
   background-color: rgba(10, 10, 10, 0.96) !important;
 }
+
+/* On software-rendered hardware, bypass massive Gaussian blur convolution kernels that bottleneck CPU rasterizer */
+[data-scrollcraft-tier="low"] .ambient-glow,
+[data-scrollcraft-tier="low"] [class*="blur-[1"] {
+  filter: none !important;
+  opacity: 0.12 !important;
+}
+

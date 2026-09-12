@@ -11,11 +11,11 @@ export default function ExamplesPage() {
   return (
     <div className="relative w-full min-h-screen bg-[#050505] text-zinc-100 selection:bg-zinc-800 selection:text-white font-sans antialiased overflow-hidden flex flex-col">
       {/* Background ambient lighting */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-blue-600/10 blur-[140px] pointer-events-none -z-10" />
-      <div className="absolute bottom-0 right-10 w-[500px] h-[300px] bg-indigo-600/10 blur-[120px] pointer-events-none -z-10" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-blue-600/10 blur-[140px] ambient-glow -z-10" />
+      <div className="absolute bottom-0 right-10 w-[500px] h-[300px] bg-indigo-600/10 blur-[120px] ambient-glow -z-10" />
 
       {/* Header / Nav */}
-      <header className="w-full border-b border-white/5 bg-[#050505]/70 backdrop-blur-xl sticky top-0 z-50">
+      <header className="w-full border-b border-white/5 glass-surface sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-6">
             <Link href="/" className="flex items-center gap-2 group">
