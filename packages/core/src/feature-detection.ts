@@ -91,6 +91,7 @@ export function detectPerformanceTier(): PerformanceTier {
       return cachedTier;
     }
 
+    let isSoftware = false;
     const debugInfo = (gl as WebGLRenderingContext).getExtension('WEBGL_debug_renderer_info');
     if (debugInfo) {
       const renderer = (gl as WebGLRenderingContext).getParameter(debugInfo.UNMASKED_RENDERER_WEBGL)?.toLowerCase() || '';
@@ -102,9 +103,20 @@ export function detectPerformanceTier(): PerformanceTier {
         renderer.includes('basic render') ||
         renderer.includes('microsoft basic')
       ) {
-        cachedTier = 'low';
-        return cachedTier;
+        isSoftware = true;
       }
+    }
+
+    // Immediately release WebGL context to prevent mobile GPU freezes and context leaks
+    try {
+      (gl as WebGLRenderingContext).getExtension('WEBGL_lose_context')?.loseContext();
+    } catch {
+      // graceful fallback
+    }
+
+    if (isSoftware) {
+      cachedTier = 'low';
+      return cachedTier;
     }
 
     // 2. Inspect Hardware Concurrency & Memory

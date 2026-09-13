@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
-import { ScrollProvider } from '@scrollcraft/react';
-import '@/styles/globals.css';
+import { Geist, Geist_Mono, Caveat } from 'next/font/google';
+import { ScrollProvider, ScrollInspector } from '@scrollcraft/react';
+import '../styles/globals.css';
 
 const geistSans = Geist({
   variable: '--font-sans',
@@ -10,6 +10,11 @@ const geistSans = Geist({
 
 const geistMono = Geist_Mono({
   variable: '--font-mono',
+  subsets: ['latin'],
+});
+
+const caveat = Caveat({
+  variable: '--font-caveat',
   subsets: ['latin'],
 });
 
@@ -30,7 +35,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} bg-[#050505] text-zinc-100 min-h-screen antialiased selection:bg-zinc-800 selection:text-white font-sans flex flex-col`}
+        className={`${geistSans.variable} ${geistMono.variable} ${caveat.variable} bg-[#050505] text-zinc-100 min-h-screen antialiased selection:bg-zinc-800 selection:text-white font-sans flex flex-col`}
         suppressHydrationWarning
       >
         <ScrollProvider
@@ -41,6 +46,7 @@ export default function RootLayout({
           <div className="relative flex-1 flex flex-col min-h-0">
             {children}
           </div>
+          <ScrollInspector defaultCollapsed position="bottom-right" />
         </ScrollProvider>
       </body>
     </html>

@@ -13,5 +13,9 @@ test('home and documentation remain scrollable without runtime errors', async ({
   await expect(page.getByRole('main').first()).toBeVisible();
   await page.mouse.wheel(0, 1200);
 
+  await page.goto('/examples', { waitUntil: 'domcontentloaded' });
+  await expect(page.getByRole('main').first()).toBeVisible();
+  await page.mouse.wheel(0, 1500);
+
   expect(errors).toEqual([]);
 });

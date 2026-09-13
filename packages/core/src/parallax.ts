@@ -94,7 +94,10 @@ class JSParallaxDriver implements ScrollDriver {
     if (this.lastRenderedOffset === this.state.offset) return;
     this.lastRenderedOffset = this.state.offset;
 
-    const formattedOffset = this.state.offset.toFixed(2);
+    // Subpixel grid snapping prevents font glyph raster shimmering and jitter
+    const dpr = typeof window !== 'undefined' ? (window.devicePixelRatio || 1) : 1;
+    const snappedOffset = Math.round(this.state.offset * dpr) / dpr;
+    const formattedOffset = snappedOffset.toFixed(2);
     if (this.options.direction === 'vertical') {
       TransformComposer.set(this.element, 'parallax', `translate3d(0, ${formattedOffset}px, 0)`);
     } else {
@@ -192,7 +195,10 @@ export class ParallaxSolver {
       driver: options?.driver ?? 'auto',
     };
 
-    if (opts.driver === 'native' && Capabilities.get().isNativeReady) {
+    const shouldUseNative =
+      opts.driver === 'native' && Capabilities.get().isNativeReady;
+
+    if (shouldUseNative) {
       this.driver = new NativeParallaxDriver(element, opts);
     } else {
       this.driver = new JSParallaxDriver(element, opts);

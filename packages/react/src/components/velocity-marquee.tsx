@@ -6,6 +6,7 @@ import {
   MarqueeOptions,
   ticker,
   globalVisibilityManager,
+  GlobalResizeManager,
 } from '@scrollcraft/core';
 import { useScrollCraft } from '../context';
 
@@ -41,7 +42,10 @@ export const VelocityMarquee: React.FC<VelocityMarqueeProps> = ({
     const taskId = `marquee-${Math.random().toString(36).slice(2, 8)}`;
 
     const measure = () => solver.measure();
-    window.addEventListener('resize', measure, { passive: true });
+    const unobserveResize = GlobalResizeManager.observe(track, measure);
+    if (typeof document !== 'undefined' && 'fonts' in document) {
+      document.fonts.ready.then(measure);
+    }
     
     requestAnimationFrame(() => measure());
 
@@ -68,7 +72,7 @@ export const VelocityMarquee: React.FC<VelocityMarqueeProps> = ({
 
     return () => {
       unobserveVisibility();
-      window.removeEventListener('resize', measure);
+      unobserveResize();
       ticker.remove(taskId);
       solver.destroy();
     };

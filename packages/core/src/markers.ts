@@ -253,21 +253,29 @@ export class MarkerManager {
     }
   }
 
+  private currentScrollY = 0;
+
   private ensureTicker(): void {
     if (this.isRendering) return;
     this.isRendering = true;
+    ticker.add('sc-marker-manager-update', 'update', () => {
+      if (typeof window !== 'undefined') {
+        this.currentScrollY = window.scrollY || window.pageYOffset;
+      }
+    });
     ticker.add('sc-marker-manager', 'render', () => this.render());
   }
 
   private stopTicker(): void {
     if (!this.isRendering) return;
     this.isRendering = false;
+    ticker.remove('sc-marker-manager-update');
     ticker.remove('sc-marker-manager');
   }
 
   private render(): void {
     if (typeof window === 'undefined' || this.markers.size === 0) return;
-    const scrollY = window.scrollY || window.pageYOffset;
+    const scrollY = this.currentScrollY;
 
     for (const item of this.markers.values()) {
       const startRel = item.record.startY - scrollY;

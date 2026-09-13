@@ -20,10 +20,12 @@ export class Ticker {
   private static instance: Ticker | null = null;
 
   private measureTasks: Map<string, TickerCallback> = new Map();
+  private driverTasks: Map<string, TickerCallback> = new Map();
   private updateTasks: Map<string, TickerCallback> = new Map();
   private renderTasks: Map<string, TickerCallback> = new Map();
 
   private measureTasksArray: Array<[string, TickerCallback]> = [];
+  private driverTasksArray: Array<[string, TickerCallback]> = [];
   private updateTasksArray: Array<[string, TickerCallback]> = [];
   private renderTasksArray: Array<[string, TickerCallback]> = [];
   private taskArraysDirty = true;
@@ -54,20 +56,30 @@ export class Ticker {
   private syncTaskArrays(): void {
     if (!this.taskArraysDirty) return;
     this.measureTasksArray = Array.from(this.measureTasks.entries());
+    this.driverTasksArray = Array.from(this.driverTasks.entries());
     this.updateTasksArray = Array.from(this.updateTasks.entries());
     this.renderTasksArray = Array.from(this.renderTasks.entries());
     this.taskArraysDirty = false;
   }
 
+  private getPhaseTasks(phase: TickerPhase): Map<string, TickerCallback> {
+    switch (phase) {
+      case 'measure':
+        return this.measureTasks;
+      case 'driver':
+        return this.driverTasks;
+      case 'update':
+        return this.updateTasks;
+      case 'render':
+        return this.renderTasks;
+    }
+  }
+
   /**
-   * Register a task in one of three engine phases.
+   * Register a task in one of four engine phases (measure -> driver -> update -> render).
    */
   public add(id: string, phase: TickerPhase, callback: TickerCallback): void {
-    const tasks = phase === 'measure'
-      ? this.measureTasks
-      : phase === 'update'
-        ? this.updateTasks
-        : this.renderTasks;
+    const tasks = this.getPhaseTasks(phase);
     if (tasks.get(id) === callback) {
       this.ensureRunning();
       return;
@@ -83,14 +95,11 @@ export class Ticker {
    */
   public remove(id: string, phase?: TickerPhase): void {
     if (phase) {
-      const tasks = phase === 'measure'
-        ? this.measureTasks
-        : phase === 'update'
-          ? this.updateTasks
-          : this.renderTasks;
+      const tasks = this.getPhaseTasks(phase);
       tasks.delete(id);
     } else {
       this.measureTasks.delete(id);
+      this.driverTasks.delete(id);
       this.updateTasks.delete(id);
       this.renderTasks.delete(id);
       this.dormantTasks.delete(id);
@@ -129,10 +138,17 @@ export class Ticker {
    * Checks whether any tasks are currently registered and not dormant.
    */
   public hasActiveTasks(): boolean {
-    const totalCount = this.measureTasks.size + this.updateTasks.size + this.renderTasks.size;
+    const totalCount =
+      this.measureTasks.size +
+      this.driverTasks.size +
+      this.updateTasks.size +
+      this.renderTasks.size;
     if (totalCount === 0) return false;
 
     for (const id of this.measureTasks.keys()) {
+      if (!this.dormantTasks.has(id)) return true;
+    }
+    for (const id of this.driverTasks.keys()) {
       if (!this.dormantTasks.has(id)) return true;
     }
     for (const id of this.updateTasks.keys()) {
@@ -308,12 +324,16 @@ export class Ticker {
     if (this.taskArraysDirty) this.syncTaskArrays();
     this.runPhase('measure', this.measureTasks, this.measureTasksArray, dt, currentTime);
 
-    // Phase 2: Math/Physics Calculations (Decoupled frame sampling)
+    // Phase 2: Driver (Scroll drivers like Lenis update FIRST to eliminate 1-frame phase lag)
+    if (this.taskArraysDirty) this.syncTaskArrays();
+    this.runPhase('driver', this.driverTasks, this.driverTasksArray, dt, currentTime);
+
+    // Phase 3: Math/Physics Calculations (Solvers read fresh scroll metrics)
     this.recordFrameDelta(rawDelta, currentTime);
     if (this.taskArraysDirty) this.syncTaskArrays();
     this.runPhase('update', this.updateTasks, this.updateTasksArray, dt, currentTime);
 
-    // Phase 3: Direct DOM GPU Compositor writes
+    // Phase 4: Direct DOM GPU Compositor writes
     if (this.taskArraysDirty) this.syncTaskArrays();
     this.runPhase('render', this.renderTasks, this.renderTasksArray, dt, currentTime);
 

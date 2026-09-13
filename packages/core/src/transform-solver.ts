@@ -177,24 +177,18 @@ export class TransformSolver {
       return;
     }
     
-    // Scrub damping
+    // Scrub damping: damp progress once to preserve timeline keyframe coherence and prevent lag
     const scrub = this.options.scrub;
     if (typeof scrub === 'number' && scrub > 0) {
        this.progress = damp(this.progress, this.targetProgress, scrub, dt);
+    } else if (scrub === true) {
+       this.progress = damp(this.progress, this.targetProgress, 12, dt);
     } else {
        this.progress = this.targetProgress;
     }
     
     this.targetValues = TimelineSolver.evaluateTimeline(this.timeline, this.progress, this.targetValues);
-    
-    // Quick assign for non-scrub or zero delta
-    if (scrub === false || scrub === 0) {
-        Object.assign(this.currentValues, this.targetValues);
-    } else {
-        for (const key in this.targetValues) {
-            this.currentValues[key] = damp(this.currentValues[key], this.targetValues[key], typeof scrub === 'number' ? scrub : 15, dt);
-        }
-    }
+    Object.assign(this.currentValues, this.targetValues);
     
     this.isVisible = this.progress > 0 && this.progress < 1;
     triggerRegistry.updateProgress(this.id, this.progress);
@@ -251,6 +245,17 @@ export class TransformSolver {
     }
     
     this.wasVisible = this.isVisible;
+  }
+
+  public getProgress(): number {
+    return this.progress;
+  }
+
+  public getState() {
+    return {
+      progress: this.progress,
+      values: { ...this.currentValues },
+    };
   }
 
   public destroy(): void {

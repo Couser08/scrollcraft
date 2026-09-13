@@ -4,7 +4,7 @@ import { useEffect, useLayoutEffect, useRef } from 'react';
 import { ticker, TickerCallback, TickerPhase } from '@scrollcraft/core';
 
 export interface UseTickerOptions {
-  /** Phase in the 3-stage game loop: 'measure' | 'update' | 'render'. Default: 'update' */
+  /** Phase in the 4-stage game loop: 'measure' | 'driver' | 'update' | 'render'. Default: 'update' */
   phase?: TickerPhase;
   /** Whether the task is actively scheduled. When false, task is removed to permit Idle Sleep. Default: true */
   enabled?: boolean;
@@ -16,7 +16,7 @@ export interface UseTickerOptions {
  * competing requestAnimationFrame loops.
  * 
  * Guarantees:
- * - Direct execution inside the requested TickerPhase ('measure' | 'update' | 'render').
+ * - Direct execution inside the requested TickerPhase ('measure' | 'driver' | 'update' | 'render').
  * - Zero task thrashing: stable ref ensures callback identity changes do not re-bind tasks.
  * - Full SSR and React 19 StrictMode safety.
  * - Zero-allocation teardown on component unmount.

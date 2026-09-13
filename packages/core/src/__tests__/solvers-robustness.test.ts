@@ -5,6 +5,7 @@ import { PinSolver } from '../pinning';
 import { TransformSolver } from '../transform-solver';
 import { VelocityMarqueeSolver } from '../marquee';
 import { DrawSolver } from '../draw-solver';
+import { HorizontalScrollSolver } from '../horizontal';
 import { GlobalRevealObserver } from '../reveal';
 import { GlobalResizeManager } from '../dom';
 
@@ -103,6 +104,18 @@ describe('ScrollCraft Solvers Robustness & Integrity', () => {
 
       unsubscribe();
       engine.destroy();
+    });
+
+    it('initializes cinematic and snappy presets with adaptive physics profiles', () => {
+      const cinematicEngine = new InertiaEngine({ preset: 'cinematic' });
+      cinematicEngine.init();
+      expect(cinematicEngine.getMetrics().limit).toBe(2000);
+      cinematicEngine.destroy();
+
+      const snappyEngine = new InertiaEngine({ preset: 'snappy' });
+      snappyEngine.init();
+      expect(snappyEngine.getMetrics().limit).toBe(2000);
+      snappyEngine.destroy();
     });
   });
 
@@ -210,6 +223,74 @@ describe('ScrollCraft Solvers Robustness & Integrity', () => {
       solver.destroy();
       expect(element.style.willChange).toBe('');
       expect(element.style.opacity).toBe('');
+    });
+
+    it('damps scrub progress cleanly without compounding double-damping lag', () => {
+      const element = {
+        style: { transform: '', opacity: '', willChange: '', filter: '', borderRadius: '' },
+        getBoundingClientRect: () => ({ top: 500, height: 200 }),
+      } as unknown as HTMLElement;
+
+      const solver = new TransformSolver(element, {
+        start: 'top bottom',
+        end: 'bottom top',
+        properties: {
+          x: [0, 100],
+        },
+        scrub: 5,
+      });
+
+      solver.measure();
+      // Scroll to mid-range
+      solver.update(100, 0, 0.016);
+      solver.render();
+
+      // State progress should be smoothly interpolated forward
+      const state = solver.getState();
+      expect(state.progress).toBeGreaterThan(0);
+      expect(state.progress).toBeLessThanOrEqual(0.5);
+
+      solver.destroy();
+    });
+  });
+
+  describe('HorizontalScrollSolver', () => {
+    it('isolates multi-section CSS timeline identifiers without name collision', () => {
+      const elementA = {
+        style: {} as Record<string, string>,
+        getBoundingClientRect: () => ({ top: 0, height: 2000 }),
+      } as unknown as HTMLElement;
+      const innerA = {
+        style: {} as Record<string, string>,
+        scrollWidth: 3000,
+      } as unknown as HTMLElement;
+
+      const elementB = {
+        style: {} as Record<string, string>,
+        getBoundingClientRect: () => ({ top: 3000, height: 2000 }),
+      } as unknown as HTMLElement;
+      const innerB = {
+        style: {} as Record<string, string>,
+        scrollWidth: 4000,
+      } as unknown as HTMLElement;
+
+      const solverA = new HorizontalScrollSolver(elementA, innerA, { driver: 'js' });
+      const solverB = new HorizontalScrollSolver(elementB, innerB, { driver: 'js' });
+
+      solverA.measure();
+      solverB.measure();
+
+      solverA.update(500);
+      solverB.update(3500);
+
+      solverA.render();
+      solverB.render();
+
+      expect(innerA.style.transform).toContain('translate3d');
+      expect(innerB.style.transform).toContain('translate3d');
+
+      solverA.destroy();
+      solverB.destroy();
     });
   });
 

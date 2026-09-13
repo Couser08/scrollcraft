@@ -3,7 +3,7 @@
  * Strictly under 650 LOC.
  */
 
-export type TickerPhase = 'measure' | 'update' | 'render';
+export type TickerPhase = 'measure' | 'driver' | 'update' | 'render';
 
 declare global {
   interface CSSStyleDeclaration {
@@ -31,7 +31,11 @@ export interface TickerTask {
   dormant?: boolean;
 }
 
+export type InertiaPreset = 'cinematic' | 'snappy' | 'natural';
+
 export interface InertiaConfig {
+  /** Inertia preset profile. 'cinematic' = butter-smooth exponential decay; 'snappy' = high-reactivity tight tracking; 'natural' = balanced hybrid */
+  preset?: InertiaPreset;
   /** Damping / lerp factor (0.01 to 0.2). Higher = snappier, lower = floatier. Default: 0.1 */
   lerp?: number;
   /** Duration in seconds for easing animation if lerp is not used */
@@ -44,6 +48,12 @@ export interface InertiaConfig {
   syncTouch?: boolean;
   /** Auto-resize on window resize. Default: true */
   autoResize?: boolean;
+  /** Mouse wheel sensitivity multiplier. Default: 1 */
+  wheelMultiplier?: number;
+  /** Touch sensitivity multiplier. Default: 1 */
+  touchMultiplier?: number;
+  /** Allow momentum overscroll at page bounds. Default: true */
+  overscroll?: boolean;
 }
 
 export interface ScrollMetrics {

@@ -27,13 +27,36 @@ export class InertiaEngine {
   private taskId: string = `lenis-ticker-${Math.random().toString(36).slice(2, 8)}`;
 
   constructor(config?: InertiaConfig) {
+    let lerp = config?.lerp;
+    let duration = config?.duration;
+    let easing = config?.easing;
+
+    if (config?.preset === 'cinematic') {
+      duration = duration ?? 1.1;
+      easing = easing ?? ((t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)));
+      lerp = undefined;
+    } else if (config?.preset === 'snappy') {
+      lerp = lerp ?? 0.16;
+      duration = undefined;
+      easing = undefined;
+    } else {
+      // Natural / custom mode
+      if (!duration && lerp === undefined) {
+        lerp = 0.1;
+      }
+    }
+
     this.config = {
-      lerp: config?.lerp ?? 0.1,
-      duration: config?.duration,
-      easing: config?.easing,
+      preset: config?.preset,
+      lerp,
+      duration,
+      easing,
       smoothWheel: config?.smoothWheel ?? true,
       syncTouch: config?.syncTouch ?? false,
       autoResize: config?.autoResize ?? true,
+      wheelMultiplier: config?.wheelMultiplier ?? 1,
+      touchMultiplier: config?.touchMultiplier ?? 1,
+      overscroll: config?.overscroll ?? true,
     };
   }
 
@@ -41,7 +64,7 @@ export class InertiaEngine {
     if (typeof window === 'undefined' || this.isInitialized) return;
     this.isInitialized = true;
 
-    // Instantiate Lenis with normalized cross-browser settings
+    // Instantiate Lenis with normalized cross-browser settings and input profiling
     this.lenis = new Lenis({
       lerp: this.config.lerp,
       duration: this.config.duration,
@@ -49,6 +72,9 @@ export class InertiaEngine {
       smoothWheel: this.config.smoothWheel,
       syncTouch: this.config.syncTouch,
       autoResize: this.config.autoResize,
+      wheelMultiplier: this.config.wheelMultiplier,
+      touchMultiplier: this.config.touchMultiplier,
+      overscroll: this.config.overscroll,
     });
 
     // Populate initial metrics from DOM
@@ -57,8 +83,8 @@ export class InertiaEngine {
     // Hook scroll listener to sync metrics & notify external subscribers
     this.lenis.on('scroll', this.onLenisScroll);
 
-    // Drive Lenis tick through ScrollCraft's global 3-phase Ticker (update phase)
-    ticker.add(this.taskId, 'update', (_dt, _el, currentTime) => {
+    // Drive Lenis tick through ScrollCraft's global 4-phase Ticker (driver phase executes FIRST)
+    ticker.add(this.taskId, 'driver', (_dt, _el, currentTime) => {
       if (this.lenis) {
         // Use exact RAF timestamp to prevent micro-stutters
         this.lenis.raf(currentTime);

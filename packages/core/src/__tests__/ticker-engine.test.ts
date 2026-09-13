@@ -98,20 +98,45 @@ describe('Ticker Engine Core & Lifecycle', () => {
     ticker.remove('selective');
   });
 
-  it('strictly executes phases in order: Measure -> Update -> Render', () => {
+  it('strictly executes phases in order: Measure -> Driver -> Update -> Render', () => {
     const executionOrder: string[] = [];
 
     ticker.add('phase-render', 'render', () => executionOrder.push('render'));
-    ticker.add('phase-measure', 'measure', () => executionOrder.push('measure'));
     ticker.add('phase-update', 'update', () => executionOrder.push('update'));
+    ticker.add('phase-driver', 'driver', () => executionOrder.push('driver'));
+    ticker.add('phase-measure', 'measure', () => executionOrder.push('measure'));
 
     stepFrame(16);
 
-    expect(executionOrder).toEqual(['measure', 'update', 'render']);
+    expect(executionOrder).toEqual(['measure', 'driver', 'update', 'render']);
 
     ticker.remove('phase-render');
-    ticker.remove('phase-measure');
     ticker.remove('phase-update');
+    ticker.remove('phase-driver');
+    ticker.remove('phase-measure');
+  });
+
+  it('guarantees child solvers in update phase read fresh metrics written by driver in same frame (0-frame lag)', () => {
+    let scrollPosition = 0;
+    let readScrollInUpdate = -1;
+
+    // Child registers in update phase FIRST (typical React mounting behavior)
+    ticker.add('child-parallax', 'update', () => {
+      readScrollInUpdate = scrollPosition;
+    });
+
+    // Parent InertiaEngine registers in driver phase AFTER
+    ticker.add('parent-driver', 'driver', () => {
+      scrollPosition = 250; // New frame's scroll position
+    });
+
+    stepFrame(16);
+
+    // Child MUST receive the freshly written 250, not stale 0!
+    expect(readScrollInUpdate).toBe(250);
+
+    ticker.remove('child-parallax');
+    ticker.remove('parent-driver');
   });
 
   it('executes tasks added in Phase 1 (measure) during Phase 2/3 of the SAME frame', () => {

@@ -31,8 +31,34 @@ const nextConfig: NextConfig = {
     ];
   },
   webpack: (config) => {
-    if (process.platform === 'win32' && config.context && config.context.charAt(1) === ':') {
-      config.context = config.context.charAt(0).toUpperCase() + config.context.slice(1);
+    if (process.platform === 'win32') {
+      const normalizeDrive = (str: string): string => {
+        if (typeof str === 'string' && str.length >= 2 && str.charAt(1) === ':') {
+          return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+        return str;
+      };
+
+      if (config.context) {
+        config.context = normalizeDrive(config.context);
+      }
+
+      if (config.resolve?.alias) {
+        if (typeof config.resolve.alias === 'object' && !Array.isArray(config.resolve.alias)) {
+          for (const key of Object.keys(config.resolve.alias)) {
+            const val = config.resolve.alias[key];
+            if (typeof val === 'string') {
+              config.resolve.alias[key] = normalizeDrive(val);
+            }
+          }
+        }
+      }
+
+      if (Array.isArray(config.resolve?.modules)) {
+        config.resolve.modules = config.resolve.modules.map((m: any) =>
+          typeof m === 'string' ? normalizeDrive(m) : m
+        );
+      }
     }
     return config;
   },

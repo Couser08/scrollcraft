@@ -17,7 +17,7 @@ import React, {
   useState,
   useSyncExternalStore,
 } from 'react';
-import { InertiaEngine, ScrollMetrics, tierStore, PerformanceTier } from '@scrollcraft/core';
+import { InertiaEngine, ScrollMetrics, tierStore, PerformanceTier, GlobalResizeManager } from '@scrollcraft/core';
 import { ScrollContextValue, ScrollProviderProps } from './types';
 import { ScrollInspector } from './components/scroll-inspector';
 
@@ -120,25 +120,20 @@ export const ScrollProvider: React.FC<ScrollProviderProps> = ({
       }
     }
 
-    // Observe DOM mutations to detect route changes and content shifts
-    let resizeObserver: ResizeObserver | null = null;
-    let mutationObserver: MutationObserver | null = null;
+    // Observe DOM mutations to detect route changes and content shifts via centralized GlobalResizeManager
+    let unobserveBodyResize: (() => void) | null = null;
 
-    if (autoRecalc && typeof window !== 'undefined') {
+    if (autoRecalc && typeof window !== 'undefined' && typeof document !== 'undefined' && document.body) {
+      let recalcRafId: number | null = null;
       const handleDOMChange = () => {
-        requestAnimationFrame(() => {
-          engine?.resize();
+        if (recalcRafId !== null) return;
+        recalcRafId = requestAnimationFrame(() => {
+          recalcRafId = null;
+          if (isMounted) engine?.resize();
         });
       };
 
-      if ('ResizeObserver' in window) {
-        resizeObserver = new ResizeObserver(handleDOMChange);
-        resizeObserver.observe(document.body);
-      } else {
-        // Fallback for older browsers
-        mutationObserver = new MutationObserver(handleDOMChange);
-        mutationObserver.observe(document.body, { childList: true, subtree: true, characterData: true });
-      }
+      unobserveBodyResize = GlobalResizeManager.observe(document.body, handleDOMChange);
     }
 
     // Invariant: Imperative sync of data-scrollcraft-tier attribute (SSR safe, no hydration mismatch)
@@ -155,8 +150,7 @@ export const ScrollProvider: React.FC<ScrollProviderProps> = ({
       if (autoRecalc) {
         window.removeEventListener('resize', handleResize);
         if (resizeRafId !== null) cancelAnimationFrame(resizeRafId);
-        resizeObserver?.disconnect();
-        mutationObserver?.disconnect();
+        unobserveBodyResize?.();
       }
       engine?.destroy();
       engineRef.current = null;

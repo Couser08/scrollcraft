@@ -48,12 +48,14 @@ export class GlobalRevealObserver {
             if (!data) continue;
 
             // Robust check: if it's intersecting, OR if it's already above the viewport (we scrolled past it fast)
-            if (entry.isIntersecting || entry.boundingClientRect.top < 0) {
+            if (entry.isIntersecting || entry.boundingClientRect.bottom < 0) {
               data.hasRevealed = true;
               this.applyRevealedState(target, data.options);
 
               if (data.options.once) {
-                this.unobserve(target);
+                for (const observer of this.observers.values()) {
+                  observer.unobserve(target);
+                }
               }
             } else if (!data.options.once && data.hasRevealed) {
               data.hasRevealed = false;
@@ -78,6 +80,13 @@ export class GlobalRevealObserver {
     }
   }
 
+  private applyInitialHiddenState(element: HTMLElement, options: Required<RevealOptions>): void {
+    element.style.transition = 'none';
+    element.style.opacity = '0';
+    TransformComposer.set(element, 'reveal', this.getHiddenTransform(options.direction, options.distance));
+    void element.offsetHeight;
+  }
+
   private applyHiddenState(element: HTMLElement, options: Required<RevealOptions>): void {
     element.style.transition = `opacity ${options.duration}s cubic-bezier(0.16, 1, 0.3, 1), transform ${options.duration}s cubic-bezier(0.16, 1, 0.3, 1)`;
     element.style.opacity = '0';
@@ -85,7 +94,8 @@ export class GlobalRevealObserver {
   }
 
   private applyRevealedState(element: HTMLElement, options: Required<RevealOptions>): void {
-    element.style.transition = `opacity ${options.duration}s cubic-bezier(0.16, 1, 0.3, 1) ${options.delay}s, transform ${options.duration}s cubic-bezier(0.16, 1, 0.3, 1) ${options.delay}s`;
+    const delayStr = options.delay > 0 ? ` ${options.delay}s` : '';
+    element.style.transition = `opacity ${options.duration}s cubic-bezier(0.16, 1, 0.3, 1)${delayStr}, transform ${options.duration}s cubic-bezier(0.16, 1, 0.3, 1)${delayStr}`;
     element.style.opacity = '1';
     TransformComposer.set(element, 'reveal', 'translate3d(0, 0, 0)');
   }
@@ -113,8 +123,8 @@ export class GlobalRevealObserver {
 
     this.entries.set(element, { element, options: fullOptions, hasRevealed: false });
 
-    // Initial State Check: If already well within or above viewport on mount, reveal instantly without transition delay
-    if (rect.top < wh * 0.8) {
+    // Initial State Check: If already scrolled past the viewport above on mount, reveal instantly without animation
+    if (rect.bottom < 0) {
       const data = this.entries.get(element)!;
       data.hasRevealed = true;
       element.style.opacity = '1';
@@ -122,11 +132,11 @@ export class GlobalRevealObserver {
       
       if (fullOptions.once) {
         this.entries.delete(element);
-        return; // Don't even observe if it's 'once' and already visible
+        return; // Don't observe if already past viewport
       }
     } else {
       element.style.willChange = 'opacity, transform';
-      this.applyHiddenState(element, fullOptions);
+      this.applyInitialHiddenState(element, fullOptions);
     }
 
     const observer = this.getObserver(safeThreshold);

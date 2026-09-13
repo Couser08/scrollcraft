@@ -9,9 +9,11 @@ import { ScrollDriver, DriverState } from './driver';
 import { clamp } from './math';
 import { Capabilities } from './feature-detection';
 import { injectNativeStyles } from './native-styles';
+import { TransformComposer } from './dom';
 
 export interface HorizontalScrollOptions {
   speed?: number; // How much taller the track is compared to viewport. default 2 (2x viewport scroll distance)
+  driver?: 'auto' | 'native' | 'js';
 }
 
 export interface HorizontalState extends DriverState {
@@ -43,10 +45,10 @@ class JSHorizontalDriver implements ScrollDriver {
     this.windowHeight = window.innerHeight;
     
     // Total scrollable distance for this section is outer height - window height
-    this.maxScrollDistance = rect.height - this.windowHeight;
+    this.maxScrollDistance = Math.max(1, rect.height - this.windowHeight);
     
     // Width of the inner content that will slide left
-    this.trackWidth = this.innerContainer.scrollWidth - window.innerWidth;
+    this.trackWidth = Math.max(0, this.innerContainer.scrollWidth - window.innerWidth);
   }
 
   public update(scrollY: number): HorizontalState {
@@ -64,7 +66,9 @@ class JSHorizontalDriver implements ScrollDriver {
   }
 
   public render(): void {
-    this.innerContainer.style.transform = `translate3d(${this.state.offset.toFixed(2)}px, 0, 0)`;
+    const dpr = typeof window !== 'undefined' ? (window.devicePixelRatio || 1) : 1;
+    const snappedOffset = Math.round(this.state.offset * dpr) / dpr;
+    TransformComposer.set(this.innerContainer, 'horizontal', `translate3d(${snappedOffset.toFixed(2)}px, 0, 0)`);
   }
 
   public getState(): HorizontalState {
@@ -72,12 +76,16 @@ class JSHorizontalDriver implements ScrollDriver {
   }
 
   public destroy(): void {
-    this.innerContainer.style.transform = '';
+    TransformComposer.clear(this.innerContainer, 'horizontal');
   }
 }
 
 class NativeHorizontalDriver implements ScrollDriver {
   private state: HorizontalState = { progress: 0, offset: 0 };
+  private elementTop: number = 0;
+  private maxScrollDistance: number = 0;
+  private trackWidth: number = 0;
+  private timelineName: string;
 
   constructor(
     private element: HTMLElement,
@@ -85,16 +93,14 @@ class NativeHorizontalDriver implements ScrollDriver {
     _options: Required<HorizontalScrollOptions>
   ) {
     injectNativeStyles();
-    // The timeline is attached to the view of the outer element.
-    // It starts when the element hits the top of the viewport and ends when it leaves.
-    // Wait, since the outer element is `sticky`, its bounds relative to viewport stay 100vh until it un-sticks.
-    // Actually, view-timeline on a sticky element triggers based on its virtual scroll range!
     
-    this.element.style.viewTimelineName = '--horizontal-track';
+    // Unique timeline identifier per instance to prevent multi-section style collisions
+    this.timelineName = `--sc-horizontal-track-${Math.random().toString(36).slice(2, 8)}`;
+    this.element.style.viewTimelineName = this.timelineName;
     this.element.style.viewTimelineAxis = 'block';
 
-    this.innerContainer.style.animationTimeline = '--horizontal-track';
-    this.innerContainer.style.animationRange = 'contain 0% contain 100%';
+    this.innerContainer.style.animationTimeline = this.timelineName;
+    this.innerContainer.style.animationRange = 'entry 100% exit 100%';
     this.innerContainer.style.animationName = 'sc-horizontal-slide';
     this.innerContainer.style.animationFillMode = 'both';
     this.innerContainer.style.animationTimingFunction = 'linear';
@@ -103,10 +109,13 @@ class NativeHorizontalDriver implements ScrollDriver {
 
   public measure(): void {
     if (typeof window === 'undefined') return;
-    const trackWidth = this.innerContainer.scrollWidth - window.innerWidth;
+    this.trackWidth = Math.max(0, this.innerContainer.scrollWidth - window.innerWidth);
     
-    // We dynamically create the keyframes for horizontal slide if it doesn't exist.
-    // The native styles injector already created a basic one, let's inject a custom one for horizontal.
+    const rect = this.element.getBoundingClientRect();
+    const scrollTop = window.scrollY || window.pageYOffset;
+    this.elementTop = rect.top + scrollTop;
+    this.maxScrollDistance = Math.max(1, rect.height - window.innerHeight);
+
     let styleEl = document.getElementById('sc-horizontal-styles');
     if (!styleEl) {
       styleEl = document.createElement('style');
@@ -114,17 +123,21 @@ class NativeHorizontalDriver implements ScrollDriver {
       document.head.appendChild(styleEl);
     }
     
-    // We can use CSS variables again!
-    this.innerContainer.style.setProperty('--sc-slide-end', `-${trackWidth}px`);
+    this.innerContainer.style.setProperty('--sc-slide-end', `-${this.trackWidth}px`);
     
     styleEl.textContent = `
       @keyframes sc-horizontal-slide {
+        from { transform: translate3d(0px, 0, 0); }
         to { transform: translate3d(var(--sc-slide-end, 0px), 0, 0); }
       }
     `;
   }
 
-  public update(): HorizontalState {
+  public update(scrollY: number): HorizontalState {
+    const scrolledPastTop = scrollY - this.elementTop;
+    const progress = clamp(scrolledPastTop / this.maxScrollDistance, 0, 1);
+    this.state.progress = progress;
+    this.state.offset = -(progress * this.trackWidth);
     return this.state;
   }
 
@@ -132,6 +145,8 @@ class NativeHorizontalDriver implements ScrollDriver {
   public getState(): HorizontalState { return this.state; }
   
   public destroy(): void {
+    this.element.style.viewTimelineName = '';
+    this.element.style.viewTimelineAxis = '';
     this.innerContainer.style.animationTimeline = '';
     this.innerContainer.style.animationRange = '';
     this.innerContainer.style.animationName = '';
@@ -147,9 +162,12 @@ export class HorizontalScrollSolver {
   constructor(element: HTMLElement, innerContainer: HTMLElement, options?: HorizontalScrollOptions) {
     const opts: Required<HorizontalScrollOptions> = {
       speed: options?.speed ?? 2,
+      driver: options?.driver ?? 'auto',
     };
 
-    if (Capabilities.get().isNativeReady) {
+    const useNative = opts.driver === 'native' || (opts.driver === 'auto' && Capabilities.get().isNativeReady);
+
+    if (useNative) {
       this.driver = new NativeHorizontalDriver(element, innerContainer, opts);
     } else {
       this.driver = new JSHorizontalDriver(element, innerContainer, opts);

@@ -30,7 +30,7 @@ export const HeaderNav: React.FC = () => {
   ];
 
   return (
-    <header className="sticky top-0 inset-x-0 z-50 bg-[#FAFAF9]/90 backdrop-blur-md border-b border-[#E7E5E4] transition-all">
+    <header className="sticky top-0 inset-x-0 z-50 bg-[#050505]/90 backdrop-blur-md border-b border-zinc-800 transition-all">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
         {/* Left: Brand Logo & Version Badge */}
         <Link href="/" className="flex items-center gap-2 group">
@@ -38,7 +38,7 @@ export const HeaderNav: React.FC = () => {
         </Link>
 
         {/* Center: Desktop Navigation Links */}
-        <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-[#78716C]">
+        <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-zinc-400">
           {navLinks.map((link) => {
             const isActive = link.href === '/' ? pathname === '/' : pathname === link.href;
 
@@ -47,7 +47,7 @@ export const HeaderNav: React.FC = () => {
                 key={link.href}
                 href={link.href}
                 className={`transition-colors py-1.5 relative ${
-                  isActive ? 'text-[#0A0A0A] font-semibold' : 'hover:text-[#0A0A0A]'
+                  isActive ? 'text-zinc-100 font-semibold' : 'hover:text-zinc-100'
                 }`}
               >
                 {link.label}
@@ -63,21 +63,21 @@ export const HeaderNav: React.FC = () => {
         <div className="flex items-center gap-2.5">
           <button
             onClick={copyCommand}
-            className="hidden lg:inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[#E7E5E4] bg-[#FAFAF9] hover:bg-[#F5F5F4] text-xs font-mono text-[#0A0A0A] transition-all cursor-pointer"
+            className="hidden lg:inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-zinc-800 bg-[#0a0a0a] hover:bg-zinc-800 text-xs font-mono text-zinc-100 transition-all cursor-pointer"
             title="Click to copy install command"
           >
-            <span className="text-[#A8A29E] mr-1">&gt;_</span>
+            <span className="text-zinc-500 mr-1">&gt;_</span>
             <span>npm i @scrollcraft/react</span>
             {copied ? (
               <Check className="w-3.5 h-3.5 text-[#16A34A]" />
             ) : (
-              <Copy className="w-3.5 h-3.5 text-[#A8A29E] hover:text-[#0A0A0A]" />
+              <Copy className="w-3.5 h-3.5 text-zinc-500 hover:text-zinc-100" />
             )}
           </button>
 
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 rounded-lg border border-[#E7E5E4] bg-white text-[#78716C] hover:text-[#0A0A0A]"
+            className="md:hidden p-2 rounded-lg border border-zinc-800 bg-[#0a0a0a] text-zinc-400 hover:text-zinc-100"
             aria-label="Toggle navigation menu"
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -87,7 +87,7 @@ export const HeaderNav: React.FC = () => {
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-[#E5E7EB] bg-white px-4 py-4 space-y-2">
+        <div className="md:hidden border-t border-zinc-800 bg-[#0a0a0a] px-4 py-4 space-y-2">
           {navLinks.map((link) => {
             const isActive = link.href === '/' ? pathname === '/' : pathname === link.href;
             return (
@@ -97,18 +97,18 @@ export const HeaderNav: React.FC = () => {
                 onClick={() => setMobileMenuOpen(false)}
                 className={`block px-3 py-2 rounded-md text-sm font-medium ${
                   isActive
-                    ? 'bg-[#FFF7ED] text-[#FF5A1F] font-semibold'
-                    : 'text-[#6B7280] hover:bg-[#F3F4F6] hover:text-[#0A0A0A]'
+                    ? 'bg-[#FF5A1F]/10 text-[#FF5A1F] font-semibold'
+                    : 'text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100'
                 }`}
               >
                 {link.label}
               </Link>
             );
           })}
-          <div className="pt-2 border-t border-[#E5E7EB] flex items-center justify-between">
+          <div className="pt-2 border-t border-zinc-800 flex items-center justify-between">
             <button
               onClick={copyCommand}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg border border-[#E5E7EB] bg-[#FAFAF9] text-xs font-mono text-[#0A0A0A] w-full justify-center"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg border border-zinc-800 bg-[#0a0a0a] text-xs font-mono text-zinc-100 w-full justify-center"
             >
               <Terminal className="w-3.5 h-3.5 text-[#FF5A1F]" />
               <span>npm i @scrollcraft/react</span>
