@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "React & Next.js-native scroll toolkit with zero-rerender state, asChild Slot composition, and Lenis normalization",
   "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
+  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
     "dist"
@@ -14,18 +14,14 @@
   "sideEffects": false,
   "exports": {
     ".": {
-      "types": {
-        "import": "./dist/index.d.mts",
-        "require": "./dist/index.d.ts",
-        "default": "./dist/index.d.ts"
-      },
-      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
       "require": "./dist/index.js",
-      "default": "./dist/index.mjs"
+      "default": "./dist/index.js"
     }
   },
   "scripts": {
-    "build": "tsup src/index.ts --format esm,cjs --dts --clean --sourcemap --minify --external react --external react-dom --external @scrollcraft/core",
+    "build": "tsc",
     "lint": "tsc --noEmit"
   },
   "dependencies": {

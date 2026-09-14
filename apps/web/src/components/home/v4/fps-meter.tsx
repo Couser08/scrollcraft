@@ -1,101 +1,119 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
-import { useScrollCraftTier, useTicker } from '@scrollcraft/react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useScrollCraftTier } from '@scrollcraft/react';
 
 export function FPSMeter() {
   const [collapsed, setCollapsed] = useState(false);
   const tier = useScrollCraftTier();
-  const tierRef = useRef(tier);
-  tierRef.current = tier;
 
-  const collapsedRef = useRef(collapsed);
-  collapsedRef.current = collapsed;
-
-  const fpsRef = useRef<HTMLSpanElement>(null);
+  const collapsedFpsRef = useRef<HTMLSpanElement>(null);
+  const expandedFpsRef = useRef<HTMLSpanElement>(null);
   const msRef = useRef<HTMLSpanElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const frameCountRef = useRef(0);
-  const lastTimeRef = useRef(0);
-  const lastFrameTimeRef = useRef(0);
-  const lastDrawTimeRef = useRef(0);
-  const historyRef = useRef<number[]>(new Array(60).fill(16.7));
-  const historyIdxRef = useRef(0);
+  useEffect(() => {
+    let rafId: number;
+    let lastTime = performance.now();
+    let lastSampleTime = performance.now();
+    let frameCount = 0;
 
-  // Synchronized directly with ScrollCraft's centralized 120 FPS game loop
-  useTicker(
-    (_dt, _elapsed, currentTime) => {
-      if (lastTimeRef.current === 0) {
-        lastTimeRef.current = currentTime;
-        lastFrameTimeRef.current = currentTime;
-        lastDrawTimeRef.current = currentTime;
+    const historySize = 48;
+    const history = new Array(historySize).fill(16.7);
+    let historyIdx = 0;
+
+    const tick = (now: number) => {
+      const delta = now - lastTime;
+      lastTime = now;
+
+      // Filter out background tab pauses (> 500ms)
+      if (delta > 0 && delta < 500) {
+        history[historyIdx] = delta;
+        historyIdx = (historyIdx + 1) % historySize;
+        frameCount++;
       }
 
-      frameCountRef.current++;
-      const frameDelta = currentTime - lastFrameTimeRef.current;
-      lastFrameTimeRef.current = currentTime;
+      // Update text readouts every 150ms for a lively, responsive meter
+      if (now - lastSampleTime >= 150) {
+        const sampleDelta = now - lastSampleTime;
+        const currentFps = Math.round((frameCount * 1000) / sampleDelta);
+        const avgFrameMs = frameCount > 0 ? (sampleDelta / frameCount).toFixed(1) : '16.7';
 
-      // Record actual frame delta for graph
-      const history = historyRef.current;
-      let historyIdx = historyIdxRef.current;
-      history[historyIdx] = frameDelta > 0 ? frameDelta : 16.7;
-      historyIdxRef.current = (historyIdx + 1) % history.length;
+        const displayFps = Math.max(1, Math.min(360, currentFps));
 
-      const delta = currentTime - lastTimeRef.current;
+        if (expandedFpsRef.current) {
+          expandedFpsRef.current.innerText = `${displayFps}`;
+        }
+        if (collapsedFpsRef.current) {
+          collapsedFpsRef.current.innerText = `${displayFps}`;
+        }
+        if (msRef.current) {
+          msRef.current.innerText = `${avgFrameMs} ms`;
+        }
 
-      // Update FPS readout every ~350ms
-      if (delta >= 350) {
-        const rawFps = Math.round((frameCountRef.current * 1000) / delta);
-        const fps = Math.min(rawFps, 360); // Cap at 360Hz pro displays
-        const ms = (delta / frameCountRef.current).toFixed(1);
-
-        if (fpsRef.current) fpsRef.current.innerText = `${fps}`;
-        if (msRef.current) msRef.current.innerText = `${ms} ms`;
-
-        lastTimeRef.current = currentTime;
-        frameCountRef.current = 0;
+        frameCount = 0;
+        lastSampleTime = now;
       }
 
-      // Throttle canvas draw dynamically based on performance tier:
-      // High: 100ms, Low/Software: 400ms (saves CPU rasterizer cycles)
-      const drawThrottle = tierRef.current === 'low' ? 400 : 100;
-      if (!collapsedRef.current && currentTime - lastDrawTimeRef.current >= drawThrottle && canvasRef.current) {
-        lastDrawTimeRef.current = currentTime;
-        const ctx = canvasRef.current.getContext('2d');
+      // Draw real-time frame timeline oscilloscope
+      const canvas = canvasRef.current;
+      if (canvas) {
+        const ctx = canvas.getContext('2d');
         if (ctx) {
-          const w = canvasRef.current.width;
-          const h = canvasRef.current.height;
+          const w = canvas.width;
+          const h = canvas.height;
           ctx.clearRect(0, 0, w, h);
+
+          // Baseline 60Hz / 120Hz reference line (16.7ms or 8.3ms)
+          ctx.beginPath();
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+          ctx.lineWidth = 1;
+          ctx.moveTo(0, h * 0.5);
+          ctx.lineTo(w, h * 0.5);
+          ctx.stroke();
+
+          // Draw area fill
           ctx.beginPath();
           ctx.moveTo(0, h);
-          for (let i = 0; i < history.length; i++) {
-            const idx = (historyIdxRef.current + i) % history.length;
+          for (let i = 0; i < historySize; i++) {
+            const idx = (historyIdx + i) % historySize;
             const val = history[idx];
-            const normalized = Math.max(0, Math.min(1, (val - 4) / 24));
-            ctx.lineTo((i / history.length) * w, h - (1 - normalized) * h * 0.8);
+            // Normalize: 0ms is bottom, 33.3ms (30 FPS) is top
+            const norm = Math.max(0, Math.min(1, val / 33.3));
+            const y = h - norm * (h - 2);
+            const x = (i / (historySize - 1)) * w;
+            ctx.lineTo(x, y);
           }
           ctx.lineTo(w, h);
-          ctx.fillStyle = 'rgba(59, 130, 246, 0.25)';
+          ctx.fillStyle = 'rgba(34, 197, 94, 0.18)';
           ctx.fill();
-          
+
+          // Draw stroke line
           ctx.beginPath();
-          for (let i = 0; i < history.length; i++) {
-            const idx = (historyIdxRef.current + i) % history.length;
+          for (let i = 0; i < historySize; i++) {
+            const idx = (historyIdx + i) % historySize;
             const val = history[idx];
-            const normalized = Math.max(0, Math.min(1, (val - 4) / 24));
-            const y = h - (1 - normalized) * h * 0.8;
-            if (i === 0) ctx.moveTo(0, y);
-            else ctx.lineTo((i / history.length) * w, y);
+            const norm = Math.max(0, Math.min(1, val / 33.3));
+            const y = h - norm * (h - 2);
+            const x = (i / (historySize - 1)) * w;
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
           }
-          ctx.strokeStyle = 'rgba(96, 165, 250, 0.85)';
+          ctx.strokeStyle = '#4ade80';
           ctx.lineWidth = 1.5;
           ctx.stroke();
         }
       }
-    },
-    { phase: 'render', enabled: !collapsed }
-  );
+
+      rafId = requestAnimationFrame(tick);
+    };
+
+    rafId = requestAnimationFrame(tick);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+    };
+  }, []);
 
   return (
     <aside aria-label="FPS performance monitor" className="fixed bottom-6 right-6 z-50 select-none">
@@ -103,26 +121,28 @@ export function FPSMeter() {
         <button
           type="button"
           onClick={() => setCollapsed(false)}
-          className="flex items-center gap-2 px-3.5 py-1.5 rounded-full glass-surface border border-white/15 text-zinc-300 font-mono text-[11px] shadow-2xl hover:bg-white/10 transition-colors"
+          className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-zinc-950/90 border border-zinc-800 text-zinc-300 font-mono text-[11px] shadow-2xl hover:bg-zinc-900 transition-colors backdrop-blur-md cursor-pointer"
           title="Expand FPS Monitor"
         >
-          <span className="w-2 h-2 rounded-full bg-green-400 shadow-[0_0_8px_rgba(74,222,128,0.7)]" />
-          <span ref={fpsRef}>120</span> FPS
-          <span className="text-[9px] uppercase tracking-wider text-zinc-400">({tier})</span>
+          <span className="w-2 h-2 rounded-full bg-green-400 shadow-[0_0_8px_rgba(74,222,128,0.7)] animate-pulse" />
+          <span ref={collapsedFpsRef}>120</span> FPS
+          <span className="text-[9px] uppercase tracking-wider text-zinc-500">({tier})</span>
         </button>
       ) : (
-        <div className="flex items-center gap-3 glass-surface border border-white/15 rounded-full px-4 py-2.5 shadow-2xl font-mono text-[10px] text-zinc-400">
+        <div className="flex items-center gap-3 bg-zinc-950/90 border border-zinc-800 rounded-full px-4 py-2 shadow-2xl font-mono text-[10px] text-zinc-400 backdrop-blur-md">
           {/* FPS Indicator */}
-          <div className="flex flex-col gap-0.5 items-center min-w-[48px]">
+          <div className="flex flex-col gap-0.5 items-center min-w-[50px]">
             <div className="flex items-center gap-1.5 font-sans">
-              <span className="w-2 h-2 rounded-full bg-green-400 shadow-[0_0_8px_rgba(74,222,128,0.7)]" />
-              <span className="text-white font-bold text-sm tracking-tight" ref={fpsRef}>120</span>
+              <span className="w-2 h-2 rounded-full bg-green-400 shadow-[0_0_8px_rgba(74,222,128,0.7)] animate-pulse" />
+              <span className="text-white font-bold text-sm tracking-tight" ref={expandedFpsRef}>
+                120
+              </span>
               <span className="text-zinc-500 text-xs font-semibold">FPS</span>
             </div>
-            <span ref={msRef}>16.7 ms</span>
+            <span ref={msRef} className="text-zinc-400 text-[10px]">16.7 ms</span>
           </div>
 
-          <div className="w-[1px] h-7 bg-white/10" />
+          <div className="w-[1px] h-7 bg-zinc-800" />
 
           {/* Tier Badge */}
           <span
@@ -137,18 +157,18 @@ export function FPSMeter() {
             {tier}
           </span>
 
-          <div className="w-[1px] h-7 bg-white/10" />
+          <div className="w-[1px] h-7 bg-zinc-800" />
 
-          {/* Waveform Graph */}
-          <div className="w-14 h-7 opacity-85 flex items-end">
-            <canvas ref={canvasRef} width={56} height={28} className="w-full h-full" />
+          {/* Real-time Oscilloscope Waveform */}
+          <div className="w-16 h-7 flex items-end">
+            <canvas ref={canvasRef} width={64} height={28} className="w-full h-full rounded" />
           </div>
 
           {/* Minimize button */}
           <button
             type="button"
             onClick={() => setCollapsed(true)}
-            className="w-5 h-5 ml-1 rounded-full flex items-center justify-center text-zinc-500 hover:text-white hover:bg-white/10 transition-colors"
+            className="w-5 h-5 ml-1 rounded-full flex items-center justify-center text-zinc-500 hover:text-white hover:bg-zinc-800 transition-colors cursor-pointer"
             title="Minimize Monitor"
             aria-label="Minimize FPS Monitor"
           >

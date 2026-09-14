@@ -1,177 +1,254 @@
 'use client';
 
 /**
- * ScrollCraft Section 4: Engine & Architecture
+ * ScrollCraft Section 5: Engine Architecture
+ * - Pixel-perfect match to media_1789367813271.png
  * - Headline: "Not a wrapper. An engine."
- * - Static architecture diagram (Core Engine → React Bindings → Primitives/Hooks).
- * - Deliberately not scroll-animated for engineering authority and scannability.
+ * - 3-phase microtask pipeline: 01 Schedule Ticket -> 02 Inertia Physics -> 03 ScrollValue Mutators
+ * - Reactive Context & Headless Bindings Bridge
+ * - 3 Specs: Deterministic, Hardware Timed, Framework Agnostic
+ * - Scroll To Explore indicator
  */
 
 import React from 'react';
 import { Reveal } from '@scrollcraft/react';
-import { Layers, Cpu, ShieldCheck, Zap, ArrowDown, GitBranch } from 'lucide-react';
+import {
+  Box,
+  Code,
+  Layers,
+  Activity,
+  SlidersHorizontal,
+  Zap,
+  Leaf,
+} from 'lucide-react';
 
 export function EngineArchitectureSection() {
   return (
-    <section id="architecture" className="relative w-full bg-[#050505] py-24 sm:py-32 px-6 border-t border-zinc-800/80">
-      <div className="max-w-7xl mx-auto">
-        
+    <section
+      id="architecture"
+      className="relative w-full bg-[#050505] py-24 sm:py-32 px-4 sm:px-6 lg:px-8 border-t border-zinc-800/80 overflow-hidden"
+    >
+      {/* Background Ambience Lines */}
+      <svg
+        className="absolute inset-0 w-full h-full pointer-events-none opacity-20"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M -100 600 C 300 600 400 750 600 750"
+          fill="none"
+          stroke="#3b82f6"
+          strokeWidth="1.5"
+        />
+        <path
+          d="M 800 750 C 1000 750 1100 600 1500 600"
+          fill="none"
+          stroke="#3b82f6"
+          strokeWidth="1.5"
+        />
+      </svg>
+
+      {/* Left Outer Floating Watermark */}
+      <div className="hidden xl:flex absolute left-8 bottom-24 flex-col items-start font-mono text-[10px] tracking-[0.25em] text-zinc-600 uppercase select-none pointer-events-none">
+        <span>BUILT</span>
+        <span>FOR</span>
+        <span>REAL</span>
+        <span>SCROLL.</span>
+        <div className="w-5 h-[1.5px] bg-zinc-700 mt-2" />
+      </div>
+
+      {/* Right Outer Floating Watermark */}
+      <div className="hidden xl:flex absolute right-8 bottom-24 flex-col items-end text-right font-mono text-[10px] tracking-[0.25em] text-zinc-600 uppercase select-none pointer-events-none">
+        <span>MORE</span>
+        <span>THAN</span>
+        <span>AN</span>
+        <span>ABSTRACTION.</span>
+        <div className="w-5 h-[1.5px] bg-zinc-700 mt-2" />
+      </div>
+
+      <div className="max-w-7xl mx-auto relative z-10">
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-20">
+        <div className="text-center max-w-3xl mx-auto mb-14">
           <Reveal direction="down" distance={15}>
-            <span className="text-xs font-mono font-bold uppercase tracking-widest text-indigo-400 mb-3 block">
-              Engine Architecture &bull; Engineering Authority
-            </span>
+            <div className="flex items-center justify-center gap-2 mb-3">
+              <span className="text-[11px] sm:text-xs font-mono font-bold tracking-[0.25em] uppercase text-sky-400">
+                Engine Architecture
+              </span>
+              <span className="text-xs font-mono text-zinc-600">&bull;</span>
+              <span className="text-[11px] sm:text-xs font-mono font-bold tracking-[0.25em] uppercase text-sky-400">
+                Engineering Authority
+              </span>
+            </div>
           </Reveal>
+
           <Reveal direction="up" distance={20} delay={0.1}>
-            <h2 className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white leading-tight mb-4">
-              Not a wrapper. <br />
-              <span className="text-zinc-400">An engine.</span>
+            <h2 className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight leading-[1.08] mb-4">
+              <span className="text-white block">Not a wrapper.</span>
+              <span className="text-zinc-500 block">An engine.</span>
             </h2>
           </Reveal>
+
           <Reveal direction="up" distance={15} delay={0.2}>
-            <p className="text-sm sm:text-base text-zinc-400 max-w-xl mx-auto font-sans">
+            <p className="text-sm sm:text-base text-zinc-400 max-w-xl mx-auto leading-relaxed">
               A 3-phase deterministic microtask pipeline executing between hardware vSync ticks and React component reconciliation.
             </p>
           </Reveal>
         </div>
 
-        {/* Static Architecture Diagram */}
-        <div className="w-full max-w-5xl mx-auto mb-16">
-          <div className="rounded-2xl border border-zinc-800 bg-[#09090b] p-6 sm:p-10 shadow-2xl space-y-8">
-            
-            {/* Layer 1: Core Engine */}
-            <div className="p-6 rounded-xl bg-zinc-950 border border-blue-500/30 relative shadow-lg">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 border-b border-zinc-800/80 pb-3">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-lg bg-blue-500/10 border border-blue-500/30 flex items-center justify-center">
-                    <Cpu className="w-4 h-4 text-blue-400" />
-                  </div>
-                  <div>
-                    <h3 className="text-base font-bold text-white font-mono">@scrollcraft/core</h3>
-                    <span className="text-[11px] text-zinc-400 font-sans">Zero-dependency hardware-timed math &amp; physics kernel</span>
-                  </div>
+        {/* Main Architecture Diagram Container */}
+        <Reveal direction="up" distance={25} delay={0.25}>
+          <div className="w-full max-w-5xl mx-auto rounded-2xl border border-zinc-800/90 bg-[#09090b] p-6 sm:p-8 shadow-2xl relative overflow-hidden mb-14">
+            {/* Top Bar inside card */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-zinc-800/80 mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-sky-400 shrink-0 shadow-inner">
+                  <Box className="w-5 h-5" />
                 </div>
-                <span className="text-xs font-mono px-2.5 py-1 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 self-start sm:self-auto font-semibold">
-                  &lt; 4.2 KB brotli
-                </span>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 font-mono text-xs">
-                <div className="p-3 rounded-lg bg-zinc-900 border border-zinc-800/80">
-                  <span className="text-blue-400 font-semibold block mb-1">3-Phase Ticker</span>
-                  <span className="text-zinc-400 text-[11px] font-sans">Measure &rarr; Mutate &rarr; Render loop eliminates layout thrashing.</span>
-                </div>
-                <div className="p-3 rounded-lg bg-zinc-900 border border-zinc-800/80">
-                  <span className="text-blue-400 font-semibold block mb-1">Inertia Physics</span>
-                  <span className="text-zinc-400 text-[11px] font-sans">Lenis subpixel momentum normalization across trackpads &amp; wheels.</span>
-                </div>
-                <div className="p-3 rounded-lg bg-zinc-900 border border-zinc-800/80">
-                  <span className="text-blue-400 font-semibold block mb-1">ScrollValue Mutators</span>
-                  <span className="text-zinc-400 text-[11px] font-sans">Direct GPU style writes bypassing React virtual DOM diffing.</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Connecting Flow Arrow */}
-            <div className="flex items-center justify-center text-zinc-600 gap-2 font-mono text-xs">
-              <ArrowDown className="w-4 h-4 text-blue-400 animate-bounce" />
-              <span>Reactive Context &amp; Headless Bindings Bridge</span>
-              <ArrowDown className="w-4 h-4 text-blue-400 animate-bounce" />
-            </div>
-
-            {/* Layer 2: React Bindings */}
-            <div className="p-6 rounded-xl bg-zinc-950 border border-indigo-500/30 relative shadow-lg">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 border-b border-zinc-800/80 pb-3">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-lg bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center">
-                    <GitBranch className="w-4 h-4 text-indigo-400" />
+                <div>
+                  <div className="flex items-center gap-2.5">
+                    <span className="font-mono text-sm sm:text-base font-bold text-white">
+                      @scrollcraft/core
+                    </span>
+                    <span className="px-2 py-0.5 rounded bg-zinc-900 border border-zinc-800 text-[10px] font-mono text-zinc-400">
+                      v0.1.0-beta
+                    </span>
                   </div>
-                  <div>
-                    <h3 className="text-base font-bold text-white font-mono">@scrollcraft/react</h3>
-                    <span className="text-[11px] text-zinc-400 font-sans">React 18/19 &amp; Next.js 15 App Router bindings</span>
-                  </div>
-                </div>
-                <span className="text-xs font-mono px-2.5 py-1 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 self-start sm:self-auto font-semibold">
-                  RSC Compatible
-                </span>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* Primitives */}
-                <div className="p-4 rounded-xl bg-zinc-900/90 border border-zinc-800 space-y-2">
-                  <div className="flex items-center gap-2">
-                    <Layers className="w-3.5 h-3.5 text-blue-400" />
-                    <span className="text-xs font-mono font-bold text-white uppercase">Declarative Primitives</span>
-                  </div>
-                  <p className="text-[11px] text-zinc-400 font-sans">
-                    Radix-style Slot composition with zero wrapper div pollution.
+                  <p className="text-xs text-zinc-400 mt-0.5">
+                    Zero-dependency hardware-timed scroll &amp; physics kernel.
                   </p>
-                  <div className="flex flex-wrap gap-1.5 pt-1">
-                    {['<Parallax />', '<Reveal />', '<Pin />', '<ScrollProgress />'].map((t) => (
-                      <span key={t} className="px-2 py-0.5 rounded text-[10px] font-mono bg-zinc-800 text-zinc-300">
-                        {t}
-                      </span>
-                    ))}
-                  </div>
                 </div>
+              </div>
 
-                {/* Hooks */}
-                <div className="p-4 rounded-xl bg-zinc-900/90 border border-zinc-800 space-y-2">
-                  <div className="flex items-center gap-2">
-                    <Zap className="w-3.5 h-3.5 text-emerald-400" />
-                    <span className="text-xs font-mono font-bold text-white uppercase">Headless Reactive Hooks</span>
+              {/* Bundle Size Pill */}
+              <div className="self-start sm:self-auto inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-sky-500/30 bg-sky-500/10 text-sky-400 font-mono text-xs shadow-xs">
+                <Code className="w-3.5 h-3.5" />
+                <span>&lt; 4.2 KB (brotli)</span>
+              </div>
+            </div>
+
+            {/* 3 Pipeline Flow Cards */}
+            <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-4 lg:gap-3">
+              {/* Phase 1: Schedule Ticket */}
+              <div className="rounded-xl border border-zinc-800/90 bg-[#060608] p-4 sm:p-5 flex items-start gap-4 flex-1 shadow-md">
+                <div className="w-10 h-10 rounded-lg bg-zinc-900/90 border border-zinc-800 flex items-center justify-center text-sky-400 shrink-0">
+                  <Layers className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 font-mono text-[11px]">
+                    <span className="text-sky-400 font-bold">01</span>
+                    <span className="text-zinc-500">Phase 1</span>
                   </div>
-                  <p className="text-[11px] text-zinc-400 font-sans">
-                    Precision telemetry hooks with opt-in reactive re-renders or 0 re-render ref binding.
+                  <h4 className="text-sm sm:text-base font-bold text-white mt-0.5">
+                    Schedule Ticket
+                  </h4>
+                  <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
+                    Measure &rarr; Mutate &rarr; Render loop eliminates layout thrashing.
                   </p>
-                  <div className="flex flex-wrap gap-1.5 pt-1">
-                    {['useScrollProgress', 'useParallax', 'useReveal', 'usePin', 'useTicker'].map((h) => (
-                      <span key={h} className="px-2 py-0.5 rounded text-[10px] font-mono bg-zinc-800 text-zinc-300">
-                        {h}()
-                      </span>
-                    ))}
+                </div>
+              </div>
+
+              {/* Connecting Dot 1 */}
+              <div className="hidden lg:flex items-center justify-center shrink-0 px-1">
+                <span className="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.9)]" />
+              </div>
+
+              {/* Phase 2: Inertia Physics */}
+              <div className="rounded-xl border border-zinc-800/90 bg-[#060608] p-4 sm:p-5 flex items-start gap-4 flex-1 shadow-md">
+                <div className="w-10 h-10 rounded-lg bg-zinc-900/90 border border-zinc-800 flex items-center justify-center text-sky-400 shrink-0">
+                  <Activity className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 font-mono text-[11px]">
+                    <span className="text-sky-400 font-bold">02</span>
+                    <span className="text-zinc-500">Phase 2</span>
                   </div>
+                  <h4 className="text-sm sm:text-base font-bold text-white mt-0.5">
+                    Inertia Physics
+                  </h4>
+                  <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
+                    Lenis-inspired momentum normalization across trackpads &amp; wheels.
+                  </p>
+                </div>
+              </div>
+
+              {/* Connecting Dot 2 */}
+              <div className="hidden lg:flex items-center justify-center shrink-0 px-1">
+                <span className="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.9)]" />
+              </div>
+
+              {/* Phase 3: ScrollValue Mutators */}
+              <div className="rounded-xl border border-zinc-800/90 bg-[#060608] p-4 sm:p-5 flex items-start gap-4 flex-1 shadow-md">
+                <div className="w-10 h-10 rounded-lg bg-zinc-900/90 border border-zinc-800 flex items-center justify-center text-sky-400 shrink-0">
+                  <SlidersHorizontal className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 font-mono text-[11px]">
+                    <span className="text-sky-400 font-bold">03</span>
+                    <span className="text-zinc-500">Phase 3</span>
+                  </div>
+                  <h4 className="text-sm sm:text-base font-bold text-white mt-0.5">
+                    ScrollValue Mutators
+                  </h4>
+                  <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
+                    Direct GPU style value bypassing React virtual DOM diffing.
+                  </p>
                 </div>
               </div>
             </div>
 
+            {/* Bottom Bridge Line inside card */}
+            <div className="relative mt-8 pt-4 border-t border-zinc-800/80 flex items-center justify-center">
+              <span className="text-[10px] sm:text-[11px] font-mono tracking-[0.2em] text-zinc-500 uppercase bg-[#09090b] px-3">
+                REACTIVE CONTEXT &amp; HEADLESS BINDINGS BRIDGE
+              </span>
+            </div>
+          </div>
+        </Reveal>
+
+        {/* 3 Spec Pillars */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-16">
+          {/* Spec 1 */}
+          <div className="flex items-center gap-3.5 justify-center sm:justify-start">
+            <div className="text-sky-400">
+              <Zap className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="text-sm font-bold text-white">Deterministic</h4>
+              <p className="text-xs text-zinc-400 mt-0.5">Runs between vSync ticks</p>
+            </div>
+          </div>
+
+          {/* Spec 2 */}
+          <div className="flex items-center gap-3.5 justify-center sm:justify-start">
+            <div className="text-sky-400">
+              <Box className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="text-sm font-bold text-white">Hardware Timed</h4>
+              <p className="text-xs text-zinc-400 mt-0.5">Built for real devices</p>
+            </div>
+          </div>
+
+          {/* Spec 3 */}
+          <div className="flex items-center gap-3.5 justify-center sm:justify-start">
+            <div className="text-sky-400">
+              <Leaf className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="text-sm font-bold text-white">Framework Agnostic</h4>
+              <p className="text-xs text-zinc-400 mt-0.5">Use anywhere</p>
+            </div>
           </div>
         </div>
 
-        {/* Engineering Pillars Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-          <div className="p-6 rounded-2xl border border-zinc-800 bg-[#09090b] space-y-3">
-            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
-              <ShieldCheck className="w-4 h-4" />
-            </div>
-            <h4 className="text-base font-bold text-white font-mono">0 React Re-renders</h4>
-            <p className="text-xs text-zinc-400 font-sans leading-relaxed">
-              Scroll physics write directly to ref element transform matrices at hardware monitor refresh rates (60Hz / 120Hz / 144Hz). React virtual DOM is never queried during scroll frames.
-            </p>
+        {/* Scroll To Explore Indicator */}
+        <div className="flex flex-col items-center justify-center text-center">
+          <div className="w-5 h-8 rounded-full border-2 border-zinc-700/80 flex items-start justify-center p-1 shadow-inner">
+            <span className="w-1 h-2 rounded-full bg-sky-400 animate-bounce" />
           </div>
-
-          <div className="p-6 rounded-2xl border border-zinc-800 bg-[#09090b] space-y-3">
-            <div className="w-8 h-8 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
-              <Cpu className="w-4 h-4" />
-            </div>
-            <h4 className="text-base font-bold text-white font-mono">Lenis Physics Native</h4>
-            <p className="text-xs text-zinc-400 font-sans leading-relaxed">
-              Built-in subpixel inertia interpolation creates frictionless, butter-smooth scroll feel without wheel hijacking or breaking native accessibility keyboard shortcuts.
-            </p>
-          </div>
-
-          <div className="p-6 rounded-2xl border border-zinc-800 bg-[#09090b] space-y-3">
-            <div className="w-8 h-8 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
-              <Layers className="w-4 h-4" />
-            </div>
-            <h4 className="text-base font-bold text-white font-mono">Next.js 15 RSC Safe</h4>
-            <p className="text-xs text-zinc-400 font-sans leading-relaxed">
-              Designed specifically for React Server Components. Wrap your layout once with &lt;ScrollProvider /&gt; and pass Server Components as children with zero hydration mismatches.
-            </p>
-          </div>
+          <span className="text-[10px] font-mono font-semibold tracking-[0.25em] text-zinc-500 uppercase mt-2.5">
+            SCROLL TO EXPLORE
+          </span>
         </div>
-
       </div>
     </section>
   );

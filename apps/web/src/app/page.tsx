@@ -56,17 +56,17 @@ export default function HomePage() {
         {/* Section 3: Hooks — Raw Access */}
         <HooksRawSection />
 
-        {/* Section 4: Engine & Architecture */}
-        <EngineArchitectureSection />
-
-        {/* Section 5: R3F Preview (Alpha) */}
+        {/* Section 4: R3F Preview (Alpha) */}
         <R3FPreviewSection />
 
-        {/* Section 6: Comparison */}
-        <ComparisonSection />
+        {/* Section 5: Engine & Architecture */}
+        <EngineArchitectureSection />
 
-        {/* Section 7: Final CTA */}
+        {/* Section 6: Ready When You Are (CTA) */}
         <FinalCTASection />
+
+        {/* Section 7: Comparison (Where ScrollCraft Fits) */}
+        <ComparisonSection />
       </main>
 
       <Footer />
