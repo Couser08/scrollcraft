@@ -29,7 +29,13 @@ export class ScrollValue<T = number> implements IScrollValue<T> {
     if (this.isDestroyed) return () => {};
     this.subscribers.add(callback);
     // Immediately emit current value on subscription
-    callback(this.value);
+    try {
+      callback(this.value);
+    } catch (err) {
+      if (typeof console !== 'undefined') {
+        console.error('[ScrollCraft] Error in initial ScrollValue subscriber callback:', err);
+      }
+    }
     return () => {
       this.subscribers.delete(callback);
     };
@@ -41,8 +47,15 @@ export class ScrollValue<T = number> implements IScrollValue<T> {
   }
 
   private notify(): void {
-    for (const callback of this.subscribers) {
-      callback(this.value);
+    const subs = Array.from(this.subscribers);
+    for (let i = 0; i < subs.length; i++) {
+      try {
+        subs[i](this.value);
+      } catch (err) {
+        if (typeof console !== 'undefined') {
+          console.error('[ScrollCraft] Error in ScrollValue subscriber:', err);
+        }
+      }
     }
   }
 }

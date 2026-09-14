@@ -21,6 +21,8 @@ import { InertiaEngine, ScrollMetrics, tierStore, PerformanceTier, GlobalResizeM
 import { ScrollContextValue, ScrollProviderProps } from './types';
 import { ScrollInspector } from './components/scroll-inspector';
 
+declare const process: any;
+
 const defaultMetrics: ScrollMetrics = {
   scroll: 0,
   limit: 0,
@@ -214,6 +216,8 @@ export const ScrollProvider: React.FC<ScrollProviderProps> = ({
     </ScrollContext.Provider>
   );
 };
+
+export const ScrollCraftProvider = ScrollProvider;
 
 export const useScrollCraft = (): ScrollContextValue => {
   return useContext(ScrollContext);

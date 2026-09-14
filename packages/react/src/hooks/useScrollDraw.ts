@@ -11,8 +11,8 @@ export function useScrollDraw<T extends SVGGeometryElement = SVGPathElement>(
   const solverRef = useRef<DrawSolver | null>(null);
   const { subscribe, reducedMotion } = useScrollCraft();
 
-  const optionsRef = useRef(options);
-  optionsRef.current = options;
+  // Serialize options to a stable key to support dynamic re-configuration without churning on object identity
+  const optionsKey = JSON.stringify(options);
 
   const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
@@ -20,7 +20,7 @@ export function useScrollDraw<T extends SVGGeometryElement = SVGPathElement>(
     const element = elementRef.current;
     if (!element) return;
 
-    const solver = new DrawSolver(element, optionsRef.current);
+    const solver = new DrawSolver(element, options);
     solverRef.current = solver;
 
     const taskId = `draw-${Math.random().toString(36).slice(2, 8)}`;
@@ -60,13 +60,9 @@ export function useScrollDraw<T extends SVGGeometryElement = SVGPathElement>(
       ticker.remove(`${taskId}-update`);
       ticker.remove(`${taskId}-render`);
       solver.destroy();
-      if (element) {
-        element.style.strokeDasharray = '';
-        element.style.strokeDashoffset = '';
-      }
       solverRef.current = null;
     };
-  }, [reducedMotion, subscribe]);
+  }, [reducedMotion, subscribe, optionsKey]);
 
   return elementRef;
 }

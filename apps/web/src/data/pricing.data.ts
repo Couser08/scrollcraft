@@ -40,12 +40,12 @@ export const PRICING_TIERS: PricingTier[] = [
     badge: 'MOST POPULAR',
     price: '$129',
     period: 'One-time payment • Lifetime updates',
-    description: '60+ Awwwards-tier components, animations, and CLI access for ambitious creators.',
+    description: '60+ Awwwards-tier components and animations for ambitious creators.',
     highlighted: true,
     features: [
       'Everything in Free Core',
       '60+ Production-Ready Pro UI Components',
-      'Unlimited CLI scaffolding (`npx scrollcraft add`)',
+      'Unlimited production-ready component blueprints & templates',
       'Interactive 3D Apple-style device scrubbers',
       'Pinned horizontal rails & stacked card decks',
       'Kinetic typography & text mask reveals',
@@ -64,7 +64,7 @@ export const PRICING_TIERS: PricingTier[] = [
     description: 'Empower your entire studio to build award-winning websites with zero overhead.',
     features: [
       'Everything in Pro All-Access',
-      '10 developer team seats & shared CLI token',
+      '10 developer team seats & shared component license',
       'Priority code reviews for custom scroll scenes',
       'Dedicated private Slack / Discord bridge',
       'Custom invoice & procurement support',

@@ -1,414 +1,264 @@
 'use client';
 
+/**
+ * ScrollCraft Docs: Reactive Hooks (Reference-Only)
+ * Follows strict 15-second scanning template:
+ * - Minimal 5–10 line code block
+ * - What it does: one line
+ * - Capabilities: bullet list of returns/options
+ * - Status: Beta
+ * Strictly zero prose paragraphs. Zero tutorials.
+ */
+
 import React from 'react';
 import { CodeViewer } from '@/components/ui/code-viewer';
-import { DocsTable, PropRow } from '../docs-table';
-import { DocsCallout } from '../docs-callout';
+import { Activity } from 'lucide-react';
 
 interface DocHooksProps {
   hookId: string;
 }
 
-const USE_SCROLL_STATE_REACT = `import { useScrollState } from '@scrollcraft/react';
+interface HookReference {
+  name: string;
+  signature: string;
+  status: 'Beta' | 'Alpha';
+  code: string;
+  whatItDoes: string;
+  capabilities: { param: string; type: string; desc: string }[];
+}
 
-export function ScrollTelemetryHUD() {
-  // Selectively subscribe to only the metrics needed.
-  // Backed by useSyncExternalStore with shallow comparison.
-  // Will NEVER trigger re-renders in parent components!
-  const { velocity, progress } = useScrollState((m) => ({
-    velocity: Math.abs(Math.round(m.velocity)),
-    progress: Math.round(m.progress * 100),
-  }));
+const HOOKS_DATA: Record<string, HookReference> = {
+  'use-scroll-progress': {
+    name: 'useScrollProgress',
+    signature: 'useScrollProgress(options?: { reactive?: boolean })',
+    status: 'Beta',
+    code: `import { useScrollProgress } from '@scrollcraft/react';
+
+export function HeaderProgress() {
+  const { progress, direction, velocity, progressValue } = useScrollProgress();
 
   return (
-    <div className="flex items-center gap-4 px-4 py-2 rounded-xl bg-zinc-900 border border-zinc-800 shadow-xl font-mono text-xs">
-      <span className="text-zinc-400">
-        Progress: <strong className="text-white">{progress}%</strong>
-      </span>
-      <span className="text-zinc-400">
-        Speed: <strong className="text-blue-400">{velocity}px/s</strong>
-      </span>
+    <div>
+      <span>Progress: {progress.toFixed(2)}</span>
+      <span>Direction: {direction}</span>
+      <span>Velocity: {velocity.toFixed(2)}px/frame</span>
     </div>
   );
-}`;
+}`,
+    whatItDoes: 'Returns normalized scroll progress (0–1), direction, velocity, and observable values with zero React re-renders.',
+    capabilities: [
+      { param: 'progress', type: 'number', desc: 'Normalized scroll completion ratio between 0.00 and 1.00.' },
+      { param: 'direction', type: '1 | -1 | 0', desc: 'Active scroll direction vector (1: down, -1: up, 0: stationary).' },
+      { param: 'velocity', type: 'number', desc: 'Instantaneous scroll velocity in pixels per frame.' },
+      { param: 'progressValue', type: 'ScrollValue<number>', desc: 'Zero-rerender observable for direct raf/canvas consumption.' },
+      { param: 'scrollY', type: 'number', desc: 'Absolute scroll offset position in pixels.' },
+    ],
+  },
 
-const USE_SCROLL_STATE_NEXT = `'use client';
-
-import { useScrollState } from '@scrollcraft/react';
-
-export function ScrollTelemetryHUD() {
-  const { velocity, progress } = useScrollState((m) => ({
-    velocity: Math.abs(Math.round(m.velocity)),
-    progress: Math.round(m.progress * 100),
-  }));
-
-  return (
-    <div className="flex items-center gap-4 px-4 py-2 rounded-xl bg-zinc-900 border border-zinc-800 shadow-xl font-mono text-xs">
-      <span className="text-zinc-400">
-        Progress: <strong className="text-white">{progress}%</strong>
-      </span>
-      <span className="text-zinc-400">
-        Speed: <strong className="text-blue-400">{velocity}px/s</strong>
-      </span>
-    </div>
-  );
-}`;
-
-const USE_SCROLLCRAFT_REACT = `import { useScrollCraft } from '@scrollcraft/react';
-
-export function NavigationControls() {
-  const { scrollTo, resize, isReady, getMetrics } = useScrollCraft();
-
-  const handleScrollToTop = () => {
-    // Programmatic smooth scroll with cubic easing
-    scrollTo(0, {
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-    });
-  };
-
-  return (
-    <button
-      onClick={handleScrollToTop}
-      disabled={!isReady}
-      className="px-4 py-2 rounded-xl bg-white text-black text-xs font-semibold hover:bg-zinc-200 transition-colors shadow-lg cursor-pointer"
-    >
-      Scroll to Top
-    </button>
-  );
-}`;
-
-const USE_SCROLLCRAFT_NEXT = `'use client';
-
-import { useScrollCraft } from '@scrollcraft/react';
-
-export function NavigationControls() {
-  const { scrollTo, isReady } = useScrollCraft();
-
-  const handleScrollToTop = () => {
-    scrollTo(0, {
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-    });
-  };
-
-  return (
-    <button
-      onClick={handleScrollToTop}
-      disabled={!isReady}
-      className="px-4 py-2 rounded-xl bg-white text-black text-xs font-semibold hover:bg-zinc-200 transition-colors shadow-lg cursor-pointer"
-    >
-      Scroll to Top
-    </button>
-  );
-}`;
-
-const USE_PARALLAX_REACT = `import { useRef } from 'react';
+  'use-parallax': {
+    name: 'useParallax',
+    signature: 'useParallax<T>(targetRef, options?: ParallaxOptions)',
+    status: 'Beta',
+    code: `import { useRef } from 'react';
 import { useParallax } from '@scrollcraft/react';
 
-export function HeadlessCard() {
-  const cardRef = useRef<HTMLDivElement>(null);
+export function FloatingCard() {
+  const ref = useRef<HTMLDivElement>(null);
+  useParallax(ref, { speed: 0.25, clamp: [-80, 80] });
 
-  // Headless hook: writes directly to node.style.transform during render phase
-  useParallax(cardRef, {
-    speed: 0.25,
-    direction: 'vertical',
-    clamp: [-150, 150],
-  });
+  return <div ref={ref} className="card">Parallax Layer</div>;
+}`,
+    whatItDoes: 'Writes direct subpixel hardware transforms to element refs with automatic viewport visibility culling.',
+    capabilities: [
+      { param: 'targetRef', type: 'RefObject<HTMLElement>', desc: 'Target element ref receiving direct GPU compositor transform writes.' },
+      { param: 'speed', type: 'number', desc: 'Displacement rate multiplier (+ lags behind scroll, - accelerates ahead).' },
+      { param: 'direction', type: "'vertical' | 'horizontal'", desc: 'Transform axis orientation (default: vertical).' },
+      { param: 'clamp', type: '[number, number]', desc: 'Displacement boundaries [min, max] in pixels.' },
+      { param: 'respectReducedMotion', type: 'boolean', desc: 'Automatically bypasses translation if OS prefers-reduced-motion is active.' },
+    ],
+  },
 
-  return (
-    <div ref={cardRef} className="p-8 rounded-2xl bg-zinc-900 border border-zinc-800 shadow-xl">
-      <h3 className="text-xl font-bold text-white">Headless Parallax</h3>
-      <p className="text-xs text-zinc-400 mt-1">Direct GPU writes without Slot wrappers.</p>
-    </div>
-  );
-}`;
-
-const USE_PARALLAX_NEXT = `'use client';
-
-import { useRef } from 'react';
-import { useParallax } from '@scrollcraft/react';
-
-export function HeadlessCard() {
-  const cardRef = useRef<HTMLDivElement>(null);
-
-  useParallax(cardRef, {
-    speed: 0.25,
-    direction: 'vertical',
-    clamp: [-150, 150],
-  });
-
-  return (
-    <div ref={cardRef} className="p-8 rounded-2xl bg-zinc-900 border border-zinc-800 shadow-xl">
-      <h3 className="text-xl font-bold text-white">Headless Parallax</h3>
-      <p className="text-xs text-zinc-400 mt-1">Direct GPU writes without Slot wrappers.</p>
-    </div>
-  );
-}`;
-
-const USE_REVEAL_REACT = `import { useRef } from 'react';
+  'use-reveal': {
+    name: 'useReveal',
+    signature: 'useReveal<T>(targetRef, options?: RevealOptions)',
+    status: 'Beta',
+    code: `import { useRef } from 'react';
 import { useReveal } from '@scrollcraft/react';
 
-export function HeadlessRevealItem() {
-  const itemRef = useRef<HTMLDivElement>(null);
+export function AnimatedSection() {
+  const ref = useRef<HTMLDivElement>(null);
+  useReveal(ref, { direction: 'up', distance: 30, delay: 0.1 });
 
-  useReveal(itemRef, {
-    direction: 'up',
-    distance: 32,
-    duration: 0.6,
-  });
+  return <div ref={ref}>Fades and slides on entrance</div>;
+}`,
+    whatItDoes: 'Subscribes target elements to the global IntersectionObserver singleton without layout thrashing.',
+    capabilities: [
+      { param: 'targetRef', type: 'RefObject<HTMLElement>', desc: 'Target element ref to animate on entering view.' },
+      { param: 'direction', type: "'up' | 'down' | 'left' | 'right'", desc: 'Entrance translation vector (default: up).' },
+      { param: 'distance', type: 'number', desc: 'Entrance travel distance in pixels (default: 24).' },
+      { param: 'threshold', type: 'number', desc: 'Intersection ratio 0.0 to 1.0 triggering animation (default: 0.15).' },
+      { param: 'duration', type: 'number', desc: 'Animation duration in seconds (default: 0.6).' },
+      { param: 'once', type: 'boolean', desc: 'Whether to fire transition only once or repeat on scroll (default: true).' },
+    ],
+  },
 
-  return (
-    <div ref={itemRef} className="p-6 rounded-2xl bg-zinc-900 border border-zinc-800 shadow-xl">
-      <h4 className="font-bold text-white">Headless Intersection Trigger</h4>
-    </div>
-  );
-}`;
-
-const USE_REVEAL_NEXT = `'use client';
-
-import { useRef } from 'react';
-import { useReveal } from '@scrollcraft/react';
-
-export function HeadlessRevealItem() {
-  const itemRef = useRef<HTMLDivElement>(null);
-
-  useReveal(itemRef, {
-    direction: 'up',
-    distance: 32,
-    duration: 0.6,
-  });
-
-  return (
-    <div ref={itemRef} className="p-6 rounded-2xl bg-zinc-900 border border-zinc-800 shadow-xl">
-      <h4 className="font-bold text-white">Headless Intersection Trigger</h4>
-    </div>
-  );
-}`;
-
-const USE_PIN_REACT = `import { useRef } from 'react';
+  'use-pin': {
+    name: 'usePin',
+    signature: 'usePin<T>(targetRefOrOptions, options?)',
+    status: 'Beta',
+    code: `import { useRef } from 'react';
 import { usePin } from '@scrollcraft/react';
 
-export function HeadlessPinnedBlock() {
-  const pinRef = useRef<HTMLDivElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  usePin(pinRef, containerRef, {
-    start: 'top top',
-    end: '+=150%',
-    pinSpacing: true,
-  });
+export function StickyCard() {
+  const ref = useRef<HTMLDivElement>(null);
+  const { isPinned, progress } = usePin(ref, { start: 'top top', end: '+=100%' });
 
   return (
-    <div ref={containerRef} className="h-[250vh]">
-      <div ref={pinRef} className="h-screen w-full flex items-center justify-center bg-[#070709]">
-        <h2 className="text-3xl font-extrabold text-white">Sticky Section via usePin</h2>
-      </div>
+    <div ref={ref}>
+      <span>{isPinned ? 'LOCKED' : 'FLOWING'}</span>
+      <span>Scrub: {(progress * 100).toFixed(0)}%</span>
     </div>
   );
-}`;
+}`,
+    whatItDoes: 'Tracks sticky viewport locking states and relative scroll progress through a pinned travel budget.',
+    capabilities: [
+      { param: 'isPinned', type: 'boolean', desc: 'Boolean indicating if target is actively locked in sticky viewport position.' },
+      { param: 'progress', type: 'number', desc: 'Relative progression ratio within the designated pin range (0.0 to 1.0).' },
+      { param: 'start', type: 'string | number', desc: 'Trigger point initiating sticky pin (default: "top top").' },
+      { param: 'end', type: 'string | number', desc: 'Total travel distance for the pin lock (default: "+=100%").' },
+      { param: 'top', type: 'number', desc: 'Sticky offset from viewport top edge in pixels (default: 0).' },
+    ],
+  },
 
-const USE_PIN_NEXT = `'use client';
+  'use-scrollcraft': {
+    name: 'useScrollCraft',
+    signature: 'useScrollCraft()',
+    status: 'Beta',
+    code: `import { useScrollCraft } from '@scrollcraft/react';
 
-import { useRef } from 'react';
-import { usePin } from '@scrollcraft/react';
-
-export function HeadlessPinnedBlock() {
-  const pinRef = useRef<HTMLDivElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  usePin(pinRef, containerRef, {
-    start: 'top top',
-    end: '+=150%',
-    pinSpacing: true,
-  });
+export function ScrollControls() {
+  const { scrollTo, getMetrics, subscribe } = useScrollCraft();
 
   return (
-    <div ref={containerRef} className="h-[250vh]">
-      <div ref={pinRef} className="h-screen w-full flex items-center justify-center bg-[#070709]">
-        <h2 className="text-3xl font-extrabold text-white">Sticky Section via usePin</h2>
-      </div>
-    </div>
+    <button onClick={() => scrollTo('#section-2', { duration: 1.2 })}>
+      Scroll to Next
+    </button>
   );
-}`;
+}`,
+    whatItDoes: 'Provides direct context access to the ScrollCraft core engine instance, metrics, and controls.',
+    capabilities: [
+      { param: 'scrollTo', type: '(target, options?) => void', desc: 'Programmatically scrolls window with Lenis inertia physics.' },
+      { param: 'getMetrics', type: '() => ScrollMetrics', desc: 'Synchronous snapshot of current scroll offset, velocity, limit, and direction.' },
+      { param: 'subscribe', type: '(callback) => () => void', desc: 'Registers high-frequency ticker listener running on hardware frame ticks.' },
+      { param: 'reducedMotion', type: 'boolean', desc: 'System accessibility reduced-motion preference.' },
+    ],
+  },
 
-const SCROLL_METRICS_ROWS: PropRow[] = [
-  { name: 'scroll', type: 'number', description: 'Current scroll offset in pixels.' },
-  { name: 'target', type: 'number', description: 'Target destination scroll offset.' },
-  { name: 'velocity', type: 'number', description: 'Current scroll velocity in pixels per frame.' },
-  { name: 'progress', type: 'number', description: 'Normalized document scroll progress (0.0 to 1.0).' },
-  { name: 'direction', type: '1 | -1 | 0', description: 'Scroll direction (1 = forward, -1 = backward, 0 = stationary).' },
-  { name: 'maxScroll', type: 'number', description: 'Total scrollable distance of the active target container.' },
-];
+  'use-scroll-state': {
+    name: 'useScrollState',
+    signature: 'useScrollState<T>(selector, defaultValue?, options?)',
+    status: 'Beta',
+    code: `import { useScrollState } from '@scrollcraft/react';
+
+export function VelocityBadge() {
+  const velocity = useScrollState((m) => Math.round(m.velocity));
+
+  return <span>Speed: {velocity}px/s</span>;
+}`,
+    whatItDoes: 'Fine-grained selector subscription backed by useSyncExternalStore with 0 unnecessary parent re-renders.',
+    capabilities: [
+      { param: 'selector', type: '(metrics: ScrollMetrics) => T', desc: 'Pure selector mapping global scroll state to slice.' },
+      { param: 'defaultValue', type: 'T', desc: 'Initial SSR value rendered during server hydration.' },
+      { param: 'shallowCompare', type: 'boolean', desc: 'Prevents re-renders if object or primitive slice remains identical.' },
+    ],
+  },
+
+  'use-magnetic': {
+    name: 'useMagnetic',
+    signature: 'useMagnetic<T>(options?: MagneticOptions)',
+    status: 'Beta',
+    code: `import { useMagnetic } from '@scrollcraft/react';
+
+export function MagneticButton() {
+  const ref = useMagnetic<HTMLButtonElement>({ strength: 0.3, radius: 120 });
+
+  return <button ref={ref}>Magnetic Action</button>;
+}`,
+    whatItDoes: 'Attaches spring-physics cursor pull to an element with automatic spring-back on cursor exit.',
+    capabilities: [
+      { param: 'strength', type: 'number', desc: 'Magnetic attraction intensity towards pointer position (default: 0.3).' },
+      { param: 'radius', type: 'number', desc: 'Distance threshold in pixels detecting pointer proximity (default: 150).' },
+      { param: 'springConfig', type: 'SpringConfig', desc: 'Optional stiffness, damping, and mass customization.' },
+    ],
+  },
+};
 
 export const DocHooks: React.FC<DocHooksProps> = ({ hookId }) => {
-  if (hookId === 'use-scroll-state') {
-    return (
-      <div className="flex flex-col gap-12">
-        <header className="flex flex-col gap-4">
-          <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-purple-500/10 border border-purple-500/20 text-[11px] font-mono font-semibold text-purple-400 uppercase tracking-widest w-fit">
-            REACTIVE HOOKS
-          </div>
-          <h1 className="text-5xl lg:text-6xl font-extrabold tracking-tighter text-white leading-[1.08] font-mono">
-            useScrollState
-          </h1>
-          <p className="text-base sm:text-lg text-zinc-400 leading-relaxed max-w-3xl">
-            Selective reactive state subscriber built on <code className="font-mono text-zinc-200 text-sm">useSyncExternalStore</code>. Subscribe to real-time velocity, direction, or progress without forcing root re-renders.
-          </p>
-        </header>
+  const hook = HOOKS_DATA[hookId] || HOOKS_DATA['use-scroll-progress'];
 
-        <section id="usage" className="flex flex-col gap-4">
-          <h2 className="text-2xl font-bold tracking-tight text-white">
-            Usage & Selective Subscription
-          </h2>
-          <CodeViewer
-            tabs={[
-              { label: 'React', code: USE_SCROLL_STATE_REACT, fileName: 'src/ScrollTelemetryHUD.tsx' },
-              { label: 'Next.js', code: USE_SCROLL_STATE_NEXT, fileName: 'app/components/ScrollTelemetryHUD.tsx' },
-            ]}
-          />
-        </section>
-
-        <DocsTable title="ScrollMetrics Reference" props={SCROLL_METRICS_ROWS} />
-
-        <DocsCallout type="tip" title="Zero Root Re-renders">
-          By isolating <code className="font-mono text-xs text-purple-400">useScrollState</code> inside leaf display components (such as a HUD badge or scroll percentage indicator), the rest of your React component tree stays completely idle while numbers update seamlessly at 120 FPS.
-        </DocsCallout>
-      </div>
-    );
-  }
-
-  if (hookId === 'use-scrollcraft') {
-    return (
-      <div className="flex flex-col gap-12">
-        <header className="flex flex-col gap-4">
-          <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-purple-500/10 border border-purple-500/20 text-[11px] font-mono font-semibold text-purple-400 uppercase tracking-widest w-fit">
-            REACTIVE HOOKS
-          </div>
-          <h1 className="text-5xl lg:text-6xl font-extrabold tracking-tighter text-white leading-[1.08] font-mono">
-            useScrollCraft
-          </h1>
-          <p className="text-base sm:text-lg text-zinc-400 leading-relaxed max-w-3xl">
-            Imperative controller providing programmatic access to the underlying ScrollCraft engine, metrics, and inertial solvers.
-          </p>
-        </header>
-
-        <section id="usage" className="flex flex-col gap-4">
-          <h2 className="text-2xl font-bold tracking-tight text-white">
-            Usage & Programmatic Scrolling
-          </h2>
-          <CodeViewer
-            tabs={[
-              { label: 'React', code: USE_SCROLLCRAFT_REACT, fileName: 'src/NavigationControls.tsx' },
-              { label: 'Next.js', code: USE_SCROLLCRAFT_NEXT, fileName: 'app/components/NavigationControls.tsx' },
-            ]}
-          />
-        </section>
-
-        <div className="p-5 rounded-xl border border-zinc-800/80 bg-[#09090b] font-mono text-xs space-y-2.5 shadow-xl">
-          <div className="text-white font-bold pb-2 border-b border-zinc-800/60">
-            Exposed Engine Controller API:
-          </div>
-          <div className="text-zinc-400">
-            <span className="text-white font-semibold">scrollTo(target, options?)</span>: Smoothly animate to coordinate, pixel offset, or DOM element selector.
-          </div>
-          <div className="text-zinc-400">
-            <span className="text-white font-semibold">resize()</span>: Recalculate container limits and bounding geometries after dynamic content insertion.
-          </div>
-          <div className="text-zinc-400">
-            <span className="text-white font-semibold">getMetrics()</span>: Read cached snapshot of scroll, velocity, progress, and maxScroll with 0 DOM reads.
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (hookId === 'use-parallax') {
-    return (
-      <div className="flex flex-col gap-12">
-        <header className="flex flex-col gap-4">
-          <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-purple-500/10 border border-purple-500/20 text-[11px] font-mono font-semibold text-purple-400 uppercase tracking-widest w-fit">
-            REACTIVE HOOKS
-          </div>
-          <h1 className="text-5xl lg:text-6xl font-extrabold tracking-tighter text-white leading-[1.08] font-mono">
-            useParallax
-          </h1>
-          <p className="text-base sm:text-lg text-zinc-400 leading-relaxed max-w-3xl">
-            Headless direct DOM parallax hook. Attaches directly to any HTML element ref and updates inline transform matrix during Phase 3 render.
-          </p>
-        </header>
-
-        <section id="usage" className="flex flex-col gap-4">
-          <h2 className="text-2xl font-bold tracking-tight text-white">
-            Usage & Syntax
-          </h2>
-          <CodeViewer
-            tabs={[
-              { label: 'React', code: USE_PARALLAX_REACT, fileName: 'src/HeadlessCard.tsx' },
-              { label: 'Next.js', code: USE_PARALLAX_NEXT, fileName: 'app/components/HeadlessCard.tsx' },
-            ]}
-          />
-        </section>
-      </div>
-    );
-  }
-
-  if (hookId === 'use-reveal') {
-    return (
-      <div className="flex flex-col gap-12">
-        <header className="flex flex-col gap-4">
-          <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-purple-500/10 border border-purple-500/20 text-[11px] font-mono font-semibold text-purple-400 uppercase tracking-widest w-fit">
-            REACTIVE HOOKS
-          </div>
-          <h1 className="text-5xl lg:text-6xl font-extrabold tracking-tighter text-white leading-[1.08] font-mono">
-            useReveal
-          </h1>
-          <p className="text-base sm:text-lg text-zinc-400 leading-relaxed max-w-3xl">
-            Headless reveal-on-enter hook. Connects any element ref to the global shared IntersectionObserver with zero re-renders.
-          </p>
-        </header>
-
-        <section id="usage" className="flex flex-col gap-4">
-          <h2 className="text-2xl font-bold tracking-tight text-white">
-            Usage & Syntax
-          </h2>
-          <CodeViewer
-            tabs={[
-              { label: 'React', code: USE_REVEAL_REACT, fileName: 'src/HeadlessRevealItem.tsx' },
-              { label: 'Next.js', code: USE_REVEAL_NEXT, fileName: 'app/components/HeadlessRevealItem.tsx' },
-            ]}
-          />
-        </section>
-      </div>
-    );
-  }
-
-  // use-pin
   return (
-    <div className="flex flex-col gap-12">
-      <header className="flex flex-col gap-4">
-        <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-purple-500/10 border border-purple-500/20 text-[11px] font-mono font-semibold text-purple-400 uppercase tracking-widest w-fit">
-          REACTIVE HOOKS
+    <div className="space-y-10 not-prose">
+      {/* Header */}
+      <div className="flex items-center justify-between border-b border-zinc-800 pb-6">
+        <div>
+          <div className="flex items-center gap-3 mb-2">
+            <h1 className="text-3xl font-extrabold text-white tracking-tight font-mono">
+              {hook.name}()
+            </h1>
+            <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-amber-500/15 text-amber-400 border border-amber-500/30">
+              {hook.status}
+            </span>
+          </div>
+          <p className="text-sm text-zinc-300 font-sans">
+            <strong className="text-white">What it does:</strong> {hook.whatItDoes}
+          </p>
         </div>
-        <h1 className="text-5xl lg:text-6xl font-extrabold tracking-tighter text-white leading-[1.08] font-mono">
-          usePin
-        </h1>
-        <p className="text-base sm:text-lg text-zinc-400 leading-relaxed max-w-3xl">
-          Headless pinning hook. Pins target ref inside container ref with automated ancestor overflow diagnostics.
-        </p>
-      </header>
+      </div>
 
-      <section id="usage" className="flex flex-col gap-4">
-        <h2 className="text-2xl font-bold tracking-tight text-white">
-          Usage & Syntax
-        </h2>
-        <CodeViewer
-          tabs={[
-            { label: 'React', code: USE_PIN_REACT, fileName: 'src/HeadlessPinnedBlock.tsx' },
-            { label: 'Next.js', code: USE_PIN_NEXT, fileName: 'app/components/HeadlessPinnedBlock.tsx' },
-          ]}
-        />
-      </section>
+      {/* Minimal 5-10 Line Syntax Highlighted Code Snippet */}
+      <div id="syntax" className="space-y-3 scroll-mt-24">
+        <span className="text-xs font-mono uppercase tracking-wider text-zinc-400 block font-semibold">
+          Syntax &bull; 5–10 Line Reference
+        </span>
+        <CodeViewer code={hook.code} fileName={`${hook.name}.ts`} />
+      </div>
+
+      {/* Capabilities / Return Values */}
+      <div id="capabilities" className="space-y-4 pt-4 scroll-mt-24">
+        <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-zinc-400 font-semibold">
+          <Activity className="w-3.5 h-3.5 text-blue-400" />
+          <span>Capabilities &amp; Return Values</span>
+        </div>
+
+        <div className="rounded-xl border border-zinc-800 overflow-hidden bg-[#0a0a0c]">
+          <table className="w-full text-left text-xs font-mono">
+            <thead className="bg-zinc-900/80 text-zinc-400 border-b border-zinc-800">
+              <tr>
+                <th className="px-4 py-2.5 font-semibold">Parameter / Return</th>
+                <th className="px-4 py-2.5 font-semibold">Type</th>
+                <th className="px-4 py-2.5 font-semibold">Description</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-zinc-800/60 font-sans text-zinc-300">
+              {hook.capabilities.map((c) => (
+                <tr key={c.param} className="hover:bg-zinc-900/40 transition-colors">
+                  <td className="px-4 py-3 font-mono text-blue-400 font-semibold">{c.param}</td>
+                  <td className="px-4 py-3 font-mono text-purple-300 text-[11px]">{c.type}</td>
+                  <td className="px-4 py-3 text-zinc-300 text-xs">{c.desc}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Status Signal */}
+      <div className="p-4 rounded-xl bg-zinc-900/60 border border-zinc-800 text-xs font-mono text-zinc-400 flex items-center justify-between">
+        <span>Status: <strong className="text-amber-400 uppercase">{hook.status}</strong></span>
+        <span className="text-[11px] text-zinc-500 font-sans">
+          Headless reactive hook &bull; Direct ref mutation without state churn
+        </span>
+      </div>
     </div>
   );
 };

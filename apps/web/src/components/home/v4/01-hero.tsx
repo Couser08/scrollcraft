@@ -1,121 +1,174 @@
 'use client';
 
-import React from 'react';
-import Image from 'next/image';
+/**
+ * ScrollCraft Section 1: Hero
+ * - Headline: "The scroll engine React never had."
+ * - Subtitle: "Composable primitives and hooks for parallax, reveals, pins, and scroll-progress — powered by Lenis, safe in RSC, and fully tree-shakeable."
+ * - Primary CTA: npm install copy button with copied toast
+ * - Secondary CTA: "Read the docs" linking to /docs
+ * - Background: Velocity-reactive gradient/orb reacting dynamically to scroll velocity
+ */
+
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { Parallax, Reveal } from '@scrollcraft/react';
+import { useScrollCraft, Reveal } from '@scrollcraft/react';
+import { Check, Copy, ArrowRight, Terminal, BookOpen } from 'lucide-react';
 
 export function HeroSection() {
-  return (
-    <section className="relative min-h-[120vh] w-full bg-[#050505] flex flex-col justify-center overflow-hidden pt-20 px-6">
-      
-      {/* Background Image Panels */}
-      <div className="absolute inset-0 z-0 flex justify-center items-center gap-2 opacity-60">
-        <Parallax speed={-0.15} className="w-[30%] h-[120%] overflow-hidden relative">
-          <Image
-            src="/images/hero-mountain.webp"
-            alt="Hero mountain left panel"
-            fill
-            sizes="30vw"
-            className="object-cover object-left"
-          />
-        </Parallax>
-        <Parallax speed={-0.05} className="w-[40%] h-[120%] overflow-hidden relative">
-          <Image
-            src="/images/hero-mountain.webp"
-            alt="Hero mountain center panel"
-            fill
-            priority
-            sizes="40vw"
-            className="object-cover object-center"
-          />
-        </Parallax>
-        <Parallax speed={-0.15} className="w-[30%] h-[120%] overflow-hidden relative">
-          <Image
-            src="/images/hero-mountain.webp"
-            alt="Hero mountain right panel"
-            fill
-            sizes="30vw"
-            className="object-cover object-right"
-          />
-        </Parallax>
-        {/* Gradient Overlay for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/40 to-[#050505]/80 pointer-events-none" />
-      </div>
+  const [copied, setCopied] = useState(false);
+  const orbRef = useRef<HTMLDivElement>(null);
+  const orbSecondaryRef = useRef<HTMLDivElement>(null);
+  const { subscribe } = useScrollCraft();
 
-      <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col justify-center h-screen pb-20">
+  const installCommand = 'npm i @scrollcraft/react';
+
+  const copyCommand = () => {
+    navigator.clipboard.writeText(installCommand);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  // Velocity-reactive background gradient orb
+  useEffect(() => {
+    const unsub = subscribe((metrics) => {
+      const vel = Math.min(Math.abs(metrics.velocity || 0), 20);
+      
+      if (orbRef.current) {
+        const scale = 1 + vel * 0.035;
+        const opacity = 0.35 + Math.min(vel * 0.03, 0.3);
+        orbRef.current.style.transform = `translate3d(-50%, -50%, 0) scale(${scale})`;
+        orbRef.current.style.opacity = `${opacity}`;
+      }
+
+      if (orbSecondaryRef.current) {
+        const scale = 1 + vel * 0.05;
+        const opacity = 0.25 + Math.min(vel * 0.04, 0.35);
+        orbSecondaryRef.current.style.transform = `translate3d(-50%, -50%, 0) scale(${scale}) rotate(${vel * 2}deg)`;
+        orbSecondaryRef.current.style.opacity = `${opacity}`;
+      }
+    });
+
+    return () => unsub();
+  }, [subscribe]);
+
+  return (
+    <section className="relative min-h-[90vh] md:min-h-screen w-full bg-[#050505] flex flex-col justify-center items-center overflow-hidden px-6 pt-24 pb-16">
+      
+      {/* Velocity-Reactive Ambient Gradient Orbs */}
+      <div
+        ref={orbRef}
+        aria-hidden="true"
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] sm:w-[750px] h-[550px] sm:h-[750px] rounded-full bg-gradient-to-tr from-blue-600/30 via-indigo-600/20 to-sky-400/10 blur-[120px] pointer-events-none transition-transform duration-100 ease-out will-change-transform z-0"
+        style={{ opacity: 0.35 }}
+      />
+      <div
+        ref={orbSecondaryRef}
+        aria-hidden="true"
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] sm:w-[500px] h-[350px] sm:h-[500px] rounded-full bg-gradient-to-br from-amber-500/15 via-blue-500/15 to-purple-600/15 blur-[90px] pointer-events-none transition-transform duration-150 ease-out will-change-transform z-0"
+        style={{ opacity: 0.25 }}
+      />
+
+      {/* Grid Texture Background Overlay */}
+      <div 
+        aria-hidden="true"
+        className="absolute inset-0 bg-[linear-gradient(to_right,#18181b15_1px,transparent_1px),linear-gradient(to_bottom,#18181b15_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none z-0"
+      />
+
+      {/* Hero Content Container */}
+      <div className="relative z-10 w-full max-w-5xl mx-auto flex flex-col items-center text-center">
         
-        <Reveal delay={0.2}>
-          <div className="inline-flex items-center gap-4 mb-8">
-            <span className="text-xs font-semibold tracking-widest text-zinc-400 uppercase">SCROLL / ANIMATE / CREATE</span>
-            <div className="h-[1px] w-12 bg-blue-500/50" />
+        {/* Version & Stability Badge */}
+        <Reveal direction="down" distance={20} duration={0.6}>
+          <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-zinc-900/80 border border-zinc-800 text-xs font-mono text-zinc-300 mb-8 shadow-inner backdrop-blur-sm">
+            <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+            <span className="font-semibold text-white">v0.1.0-beta</span>
+            <span className="text-zinc-500">&bull;</span>
+            <span className="text-amber-400 font-medium">Beta</span>
+            <span className="hidden sm:inline text-zinc-500">&mdash; API surface shiftable, physics locked</span>
           </div>
         </Reveal>
 
-        <Reveal delay={0.3} distance={50}>
-          <h1 className="text-6xl md:text-8xl lg:text-[100px] font-bold tracking-tighter text-white mb-6 leading-[1.05]">
-            Turn Scroll <br />
-            <span className="text-zinc-400">Into Stories.</span>
+        {/* Primary Headline */}
+        <Reveal direction="up" distance={30} duration={0.7} delay={0.1}>
+          <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold tracking-tight text-white leading-[1.08] mb-6">
+            The scroll engine <br />
+            <span className="bg-gradient-to-r from-blue-400 via-sky-300 to-indigo-300 bg-clip-text text-transparent">
+              React never had.
+            </span>
           </h1>
         </Reveal>
 
-        <Reveal delay={0.4}>
-          <p className="text-lg md:text-xl text-zinc-300 max-w-xl leading-relaxed font-light mb-12">
-            A React-native scroll animation toolkit. Direct GPU compositor writes. 
-            Zero wrapper pollution. <span className="text-white font-medium">Zero React re-renders.</span>
+        {/* Subtitle */}
+        <Reveal direction="up" distance={24} duration={0.7} delay={0.2}>
+          <p className="text-base sm:text-lg md:text-xl text-zinc-400 max-w-2xl leading-relaxed font-sans mb-10">
+            Composable primitives and hooks for parallax, reveals, pins, and scroll-progress &mdash; 
+            powered by Lenis, safe in RSC, and fully tree-shakeable.
           </p>
         </Reveal>
 
-        <Reveal delay={0.5}>
-          <div className="flex items-center">
+        {/* Action CTAs: Install copy button & Read Docs button */}
+        <Reveal direction="up" distance={20} duration={0.7} delay={0.3}>
+          <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+            {/* Package Install Copy Button */}
+            <div className="flex items-center justify-between rounded-full bg-[#0d0d10] border border-zinc-800 hover:border-zinc-700 transition-colors p-1.5 pl-4 sm:pr-2 gap-3 w-full sm:w-auto shadow-xl">
+              <div className="flex items-center gap-2 font-mono text-xs text-zinc-300">
+                <Terminal className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
+                <span className="select-all">{installCommand}</span>
+              </div>
+              <button
+                onClick={copyCommand}
+                type="button"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-mono transition-all cursor-pointer shrink-0"
+                title="Copy install command"
+              >
+                {copied ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-emerald-400" />
+                    <span className="text-emerald-400 font-semibold">Copied!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3.5 h-3.5 text-zinc-400" />
+                    <span>Copy</span>
+                  </>
+                )}
+              </button>
+            </div>
+
+            {/* Read Docs Link */}
             <Link
               href="/docs"
-              className="group relative inline-flex items-center gap-3 px-8 py-4 rounded-full bg-white text-black font-semibold text-base transition-all duration-300 hover:bg-zinc-100 shadow-[0_0_24px_rgba(255,255,255,0.25)] hover:shadow-[0_0_35px_rgba(59,130,246,0.35)]"
+              className="flex items-center justify-center gap-2 px-6 py-2.5 rounded-full bg-white text-black font-semibold text-xs sm:text-sm hover:bg-zinc-200 transition-all shadow-lg hover:shadow-blue-500/20 w-full sm:w-auto cursor-pointer"
             >
-              <span>Get Started</span>
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                className="group-hover:translate-x-1.5 transition-transform duration-300"
-              >
-                <path d="M5 12h14m-7-7 7 7-7 7" />
-              </svg>
+              <BookOpen className="w-4 h-4" />
+              <span>Read the docs</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
         </Reveal>
 
-        {/* Stats Row */}
-        <Reveal delay={0.6}>
-          <div className="flex gap-16 mt-20">
-            <div>
-              <div className="text-3xl font-bold text-white">3.2k+</div>
-              <div className="text-sm text-zinc-500 mt-1">Developers</div>
+        {/* Real-world Feature Highlights */}
+        <Reveal direction="up" distance={16} duration={0.7} delay={0.4}>
+          <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 mt-14 text-xs font-mono text-zinc-400">
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+              <span>0 React Re-Renders</span>
             </div>
-            <div>
-              <div className="text-3xl font-bold text-white">120 FPS</div>
-              <div className="text-sm text-zinc-500 mt-1">Smooth Performance</div>
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+              <span>Lenis Subpixel Physics</span>
             </div>
-            <div>
-              <div className="text-3xl font-bold text-white">100%</div>
-              <div className="text-sm text-zinc-500 mt-1">Open Source</div>
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-purple-400" />
+              <span>Next.js 15 RSC Safe</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+              <span>&lt; 4.2 KB Core</span>
             </div>
           </div>
         </Reveal>
-      </div>
 
-      {/* Scroll Indicator (wrapper handles positioning so Parallax transform doesn't overwrite centering) */}
-      <div className="absolute right-8 top-1/2 -translate-y-1/2 z-20 hidden md:block pointer-events-none">
-        <Parallax speed={-0.25} className="flex flex-col items-center gap-4">
-          <span className="text-xs font-mono text-zinc-400">01</span>
-          <div className="w-[1px] h-28 bg-zinc-800 relative">
-            <div className="absolute top-0 left-0 w-full h-1/3 bg-white" />
-          </div>
-          <div className="w-2 h-2 rounded-full border border-white/50" />
-        </Parallax>
       </div>
 
     </section>

@@ -19,6 +19,12 @@ interface RevealEntry {
   element: HTMLElement;
   options: Required<RevealOptions>;
   hasRevealed: boolean;
+  initialStyles: {
+    opacity: string;
+    transition: string;
+    willChange: string;
+  };
+  isObserved: boolean;
 }
 
 export class GlobalRevealObserver {
@@ -56,6 +62,7 @@ export class GlobalRevealObserver {
                 for (const observer of this.observers.values()) {
                   observer.unobserve(target);
                 }
+                data.isObserved = false;
               }
             } else if (!data.options.once && data.hasRevealed) {
               data.hasRevealed = false;
@@ -121,18 +128,30 @@ export class GlobalRevealObserver {
       safeThreshold = 0.05; // Drop threshold for massive elements
     }
 
-    this.entries.set(element, { element, options: fullOptions, hasRevealed: false });
+    const initialStyles = {
+      opacity: element.style.opacity || '',
+      transition: element.style.transition || '',
+      willChange: element.style.willChange || '',
+    };
+
+    const entry: RevealEntry = {
+      element,
+      options: fullOptions,
+      hasRevealed: false,
+      initialStyles,
+      isObserved: false,
+    };
+    this.entries.set(element, entry);
 
     // Initial State Check: If already scrolled past the viewport above on mount, reveal instantly without animation
     if (rect.bottom < 0) {
-      const data = this.entries.get(element)!;
-      data.hasRevealed = true;
+      entry.hasRevealed = true;
       element.style.opacity = '1';
       TransformComposer.set(element, 'reveal', 'translate3d(0, 0, 0)');
       
       if (fullOptions.once) {
-        this.entries.delete(element);
-        return; // Don't observe if already past viewport
+        // Retain entry so unobserve() and destroy() can clean up, but do not register with IntersectionObserver
+        return;
       }
     } else {
       element.style.willChange = 'opacity, transform';
@@ -141,21 +160,23 @@ export class GlobalRevealObserver {
 
     const observer = this.getObserver(safeThreshold);
     observer.observe(element);
+    entry.isObserved = true;
   }
 
   public unobserve(element: HTMLElement): void {
     const data = this.entries.get(element);
     if (!data) return;
 
-    // We must find which observer it was in
-    for (const observer of this.observers.values()) {
-      observer.unobserve(element);
+    if (data.isObserved) {
+      for (const observer of this.observers.values()) {
+        observer.unobserve(element);
+      }
     }
     
     this.entries.delete(element);
-    element.style.willChange = '';
-    element.style.transition = '';
-    element.style.opacity = '';
+    element.style.willChange = data.initialStyles.willChange;
+    element.style.transition = data.initialStyles.transition;
+    element.style.opacity = data.initialStyles.opacity;
     TransformComposer.clear(element, 'reveal');
   }
 
@@ -164,9 +185,9 @@ export class GlobalRevealObserver {
     for (const observer of this.observers.values()) observer.disconnect();
     this.observers.clear();
     for (const entry of this.entries.values()) {
-      entry.element.style.willChange = '';
-      entry.element.style.transition = '';
-      entry.element.style.opacity = '';
+      entry.element.style.willChange = entry.initialStyles.willChange;
+      entry.element.style.transition = entry.initialStyles.transition;
+      entry.element.style.opacity = entry.initialStyles.opacity;
       TransformComposer.clear(entry.element, 'reveal');
     }
     this.entries.clear();

@@ -5,37 +5,31 @@ import dynamic from 'next/dynamic';
 import { 
   Navbar,
   HeroSection,
-  MotionSection,
+  PrimitivesShowcase,
   Footer,
   FPSMeter
 } from '@/components/home/v4';
 
-// Code-split below-the-fold sections to minimize initial client bundle size & improve TTI
-const PlaygroundSection = dynamic(
-  () => import('@/components/home/v4/03-playground').then((m) => m.PlaygroundSection)
+// Code-split below-the-fold sections for instant initial render
+const HooksRawSection = dynamic(
+  () => import('@/components/home/v4/03-hooks-raw').then((m) => m.HooksRawSection)
 );
-const ImmersiveSection = dynamic(
-  () => import('@/components/home/v4/04-immersive').then((m) => m.ImmersiveSection)
+const EngineArchitectureSection = dynamic(
+  () => import('@/components/home/v4/04-engine-arch').then((m) => m.EngineArchitectureSection)
 );
-const FeaturesSection = dynamic(
-  () => import('@/components/home/v4/05-features').then((m) => m.FeaturesSection)
+const R3FPreviewSection = dynamic(
+  () => import('@/components/home/v4/05-r3f-preview').then((m) => m.R3FPreviewSection)
 );
-const MarqueeSection = dynamic(
-  () => import('@/components/home/v4/06-marquee').then((m) => m.MarqueeSection)
+const ComparisonSection = dynamic(
+  () => import('@/components/home/v4/06-comparison').then((m) => m.ComparisonSection)
 );
-const CodeSection = dynamic(
-  () => import('@/components/home/v4/08-code').then((m) => m.CodeSection)
-);
-const PerformanceSection = dynamic(
-  () => import('@/components/home/v4/09-performance').then((m) => m.PerformanceSection)
-);
-const CTASection = dynamic(
-  () => import('@/components/home/v4/10-cta').then((m) => m.CTASection)
+const FinalCTASection = dynamic(
+  () => import('@/components/home/v4/07-final-cta').then((m) => m.FinalCTASection)
 );
 
 export const metadata: Metadata = {
-  title: 'ScrollCraft — The Ultimate React Scroll Engine',
-  description: 'High-performance scroll toolkit for React and Next.js. Direct DOM writes, zero React re-renders.',
+  title: 'ScrollCraft — The Scroll Engine React Never Had',
+  description: 'Composable primitives and hooks for parallax, reveals, pins, and scroll-progress — powered by Lenis, safe in RSC, zero React re-renders.',
 };
 
 export default function HomePage() {
@@ -53,15 +47,26 @@ export default function HomePage() {
       {process.env.NODE_ENV === 'development' && <FPSMeter />}
       
       <main id="main-content" className="flex flex-col w-full items-center justify-start">
+        {/* Section 1: Hero */}
         <HeroSection />
-        <MotionSection />
-        <PlaygroundSection />
-        <ImmersiveSection />
-        <FeaturesSection />
-        <MarqueeSection />
-        <CodeSection />
-        <PerformanceSection />
-        <CTASection />
+
+        {/* Section 2: Primitives Showcase */}
+        <PrimitivesShowcase />
+
+        {/* Section 3: Hooks — Raw Access */}
+        <HooksRawSection />
+
+        {/* Section 4: Engine & Architecture */}
+        <EngineArchitectureSection />
+
+        {/* Section 5: R3F Preview (Alpha) */}
+        <R3FPreviewSection />
+
+        {/* Section 6: Comparison */}
+        <ComparisonSection />
+
+        {/* Section 7: Final CTA */}
+        <FinalCTASection />
       </main>
 
       <Footer />

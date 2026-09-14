@@ -88,7 +88,7 @@ export const ProCatalog: React.FC = () => {
                 {item.description}
               </p>
               <div className="pt-2 flex items-center text-xs text-blue-400 font-mono font-medium">
-                <span>View Component & CLI &rarr;</span>
+                <span>View Component &rarr;</span>
               </div>
             </div>
           </div>

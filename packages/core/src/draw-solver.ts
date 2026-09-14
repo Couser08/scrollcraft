@@ -25,6 +25,8 @@ export class DrawSolver {
   private isVisible: boolean = false;
   private wasVisible: boolean = false;
   private hasDrawn: boolean = false;
+  private initialStrokeDasharray: string;
+  private initialStrokeDashoffset: string;
 
   constructor(element: SVGGeometryElement, options: DrawSolverOptions) {
     this.element = element;
@@ -36,6 +38,8 @@ export class DrawSolver {
       scrub: options.scrub ?? true,
       ...options,
     };
+    this.initialStrokeDasharray = element.style.strokeDasharray || '';
+    this.initialStrokeDashoffset = element.style.strokeDashoffset || '';
   }
 
   private parseTrigger(trigger: string, rect: DOMRect, windowHeight: number): number {
@@ -164,7 +168,7 @@ export class DrawSolver {
 
   public destroy(): void {
     triggerRegistry.unregister(this.id);
-    this.element.style.strokeDasharray = '';
-    this.element.style.strokeDashoffset = '';
+    this.element.style.strokeDasharray = this.initialStrokeDasharray;
+    this.element.style.strokeDashoffset = this.initialStrokeDashoffset;
   }
 }

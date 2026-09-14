@@ -51,6 +51,13 @@ export class TransformSolver {
   private wasVisible: boolean = false;
 
   private snapTimeout: number | null = null;
+  private initialStyles: {
+    opacity: string;
+    filter: string;
+    borderRadius: string;
+    willChange: string;
+  };
+  private mutatedProperties: Set<string> = new Set();
 
   constructor(element: HTMLElement, options: TransformSolverOptions) {
     this.element = element;
@@ -61,6 +68,13 @@ export class TransformSolver {
       ...options,
     };
     
+    this.initialStyles = {
+      opacity: element.style.opacity || '',
+      filter: element.style.filter || '',
+      borderRadius: element.style.borderRadius || '',
+      willChange: element.style.willChange || '',
+    };
+
     this.buildTimeline();
   }
 
@@ -233,15 +247,25 @@ export class TransformSolver {
       TransformComposer.set(this.element, 'scroll-transform', transformStr.trim());
     }
     
-    if (v.opacity !== undefined) this.element.style.opacity = v.opacity.toString();
-    if (v.blur !== undefined) this.element.style.filter = `blur(${v.blur}px)`;
-    if (v.borderRadius !== undefined) this.element.style.borderRadius = `${v.borderRadius}px`;
+    if (v.opacity !== undefined) {
+      this.element.style.opacity = v.opacity.toString();
+      this.mutatedProperties.add('opacity');
+    }
+    if (v.blur !== undefined) {
+      this.element.style.filter = `blur(${v.blur}px)`;
+      this.mutatedProperties.add('filter');
+    }
+    if (v.borderRadius !== undefined) {
+      this.element.style.borderRadius = `${v.borderRadius}px`;
+      this.mutatedProperties.add('borderRadius');
+    }
     
     // Manage will-change
     if (this.isVisible && !this.wasVisible) {
       this.element.style.willChange = 'transform, opacity, filter';
+      this.mutatedProperties.add('willChange');
     } else if (!this.isVisible && this.wasVisible) {
-      this.element.style.willChange = '';
+      this.element.style.willChange = this.initialStyles.willChange || '';
     }
     
     this.wasVisible = this.isVisible;
@@ -264,9 +288,18 @@ export class TransformSolver {
     }
     TransformComposer.clear(this.element, 'scroll-transform');
     triggerRegistry.unregister(this.id);
-    this.element.style.willChange = '';
-    this.element.style.opacity = '';
-    this.element.style.filter = '';
-    this.element.style.borderRadius = '';
+    
+    if (this.mutatedProperties.has('willChange')) {
+      this.element.style.willChange = this.initialStyles.willChange || '';
+    }
+    if (this.mutatedProperties.has('opacity')) {
+      this.element.style.opacity = this.initialStyles.opacity || '';
+    }
+    if (this.mutatedProperties.has('filter')) {
+      this.element.style.filter = this.initialStyles.filter || '';
+    }
+    if (this.mutatedProperties.has('borderRadius')) {
+      this.element.style.borderRadius = this.initialStyles.borderRadius || '';
+    }
   }
 }

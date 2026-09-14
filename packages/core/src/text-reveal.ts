@@ -17,11 +17,13 @@ export class TextRevealSolver {
   private range: [number, number];
   private containerTop = 0;
   private opacities: number[] = [];
+  private initialOpacities: string[] = [];
 
   constructor(container: HTMLElement, chars: HTMLElement[], options: TextRevealOptions = {}) {
     this.container = container;
     this.chars = chars;
     this.range = options.range || [0, 1];
+    this.initialOpacities = chars.map(char => char.style.opacity || '');
   }
 
   /** Phase 1: capture layout once, never while calculating character values. */
@@ -73,8 +75,8 @@ export class TextRevealSolver {
   }
 
   public destroy() {
-    this.chars.forEach(char => {
-      char.style.opacity = '';
+    this.chars.forEach((char, i) => {
+      char.style.opacity = this.initialOpacities[i] ?? '';
     });
   }
 }

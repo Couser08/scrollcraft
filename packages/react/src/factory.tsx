@@ -12,11 +12,13 @@ import { ScrollElementProps } from './types';
 
 type SupportedTag = 'div' | 'section' | 'button' | 'span' | 'h1' | 'h2' | 'p' | 'article' | 'nav' | 'header';
 
+declare const process: any;
+
 let hasWarnedDeprecation = false;
 
 function createDeprecatedScrollComponent<T extends HTMLElement>(tag: SupportedTag) {
   const Component = forwardRef<T, ScrollElementProps>((props, ref) => {
-    if (process.env.NODE_ENV !== 'production' && !hasWarnedDeprecation) {
+    if (typeof process !== 'undefined' && process.env?.NODE_ENV !== 'production' && !hasWarnedDeprecation) {
       hasWarnedDeprecation = true;
       console.warn(
         '[ScrollCraft Deprecation] <scroll.div> and <scroll.*> proxy factories are deprecated. Migrate to <Parallax asChild>, <Reveal asChild>, <Pin asChild>, or pure hooks for optimal performance and composability.'

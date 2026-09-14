@@ -20,6 +20,7 @@ export const Parallax = React.memo(
       min,
       max,
       respectReducedMotion = true,
+      driver = 'auto',
       children,
       ...domProps
     } = props;
@@ -32,6 +33,7 @@ export const Parallax = React.memo(
       min,
       max,
       respectReducedMotion,
+      driver,
     });
 
     const mergedRef = composeRefs(forwardedRef, internalRef);

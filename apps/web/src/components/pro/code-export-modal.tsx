@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ScrollCraft Pro: Code Export & CLI Modal
+ * ScrollCraft Pro: Code Export & Installation Modal
  * Zero external UI kits. Strictly under 650 LOC.
  */
 
@@ -45,10 +45,10 @@ export const CodeExportModal: React.FC<{
         {/* Description */}
         <p className="text-sm text-zinc-400 leading-relaxed">{item.description}</p>
 
-        {/* CLI Command Box */}
+        {/* Installation Box */}
         <div className="space-y-2">
           <label className="text-xs font-mono text-zinc-400 uppercase tracking-wider">
-            Install via CLI
+            Installation &amp; Import
           </label>
           <div className="flex items-center justify-between px-4 py-3 rounded-2xl bg-black/60 border border-white/10 font-mono text-xs sm:text-sm text-blue-400">
             <div className="flex items-center gap-2 overflow-x-auto">

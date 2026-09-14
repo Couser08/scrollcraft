@@ -56,6 +56,8 @@ export interface ScrollProviderProps {
   respectReducedMotion?: boolean;
 }
 
+export type ScrollCraftProviderProps = ScrollProviderProps;
+
 export interface ScrollContextValue {
   engine: InertiaEngine | null;
   scrollTo: (

@@ -19,6 +19,8 @@ export const ScrollSequence: React.FC<ScrollSequenceProps> = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { engine } = useScrollCraft();
 
+  const framesKey = `${frames.length}:${frames[0] || ''}:${frames[frames.length - 1] || ''}`;
+
   useEffect(() => {
     const container = containerRef.current;
     const canvas = canvasRef.current;
@@ -44,7 +46,7 @@ export const ScrollSequence: React.FC<ScrollSequenceProps> = ({
       ticker.remove(taskId);
       solver.destroy();
     };
-  }, [frames, speed, engine]);
+  }, [framesKey, speed, engine]);
 
   return (
     <div 

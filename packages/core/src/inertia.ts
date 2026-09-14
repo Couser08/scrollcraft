@@ -108,7 +108,13 @@ export class InertiaEngine {
 
   public subscribe(callback: (metrics: ScrollMetrics) => void): () => void {
     this.subscribers.add(callback);
-    callback(this.metrics);
+    try {
+      callback(this.metrics);
+    } catch (err) {
+      if (typeof console !== 'undefined') {
+        console.error('[ScrollCraft] Error in initial Inertia subscriber callback:', err);
+      }
+    }
     return () => this.subscribers.delete(callback);
   }
 
@@ -202,8 +208,15 @@ export class InertiaEngine {
 
 
   private notify(): void {
-    for (const sub of this.subscribers) {
-      sub(this.metrics);
+    const subs = Array.from(this.subscribers);
+    for (let i = 0; i < subs.length; i++) {
+      try {
+        subs[i](this.metrics);
+      } catch (err) {
+        if (typeof console !== 'undefined') {
+          console.error('[ScrollCraft] Error in Inertia subscriber:', err);
+        }
+      }
     }
   }
 }

@@ -17,6 +17,9 @@ export const Pin = React.memo(
       asChild = false,
       top = 0,
       bottom,
+      duration,
+      trackState,
+      disableTransform,
       onProgress,
       children,
       ...domProps
@@ -27,6 +30,9 @@ export const Pin = React.memo(
     usePin(internalRef, {
       top,
       bottom,
+      duration,
+      trackState,
+      disableTransform,
       onProgress,
     });
 

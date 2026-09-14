@@ -103,9 +103,22 @@ export const DocsSidebar: React.FC<DocsSidebarProps> = ({
                     {category.title}
                   </span>
                 </div>
-                <span className="text-[10px] font-mono text-zinc-600 group-hover:text-zinc-400 px-1.5 py-0.5 rounded bg-zinc-900/60 border border-zinc-800/60">
-                  {category.items.length}
-                </span>
+                <div className="flex items-center gap-1.5">
+                  {category.badge && (
+                    <span
+                      className={`text-[9px] font-mono px-1.5 py-0.2 rounded font-bold uppercase ${
+                        category.badge === 'Alpha'
+                          ? 'bg-red-500/15 text-red-400 border border-red-500/30'
+                          : 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
+                      }`}
+                    >
+                      {category.badge}
+                    </span>
+                  )}
+                  <span className="text-[10px] font-mono text-zinc-600 group-hover:text-zinc-400 px-1.5 py-0.5 rounded bg-zinc-900/60 border border-zinc-800/60">
+                    {category.items.length}
+                  </span>
+                </div>
               </button>
 
               {/* Items List (Collapsible) */}
@@ -113,6 +126,7 @@ export const DocsSidebar: React.FC<DocsSidebarProps> = ({
                 <ul className="flex flex-col gap-0.5 ml-4 pl-2.5 border-l border-zinc-800/60 mt-1 mb-2 animate-in fade-in duration-150">
                   {matchingItems.map((item) => {
                     const isActive = activeSection === item.id;
+                    const isAlpha = item.badge === 'Alpha';
                     return (
                       <li key={item.id}>
                         <button
@@ -127,7 +141,9 @@ export const DocsSidebar: React.FC<DocsSidebarProps> = ({
                           {item.badge && (
                             <span
                               className={`text-[9px] font-mono px-1.5 py-0.2 rounded shrink-0 ml-1.5 ${
-                                isActive
+                                isAlpha
+                                  ? 'bg-red-500/20 text-red-400 border border-red-500/30 font-bold uppercase'
+                                  : isActive
                                   ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
                                   : 'bg-zinc-900 text-zinc-500 border border-zinc-800'
                               }`}

@@ -12,7 +12,8 @@ import { injectNativeStyles } from './native-styles';
 import { TransformComposer } from './dom';
 
 export interface HorizontalScrollOptions {
-  speed?: number; // How much taller the track is compared to viewport. default 2 (2x viewport scroll distance)
+  /** Scroll speed multiplier (default: 1). Higher speed scrolls through horizontal track faster over less vertical distance. */
+  speed?: number;
   driver?: 'auto' | 'native' | 'js';
 }
 
@@ -25,13 +26,14 @@ class JSHorizontalDriver implements ScrollDriver {
   private state: HorizontalState = { progress: 0, offset: 0 };
   private elementTop: number = 0;
   private maxScrollDistance: number = 0;
+  private effectiveScrollDistance: number = 0;
   private trackWidth: number = 0;
   private windowHeight: number = 0;
 
   constructor(
     private element: HTMLElement,
     private innerContainer: HTMLElement,
-    _options: Required<HorizontalScrollOptions>
+    private options: Required<HorizontalScrollOptions>
   ) {}
 
   public measure(): void {
@@ -46,17 +48,19 @@ class JSHorizontalDriver implements ScrollDriver {
     
     // Total scrollable distance for this section is outer height - window height
     this.maxScrollDistance = Math.max(1, rect.height - this.windowHeight);
+    const speed = Math.max(0.001, this.options.speed || 1);
+    this.effectiveScrollDistance = Math.max(1, this.maxScrollDistance / speed);
     
     // Width of the inner content that will slide left
     this.trackWidth = Math.max(0, this.innerContainer.scrollWidth - window.innerWidth);
   }
 
   public update(scrollY: number): HorizontalState {
-    if (this.maxScrollDistance <= 0) return this.state;
+    if (this.effectiveScrollDistance <= 0) return this.state;
 
-    // Progress 0.0 to 1.0 based on how far we scrolled past the element's top
+    // Progress 0.0 to 1.0 based on how far we scrolled past the element's top scaled by speed
     const scrolledPastTop = scrollY - this.elementTop;
-    let progress = scrolledPastTop / this.maxScrollDistance;
+    let progress = scrolledPastTop / this.effectiveScrollDistance;
     progress = clamp(progress, 0, 1);
 
     this.state.progress = progress;
@@ -84,58 +88,77 @@ class NativeHorizontalDriver implements ScrollDriver {
   private state: HorizontalState = { progress: 0, offset: 0 };
   private elementTop: number = 0;
   private maxScrollDistance: number = 0;
+  private effectiveScrollDistance: number = 0;
   private trackWidth: number = 0;
   private timelineName: string;
+  private animationName: string;
 
   constructor(
     private element: HTMLElement,
     private innerContainer: HTMLElement,
-    _options: Required<HorizontalScrollOptions>
+    private options: Required<HorizontalScrollOptions>
   ) {
     injectNativeStyles();
     
-    // Unique timeline identifier per instance to prevent multi-section style collisions
-    this.timelineName = `--sc-horizontal-track-${Math.random().toString(36).slice(2, 8)}`;
+    // Unique timeline and animation identifier per instance to prevent multi-section style collisions
+    const id = Math.random().toString(36).slice(2, 8);
+    this.timelineName = `--sc-horizontal-track-${id}`;
+    this.animationName = `sc-horizontal-slide-${id}`;
     this.element.style.viewTimelineName = this.timelineName;
     this.element.style.viewTimelineAxis = 'block';
 
     this.innerContainer.style.animationTimeline = this.timelineName;
     this.innerContainer.style.animationRange = 'entry 100% exit 100%';
-    this.innerContainer.style.animationName = 'sc-horizontal-slide';
+    this.innerContainer.style.animationName = this.animationName;
     this.innerContainer.style.animationFillMode = 'both';
     this.innerContainer.style.animationTimingFunction = 'linear';
     this.innerContainer.style.willChange = 'transform';
   }
 
   public measure(): void {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined' || typeof document === 'undefined') return;
     this.trackWidth = Math.max(0, this.innerContainer.scrollWidth - window.innerWidth);
     
     const rect = this.element.getBoundingClientRect();
     const scrollTop = window.scrollY || window.pageYOffset;
     this.elementTop = rect.top + scrollTop;
     this.maxScrollDistance = Math.max(1, rect.height - window.innerHeight);
+    const speed = Math.max(0.001, this.options.speed || 1);
+    this.effectiveScrollDistance = Math.max(1, this.maxScrollDistance / speed);
 
-    let styleEl = document.getElementById('sc-horizontal-styles');
+    const styleId = `sc-horizontal-style-${this.animationName}`;
+    let styleEl = document.getElementById(styleId) as HTMLStyleElement | null;
     if (!styleEl) {
       styleEl = document.createElement('style');
-      styleEl.id = 'sc-horizontal-styles';
+      styleEl.id = styleId;
       document.head.appendChild(styleEl);
     }
     
     this.innerContainer.style.setProperty('--sc-slide-end', `-${this.trackWidth}px`);
     
-    styleEl.textContent = `
-      @keyframes sc-horizontal-slide {
-        from { transform: translate3d(0px, 0, 0); }
-        to { transform: translate3d(var(--sc-slide-end, 0px), 0, 0); }
-      }
-    `;
+    let keyframes = '';
+    if (speed >= 1) {
+      const stopPercent = (100 / speed).toFixed(3);
+      keyframes = `
+        @keyframes ${this.animationName} {
+          0% { transform: translate3d(0px, 0, 0); }
+          ${stopPercent}%, 100% { transform: translate3d(var(--sc-slide-end, 0px), 0, 0); }
+        }
+      `;
+    } else {
+      keyframes = `
+        @keyframes ${this.animationName} {
+          0% { transform: translate3d(0px, 0, 0); }
+          100% { transform: translate3d(calc(var(--sc-slide-end, 0px) * ${speed.toFixed(3)}), 0, 0); }
+        }
+      `;
+    }
+    styleEl.textContent = keyframes;
   }
 
   public update(scrollY: number): HorizontalState {
     const scrolledPastTop = scrollY - this.elementTop;
-    const progress = clamp(scrolledPastTop / this.maxScrollDistance, 0, 1);
+    const progress = clamp(scrolledPastTop / this.effectiveScrollDistance, 0, 1);
     this.state.progress = progress;
     this.state.offset = -(progress * this.trackWidth);
     return this.state;
@@ -153,6 +176,12 @@ class NativeHorizontalDriver implements ScrollDriver {
     this.innerContainer.style.animationFillMode = '';
     this.innerContainer.style.willChange = '';
     this.innerContainer.style.removeProperty('--sc-slide-end');
+    if (typeof document !== 'undefined') {
+      const styleEl = document.getElementById(`sc-horizontal-style-${this.animationName}`);
+      if (styleEl && styleEl.parentNode) {
+        styleEl.parentNode.removeChild(styleEl);
+      }
+    }
   }
 }
 
@@ -161,7 +190,7 @@ export class HorizontalScrollSolver {
 
   constructor(element: HTMLElement, innerContainer: HTMLElement, options?: HorizontalScrollOptions) {
     const opts: Required<HorizontalScrollOptions> = {
-      speed: options?.speed ?? 2,
+      speed: options?.speed ?? 1,
       driver: options?.driver ?? 'auto',
     };
 

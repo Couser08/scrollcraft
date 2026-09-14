@@ -11,9 +11,8 @@ export function useScrollTransform<T extends HTMLElement = HTMLDivElement>(
   const solverRef = useRef<TransformSolver | null>(null);
   const { subscribe, reducedMotion, scrollTo } = useScrollCraft();
   
-  // Memoize options internally if needed, but for now we expect the user to pass a stable reference or we recreate.
-  const optionsRef = useRef(options);
-  optionsRef.current = options;
+  // Serialize options to a stable key to support dynamic re-configuration without churning on object identity
+  const optionsKey = JSON.stringify(options);
 
   const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
@@ -25,7 +24,7 @@ export function useScrollTransform<T extends HTMLElement = HTMLDivElement>(
       scrollTo(targetScroll, { duration: 1 }); // Smooth scroll to target
     };
 
-    const solver = new TransformSolver(element, { ...optionsRef.current, onSnap });
+    const solver = new TransformSolver(element, { ...options, onSnap });
     solverRef.current = solver;
 
     const taskId = `transform-${Math.random().toString(36).slice(2, 8)}`;
@@ -67,7 +66,7 @@ export function useScrollTransform<T extends HTMLElement = HTMLDivElement>(
       solver.destroy();
       solverRef.current = null;
     };
-  }, [reducedMotion, subscribe, scrollTo]); // Deliberately omit options to avoid re-binding if not memoized, though dynamic options might be needed later
+  }, [reducedMotion, subscribe, scrollTo, optionsKey]);
 
   return elementRef;
 }

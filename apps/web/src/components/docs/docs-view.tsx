@@ -55,47 +55,75 @@ import Link from 'next/link';
 
 const TOC_MAPPING: Record<string, TocItem[]> = {
   introduction: [
-    { id: 'the-problem', title: 'The Scroll Problem' },
-    { id: 'our-architecture', title: 'The ScrollCraft Solution' },
-    { id: 'core-principles', title: 'Core Principles' },
-    { id: 'quick-example', title: 'A Quick Example' },
-    { id: 'whats-next', title: "What's Next?" },
+    { id: 'install-package', title: 'Package Installation' },
+    { id: 'provider-setup', title: 'Root Layout Setup' },
+    { id: 'quick-example', title: 'Quickstart Component' },
   ],
   installation: [
     { id: 'install-package', title: 'Package Manager' },
-    { id: 'requirements', title: 'System Requirements' },
   ],
   setup: [
     { id: 'provider-setup', title: 'Root Layout Integration' },
-    { id: 'provider-props', title: 'ScrollProvider Props' },
   ],
   parallax: [
-    { id: 'parallax-code', title: 'Usage & Syntax' },
-    { id: 'parallax-props', title: 'Props Reference' },
+    { id: 'syntax', title: 'Syntax & Example' },
+    { id: 'capabilities', title: 'Capabilities & Props' },
   ],
   reveal: [
-    { id: 'reveal-code', title: 'Usage & Syntax' },
-    { id: 'reveal-props', title: 'Props Reference' },
+    { id: 'syntax', title: 'Syntax & Example' },
+    { id: 'capabilities', title: 'Capabilities & Props' },
   ],
   pin: [
-    { id: 'pin-code', title: 'Usage & Syntax' },
-    { id: 'pin-props', title: 'Props Reference' },
+    { id: 'syntax', title: 'Syntax & Example' },
+    { id: 'capabilities', title: 'Capabilities & Props' },
   ],
   'scroll-progress': [
-    { id: 'progress-code', title: 'Usage & Syntax' },
-    { id: 'progress-props', title: 'Props Reference' },
+    { id: 'syntax', title: 'Syntax & Example' },
+    { id: 'capabilities', title: 'Capabilities & Props' },
   ],
   'velocity-marquee': [
-    { id: 'marquee-code', title: 'Usage & Syntax' },
-    { id: 'marquee-props', title: 'Props Reference' },
+    { id: 'syntax', title: 'Syntax & Example' },
+    { id: 'capabilities', title: 'Capabilities & Props' },
   ],
   'horizontal-scroll': [
-    { id: 'horizontal-code', title: 'Usage & Syntax' },
-    { id: 'horizontal-props', title: 'Props Reference' },
+    { id: 'syntax', title: 'Syntax & Example' },
+    { id: 'capabilities', title: 'Capabilities & Props' },
   ],
   'scroll-sequence': [
-    { id: 'sequence-code', title: 'Usage & Syntax' },
-    { id: 'sequence-props', title: 'Props Reference' },
+    { id: 'syntax', title: 'Syntax & Example' },
+    { id: 'capabilities', title: 'Capabilities & Props' },
+  ],
+  'use-scroll-progress': [
+    { id: 'syntax', title: 'Syntax & Signature' },
+    { id: 'capabilities', title: 'Return Values & Options' },
+  ],
+  'use-parallax': [
+    { id: 'syntax', title: 'Syntax & Signature' },
+    { id: 'capabilities', title: 'Parameters & Return Values' },
+  ],
+  'use-reveal': [
+    { id: 'syntax', title: 'Syntax & Signature' },
+    { id: 'capabilities', title: 'Parameters & Return Values' },
+  ],
+  'use-pin': [
+    { id: 'syntax', title: 'Syntax & Signature' },
+    { id: 'capabilities', title: 'Parameters & Return Values' },
+  ],
+  'use-scrollcraft': [
+    { id: 'syntax', title: 'Syntax & Signature' },
+    { id: 'capabilities', title: 'Parameters & Return Values' },
+  ],
+  'use-scroll-state': [
+    { id: 'syntax', title: 'Syntax & Signature' },
+    { id: 'capabilities', title: 'Parameters & Return Values' },
+  ],
+  'use-magnetic': [
+    { id: 'syntax', title: 'Syntax & Signature' },
+    { id: 'capabilities', title: 'Parameters & Return Values' },
+  ],
+  'use-scroll-3d': [
+    { id: 'syntax', title: 'Syntax & Signature' },
+    { id: 'capabilities', title: 'Parameters & Return Values' },
   ],
   'three-phase-ticker': [
     { id: 'ticker-execution', title: 'Execution Pipeline' },
@@ -222,6 +250,7 @@ export function DocsView() {
     }
     if (
       [
+        'use-scroll-progress',
         'use-scroll-state',
         'use-scrollcraft',
         'use-parallax',
@@ -366,14 +395,17 @@ export function DocsView() {
             }
           `}
         >
-          {/* Version Selector */}
-          <div className="mb-6">
-            <div className="w-full bg-zinc-900/90 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-300 font-mono flex items-center justify-between shadow-xs">
-              <span className="font-semibold text-white">v0.1.0-alpha</span>
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-sans">
-                Latest
+          {/* Version Selector & Stability Signal */}
+          <div className="mb-6 space-y-2">
+            <div className="w-full bg-zinc-900/90 border border-amber-500/30 rounded-lg px-3 py-1.5 text-xs text-zinc-300 font-mono flex items-center justify-between shadow-xs">
+              <span className="font-semibold text-white">@scrollcraft/react</span>
+              <span className="text-[10px] px-2 py-0.5 rounded font-bold uppercase tracking-wider bg-amber-500/15 text-amber-400 border border-amber-500/30 font-mono">
+                Beta
               </span>
             </div>
+            <p className="text-[10px] text-zinc-400 leading-tight px-1 font-sans">
+              <span className="text-zinc-300 font-medium">Beta</span> means the API surface may still shift before 1.0 &mdash; it does not mean unstable.
+            </p>
           </div>
 
           <DocsSidebar

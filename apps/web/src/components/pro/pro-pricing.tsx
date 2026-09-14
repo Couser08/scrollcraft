@@ -30,7 +30,7 @@ export const ProPricing: React.FC = () => {
           Simple, Transparent Pricing
         </h2>
         <p className="text-zinc-400 text-sm sm:text-base max-w-xl">
-          Start for free with our open-source MIT engine. Upgrade to Pro for lifetime access to 60+ signature components and CLI scaffolding.
+          Start for free with our open-source MIT engine. Upgrade to Pro for lifetime access to 60+ signature components and blueprints.
         </p>
       </div>
 
@@ -115,7 +115,7 @@ export const ProPricing: React.FC = () => {
       {/* Trust & Guarantee Banner */}
       <div className="max-w-2xl mx-auto flex items-center justify-center gap-3 text-center text-xs text-zinc-400">
         <ShieldCheck className="w-4 h-4 text-emerald-400" />
-        <span>14-day money-back guarantee • Commercial client usage included • Instant CLI activation</span>
+        <span>14-day money-back guarantee • Commercial client usage included • Instant component access</span>
       </div>
     </section>
   );

@@ -14,6 +14,8 @@ export interface PinOptions {
   duration?: number;
   /** Offset from top of viewport to start pinning (in px). Default: 0 */
   topOffset?: number;
+  /** Offset from bottom of viewport (in px). Default: 0 */
+  bottomOffset?: number;
   /** Callback on pin progress (0.0 to 1.0) */
   onProgress?: (progress: number) => void;
   /** Disable writing translate3d transform (e.g. when using native CSS position: sticky). Default: false */
@@ -38,9 +40,11 @@ export class PinSolver {
 
   constructor(element: HTMLElement, options?: PinOptions) {
     this.element = element;
+    const rawDuration = options?.duration ?? (typeof window !== 'undefined' ? window.innerHeight : DEFAULT_PIN_DURATION);
     this.options = {
-      duration: options?.duration ?? (typeof window !== 'undefined' ? window.innerHeight : DEFAULT_PIN_DURATION),
+      duration: Math.max(1, rawDuration),
       topOffset: options?.topOffset ?? 0,
+      bottomOffset: options?.bottomOffset ?? 0,
       onProgress: options?.onProgress ?? (() => {}),
       disableTransform: options?.disableTransform ?? false,
     };
@@ -62,8 +66,9 @@ export class PinSolver {
    * Phase 2: Compute pin progress and offset
    */
   public update(scrollY: number): PinState {
+    const duration = Math.max(1, this.options.duration);
     const pinStart = this.elementTop - this.options.topOffset;
-    const pinEnd = pinStart + this.options.duration;
+    const pinEnd = pinStart + duration;
 
     if (scrollY < pinStart) {
       // Above pin range
@@ -73,13 +78,13 @@ export class PinSolver {
     } else if (scrollY >= pinStart && scrollY <= pinEnd) {
       // Inside active pin range
       this.state.isPinned = true;
-      this.state.progress = clamp((scrollY - pinStart) / this.options.duration, 0, 1);
+      this.state.progress = clamp((scrollY - pinStart) / duration, 0, 1);
       this.state.pinOffsetY = scrollY - pinStart;
     } else {
       // Past pin range
       this.state.isPinned = false;
       this.state.progress = 1;
-      this.state.pinOffsetY = this.options.duration;
+      this.state.pinOffsetY = duration;
     }
 
     this.options.onProgress(this.state.progress);

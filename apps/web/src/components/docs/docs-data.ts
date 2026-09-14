@@ -19,6 +19,7 @@ export interface DocSection {
 export interface DocCategory {
   id: string;
   title: string;
+  badge?: string;
   items: { id: string; title: string; badge?: string }[];
 }
 
@@ -35,6 +36,7 @@ export const DOCS_CATEGORIES: DocCategory[] = [
   {
     id: 'primitives',
     title: 'Core Primitives',
+    badge: 'Beta',
     items: [
       { id: 'parallax', title: '<Parallax />', badge: 'Slot' },
       { id: 'reveal', title: '<Reveal />', badge: 'Slot' },
@@ -48,22 +50,25 @@ export const DOCS_CATEGORIES: DocCategory[] = [
   {
     id: 'hooks',
     title: 'Reactive Hooks',
+    badge: 'Beta',
     items: [
-      { id: 'use-scroll-state', title: 'useScrollState', badge: '0-rerender' },
-      { id: 'use-scrollcraft', title: 'useScrollCraft', badge: 'Core' },
+      { id: 'use-scroll-progress', title: 'useScrollProgress', badge: 'Core' },
       { id: 'use-parallax', title: 'useParallax', badge: 'Headless' },
       { id: 'use-reveal', title: 'useReveal', badge: 'Headless' },
       { id: 'use-pin', title: 'usePin', badge: 'Headless' },
+      { id: 'use-scrollcraft', title: 'useScrollCraft', badge: 'Context' },
+      { id: 'use-scroll-state', title: 'useScrollState', badge: '0-rerender' },
       { id: 'use-magnetic', title: 'useMagnetic', badge: 'Spring' },
     ],
   },
   {
     id: 'r3f',
     title: '3D & Canvas (R3F)',
+    badge: 'Alpha',
     items: [
-      { id: 'r3f-overview', title: '3D Scroll Architecture', badge: 'New' },
+      { id: 'r3f-overview', title: '3D Scroll Architecture', badge: 'Alpha' },
       { id: 'r3f-three-tier', title: 'WAAPI vs Fallback Bridge' },
-      { id: 'use-scroll-3d', title: 'useScroll3D Hook', badge: 'Pull-based' },
+      { id: 'use-scroll-3d', title: 'useScroll3D Hook', badge: 'Alpha' },
       { id: 'r3f-recipes', title: 'Three.js Scene Recipe' },
     ],
   },

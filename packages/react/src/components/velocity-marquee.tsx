@@ -10,7 +10,7 @@ import {
 } from '@scrollcraft/core';
 import { useScrollCraft } from '../context';
 
-export interface VelocityMarqueeProps extends MarqueeOptions {
+export interface VelocityMarqueeProps extends React.HTMLAttributes<HTMLDivElement>, MarqueeOptions {
   children: React.ReactNode;
   className?: string;
 }
@@ -22,6 +22,7 @@ export const VelocityMarquee: React.FC<VelocityMarqueeProps> = ({
   velocityMultiplier,
   direction,
   maxSpeed,
+  ...domProps
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
@@ -79,7 +80,7 @@ export const VelocityMarquee: React.FC<VelocityMarqueeProps> = ({
   }, [baseSpeed, velocityMultiplier, direction, maxSpeed, engine]);
 
   return (
-    <div ref={containerRef} className={`overflow-hidden flex flex-nowrap w-full ${className}`}>
+    <div ref={containerRef} className={`overflow-hidden flex flex-nowrap w-full ${className}`} {...domProps}>
       <div ref={trackRef} className="flex flex-nowrap whitespace-nowrap min-w-max shrink-0">
         <div className="shrink-0 flex items-center pr-8">{children}</div>
         <div className="shrink-0 flex items-center pr-8" aria-hidden="true">{children}</div>
