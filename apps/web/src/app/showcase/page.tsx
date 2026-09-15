@@ -7,7 +7,7 @@ import { GithubIcon } from '@/components/ui/social-icons';
 export const metadata: Metadata = {
   title: 'Showcase — You Build. We Showcase. | ScrollCraft',
   description:
-    'One canonical split-panel example per primitive and hook. Code on the left, live reactive rendering on the right. Zero component gallery sprawl.',
+    'A curated exhibition of physics-driven, high-framerate web experiences powered by ScrollCraft. Pure visual proof of declarative scroll performance.',
 };
 
 export default function ShowcasePage() {
