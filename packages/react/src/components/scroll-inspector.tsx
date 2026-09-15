@@ -160,44 +160,49 @@ export function ScrollInspector({
         <button
           type="button"
           onClick={() => setCollapsed(false)}
-          className="flex items-center gap-2.5 px-3 py-1.5 rounded-full bg-zinc-950/90 text-zinc-300 border border-white/15 shadow-2xl backdrop-blur-md hover:border-white/30 transition-all"
-          title="Expand ScrollCraft Inspector"
+          className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#08080a]/90 text-zinc-300 border border-zinc-800/90 shadow-2xl backdrop-blur-md hover:border-zinc-700 hover:text-white transition-all cursor-pointer group"
+          title="Expand ScrollCraft Telemetry HUD"
         >
           <span
             ref={dotRef}
-            className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]"
+            className="w-1.5 h-1.5 rounded-full bg-violet-400 shadow-[0_0_8px_rgba(139,92,246,0.6)] group-hover:scale-110 transition-transform"
           />
-          <span ref={fpsRef} className="font-bold text-white">
-            60
-          </span>{' '}
-          FPS
-          <span className="text-[9px] uppercase tracking-wider text-zinc-400">({tier})</span>
+          <div className="flex items-baseline gap-1">
+            <span ref={fpsRef} className="font-bold text-white text-xs">
+              120
+            </span>
+            <span className="text-[10px] text-zinc-500 uppercase">FPS</span>
+          </div>
+          <span className="text-zinc-700 select-none">•</span>
+          <span className="text-[9px] uppercase tracking-wider text-violet-400/90 font-medium">
+            {tier}
+          </span>
         </button>
       ) : (
-        <div className="w-[300px] rounded-xl bg-zinc-950/95 text-zinc-300 border border-white/15 shadow-2xl backdrop-blur-xl overflow-hidden">
+        <div className="w-[290px] rounded-2xl bg-[#08080b]/95 text-zinc-300 border border-zinc-800/90 shadow-2xl backdrop-blur-xl overflow-hidden">
           {/* Header */}
-          <div className="flex items-center justify-between px-3.5 py-2.5 border-b border-white/10 bg-white/[0.02]">
+          <div className="flex items-center justify-between px-3.5 py-2.5 border-b border-zinc-800/80 bg-zinc-900/30">
             <div className="flex items-center gap-2">
               <span
                 ref={dotRef}
-                className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]"
+                className="w-2 h-2 rounded-full bg-violet-400 shadow-[0_0_8px_rgba(139,92,246,0.6)]"
               />
-              <span className="font-sans font-bold text-[12px] text-white tracking-wide">
+              <span className="font-sans font-bold text-xs text-white tracking-wider">
                 SCROLLCRAFT
               </span>
-              <span className="text-[9px] px-1.5 py-0.5 rounded uppercase font-semibold bg-white/10 text-zinc-400">
+              <span className="text-[9px] px-1.5 py-0.5 rounded uppercase font-semibold bg-zinc-900 text-zinc-400 border border-zinc-800">
                 HUD
               </span>
             </div>
 
             <div className="flex items-center gap-1.5">
               <span
-                className={`text-[9px] px-1.5 py-0.5 rounded uppercase tracking-wider font-bold border ${
+                className={`text-[9px] px-2 py-0.5 rounded-full uppercase tracking-wider font-semibold border ${
                   tier === 'high'
-                    ? 'bg-blue-500/15 text-blue-400 border-blue-500/30'
+                    ? 'bg-violet-950/50 text-violet-300 border-violet-800/40'
                     : tier === 'low'
-                    ? 'bg-amber-500/15 text-amber-400 border-amber-500/30'
-                    : 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
+                    ? 'bg-amber-950/50 text-amber-300 border-amber-800/40'
+                    : 'bg-emerald-950/50 text-emerald-300 border-emerald-800/40'
                 }`}
               >
                 {tier}
@@ -206,7 +211,7 @@ export function ScrollInspector({
               <button
                 type="button"
                 onClick={() => setCollapsed(true)}
-                className="w-5 h-5 rounded flex items-center justify-center text-zinc-500 hover:text-white hover:bg-white/10 transition-colors ml-1"
+                className="w-5 h-5 rounded flex items-center justify-center text-zinc-500 hover:text-white hover:bg-zinc-800 transition-colors ml-1 cursor-pointer"
                 title="Minimize Inspector"
               >
                 ✕
@@ -215,28 +220,28 @@ export function ScrollInspector({
           </div>
 
           {/* Core Metrics Grid */}
-          <div className="grid grid-cols-3 gap-2 p-3 border-b border-white/10 bg-white/[0.01]">
+          <div className="grid grid-cols-3 gap-2 p-3 border-b border-zinc-800/80 bg-zinc-950/40">
             <div className="flex flex-col">
-              <span className="text-[9px] text-zinc-500 uppercase">FPS / Latency</span>
+              <span className="text-[9px] text-zinc-500 uppercase tracking-wider">FPS / Latency</span>
               <div className="flex items-baseline gap-1 mt-0.5">
                 <span ref={fpsRef} className="font-bold text-white text-[15px]">
-                  60
+                  120
                 </span>
                 <span ref={msRef} className="text-[10px] text-zinc-400">
-                  16.7ms
+                  8.3ms
                 </span>
               </div>
             </div>
 
             <div className="flex flex-col">
-              <span className="text-[9px] text-zinc-500 uppercase">Velocity</span>
+              <span className="text-[9px] text-zinc-500 uppercase tracking-wider">Velocity</span>
               <span ref={velocityRef} className="font-semibold text-zinc-200 mt-0.5">
                 0 px/s
               </span>
             </div>
 
             <div className="flex flex-col">
-              <span className="text-[9px] text-zinc-500 uppercase">Scroll Y</span>
+              <span className="text-[9px] text-zinc-500 uppercase tracking-wider">Scroll Y</span>
               <span ref={scrollRef} className="font-semibold text-zinc-200 mt-0.5">
                 0px
               </span>
@@ -244,29 +249,29 @@ export function ScrollInspector({
           </div>
 
           {/* Scroll Progress Bar */}
-          <div className="px-3 py-2 border-b border-white/10 flex items-center gap-2">
-            <span className="text-[9px] text-zinc-500 uppercase w-12">Progress</span>
-            <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+          <div className="px-3.5 py-2.5 border-b border-zinc-800/80 flex items-center gap-2.5">
+            <span className="text-[9px] text-zinc-500 uppercase tracking-wider w-12">Progress</span>
+            <div className="flex-1 h-1.5 bg-zinc-900 rounded-full overflow-hidden border border-zinc-800/60">
               <div
                 ref={progressFillRef}
-                className="h-full bg-blue-500 transition-all duration-75 ease-out"
+                className="h-full bg-gradient-to-r from-violet-600 to-indigo-500 transition-all duration-75 ease-out"
                 style={{ width: '0%' }}
               />
             </div>
-            <span ref={progressRef} className="text-[10px] font-semibold text-zinc-300 w-8 text-right">
+            <span ref={progressRef} className="text-[10px] font-semibold text-zinc-300 w-8 text-right font-mono">
               0%
             </span>
           </div>
 
           {/* Control Bar: Markers Toggle & Triggers Drawer */}
-          <div className="px-3 py-2 flex items-center justify-between bg-white/[0.02]">
+          <div className="px-3.5 py-2 flex items-center justify-between bg-zinc-900/20">
             <button
               type="button"
               onClick={toggleMarkers}
-              className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-medium border transition-colors ${
+              className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-medium border transition-colors cursor-pointer ${
                 markersActive
-                  ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
-                  : 'bg-white/5 text-zinc-400 border-white/10 hover:bg-white/10'
+                  ? 'bg-emerald-950/40 text-emerald-300 border-emerald-500/40'
+                  : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:bg-zinc-800 hover:text-zinc-200'
               }`}
             >
               <span
@@ -280,15 +285,16 @@ export function ScrollInspector({
             <button
               type="button"
               onClick={() => setShowTriggers(!showTriggers)}
-              className="text-[10px] text-zinc-400 hover:text-white transition-colors"
+              className="text-[10px] text-zinc-400 hover:text-white transition-colors cursor-pointer flex items-center gap-1"
             >
-              Triggers ({triggers.length}) {showTriggers ? '▲' : '▼'}
+              <span>Triggers ({triggers.length})</span>
+              <span className="text-[8px]">{showTriggers ? '▲' : '▼'}</span>
             </button>
           </div>
 
           {/* Triggers Drawer */}
           {showTriggers && (
-            <div className="max-h-48 overflow-y-auto p-2 border-t border-white/10 bg-black/40 space-y-1.5">
+            <div className="max-h-48 overflow-y-auto p-2 border-t border-zinc-800/80 bg-black/60 space-y-1.5">
               {triggers.length === 0 ? (
                 <div className="text-zinc-500 text-center py-2 text-[10px]">
                   No active triggers registered.
@@ -297,13 +303,13 @@ export function ScrollInspector({
                 triggers.map((t) => (
                   <div
                     key={t.id}
-                    className="p-1.5 rounded bg-white/[0.03] border border-white/5 flex flex-col gap-1 text-[10px]"
+                    className="p-2 rounded-xl bg-zinc-900/60 border border-zinc-800/80 flex flex-col gap-1 text-[10px]"
                   >
                     <div className="flex items-center justify-between text-zinc-300">
                       <span className="font-semibold text-zinc-200 truncate max-w-[140px]">
                         {t.id}
                       </span>
-                      <span className="text-[9px] uppercase px-1 rounded bg-white/10 text-zinc-400">
+                      <span className="text-[9px] uppercase px-1.5 py-0.2 rounded bg-zinc-800 text-zinc-400 border border-zinc-700/60">
                         {t.type}
                       </span>
                     </div>
@@ -314,13 +320,13 @@ export function ScrollInspector({
                     </div>
 
                     {/* Progress track */}
-                    <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden mt-0.5">
+                    <div className="w-full h-1 bg-zinc-800 rounded-full overflow-hidden mt-0.5">
                       <div
                         ref={(el) => {
                           if (el) triggerBarsRef.current.set(t.id, el);
                           else triggerBarsRef.current.delete(t.id);
                         }}
-                        className="h-full bg-emerald-500"
+                        className="h-full bg-violet-500"
                         style={{ width: `${(t.progress * 100).toFixed(0)}%` }}
                       />
                     </div>

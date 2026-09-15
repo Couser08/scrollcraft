@@ -12,7 +12,15 @@
 
 import React from 'react';
 import { CodeViewer } from '@/components/ui/code-viewer';
-import { Zap } from 'lucide-react';
+import { Zap, Play } from 'lucide-react';
+
+import { ParallaxPlayground } from '../interactive/parallax-playground';
+import { RevealPlayground } from '../interactive/reveal-playground';
+import { PinPlayground } from '../interactive/pin-playground';
+import { ScrollProgressPlayground } from '../interactive/scroll-progress-playground';
+import { MarqueePlayground } from '../interactive/marquee-playground';
+import { HorizontalPlayground } from '../interactive/horizontal-playground';
+import { ScrollSequencePlayground } from '../interactive/scroll-sequence-playground';
 
 interface DocPrimitivesProps {
   primitiveId: string;
@@ -43,6 +51,7 @@ export function HeroLayer() {
 }`,
     whatItDoes: 'Displaces children along vertical or horizontal scroll axes with subpixel physics offsets.',
     capabilities: [
+      { prop: 'ref', type: 'React.Ref<HTMLDivElement>', defaultValue: 'undefined', desc: 'Forwarded React ref to the animated DOM container.' },
       { prop: 'speed', type: 'number', defaultValue: '0.2', desc: 'Displacement rate multiplier (+ lags behind scroll, - accelerates ahead).' },
       { prop: 'direction', type: "'vertical' | 'horizontal'", defaultValue: "'vertical'", desc: 'Axis of translation (translates translateY vs translateX).' },
       { prop: 'clamp', type: '[number, number]', defaultValue: 'undefined', desc: 'Displacement boundaries [min, max] in pixels to prevent unbounded drift.' },
@@ -66,6 +75,7 @@ export function CardEntrance() {
 }`,
     whatItDoes: 'Hardware-accelerated entrance animation triggered upon intersecting viewport visibility thresholds.',
     capabilities: [
+      { prop: 'ref', type: 'React.Ref<HTMLDivElement>', defaultValue: 'undefined', desc: 'Forwarded React ref to the animated element.' },
       { prop: 'direction', type: "'up' | 'down' | 'left' | 'right'", defaultValue: "'up'", desc: 'Entrance translation vector.' },
       { prop: 'distance', type: 'number', defaultValue: '24', desc: 'Initial offset distance in pixels before triggering entrance.' },
       { prop: 'threshold', type: 'number', defaultValue: '0.15', desc: 'Intersection ratio threshold (0.0 to 1.0) before transition fires.' },
@@ -91,6 +101,7 @@ export function StickyDisplay() {
 }`,
     whatItDoes: 'Locks elements into sticky viewport coordinates for a designated scroll travel distance budget.',
     capabilities: [
+      { prop: 'ref', type: 'React.Ref<HTMLDivElement>', defaultValue: 'undefined', desc: 'Forwarded React ref to the pinned element.' },
       { prop: 'start', type: 'string | number', defaultValue: "'top top'", desc: 'Viewport intersection trigger point where sticky lock initiates.' },
       { prop: 'end', type: 'string | number', defaultValue: "'+=100%'", desc: 'Scroll travel distance through which the element remains locked.' },
       { prop: 'pinSpacing', type: 'boolean', defaultValue: 'true', desc: 'Preserves geometric scroll clearance so surrounding content does not collapse.' },
@@ -107,11 +118,12 @@ export function StickyDisplay() {
 
 export function TopProgressBar() {
   return (
-    <ScrollProgress className="fixed top-0 left-0 right-0 h-1 bg-blue-500 origin-left" />
+    <ScrollProgress className="fixed top-0 left-0 right-0 h-1 bg-violet-500 origin-left" />
   );
 }`,
     whatItDoes: 'Tracks and normalizes scroll completion from 0.0 to 1.0 across a container or entire viewport.',
     capabilities: [
+      { prop: 'ref', type: 'React.Ref<HTMLDivElement>', defaultValue: 'undefined', desc: 'Forwarded React ref to the progress bar element.' },
       { prop: 'targetRef', type: 'RefObject<HTMLElement>', defaultValue: 'undefined', desc: 'Target element to track (omit to measure full document body scroll).' },
       { prop: 'axis', type: "'y' | 'x'", defaultValue: "'y'", desc: 'Scroll orientation axis to monitor.' },
       { prop: 'asChild', type: 'boolean', defaultValue: 'false', desc: 'Passes normalized ratio (0–1) directly to custom child render function or SVG.' },
@@ -134,6 +146,7 @@ export function KineticStrip() {
 }`,
     whatItDoes: 'Continuous horizontal text/image track whose crawl velocity accelerates dynamically with user scroll.',
     capabilities: [
+      { prop: 'ref', type: 'React.Ref<HTMLDivElement>', defaultValue: 'undefined', desc: 'Forwarded React ref to the marquee track wrapper.' },
       { prop: 'baseSpeed', type: 'number', defaultValue: '1', desc: 'Stationary crawling speed in pixels per frame.' },
       { prop: 'velocityMultiplier', type: 'number', defaultValue: '0.05', desc: 'Multiplier applied to instantaneous user scroll velocity.' },
       { prop: 'direction', type: "'left' | 'right'", defaultValue: "'left'", desc: 'Horizontal motion direction of the marquee track.' },
@@ -159,6 +172,7 @@ export function HorizontalGallery() {
 }`,
     whatItDoes: 'Converts vertical document scroll into pinned horizontal sliding track motion.',
     capabilities: [
+      { prop: 'ref', type: 'React.Ref<HTMLDivElement>', defaultValue: 'undefined', desc: 'Forwarded React ref to the outer pinned scroll container.' },
       { prop: 'speed', type: 'number', defaultValue: '2', desc: 'Scroll distance multiplier relative to viewport height (e.g. 2 = 200vh total travel).' },
       { prop: 'className', type: 'string', defaultValue: "''", desc: 'Styles applied to outer pinned container.' },
       { prop: 'innerClassName', type: 'string', defaultValue: "''", desc: 'Styles applied to inner horizontal translating track.' },
@@ -178,6 +192,7 @@ export function CanvasScrub({ frames }: { frames: string[] }) {
 }`,
     whatItDoes: 'Preloads and scrubs sequential image frames on an HTML5 canvas based on pinned scroll progress.',
     capabilities: [
+      { prop: 'ref', type: 'React.Ref<HTMLCanvasElement>', defaultValue: 'undefined', desc: 'Forwarded React ref to the HTML5 canvas element.' },
       { prop: 'frames', type: 'string[]', defaultValue: 'required', desc: 'Array of sequential frame image URLs.' },
       { prop: 'height', type: 'string', defaultValue: "'300vh'", desc: 'CSS scroll travel height budget for scrubbing through the sequence.' },
       { prop: 'speed', type: 'number', defaultValue: '1.5', desc: 'Scrubbing sensitivity multiplier across image frames.' },
@@ -185,8 +200,19 @@ export function CanvasScrub({ frames }: { frames: string[] }) {
   },
 };
 
+const PLAYGROUNDS: Record<string, React.ComponentType> = {
+  parallax: ParallaxPlayground,
+  reveal: RevealPlayground,
+  pin: PinPlayground,
+  'scroll-progress': ScrollProgressPlayground,
+  'velocity-marquee': MarqueePlayground,
+  'horizontal-scroll': HorizontalPlayground,
+  'scroll-sequence': ScrollSequencePlayground,
+};
+
 export const DocPrimitives: React.FC<DocPrimitivesProps> = ({ primitiveId }) => {
   const primitive = PRIMITIVES_DATA[primitiveId] || PRIMITIVES_DATA.parallax;
+  const PlaygroundComponent = PLAYGROUNDS[primitiveId];
 
   return (
     <div className="space-y-10 not-prose">
@@ -207,6 +233,19 @@ export const DocPrimitives: React.FC<DocPrimitivesProps> = ({ primitiveId }) => 
         </div>
       </div>
 
+      {/* Live Interactive Playground Sandbox */}
+      {PlaygroundComponent && (
+        <div id="interactive-demo" className="space-y-3 scroll-mt-24">
+          <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-violet-400 font-semibold">
+            <Play className="w-3.5 h-3.5 text-violet-400" />
+            <span>Interactive Playground &bull; Live Telemetry</span>
+          </div>
+          <div className="rounded-2xl border border-zinc-800/80 overflow-hidden bg-[#070709] shadow-xl">
+            <PlaygroundComponent />
+          </div>
+        </div>
+      )}
+
       {/* Minimal 5-10 Line Syntax Highlighted Code Snippet */}
       <div id="syntax" className="space-y-3 scroll-mt-24">
         <span className="text-xs font-mono uppercase tracking-wider text-zinc-400 block font-semibold">
@@ -218,7 +257,7 @@ export const DocPrimitives: React.FC<DocPrimitivesProps> = ({ primitiveId }) => 
       {/* Capabilities Reference */}
       <div id="capabilities" className="space-y-4 pt-4 scroll-mt-24">
         <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-zinc-400 font-semibold">
-          <Zap className="w-3.5 h-3.5 text-blue-400" />
+          <Zap className="w-3.5 h-3.5 text-violet-400" />
           <span>Capabilities &amp; Props</span>
         </div>
 
@@ -235,7 +274,7 @@ export const DocPrimitives: React.FC<DocPrimitivesProps> = ({ primitiveId }) => 
             <tbody className="divide-y divide-zinc-800/60 font-sans text-zinc-300">
               {primitive.capabilities.map((c) => (
                 <tr key={c.prop} className="hover:bg-zinc-900/40 transition-colors">
-                  <td className="px-4 py-3 font-mono text-blue-400 font-semibold">{c.prop}</td>
+                  <td className="px-4 py-3 font-mono text-violet-400 font-semibold">{c.prop}</td>
                   <td className="px-4 py-3 font-mono text-purple-300 text-[11px]">{c.type}</td>
                   <td className="px-4 py-3 font-mono text-zinc-500 text-[11px]">{c.defaultValue ?? '—'}</td>
                   <td className="px-4 py-3 text-zinc-300 text-xs">{c.desc}</td>

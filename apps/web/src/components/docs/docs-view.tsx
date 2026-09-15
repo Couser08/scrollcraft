@@ -52,9 +52,11 @@ import {
   PanelLeftOpen,
 } from 'lucide-react';
 import Link from 'next/link';
+import { ScrollCraftLogo } from '@/components/ui/scrollcraft-logo';
 
 const TOC_MAPPING: Record<string, TocItem[]> = {
   introduction: [
+    { id: 'introduction-mental-model', title: 'Mental Model' },
     { id: 'install-package', title: 'Package Installation' },
     { id: 'provider-setup', title: 'Root Layout Setup' },
     { id: 'quick-example', title: 'Quickstart Component' },
@@ -66,30 +68,37 @@ const TOC_MAPPING: Record<string, TocItem[]> = {
     { id: 'provider-setup', title: 'Root Layout Integration' },
   ],
   parallax: [
+    { id: 'interactive-demo', title: 'Interactive Sandbox' },
     { id: 'syntax', title: 'Syntax & Example' },
     { id: 'capabilities', title: 'Capabilities & Props' },
   ],
   reveal: [
+    { id: 'interactive-demo', title: 'Interactive Sandbox' },
     { id: 'syntax', title: 'Syntax & Example' },
     { id: 'capabilities', title: 'Capabilities & Props' },
   ],
   pin: [
+    { id: 'interactive-demo', title: 'Interactive Sandbox' },
     { id: 'syntax', title: 'Syntax & Example' },
     { id: 'capabilities', title: 'Capabilities & Props' },
   ],
   'scroll-progress': [
+    { id: 'interactive-demo', title: 'Interactive Sandbox' },
     { id: 'syntax', title: 'Syntax & Example' },
     { id: 'capabilities', title: 'Capabilities & Props' },
   ],
   'velocity-marquee': [
+    { id: 'interactive-demo', title: 'Interactive Sandbox' },
     { id: 'syntax', title: 'Syntax & Example' },
     { id: 'capabilities', title: 'Capabilities & Props' },
   ],
   'horizontal-scroll': [
+    { id: 'interactive-demo', title: 'Interactive Sandbox' },
     { id: 'syntax', title: 'Syntax & Example' },
     { id: 'capabilities', title: 'Capabilities & Props' },
   ],
   'scroll-sequence': [
+    { id: 'interactive-demo', title: 'Interactive Sandbox' },
     { id: 'syntax', title: 'Syntax & Example' },
     { id: 'capabilities', title: 'Capabilities & Props' },
   ],
@@ -214,10 +223,44 @@ export function DocsView() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [tocItems, activeSection]);
 
+  // Sync section with URL hash on load and back/forward navigation
+  useEffect(() => {
+    const handleHash = () => {
+      if (typeof window === 'undefined') return;
+      const rawHash = window.location.hash.replace('#', '').toLowerCase();
+      if (!rawHash) return;
+
+      const aliasMap: Record<string, string> = {
+        progress: 'scroll-progress',
+        hooks: 'use-scroll-progress',
+        r3f: 'r3f-overview',
+        ticker: 'three-phase-ticker',
+        marquee: 'velocity-marquee',
+        horizontal: 'horizontal-scroll',
+        sequence: 'scroll-sequence',
+      };
+
+      const targetId = aliasMap[rawHash] || rawHash;
+      const exists = flatSections.some((s) => s.id === targetId);
+      if (exists) {
+        setActiveSection(targetId);
+      }
+    };
+
+    handleHash();
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
+  }, [flatSections]);
+
   const handleSelectSection = (id: string) => {
     setActiveSection(id);
     setMobileMenuOpen(false);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (typeof window !== 'undefined') {
+      window.history.replaceState(null, '', `#${id}`);
+      if (!['installation', 'setup'].includes(id)) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
   };
 
   const scrollToHeading = (id: string, e: React.MouseEvent) => {
@@ -280,7 +323,7 @@ export function DocsView() {
   };
 
   return (
-    <div className="w-full min-h-screen flex flex-col bg-[#050505] text-zinc-100 font-sans selection:bg-blue-500/20 selection:text-white">
+    <div className="w-full min-h-screen flex flex-col bg-[#050505] text-zinc-100 font-sans selection:bg-violet-600/30 selection:text-white">
       {/* Command Palette Modal */}
       <CommandPalette
         isOpen={commandPaletteOpen}
@@ -292,8 +335,7 @@ export function DocsView() {
       <header className="h-16 shrink-0 border-b border-zinc-800/80 bg-[#050505]/95 backdrop-blur-md flex items-center justify-between px-6 z-50 sticky top-0">
         <div className="flex items-center gap-6 sm:gap-10">
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-5 h-5 rounded-full bg-blue-500 shadow-md shadow-blue-500/30 group-hover:scale-105 transition-transform" />
-            <span className="text-xl font-bold tracking-tight text-white">ScrollCraft</span>
+            <ScrollCraftLogo variant="badge" badgeText="Beta" size="sm" />
           </Link>
           <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
             <Link href="/docs" className="text-white hover:text-white transition-colors">
@@ -336,7 +378,7 @@ export function DocsView() {
           </button>
 
           <a
-            href="https://github.com/scrollcraft"
+            href="https://github.com/ScrollCraft/scrollcraft"
             target="_blank"
             rel="noopener noreferrer"
             className="text-zinc-400 hover:text-white transition-colors p-1"
@@ -450,7 +492,7 @@ export function DocsView() {
                     <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1" />
                     <span>Previous</span>
                   </div>
-                  <span className="text-base font-semibold text-white group-hover:text-blue-400 transition-colors">
+                  <span className="text-base font-semibold text-white group-hover:text-violet-400 transition-colors">
                     {prevSection.title}
                   </span>
                   <span className="text-xs text-zinc-500">{prevSection.categoryTitle}</span>
@@ -468,7 +510,7 @@ export function DocsView() {
                     <span>Next</span>
                     <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
                   </div>
-                  <span className="text-base font-semibold text-white group-hover:text-blue-400 transition-colors">
+                  <span className="text-base font-semibold text-white group-hover:text-violet-400 transition-colors">
                     {nextSection.title}
                   </span>
                   <span className="text-xs text-zinc-500">{nextSection.categoryTitle}</span>
@@ -494,7 +536,7 @@ export function DocsView() {
                     onClick={(e) => scrollToHeading(item.id, e)}
                     className={`text-left pl-3.5 py-1.5 text-xs transition-all cursor-pointer border-l -ml-[1px] leading-relaxed ${
                       isHeadingActive
-                        ? 'text-white font-semibold border-blue-500'
+                        ? 'text-white font-semibold border-violet-500'
                         : 'text-zinc-500 hover:text-zinc-300 border-transparent'
                     }`}
                   >

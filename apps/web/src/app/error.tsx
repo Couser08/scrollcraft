@@ -18,6 +18,16 @@ export default function Error({
   useEffect(() => {
     // Log error to diagnostic service if configured
     console.error('[ScrollCraft Error Boundary]', error);
+
+    // Auto-recover from stale Webpack HMR chunk load failures
+    if (
+      typeof window !== 'undefined' &&
+      (error.message?.includes('Loading chunk') ||
+        error.name === 'ChunkLoadError' ||
+        error.message?.includes('Failed to fetch dynamically imported module'))
+    ) {
+      window.location.reload();
+    }
   }, [error]);
 
   return (
@@ -40,7 +50,7 @@ export default function Error({
         <div className="pt-2 flex justify-center gap-3">
           <button
             onClick={() => reset()}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-semibold shadow-sm transition-all cursor-pointer"
+            className="px-4 py-2 bg-violet-600 hover:bg-violet-500 text-white rounded-lg text-xs font-semibold shadow-sm transition-all cursor-pointer"
           >
             Reset Animation Engine
           </button>

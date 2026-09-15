@@ -16,9 +16,9 @@ export const DocsCallout: React.FC<DocsCalloutProps> = ({
 }) => {
   const styles = {
     note: {
-      container: 'bg-blue-950/20 border border-blue-900/40 border-l-2 border-l-blue-500',
-      icon: <Sparkles className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />,
-      titleColor: 'text-blue-400',
+      container: 'bg-violet-950/20 border border-violet-900/40 border-l-2 border-l-violet-500',
+      icon: <Sparkles className="w-4 h-4 text-violet-400 shrink-0 mt-0.5" />,
+      titleColor: 'text-violet-400',
     },
     tip: {
       container: 'bg-emerald-950/20 border border-emerald-900/40 border-l-2 border-l-emerald-500',

@@ -20,7 +20,7 @@ export const PointerCard: React.FC<{
   const getIcon = () => {
     switch (data.icon) {
       case 'zap':
-        return <Zap className="w-4 h-4 text-blue-400" />;
+        return <Zap className="w-4 h-4 text-violet-400" />;
       case 'layout-template':
         return <LayoutTemplate className="w-4 h-4 text-emerald-400" />;
       case 'upload-cloud':
@@ -31,7 +31,7 @@ export const PointerCard: React.FC<{
   const getAccentGlow = () => {
     switch (data.accentColor) {
       case 'blue':
-        return 'bg-blue-950/60 border-blue-500/30 shadow-[0_0_16px_rgba(37,99,235,0.25)]';
+        return 'bg-violet-950/60 border-violet-500/30 shadow-[0_0_16px_rgba(124,58,237,0.25)]';
       case 'emerald':
         return 'bg-emerald-950/60 border-emerald-500/30 shadow-[0_0_16px_rgba(16,185,129,0.25)]';
       case 'purple':

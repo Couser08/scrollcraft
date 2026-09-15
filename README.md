@@ -1,26 +1,27 @@
 # ScrollCraft
 
-[![@scrollcraft/core Status](https://img.shields.io/badge/@scrollcraft/core-beta-orange.svg)](https://www.npmjs.com/package/@scrollcraft/core)
-[![@scrollcraft/react Status](https://img.shields.io/badge/@scrollcraft/react-beta-orange.svg)](https://www.npmjs.com/package/@scrollcraft/react)
-[![@scrollcraft/r3f Status](https://img.shields.io/badge/@scrollcraft/r3f-alpha-red.svg)](https://www.npmjs.com/package/@scrollcraft/r3f)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![@scrollcraft/core](https://img.shields.io/badge/@scrollcraft/core-beta-7C3AED.svg)](https://www.npmjs.com/package/@scrollcraft/core)
+[![@scrollcraft/react](https://img.shields.io/badge/@scrollcraft/react-beta-7C3AED.svg)](https://www.npmjs.com/package/@scrollcraft/react)
+[![@scrollcraft/r3f](https://img.shields.io/badge/@scrollcraft/r3f-alpha-amber.svg)](https://www.npmjs.com/package/@scrollcraft/r3f)
+[![Bundle Size](https://img.shields.io/badge/bundle%20size-%3C%204.2%20KB%20gzip-7C3AED.svg)](#packages-in-this-monorepo)
+[![License: MIT](https://img.shields.io/badge/License-MIT-zinc.svg)](LICENSE)
 
 **The scroll engine React never had.**
 
 Composable primitives and hooks for parallax, reveals, pins, and scroll-progress — powered by Lenis, safe in RSC, and fully tree-shakeable.
 
-> **Stability & Versioning Note:**  
-> **Beta means the API surface may still shift before 1.0 — it does not mean unstable.** ScrollCraft is engineered for production web applications, featuring direct GPU compositor writes and zero React re-render overhead during active scrolling.
+> **Beta Notice:**  
+> ScrollCraft is actively entering its public Beta. "Beta" signifies that public API contracts are finalizing toward 1.0 — the engine underneath is rock-solid and battle-tested for production web applications. All kinetic primitives bypass React's reconciliation cycle, writing subpixel transform matrices directly to the GPU compositor for guaranteed 120 FPS performance with zero re-render overhead.
 
 ---
 
 ## Packages in This Monorepo
 
-| Package | Status | Badge | Description |
+| Package | Status | Size | Description |
 |---|---|---|---|
-| [`@scrollcraft/core`](./packages/core) | **Beta** | `stability-beta-orange` | Headless 3-phase ticker, inertia physics, timeline solver & pin solver. |
-| [`@scrollcraft/react`](./packages/react) | **Beta** | `stability-beta-orange` | Declarative React primitives (`<Parallax>`, `<Reveal>`, `<Pin>`, `<ScrollProgress>`) & hooks. |
-| [`@scrollcraft/r3f`](./packages/r3f) | **Alpha** | `stability-alpha-red` | Pull-based Three.js / React Three Fiber scroll bridge with zero RAF double-pumping. |
+| [`@scrollcraft/core`](./packages/core) | **Beta** | `~2.8 KB gzip` | Headless 3-phase ticker, inertia physics, timeline solver & pin solver. |
+| [`@scrollcraft/react`](./packages/react) | **Beta** | `~4.1 KB gzip` | Declarative React primitives (`<Parallax>`, `<Reveal>`, `<Pin>`, `<ScrollProgress>`) & hooks. |
+| [`@scrollcraft/r3f`](./packages/r3f) | **Alpha (Experimental)** | `~1.2 KB gzip` | Experimental pull-based Three.js / React Three Fiber scroll bridge with zero RAF conflicts. |
 
 ---
 
@@ -113,7 +114,7 @@ import { ScrollProgress } from '@scrollcraft/react';
 
 export function ReadingBar() {
   return (
-    <ScrollProgress className="fixed top-0 left-0 right-0 h-1 bg-blue-500 origin-left" />
+    <ScrollProgress className="fixed top-0 left-0 right-0 h-1 bg-violet-600 origin-left" />
   );
 }
 ```

@@ -36,13 +36,13 @@ export function EngineArchitectureSection() {
         <path
           d="M -100 600 C 300 600 400 750 600 750"
           fill="none"
-          stroke="#3b82f6"
+          stroke="#7c3aed"
           strokeWidth="1.5"
         />
         <path
           d="M 800 750 C 1000 750 1100 600 1500 600"
           fill="none"
-          stroke="#3b82f6"
+          stroke="#7c3aed"
           strokeWidth="1.5"
         />
       </svg>
@@ -70,11 +70,11 @@ export function EngineArchitectureSection() {
         <div className="text-center max-w-3xl mx-auto mb-14">
           <Reveal direction="down" distance={15}>
             <div className="flex items-center justify-center gap-2 mb-3">
-              <span className="text-[11px] sm:text-xs font-mono font-bold tracking-[0.25em] uppercase text-sky-400">
+              <span className="text-[11px] sm:text-xs font-mono font-bold tracking-[0.25em] uppercase text-violet-400">
                 Engine Architecture
               </span>
               <span className="text-xs font-mono text-zinc-600">&bull;</span>
-              <span className="text-[11px] sm:text-xs font-mono font-bold tracking-[0.25em] uppercase text-sky-400">
+              <span className="text-[11px] sm:text-xs font-mono font-bold tracking-[0.25em] uppercase text-violet-400">
                 Engineering Authority
               </span>
             </div>
@@ -100,7 +100,7 @@ export function EngineArchitectureSection() {
             {/* Top Bar inside card */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-zinc-800/80 mb-6">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-sky-400 shrink-0 shadow-inner">
+                <div className="w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-violet-400 shrink-0 shadow-inner">
                   <Box className="w-5 h-5" />
                 </div>
                 <div>
@@ -119,7 +119,7 @@ export function EngineArchitectureSection() {
               </div>
 
               {/* Bundle Size Pill */}
-              <div className="self-start sm:self-auto inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-sky-500/30 bg-sky-500/10 text-sky-400 font-mono text-xs shadow-xs">
+              <div className="self-start sm:self-auto inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-violet-500/30 bg-violet-500/10 text-violet-300 font-mono text-xs shadow-xs">
                 <Code className="w-3.5 h-3.5" />
                 <span>&lt; 4.2 KB (brotli)</span>
               </div>
@@ -129,12 +129,12 @@ export function EngineArchitectureSection() {
             <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-4 lg:gap-3">
               {/* Phase 1: Schedule Ticket */}
               <div className="rounded-xl border border-zinc-800/90 bg-[#060608] p-4 sm:p-5 flex items-start gap-4 flex-1 shadow-md">
-                <div className="w-10 h-10 rounded-lg bg-zinc-900/90 border border-zinc-800 flex items-center justify-center text-sky-400 shrink-0">
+                <div className="w-10 h-10 rounded-lg bg-zinc-900/90 border border-zinc-800 flex items-center justify-center text-violet-400 shrink-0">
                   <Layers className="w-5 h-5" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2 font-mono text-[11px]">
-                    <span className="text-sky-400 font-bold">01</span>
+                    <span className="text-violet-400 font-bold">01</span>
                     <span className="text-zinc-500">Phase 1</span>
                   </div>
                   <h4 className="text-sm sm:text-base font-bold text-white mt-0.5">
@@ -148,17 +148,17 @@ export function EngineArchitectureSection() {
 
               {/* Connecting Dot 1 */}
               <div className="hidden lg:flex items-center justify-center shrink-0 px-1">
-                <span className="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.9)]" />
+                <span className="w-2.5 h-2.5 rounded-full bg-violet-500 shadow-[0_0_8px_rgba(139,92,246,0.9)]" />
               </div>
 
               {/* Phase 2: Inertia Physics */}
               <div className="rounded-xl border border-zinc-800/90 bg-[#060608] p-4 sm:p-5 flex items-start gap-4 flex-1 shadow-md">
-                <div className="w-10 h-10 rounded-lg bg-zinc-900/90 border border-zinc-800 flex items-center justify-center text-sky-400 shrink-0">
+                <div className="w-10 h-10 rounded-lg bg-zinc-900/90 border border-zinc-800 flex items-center justify-center text-violet-400 shrink-0">
                   <Activity className="w-5 h-5" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2 font-mono text-[11px]">
-                    <span className="text-sky-400 font-bold">02</span>
+                    <span className="text-violet-400 font-bold">02</span>
                     <span className="text-zinc-500">Phase 2</span>
                   </div>
                   <h4 className="text-sm sm:text-base font-bold text-white mt-0.5">
@@ -172,17 +172,17 @@ export function EngineArchitectureSection() {
 
               {/* Connecting Dot 2 */}
               <div className="hidden lg:flex items-center justify-center shrink-0 px-1">
-                <span className="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.9)]" />
+                <span className="w-2.5 h-2.5 rounded-full bg-violet-500 shadow-[0_0_8px_rgba(139,92,246,0.9)]" />
               </div>
 
               {/* Phase 3: ScrollValue Mutators */}
               <div className="rounded-xl border border-zinc-800/90 bg-[#060608] p-4 sm:p-5 flex items-start gap-4 flex-1 shadow-md">
-                <div className="w-10 h-10 rounded-lg bg-zinc-900/90 border border-zinc-800 flex items-center justify-center text-sky-400 shrink-0">
+                <div className="w-10 h-10 rounded-lg bg-zinc-900/90 border border-zinc-800 flex items-center justify-center text-violet-400 shrink-0">
                   <SlidersHorizontal className="w-5 h-5" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2 font-mono text-[11px]">
-                    <span className="text-sky-400 font-bold">03</span>
+                    <span className="text-violet-400 font-bold">03</span>
                     <span className="text-zinc-500">Phase 3</span>
                   </div>
                   <h4 className="text-sm sm:text-base font-bold text-white mt-0.5">
@@ -208,7 +208,7 @@ export function EngineArchitectureSection() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-16">
           {/* Spec 1 */}
           <div className="flex items-center gap-3.5 justify-center sm:justify-start">
-            <div className="text-sky-400">
+            <div className="text-violet-400">
               <Zap className="w-5 h-5" />
             </div>
             <div>
@@ -219,7 +219,7 @@ export function EngineArchitectureSection() {
 
           {/* Spec 2 */}
           <div className="flex items-center gap-3.5 justify-center sm:justify-start">
-            <div className="text-sky-400">
+            <div className="text-violet-400">
               <Box className="w-5 h-5" />
             </div>
             <div>
@@ -230,7 +230,7 @@ export function EngineArchitectureSection() {
 
           {/* Spec 3 */}
           <div className="flex items-center gap-3.5 justify-center sm:justify-start">
-            <div className="text-sky-400">
+            <div className="text-violet-400">
               <Leaf className="w-5 h-5" />
             </div>
             <div>
@@ -243,7 +243,7 @@ export function EngineArchitectureSection() {
         {/* Scroll To Explore Indicator */}
         <div className="flex flex-col items-center justify-center text-center">
           <div className="w-5 h-8 rounded-full border-2 border-zinc-700/80 flex items-start justify-center p-1 shadow-inner">
-            <span className="w-1 h-2 rounded-full bg-sky-400 animate-bounce" />
+            <span className="w-1 h-2 rounded-full bg-violet-400 animate-bounce" />
           </div>
           <span className="text-[10px] font-mono font-semibold tracking-[0.25em] text-zinc-500 uppercase mt-2.5">
             SCROLL TO EXPLORE

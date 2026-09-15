@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { ScrollCraftEmblem } from '@/components/ui/scrollcraft-logo';
 
 export function Footer() {
   return (
@@ -9,8 +10,8 @@ export function Footer() {
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-12 md:gap-0">
         
         <div className="flex flex-col gap-2">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-5 h-5 rounded-full bg-blue-500" />
+          <Link href="/" className="flex items-center gap-2.5">
+            <ScrollCraftEmblem size={24} />
             <span className="text-xl font-bold text-white tracking-tight">ScrollCraft</span>
           </Link>
           <p className="text-sm text-zinc-500">

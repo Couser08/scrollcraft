@@ -23,11 +23,11 @@ export function FinalCTASection() {
   const [isRunningDoctor, setIsRunningDoctor] = useState(false);
   const installCmd = 'npm i @scrollcraft/react';
 
-  const quickstartSnippet = `import { ScrollCraftProvider, Parallax } from '@scrollcraft/react';
+  const quickstartSnippet = `import { ScrollProvider, Parallax } from '@scrollcraft/react';
 
 export default function App() {
   return (
-    <ScrollCraftProvider smooth>
+    <ScrollProvider smooth>
       <Parallax speed={0.25} className="hero">
         <h1 className="text-6xl font-bold">
           Make the web move.
@@ -65,7 +65,7 @@ export default function App() {
       {/* Background Ambience Radial Glow */}
       <div
         aria-hidden="true"
-        className="absolute top-1/2 left-1/3 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[380px] rounded-full bg-blue-600/10 blur-[140px] pointer-events-none"
+        className="absolute top-1/2 left-1/3 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[380px] rounded-full bg-violet-600/15 blur-[140px] pointer-events-none"
       />
 
       {/* Far Right Floating Watermark */}
@@ -195,7 +195,7 @@ export default function App() {
                 {/* Subtle Ambient Backing Glow */}
                 <div
                   aria-hidden="true"
-                  className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-blue-600/20 via-sky-500/10 to-indigo-600/20 blur-xl opacity-75"
+                  className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-violet-600/25 via-purple-500/15 to-indigo-600/20 blur-xl opacity-75"
                 />
 
                 {/* Main Console Box */}
@@ -220,7 +220,7 @@ export default function App() {
                             : 'text-zinc-400 hover:text-zinc-200'
                         }`}
                       >
-                        <Terminal className="w-3 h-3 text-sky-400" />
+                        <Terminal className="w-3 h-3 text-violet-400" />
                         terminal
                       </button>
 
@@ -233,7 +233,7 @@ export default function App() {
                             : 'text-zinc-400 hover:text-zinc-200'
                         }`}
                       >
-                        <Code2 className="w-3 h-3 text-blue-400" />
+                        <Code2 className="w-3 h-3 text-violet-400" />
                         App.tsx
                       </button>
 
@@ -347,11 +347,11 @@ export default function App() {
                           </button>
                         </div>
                         <pre className="text-[11px] leading-relaxed text-zinc-300 overflow-x-auto p-1 font-mono">
-                          <span className="text-purple-400">import</span> &#123; <span className="text-sky-300">ScrollCraftProvider</span>, <span className="text-sky-300">Parallax</span> &#125; <span className="text-purple-400">from</span> <span className="text-emerald-300">&apos;@scrollcraft/react&apos;</span>;{'\n\n'}
-                          <span className="text-purple-400">export default function</span> <span className="text-blue-400">App</span>() &#123;{'\n'}
+                          <span className="text-purple-400">import</span> &#123; <span className="text-violet-300">ScrollCraftProvider</span>, <span className="text-violet-300">Parallax</span> &#125; <span className="text-purple-400">from</span> <span className="text-emerald-300">&apos;@scrollcraft/react&apos;</span>;{'\n\n'}
+                          <span className="text-purple-400">export default function</span> <span className="text-violet-400">App</span>() &#123;{'\n'}
                           {'  '}<span className="text-purple-400">return</span> ({'\n'}
-                          {'    '}&lt;<span className="text-sky-300">ScrollCraftProvider</span> <span className="text-yellow-400">smooth</span>&gt;{'\n'}
-                          {'      '}&lt;<span className="text-sky-300">Parallax</span> <span className="text-yellow-400">speed</span>=&#123;<span className="text-amber-300">0.25</span>&#125;&gt;{'\n'}
+                          {'    '}&lt;<span className="text-violet-300">ScrollCraftProvider</span> <span className="text-yellow-400">smooth</span>&gt;{'\n'}
+                          {'      '}&lt;<span className="text-violet-300">Parallax</span> <span className="text-yellow-400">speed</span>=&#123;<span className="text-amber-300">0.25</span>&#125;&gt;{'\n'}
                           {'        '}&lt;<span className="text-sky-300">h1</span>&gt;Make the web move.&lt;/<span className="text-sky-300">h1</span>&gt;{'\n'}
                           {'      '}&lt;/<span className="text-sky-300">Parallax</span>&gt;{'\n'}
                           {'    '}&lt;/<span className="text-sky-300">ScrollCraftProvider</span>&gt;{'\n'}

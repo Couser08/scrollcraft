@@ -35,7 +35,7 @@ export const DOCS_CATEGORIES: DocCategory[] = [
   },
   {
     id: 'primitives',
-    title: 'Core Primitives',
+    title: 'Component Reference',
     badge: 'Beta',
     items: [
       { id: 'parallax', title: '<Parallax />', badge: 'Slot' },

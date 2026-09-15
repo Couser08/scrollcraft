@@ -87,7 +87,7 @@ function generateSequenceFrames(count = 60): string[] {
       ctx.beginPath();
       ctx.moveTo(topX, topY);
       ctx.lineTo(botX, botY);
-      ctx.strokeStyle = 'rgba(147, 197, 253, 0.4)';
+      ctx.strokeStyle = 'rgba(167, 139, 250, 0.4)';
       ctx.lineWidth = 1.2;
       ctx.stroke();
     }
@@ -95,8 +95,8 @@ function generateSequenceFrames(count = 60): string[] {
     // Holographic core focal point
     ctx.beginPath();
     ctx.arc(centerX, centerY, 6, 0, Math.PI * 2);
-    ctx.fillStyle = '#60a5fa';
-    ctx.shadowColor = '#3b82f6';
+    ctx.fillStyle = '#a78bfa';
+    ctx.shadowColor = '#7c3aed';
     ctx.shadowBlur = 14;
     ctx.fill();
     ctx.shadowBlur = 0;
@@ -197,7 +197,7 @@ export const ScrollSequencePlayground: React.FC = () => {
           <div>
             <div className="flex items-center justify-between text-xs mb-1.5 font-mono">
               <span className="text-zinc-300 font-medium">Scrubbing Sensitivity</span>
-              <span className="text-blue-400 font-semibold">{speed.toFixed(1)}x</span>
+              <span className="text-violet-400 font-semibold">{speed.toFixed(1)}x</span>
             </div>
             <input
               type="range"
@@ -206,7 +206,7 @@ export const ScrollSequencePlayground: React.FC = () => {
               step="0.25"
               value={speed}
               onChange={(e) => setSpeed(Number(e.target.value))}
-              className="w-full accent-blue-500 h-1.5 bg-zinc-800 rounded-lg cursor-pointer"
+              className="w-full accent-violet-500 h-1.5 bg-zinc-800 rounded-lg cursor-pointer"
             />
             <div className="flex justify-between text-[10px] text-zinc-500 mt-1 font-mono">
               <span>1.0x (Responsive)</span>
@@ -246,7 +246,7 @@ export const ScrollSequencePlayground: React.FC = () => {
         <>
           <div className="flex items-center justify-between">
             <span className="text-zinc-400">Timeline Frame Counter:</span>
-            <span ref={frameCounterRef} className="text-blue-400 font-bold font-mono">
+            <span ref={frameCounterRef} className="text-violet-400 font-bold font-mono">
               Frame 1 / 60
             </span>
           </div>
@@ -270,7 +270,7 @@ export const ScrollSequencePlayground: React.FC = () => {
       <div className="flex flex-col gap-3">
         <div className="text-[11px] font-mono text-zinc-400 flex items-center justify-between">
           <span className="flex items-center gap-1.5">
-            <Film className="w-3.5 h-3.5 text-blue-400" />
+            <Film className="w-3.5 h-3.5 text-violet-400" />
             <span>Apple-Style &lt;ScrollSequence /&gt; Stage</span>
           </span>
           <span className="text-zinc-500">Scroll down to scrub 3D wireframe frames</span>

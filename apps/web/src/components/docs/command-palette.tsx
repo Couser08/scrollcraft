@@ -18,6 +18,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const itemRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   // Flatten all searchable items
   const allItems = React.useMemo(() => {
@@ -42,6 +43,18 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     );
   }, [allItems, query]);
 
+  // Lock background body scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
   // Focus input on open
   useEffect(() => {
     if (isOpen) {
@@ -55,6 +68,16 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   useEffect(() => {
     setSelectedIndex(0);
   }, [query]);
+
+  // Auto-scroll selected item into view on arrow key navigation
+  useEffect(() => {
+    if (isOpen && itemRefs.current[selectedIndex]) {
+      itemRefs.current[selectedIndex]?.scrollIntoView({
+        block: 'nearest',
+        behavior: 'smooth',
+      });
+    }
+  }, [selectedIndex, isOpen]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -88,7 +111,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   const getCategoryIcon = (catId: string) => {
     switch (catId) {
       case 'getting-started':
-        return <BookOpen className="w-3.5 h-3.5 text-blue-400" />;
+        return <BookOpen className="w-3.5 h-3.5 text-violet-400" />;
       case 'primitives':
         return <Layers className="w-3.5 h-3.5 text-emerald-400" />;
       case 'hooks':
@@ -109,7 +132,10 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       />
 
       {/* Modal Dialog */}
-      <div className="relative w-full max-w-xl rounded-2xl bg-[#09090b] border border-zinc-800 shadow-2xl overflow-hidden z-10 flex flex-col max-h-[75vh] animate-in zoom-in-95 duration-150">
+      <div 
+        onWheel={(e) => e.stopPropagation()}
+        className="relative w-full max-w-xl rounded-2xl bg-[#09090b] border border-zinc-800 shadow-2xl overflow-hidden z-10 flex flex-col max-h-[75vh] animate-in zoom-in-95 duration-150"
+      >
         {/* Search Input Bar */}
         <div className="flex items-center gap-3 px-4 py-3.5 border-b border-zinc-800 bg-[#0c0c0e]">
           <Search className="w-4 h-4 text-zinc-400 shrink-0" />
@@ -135,7 +161,10 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         </div>
 
         {/* Results List */}
-        <div className="flex-1 overflow-y-auto p-2 divide-y divide-zinc-900/60">
+        <div 
+          onWheel={(e) => e.stopPropagation()}
+          className="flex-1 overflow-y-auto max-h-[55vh] overscroll-contain p-2 divide-y divide-zinc-900/60 touch-pan-y"
+        >
           {filteredItems.length === 0 ? (
             <div className="py-12 text-center text-sm text-zinc-500">
               No results found for &ldquo;<span className="text-zinc-300">{query}</span>&rdquo;
@@ -147,6 +176,9 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                 return (
                   <button
                     key={`${item.categoryId}-${item.id}`}
+                    ref={(el) => {
+                      itemRefs.current[index] = el;
+                    }}
                     onClick={() => {
                       onSelectSection(item.id);
                       onClose();

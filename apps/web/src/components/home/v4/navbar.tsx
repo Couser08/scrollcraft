@@ -3,6 +3,7 @@
 import React, { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useScrollCraft, ScrollMetrics } from '@scrollcraft/react';
+import { ScrollCraftLogo } from '@/components/ui/scrollcraft-logo';
 
 export function Navbar() {
   const bgRef = useRef<HTMLDivElement>(null);
@@ -36,8 +37,7 @@ export function Navbar() {
         {/* Brand Logo */}
         <div className="flex items-center gap-3">
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-3.5 h-3.5 rounded-full bg-blue-600 shadow-[0_0_12px_rgba(37,99,235,0.8)] group-hover:scale-110 transition-transform" />
-            <span className="text-lg font-bold text-white tracking-tight">ScrollCraft</span>
+            <ScrollCraftLogo variant="badge" badgeText="Beta" size="md" />
           </Link>
         </div>
 

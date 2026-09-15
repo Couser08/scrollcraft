@@ -37,7 +37,7 @@ export function KineticMesh({ target }: { target: HTMLElement | null }) {
   return (
     <mesh ref={meshRef}>
       <icosahedronGeometry args={[1.5, 1]} />
-      <meshStandardMaterial wireframe color="#3b82f6" />
+      <meshStandardMaterial wireframe color="#8b5cf6" />
     </mesh>
   );
 }`;

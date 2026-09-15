@@ -268,10 +268,10 @@ export function R3FPreviewSection() {
                 <span>View Docs</span>
               </Link>
               <Link
-                href="/examples#r3f"
+                href="/showcase"
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white font-medium text-xs transition-all active:scale-95 cursor-pointer"
               >
-                <span>Explore Examples</span>
+                <span>Explore Showcase</span>
               </Link>
             </div>
           </Reveal>

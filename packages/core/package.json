@@ -6,7 +6,9 @@
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "!dist/**/__tests__",
+    "!dist/**/*.test.*"
   ],
   "publishConfig": {
     "access": "public"
@@ -21,6 +23,8 @@
     }
   },
   "scripts": {
+    "clean": "node -e \"const fs = require('fs'); fs.rmSync('dist', { recursive: true, force: true });\"",
+    "prebuild": "pnpm run clean",
     "build": "tsc",
     "lint": "tsc --noEmit"
   },

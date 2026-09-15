@@ -27,7 +27,7 @@ export const RevealPlayground: React.FC = () => {
       title: '0 Re-renders (Zero V8 GC)',
       badge: 'Zero Alloc',
       desc: 'Writes inline cubic-bezier styles directly to node refs. Bypasses React reconciliation.',
-      icon: <Cpu className="w-4 h-4 text-blue-400" />,
+      icon: <Cpu className="w-4 h-4 text-violet-400" />,
       metric: '0 state diffs',
     },
     {
@@ -99,7 +99,7 @@ export const RevealPlayground: React.FC = () => {
           <div>
             <div className="flex items-center justify-between text-xs mb-1.5 font-mono">
               <span className="text-zinc-300 font-medium">Stagger Delay</span>
-              <span className="text-blue-400 font-semibold">{staggerDelay.toFixed(2)}s</span>
+              <span className="text-violet-400 font-semibold">{staggerDelay.toFixed(2)}s</span>
             </div>
             <input
               type="range"
@@ -111,7 +111,7 @@ export const RevealPlayground: React.FC = () => {
                 setStaggerDelay(Number(e.target.value));
                 setRemountKey((k) => k + 1);
               }}
-              className="w-full accent-blue-500 h-1.5 bg-zinc-800 rounded-lg cursor-pointer"
+              className="w-full accent-violet-500 h-1.5 bg-zinc-800 rounded-lg cursor-pointer"
             />
           </div>
 
@@ -119,7 +119,7 @@ export const RevealPlayground: React.FC = () => {
             <div>
               <div className="flex items-center justify-between text-xs mb-1 font-mono">
                 <span className="text-zinc-300">Distance</span>
-                <span className="text-blue-400 font-semibold">{distance}px</span>
+                <span className="text-violet-400 font-semibold">{distance}px</span>
               </div>
               <input
                 type="range"
@@ -131,14 +131,14 @@ export const RevealPlayground: React.FC = () => {
                   setDistance(Number(e.target.value));
                   setRemountKey((k) => k + 1);
                 }}
-                className="w-full accent-blue-500 h-1.5 bg-zinc-800 rounded-lg cursor-pointer"
+                className="w-full accent-violet-500 h-1.5 bg-zinc-800 rounded-lg cursor-pointer"
               />
             </div>
 
             <div>
               <div className="flex items-center justify-between text-xs mb-1 font-mono">
                 <span className="text-zinc-300">Duration</span>
-                <span className="text-blue-400 font-semibold">{duration.toFixed(2)}s</span>
+                <span className="text-violet-400 font-semibold">{duration.toFixed(2)}s</span>
               </div>
               <input
                 type="range"
@@ -150,7 +150,7 @@ export const RevealPlayground: React.FC = () => {
                   setDuration(Number(e.target.value));
                   setRemountKey((k) => k + 1);
                 }}
-                className="w-full accent-blue-500 h-1.5 bg-zinc-800 rounded-lg cursor-pointer"
+                className="w-full accent-violet-500 h-1.5 bg-zinc-800 rounded-lg cursor-pointer"
               />
             </div>
           </div>
@@ -158,7 +158,7 @@ export const RevealPlayground: React.FC = () => {
           <div className="pt-1">
             <button
               onClick={() => setRemountKey((k) => k + 1)}
-              className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg border border-blue-500/40 bg-blue-500/10 hover:bg-blue-500/20 text-xs font-mono text-blue-300 font-semibold transition-all cursor-pointer active:scale-95 shadow-lg"
+              className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg border border-violet-500/40 bg-violet-500/10 hover:bg-violet-500/20 text-xs font-mono text-violet-300 font-semibold transition-all cursor-pointer active:scale-95 shadow-lg"
             >
               <RefreshCw className="w-3.5 h-3.5" />
               <span>Replay Entrance Sequence</span>
@@ -176,7 +176,7 @@ export const RevealPlayground: React.FC = () => {
           </div>
           <div className="flex items-center justify-between">
             <span className="text-zinc-400">CSS Hardware Layer:</span>
-            <span className="text-blue-400 font-mono">translate3d + opacity</span>
+            <span className="text-violet-400 font-mono">translate3d + opacity</span>
           </div>
           <div className="flex items-center justify-between">
             <span className="text-zinc-400">Easing Curve:</span>

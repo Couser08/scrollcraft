@@ -226,7 +226,7 @@ export const DocHooks: React.FC<DocHooksProps> = ({ hookId }) => {
       {/* Capabilities / Return Values */}
       <div id="capabilities" className="space-y-4 pt-4 scroll-mt-24">
         <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-zinc-400 font-semibold">
-          <Activity className="w-3.5 h-3.5 text-blue-400" />
+          <Activity className="w-3.5 h-3.5 text-violet-400" />
           <span>Capabilities &amp; Return Values</span>
         </div>
 
@@ -242,7 +242,7 @@ export const DocHooks: React.FC<DocHooksProps> = ({ hookId }) => {
             <tbody className="divide-y divide-zinc-800/60 font-sans text-zinc-300">
               {hook.capabilities.map((c) => (
                 <tr key={c.param} className="hover:bg-zinc-900/40 transition-colors">
-                  <td className="px-4 py-3 font-mono text-blue-400 font-semibold">{c.param}</td>
+                  <td className="px-4 py-3 font-mono text-violet-400 font-semibold">{c.param}</td>
                   <td className="px-4 py-3 font-mono text-purple-300 text-[11px]">{c.type}</td>
                   <td className="px-4 py-3 text-zinc-300 text-xs">{c.desc}</td>
                 </tr>

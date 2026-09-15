@@ -54,7 +54,7 @@ export function ScrollProgressDemo() {
       <div className="text-sm text-zinc-400">Scroll Progress</div>
       <div className="h-2 w-full bg-zinc-800 rounded-full overflow-hidden">
         <div
-          className="h-full bg-blue-500"
+          className="h-full bg-violet-500"
           style={{ width: \`\${progress * 100}%\` }}
         />
       </div>
@@ -149,7 +149,7 @@ export function PinDemo() {
       <div
         ref={containerRef}
         className={\`p-6 rounded-xl border \${
-          isPinned ? 'border-blue-500 bg-blue-500/10' : 'border-zinc-800'
+          isPinned ? 'border-violet-500 bg-violet-500/10' : 'border-zinc-800'
         }\`}
       >
         <p className="text-xs text-zinc-300">Pinned: {progress.toFixed(2)}</p>
@@ -495,7 +495,7 @@ export function HooksRawSection() {
             {/* Top Subheader */}
             <div className="p-5 border-b border-zinc-800/80 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
               <div className="flex items-start gap-3">
-                <div className="mt-0.5 p-1.5 rounded-md bg-zinc-900 border border-zinc-800 text-sky-400 shrink-0">
+                <div className="mt-0.5 p-1.5 rounded-md bg-zinc-900 border border-zinc-800 text-violet-400 shrink-0">
                   <SlidersHorizontal className="w-4 h-4" />
                 </div>
                 <div>
@@ -512,14 +512,14 @@ export function HooksRawSection() {
               <div className="flex items-center gap-4 shrink-0 sm:self-start pt-1 font-mono text-xs">
                 <Link
                   href={currentHook.docLink}
-                  className="text-sky-400 hover:text-sky-300 flex items-center gap-1 transition-colors"
+                  className="text-violet-400 hover:text-violet-300 flex items-center gap-1 transition-colors"
                 >
                   <span>Docs</span>
                   <ExternalLink className="w-3 h-3" />
                 </Link>
                 <Link
                   href={currentHook.refLink}
-                  className="text-sky-400 hover:text-sky-300 flex items-center gap-1 transition-colors"
+                  className="text-violet-400 hover:text-violet-300 flex items-center gap-1 transition-colors"
                 >
                   <span>Hook Reference</span>
                   <ExternalLink className="w-3 h-3" />
@@ -633,7 +633,7 @@ export function HooksRawSection() {
                   <div className="w-24 sm:w-28 h-1.5 bg-zinc-800/80 rounded-full overflow-hidden shrink-0">
                     <div
                       ref={scrollPosBarRef}
-                      className="h-full bg-blue-500 rounded-full transition-all duration-75"
+                      className="h-full bg-violet-500 rounded-full transition-all duration-75"
                       style={{ width: '59%' }}
                     />
                   </div>
@@ -645,7 +645,7 @@ export function HooksRawSection() {
                 {/* 2. Scroll Progress */}
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2.5 shrink-0">
-                    <CircleDot className="w-4 h-4 text-sky-400 shrink-0" />
+                    <CircleDot className="w-4 h-4 text-violet-400 shrink-0" />
                     <span className="text-xs text-zinc-400 font-medium">Scroll progress</span>
                   </div>
                   <div className="w-24 sm:w-28 h-1.5 bg-zinc-800/80 rounded-full overflow-hidden shrink-0">
@@ -663,17 +663,17 @@ export function HooksRawSection() {
                 {/* 3. Scroll Velocity */}
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2.5 shrink-0">
-                    <Activity className="w-4 h-4 text-sky-400 shrink-0" />
+                    <Activity className="w-4 h-4 text-violet-400 shrink-0" />
                     <span className="text-xs text-zinc-400 font-medium">Scroll velocity</span>
                   </div>
                   <div className="w-24 sm:w-28 h-1.5 bg-zinc-800/80 rounded-full overflow-hidden shrink-0">
                     <div
                       ref={velocityFillRef}
-                      className="h-full bg-blue-500 rounded-full transition-all duration-75"
+                      className="h-full bg-violet-500 rounded-full transition-all duration-75"
                       style={{ width: '20%' }}
                     />
                   </div>
-                  <span ref={velocityTextRef} className="font-mono text-sm font-bold text-sky-400 text-right shrink-0 min-w-[70px]">
+                  <span ref={velocityTextRef} className="font-mono text-sm font-bold text-violet-300 text-right shrink-0 min-w-[70px]">
                     0.080 px/f
                   </span>
                 </div>

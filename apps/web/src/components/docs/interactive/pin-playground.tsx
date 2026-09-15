@@ -50,7 +50,7 @@ export const PinPlayground: React.FC = () => {
           <div>
             <div className="flex items-center justify-between text-xs mb-1.5 font-mono">
               <span className="text-zinc-300 font-medium">Pin Duration Budget</span>
-              <span className="text-blue-400 font-semibold">{pinDuration}vh</span>
+              <span className="text-violet-400 font-semibold">{pinDuration}vh</span>
             </div>
             <input
               type="range"
@@ -59,7 +59,7 @@ export const PinPlayground: React.FC = () => {
               step="20"
               value={pinDuration}
               onChange={(e) => setPinDuration(Number(e.target.value))}
-              className="w-full accent-blue-500 h-1.5 bg-zinc-800 rounded-lg cursor-pointer"
+              className="w-full accent-violet-500 h-1.5 bg-zinc-800 rounded-lg cursor-pointer"
             />
             <div className="flex justify-between text-[10px] text-zinc-500 mt-1 font-mono">
               <span>100vh (Compact)</span>
@@ -105,7 +105,7 @@ export const PinPlayground: React.FC = () => {
           </div>
           <div className="flex items-center justify-between">
             <span className="text-zinc-400">Pin Budget Progress:</span>
-            <span ref={progressTextRef} className="text-blue-400 font-bold font-mono">
+            <span ref={progressTextRef} className="text-violet-400 font-bold font-mono">
               0.0%
             </span>
           </div>
@@ -125,7 +125,7 @@ export const PinPlayground: React.FC = () => {
       <div className="flex flex-col gap-3">
         <div className="text-[11px] font-mono text-zinc-400 flex items-center justify-between">
           <span className="flex items-center gap-1.5">
-            <PinIcon className="w-3.5 h-3.5 text-blue-400" />
+            <PinIcon className="w-3.5 h-3.5 text-violet-400" />
             <span>Real &lt;Pin /&gt; Narrative Container ({pinDuration}vh)</span>
           </span>
           <span className="text-zinc-500">Scroll down to lock card in place</span>
@@ -161,7 +161,7 @@ export const PinPlayground: React.FC = () => {
               <div className="p-6 rounded-2xl bg-zinc-900/95 border border-zinc-700/80 shadow-2xl flex flex-col justify-between max-w-md mx-auto backdrop-blur-md">
                 <div>
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 font-bold">
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-violet-500/10 text-violet-400 border border-violet-500/20 font-bold">
                       STICKY STORYTELLING
                     </span>
                     <ShieldCheck className="w-4 h-4 text-emerald-400" />
@@ -178,12 +178,12 @@ export const PinPlayground: React.FC = () => {
                 <div className="mt-5 pt-3 border-t border-zinc-800/80 space-y-1.5">
                   <div className="flex items-center justify-between text-[10px] font-mono text-zinc-500">
                     <span>PIN BUDGET METRIC</span>
-                    <Zap className="w-3 h-3 text-blue-400" />
+                    <Zap className="w-3 h-3 text-violet-400" />
                   </div>
                   <div className="w-full h-1.5 bg-zinc-950 rounded-full overflow-hidden border border-zinc-800">
                     <div
                       ref={progressBarRef}
-                      className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 origin-left transition-transform duration-75 will-change-transform"
+                      className="h-full bg-gradient-to-r from-violet-500 to-indigo-500 origin-left transition-transform duration-75 will-change-transform"
                       style={{ transform: 'scaleX(0)' }}
                     />
                   </div>

@@ -2,36 +2,75 @@
 
 import React from 'react';
 
+import Image from 'next/image';
+
 interface ScrollCraftLogoProps {
-  variant?: 'icon' | 'full' | 'badge' | 'lockup-dark' | 'lockup-light' | 'app-orange' | 'app-dark';
+  variant?: 'icon' | 'full' | 'badge' | 'lockup-dark' | 'lockup-light' | 'app-violet' | 'app-orange' | 'app-dark';
   size?: 'sm' | 'md' | 'lg' | 'xl';
   className?: string;
   badgeText?: string;
 }
 
-export const ScrollCraftEmblem: React.FC<{ size?: number; className?: string; color?: string; background?: string }> = ({
+export const ScrollCraftEmblem: React.FC<{
+  size?: number;
+  className?: string;
+  useImage?: boolean;
+}> = ({
   size = 28,
   className = '',
-  color = '#FFFFFF',
-  background = '#FF5A1F',
+  useImage = true,
 }) => {
+  if (useImage) {
+    return (
+      <div
+        style={{ width: size, height: size }}
+        className={`relative shrink-0 select-none ${className}`}
+      >
+        <Image
+          src="/images/scrollcraft-logo.webp"
+          alt="ScrollCraft emblem"
+          width={size * 2}
+          height={size * 2}
+          priority
+          className="w-full h-full object-contain filter drop-shadow-[0_2px_8px_rgba(124,58,237,0.4)]"
+        />
+      </div>
+    );
+  }
+
   return (
     <svg
       width={size}
       height={size}
-      viewBox="0 0 32 32"
+      viewBox="0 0 64 64"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className={`shrink-0 ${className}`}
+      className={`shrink-0 select-none ${className}`}
       aria-label="ScrollCraft logo"
     >
-      {background && <circle cx="16" cy="16" r="16" fill={background} />}
-      {/* Dynamic kinetic spiral scroll geometry */}
+      <defs>
+        <linearGradient id="emblem-violet" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#8B5CF6" />
+          <stop offset="100%" stop-color="#6D28D9" />
+        </linearGradient>
+      </defs>
       <path
-        d="M16 6.5C10.75 6.5 6.5 10.75 6.5 16C6.5 21.25 10.75 25.5 16 25.5C20.15 25.5 23.75 22.85 25.05 19.05C25.45 17.9 24.5 16.8 23.35 16.8C22.5 16.8 21.75 17.35 21.45 18.15C20.5 20.7 18 22.5 15.1 22.25C12.1 22 9.7 19.45 9.7 16.4C9.7 13.2 12.3 10.6 15.5 10.6C18.25 10.6 20.6 12.35 21.4 14.85C21.7 15.7 22.5 16.25 23.4 16.15C24.55 16.05 25.25 14.9 24.8 13.85C23.4 9.6 19.95 6.5 16 6.5Z"
-        fill={color}
+        d="M24 20C21.79 20 20 21.79 20 24V28C20 30.21 21.79 32 24 32H38C40.21 32 42 30.21 42 28V24C42 21.79 40.21 20 38 20H24Z"
+        fill="#8B5CF6"
       />
-      <circle cx="16" cy="16" r="2.6" fill={color} />
+      <path
+        d="M20 28C20 32.42 23.58 36 28 36H36C40.42 36 44 39.58 44 44C44 48.42 40.42 52 36 52H22C17.58 52 14 48.42 14 44C14 39.58 17.58 36 22 36"
+        stroke="url(#emblem-violet)"
+        strokeWidth="7"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M42 24C42 19.58 38.42 16 34 16H24C19.58 16 16 19.58 16 24"
+        stroke="#A78BFA"
+        strokeWidth="7"
+        strokeLinecap="round"
+      />
     </svg>
   );
 };
@@ -40,10 +79,10 @@ export const ScrollCraftLogo: React.FC<ScrollCraftLogoProps> = ({
   variant = 'full',
   size = 'md',
   className = '',
-  badgeText = 'v0.1.0',
+  badgeText = 'Beta',
 }) => {
   const sizeConfig = {
-    sm: { iconSize: 22, textSize: 'text-sm font-bold', badgeSize: 'text-[10px] px-1.5 py-0.5' },
+    sm: { iconSize: 22, textSize: 'text-sm font-bold', badgeSize: 'text-[10px] px-2 py-0.5' },
     md: { iconSize: 28, textSize: 'text-base font-bold', badgeSize: 'text-[11px] px-2 py-0.5' },
     lg: { iconSize: 36, textSize: 'text-xl font-bold', badgeSize: 'text-xs px-2.5 py-0.5' },
     xl: { iconSize: 48, textSize: 'text-3xl font-extrabold', badgeSize: 'text-xs px-3 py-1' },
@@ -53,26 +92,26 @@ export const ScrollCraftLogo: React.FC<ScrollCraftLogoProps> = ({
     return <ScrollCraftEmblem size={sizeConfig.iconSize} className={className} />;
   }
 
-  if (variant === 'app-orange') {
+  if (variant === 'app-violet' || variant === 'app-orange') {
     return (
-      <div className={`w-12 h-12 rounded-[12px] bg-[#FF5A1F] flex items-center justify-center shadow-sm ${className}`}>
-        <ScrollCraftEmblem size={26} background="" color="#FFFFFF" />
+      <div className={`w-12 h-12 rounded-[14px] bg-gradient-to-br from-violet-600 to-indigo-700 p-2.5 flex items-center justify-center shadow-lg shadow-violet-500/25 ${className}`}>
+        <ScrollCraftEmblem size={28} />
       </div>
     );
   }
 
   if (variant === 'app-dark') {
     return (
-      <div className={`w-12 h-12 rounded-[12px] bg-[#0A0A0A] border border-[#262626] flex items-center justify-center shadow-sm ${className}`}>
-        <ScrollCraftEmblem size={26} background="" color="#FF5A1F" />
+      <div className={`w-12 h-12 rounded-[14px] bg-[#0A0A0C] border border-violet-500/20 p-2 flex items-center justify-center shadow-md ${className}`}>
+        <ScrollCraftEmblem size={28} />
       </div>
     );
   }
 
   if (variant === 'lockup-dark') {
     return (
-      <div className={`inline-flex items-center gap-2.5 px-4 py-2.5 rounded-[12px] bg-[#0A0A0A] border border-[#262626] text-white shadow-sm ${className}`}>
-        <ScrollCraftEmblem size={22} color="#FFFFFF" background="#FF5A1F" />
+      <div className={`inline-flex items-center gap-2.5 px-4 py-2.5 rounded-[12px] bg-[#0A0A0C] border border-white/10 text-white shadow-sm ${className}`}>
+        <ScrollCraftEmblem size={22} />
         <span className="font-bold tracking-tight text-white text-sm">ScrollCraft</span>
       </div>
     );
@@ -81,7 +120,7 @@ export const ScrollCraftLogo: React.FC<ScrollCraftLogoProps> = ({
   if (variant === 'lockup-light') {
     return (
       <div className={`inline-flex items-center gap-2.5 px-4 py-2.5 rounded-[12px] bg-white/5 border border-white/10 text-zinc-100 shadow-sm ${className}`}>
-        <ScrollCraftEmblem size={22} color="#FFFFFF" background="#FF5A1F" />
+        <ScrollCraftEmblem size={22} />
         <span className="font-bold tracking-tight text-zinc-100 text-sm">ScrollCraft</span>
       </div>
     );
@@ -95,7 +134,7 @@ export const ScrollCraftLogo: React.FC<ScrollCraftLogoProps> = ({
       </span>
       {variant === 'badge' && (
         <span
-          className={`${sizeConfig.badgeSize} rounded-full font-mono font-medium bg-white/10 text-zinc-400 border border-white/10 leading-none`}
+          className={`${sizeConfig.badgeSize} rounded-full font-mono font-semibold bg-violet-500/15 text-violet-300 border border-violet-500/30 leading-none shadow-[0_0_8px_rgba(124,58,237,0.2)]`}
         >
           {badgeText}
         </span>

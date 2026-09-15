@@ -181,7 +181,7 @@ Zero-overhead progress indicator mapping normalized completion (`0.0`–`1.0`) t
 ```tsx
 import { ScrollProgress } from '@scrollcraft/react';
 
-<ScrollProgress className="h-1 bg-blue-500 origin-left" />
+<ScrollProgress className="h-1 bg-violet-600 origin-left" />
 ```
 
 ---

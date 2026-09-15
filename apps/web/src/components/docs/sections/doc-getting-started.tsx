@@ -11,7 +11,7 @@
 
 import React, { useState } from 'react';
 import { CodeViewer } from '@/components/ui/code-viewer';
-import { Check, Copy, Terminal, ShieldCheck } from 'lucide-react';
+import { Check, Copy, Terminal, ShieldCheck, BookOpen, Layers, Cpu, Zap } from 'lucide-react';
 
 interface DocGettingStartedProps {
   sectionId: string;
@@ -65,9 +65,28 @@ const PROVIDER_PROPS = [
   { prop: 'debug', type: 'boolean | DebugOptions', defaultValue: 'false', desc: 'Mounts telemetry inspector HUD and visual scroll trigger boundaries.' },
 ];
 
-export const DocGettingStarted: React.FC<DocGettingStartedProps> = () => {
+export const DocGettingStarted: React.FC<DocGettingStartedProps> = ({ sectionId }) => {
   const [activePm, setActivePm] = useState<'pnpm' | 'npm' | 'yarn' | 'bun'>('npm');
   const [copied, setCopied] = useState(false);
+
+  // Auto-scroll to requested section when sectionId changes
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const targetMap: Record<string, string> = {
+      introduction: 'introduction-mental-model',
+      installation: 'install-package',
+      setup: 'provider-setup',
+    };
+    const targetId = targetMap[sectionId];
+    if (targetId) {
+      const el = document.getElementById(targetId);
+      if (el) {
+        const yOffset = -88;
+        const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
+        window.scrollTo({ top: y, behavior: 'smooth' });
+      }
+    }
+  }, [sectionId]);
 
   const copyInstall = () => {
     navigator.clipboard.writeText(PM_COMMANDS[activePm]);
@@ -77,10 +96,54 @@ export const DocGettingStarted: React.FC<DocGettingStartedProps> = () => {
 
   return (
     <div className="space-y-12 not-prose">
-      {/* 1. Installation */}
-      <section id="install-package" className="space-y-4 border-b border-zinc-800 pb-8">
+      {/* 0. Introduction & Mental Model */}
+      <section id="introduction-mental-model" className="space-y-4 border-b border-zinc-800 pb-8 scroll-mt-24">
         <div className="flex items-center gap-2">
-          <Terminal className="w-4 h-4 text-blue-400" />
+          <BookOpen className="w-5 h-5 text-violet-400" />
+          <h1 className="text-2xl font-bold text-white font-mono">Introduction &amp; Mental Model</h1>
+        </div>
+        <p className="text-sm text-zinc-300 font-sans leading-relaxed">
+          ScrollCraft is a hardware-accelerated declarative scroll engine built specifically for React and Next.js App Router. It decouples continuous scroll gestures from React&apos;s fiber reconciliation tree, writing directly to GPU composite matrices with zero Virtual DOM re-renders.
+        </p>
+
+        {/* 3 Core Pillars */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+          <div className="p-4 rounded-xl bg-[#0a0a0c] border border-zinc-800 space-y-1.5">
+            <div className="flex items-center gap-2 text-violet-400 font-mono text-xs font-bold">
+              <Zap className="w-3.5 h-3.5" />
+              <span>Zero Re-Renders</span>
+            </div>
+            <p className="text-zinc-400 text-xs font-sans leading-relaxed">
+              Scroll transformations update directly in the RAF render microtask without triggering component re-renders.
+            </p>
+          </div>
+
+          <div className="p-4 rounded-xl bg-[#0a0a0c] border border-zinc-800 space-y-1.5">
+            <div className="flex items-center gap-2 text-emerald-400 font-mono text-xs font-bold">
+              <Layers className="w-3.5 h-3.5" />
+              <span>RSC &amp; Slot Native</span>
+            </div>
+            <p className="text-zinc-400 text-xs font-sans leading-relaxed">
+              Fully compatible with Next.js 15 Server Components. Use <code className="text-zinc-300 font-mono">asChild</code> to avoid extra wrapper DOM nodes.
+            </p>
+          </div>
+
+          <div className="p-4 rounded-xl bg-[#0a0a0c] border border-zinc-800 space-y-1.5">
+            <div className="flex items-center gap-2 text-purple-400 font-mono text-xs font-bold">
+              <Cpu className="w-3.5 h-3.5" />
+              <span>&lt; 4.2 KB Gzip</span>
+            </div>
+            <p className="text-zinc-400 text-xs font-sans leading-relaxed">
+              Tree-shakeable architecture with zero external runtime dependencies. Built on high-precision physics.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* 1. Installation */}
+      <section id="install-package" className="space-y-4 border-b border-zinc-800 pb-8 scroll-mt-24">
+        <div className="flex items-center gap-2">
+          <Terminal className="w-4 h-4 text-violet-400" />
           <h2 className="text-xl font-bold text-white font-mono">Package Installation</h2>
         </div>
 
@@ -136,11 +199,11 @@ export const DocGettingStarted: React.FC<DocGettingStartedProps> = () => {
       </section>
 
       {/* 2. Root Layout Integration */}
-      <section id="provider-setup" className="space-y-4 border-b border-zinc-800 pb-8">
+      <section id="provider-setup" className="space-y-4 border-b border-zinc-800 pb-8 scroll-mt-24">
         <div>
           <h2 className="text-xl font-bold text-white font-mono mb-1">Root Layout Integration</h2>
           <p className="text-xs text-zinc-400 font-sans">
-            Mount <code className="text-blue-400 font-mono">&lt;ScrollProvider /&gt;</code> in your root layout. Initializes the global 3-phase ticker and Lenis inertia physics.
+            Mount <code className="text-violet-400 font-mono">&lt;ScrollProvider /&gt;</code> in your root layout. Initializes the global 3-phase ticker and Lenis inertia physics.
           </p>
         </div>
 
@@ -164,7 +227,7 @@ export const DocGettingStarted: React.FC<DocGettingStartedProps> = () => {
               <tbody className="divide-y divide-zinc-800/60 font-sans text-zinc-300">
                 {PROVIDER_PROPS.map((p) => (
                   <tr key={p.prop} className="hover:bg-zinc-900/40 transition-colors">
-                    <td className="px-4 py-3 font-mono text-blue-400 font-semibold">{p.prop}</td>
+                    <td className="px-4 py-3 font-mono text-violet-400 font-semibold">{p.prop}</td>
                     <td className="px-4 py-3 font-mono text-purple-300 text-[11px]">{p.type}</td>
                     <td className="px-4 py-3 font-mono text-zinc-500 text-[11px]">{p.defaultValue}</td>
                     <td className="px-4 py-3 text-zinc-300 text-xs">{p.desc}</td>
@@ -181,7 +244,7 @@ export const DocGettingStarted: React.FC<DocGettingStartedProps> = () => {
         <div>
           <h2 className="text-xl font-bold text-white font-mono mb-1">Quickstart Component</h2>
           <p className="text-xs text-zinc-400 font-sans">
-            Add <code className="text-blue-400 font-mono">&apos;use client&apos;</code> to components using primitives or hooks, or pass Server Components as children.
+            Add <code className="text-violet-400 font-mono">&apos;use client&apos;</code> to components using primitives or hooks, or pass Server Components as children.
           </p>
         </div>
 

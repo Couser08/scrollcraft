@@ -7,10 +7,13 @@
 export const DESIGN_TOKENS = {
   colors: {
     brand: {
-      primary: '#FF5A1F',
-      primaryHover: '#E54800',
-      orangeTint: '#FFF7ED',
-      orangeBorder: '#FFEDD5',
+      primary: '#7C3AED',
+      primaryHover: '#6D28D9',
+      accent: '#8B5CF6',
+      violetTint: 'rgba(124, 58, 237, 0.12)',
+      violetBorder: 'rgba(139, 92, 246, 0.25)',
+      orangeTint: 'rgba(124, 58, 237, 0.12)',
+      orangeBorder: 'rgba(139, 92, 246, 0.25)',
     },
     canvas: {
       background: '#FAFAF9',

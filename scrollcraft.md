@@ -465,7 +465,7 @@ export function Gallery() {
   return (
     <HorizontalScroll speed={2.5} className="bg-neutral-900 py-12">
       <div className="w-[80vw] h-[60vh] bg-red-500 rounded-3xl mx-4 flex-shrink-0" />
-      <div className="w-[80vw] h-[60vh] bg-blue-500 rounded-3xl mx-4 flex-shrink-0" />
+      <div className="w-[80vw] h-[60vh] bg-violet-500 rounded-3xl mx-4 flex-shrink-0" />
       <div className="w-[80vw] h-[60vh] bg-emerald-500 rounded-3xl mx-4 flex-shrink-0" />
       <div className="w-[80vw] h-[60vh] bg-amber-500 rounded-3xl mx-4 flex-shrink-0" />
     </HorizontalScroll>

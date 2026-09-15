@@ -144,7 +144,7 @@ export const DocsSidebar: React.FC<DocsSidebarProps> = ({
                                 isAlpha
                                   ? 'bg-red-500/20 text-red-400 border border-red-500/30 font-bold uppercase'
                                   : isActive
-                                  ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
+                                  ? 'bg-violet-500/20 text-violet-300 border border-violet-500/30'
                                   : 'bg-zinc-900 text-zinc-500 border border-zinc-800'
                               }`}
                             >

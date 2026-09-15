@@ -68,7 +68,7 @@ export const DocArchitecture: React.FC<DocArchitectureProps> = ({
     return (
       <div className="flex flex-col gap-12">
         <header className="flex flex-col gap-4">
-          <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-blue-500/10 border border-blue-500/20 text-[11px] font-mono font-semibold text-blue-400 uppercase tracking-widest w-fit">
+          <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-violet-500/10 border border-violet-500/20 text-[11px] font-mono font-semibold text-violet-400 uppercase tracking-widest w-fit">
             ENGINE ARCHITECTURE
           </div>
           <h1 className="text-5xl lg:text-6xl font-extrabold tracking-tighter text-white leading-[1.08]">
@@ -100,7 +100,7 @@ export const DocArchitecture: React.FC<DocArchitectureProps> = ({
               <strong className="text-white">Phase 2: Update</strong> — Subpixel lerp math, spring physics, and kinetic damping computed purely in V8 memory without accessing any DOM properties.
             </div>
             <div className="p-4 rounded-xl border border-zinc-800/80 bg-[#09090b] shadow-lg">
-              <strong className="text-white">Phase 3: Render</strong> — Batched GPU flush. Applies <code className="font-mono text-[11px] text-blue-400">translate3d</code> and <code className="font-mono text-[11px] text-blue-400">opacity</code> styles directly to registered element refs.
+              <strong className="text-white">Phase 3: Render</strong> — Batched GPU flush. Applies <code className="font-mono text-[11px] text-violet-400">translate3d</code> and <code className="font-mono text-[11px] text-violet-400">opacity</code> styles directly to registered element refs.
             </div>
           </div>
         </section>
@@ -137,7 +137,7 @@ export const DocArchitecture: React.FC<DocArchitectureProps> = ({
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="p-5 rounded-xl border border-zinc-800/80 bg-[#09090b] shadow-xl">
-                <div className="flex items-center gap-2 text-blue-400 font-bold text-xs uppercase mb-2">
+                <div className="flex items-center gap-2 text-violet-400 font-bold text-xs uppercase mb-2">
                   <Shield className="w-4 h-4" />
                   <span>Layer 1: Base Scroll</span>
                 </div>
@@ -169,7 +169,7 @@ export const DocArchitecture: React.FC<DocArchitectureProps> = ({
   return (
     <div className="flex flex-col gap-12">
       <header className="flex flex-col gap-4">
-        <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-blue-500/10 border border-blue-500/20 text-[11px] font-mono font-semibold text-blue-400 uppercase tracking-widest w-fit">
+        <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-violet-500/10 border border-violet-500/20 text-[11px] font-mono font-semibold text-violet-400 uppercase tracking-widest w-fit">
           ARCHITECTURE & PERF
         </div>
         <h1 className="text-5xl lg:text-6xl font-extrabold tracking-tighter text-white leading-[1.08]">
@@ -194,7 +194,7 @@ export const DocArchitecture: React.FC<DocArchitectureProps> = ({
               <thead>
                 <tr className="border-b border-zinc-800/80 bg-zinc-900/50 text-[11px] font-mono font-semibold uppercase tracking-wider text-zinc-400">
                   <th className="py-3.5 px-4 w-[20%]">Dimension</th>
-                  <th className="py-3.5 px-4 w-[30%] text-blue-400 font-bold bg-blue-500/10">
+                  <th className="py-3.5 px-4 w-[30%] text-violet-400 font-bold bg-violet-500/10">
                     ScrollCraft (Hybrid)
                   </th>
                   <th className="py-3.5 px-4 w-[25%]">Virtual / Hijacked</th>
@@ -207,8 +207,8 @@ export const DocArchitecture: React.FC<DocArchitectureProps> = ({
                     <td className="py-3.5 px-4 font-semibold text-white align-top">
                       {row.feature}
                     </td>
-                    <td className="py-3.5 px-4 font-medium text-white bg-blue-500/5 align-top break-words">
-                      <span className="text-blue-400 font-bold mr-1.5">✦</span>
+                    <td className="py-3.5 px-4 font-medium text-white bg-violet-500/5 align-top break-words">
+                      <span className="text-violet-400 font-bold mr-1.5">✦</span>
                       {row.scrollcraft}
                     </td>
                     <td className="py-3.5 px-4 text-zinc-400 align-top break-words">

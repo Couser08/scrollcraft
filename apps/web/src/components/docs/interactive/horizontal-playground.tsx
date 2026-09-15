@@ -72,7 +72,7 @@ export const HorizontalPlayground: React.FC = () => {
           stateRef.current.className = 'text-emerald-400 font-semibold font-mono';
         } else if (progress >= 0.99) {
           stateRef.current.textContent = 'SECTION RELEASED';
-          stateRef.current.className = 'text-blue-400 font-semibold font-mono';
+          stateRef.current.className = 'text-violet-400 font-semibold font-mono';
         } else {
           stateRef.current.textContent = 'STANDBY';
           stateRef.current.className = 'text-zinc-400 font-mono';
@@ -122,7 +122,7 @@ export const HorizontalPlayground: React.FC = () => {
           <div>
             <div className="flex items-center justify-between text-xs mb-1.5 font-mono">
               <span className="text-zinc-300 font-medium">Vertical Scroll Budget</span>
-              <span className="text-blue-400 font-semibold">{speed.toFixed(1)}x ({(speed * 100).toFixed(0)}vh)</span>
+              <span className="text-violet-400 font-semibold">{speed.toFixed(1)}x ({(speed * 100).toFixed(0)}vh)</span>
             </div>
             <input
               type="range"
@@ -131,7 +131,7 @@ export const HorizontalPlayground: React.FC = () => {
               step="0.5"
               value={speed}
               onChange={(e) => setSpeed(Number(e.target.value))}
-              className="w-full accent-blue-500 h-1.5 bg-zinc-800 rounded-lg cursor-pointer"
+              className="w-full accent-violet-500 h-1.5 bg-zinc-800 rounded-lg cursor-pointer"
             />
             <div className="flex justify-between text-[10px] text-zinc-500 mt-1 font-mono">
               <span>1.5x (Fast Scrub)</span>
@@ -171,7 +171,7 @@ export const HorizontalPlayground: React.FC = () => {
         <>
           <div className="flex items-center justify-between">
             <span className="text-zinc-400">Track Offset X:</span>
-            <span ref={offsetRef} className="text-blue-400 font-bold font-mono">
+            <span ref={offsetRef} className="text-violet-400 font-bold font-mono">
               0.0 px
             </span>
           </div>
@@ -199,7 +199,7 @@ export const HorizontalPlayground: React.FC = () => {
       <div className="flex flex-col gap-3">
         <div className="text-[11px] font-mono text-zinc-400 flex items-center justify-between">
           <span className="flex items-center gap-1.5">
-            <Layers className="w-3.5 h-3.5 text-blue-400" />
+            <Layers className="w-3.5 h-3.5 text-violet-400" />
             <span>Vertical Scroll → Horizontal Track Translation</span>
           </span>
           <span className="text-zinc-500">Scroll down to scrub cards</span>
@@ -223,7 +223,7 @@ export const HorizontalPlayground: React.FC = () => {
               >
                 <div>
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs font-mono font-bold text-blue-400">{slide.id}</span>
+                    <span className="text-xs font-mono font-bold text-violet-400">{slide.id}</span>
                     <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-zinc-900 text-zinc-400 border border-zinc-800">
                       {slide.tag}
                     </span>

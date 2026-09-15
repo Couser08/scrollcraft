@@ -87,7 +87,7 @@ scrollCraft({
         </div>
         <br />
         <div>
-          <span className="text-blue-400">scrollCraft</span>
+          <span className="text-violet-400">scrollCraft</span>
           <span className="text-zinc-100">{'({'}</span>
         </div>
         <div className="pl-4">

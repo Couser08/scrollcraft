@@ -104,7 +104,7 @@ export function ComparisonSection() {
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <Reveal direction="down" distance={15}>
-            <span className="text-[11px] sm:text-xs font-mono font-bold uppercase tracking-[0.25em] text-sky-400 mb-3 block">
+            <span className="text-[11px] sm:text-xs font-mono font-bold uppercase tracking-[0.25em] text-violet-400 mb-3 block">
               Honest Engineering Benchmark
             </span>
           </Reveal>
@@ -149,9 +149,9 @@ export function ComparisonSection() {
                   <tr className="border-b border-zinc-800 bg-zinc-900/90 text-zinc-400 font-mono text-xs">
                     <th className="py-4 px-5 sm:px-6 font-semibold">Capability</th>
                     {/* Active Column */}
-                    <th className="py-4 px-5 sm:px-6 text-white font-bold bg-blue-600/15 border-x border-blue-500/30">
+                    <th className="py-4 px-5 sm:px-6 text-white font-bold bg-violet-600/15 border-x border-violet-500/30">
                       <div className="flex items-center gap-1.5">
-                        <span className="text-blue-400 text-[10px]">▶</span>
+                        <span className="text-violet-400 text-[10px]">▶</span>
                         <span>ScrollCraft</span>
                       </div>
                     </th>
@@ -170,7 +170,7 @@ export function ComparisonSection() {
                         {row.dimension}
                       </td>
                       {/* Active Column Cell */}
-                      <td className="py-4 px-5 sm:px-6 bg-blue-600/[0.04] border-x border-blue-500/20">
+                      <td className="py-4 px-5 sm:px-6 bg-violet-600/[0.04] border-x border-violet-500/20">
                         <RenderValue val={row.scrollcraft} isScrollCraft={true} />
                       </td>
                       <td className="py-4 px-5 sm:px-6 text-zinc-400 text-xs">

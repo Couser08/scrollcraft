@@ -1,12 +1,12 @@
 # @scrollcraft/react
 
-[![Status](https://img.shields.io/badge/status-beta-orange.svg)](https://www.npmjs.com/package/@scrollcraft/react)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Status](https://img.shields.io/badge/status-beta-7C3AED.svg)](https://www.npmjs.com/package/@scrollcraft/react)
+[![License: MIT](https://img.shields.io/badge/License-MIT-zinc.svg)](LICENSE)
 
 React and Next.js-native scroll toolkit with composable primitives and reactive hooks.
 
-> **Stability & Versioning Note:**  
-> **Beta means the API surface may still shift before 1.0 — it does not mean unstable.** `@scrollcraft/react` is engineered for production React 18/19 and Next.js 14/15 applications, safely separating React's rendering lifecycle from high-frequency scroll RAF updates.
+> **Beta Notice:**  
+> **Beta means the public API contracts are finalizing before 1.0 — it does not mean unstable.** `@scrollcraft/react` is battle-tested for production React 18/19 and Next.js 14/15 applications, safely isolating React's rendering lifecycle from high-frequency scroll RAF updates for 120 FPS performance with zero re-renders.
 
 ---
 
@@ -63,7 +63,7 @@ Renders progress bars, rings, or fills driven by scroll progress:
 ```tsx
 import { ScrollProgress } from '@scrollcraft/react';
 
-<ScrollProgress className="fixed top-0 left-0 right-0 h-1 bg-blue-500 origin-left" />
+<ScrollProgress className="fixed top-0 left-0 right-0 h-1 bg-violet-600 origin-left" />
 ```
 
 ---

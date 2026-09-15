@@ -1,12 +1,12 @@
 # @scrollcraft/core
 
-[![Status](https://img.shields.io/badge/status-beta-orange.svg)](https://www.npmjs.com/package/@scrollcraft/core)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Status](https://img.shields.io/badge/status-beta-7C3AED.svg)](https://www.npmjs.com/package/@scrollcraft/core)
+[![License: MIT](https://img.shields.io/badge/License-MIT-zinc.svg)](LICENSE)
 
 Headless, high-performance game-dev scroll & physics engine for the web.
 
-> **Stability & Versioning Note:**  
-> **Beta means the API surface may still shift before 1.0 — it does not mean unstable.** `@scrollcraft/core` is battle-tested for 60/120 FPS high-precision scroll animation with subpixel inertia smoothing and zero memory thrashing.
+> **Beta Notice:**  
+> **Beta means the public API contracts are finalizing before 1.0 — it does not mean unstable.** `@scrollcraft/core` is battle-tested for 60/120 FPS high-precision scroll animation with subpixel inertia smoothing and zero memory thrashing.
 
 ---
 

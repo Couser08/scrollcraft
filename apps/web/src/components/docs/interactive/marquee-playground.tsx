@@ -30,7 +30,7 @@ export const MarqueePlayground: React.FC = () => {
           statusRef.current.className = 'text-amber-400 font-bold font-mono';
         } else if (v > 3) {
           statusRef.current.textContent = 'ACCELERATING ⚡';
-          statusRef.current.className = 'text-blue-400 font-bold font-mono';
+          statusRef.current.className = 'text-violet-400 font-bold font-mono';
         } else {
           statusRef.current.textContent = 'BASE CRUISE';
           statusRef.current.className = 'text-emerald-400 font-semibold font-mono';
@@ -82,7 +82,7 @@ export const MarqueePlayground: React.FC = () => {
           <div>
             <div className="flex items-center justify-between text-xs mb-1.5 font-mono">
               <span className="text-zinc-300 font-medium">Base Cruise Speed</span>
-              <span className="text-blue-400 font-semibold">{baseSpeed.toFixed(1)} px/f</span>
+              <span className="text-violet-400 font-semibold">{baseSpeed.toFixed(1)} px/f</span>
             </div>
             <input
               type="range"
@@ -91,14 +91,14 @@ export const MarqueePlayground: React.FC = () => {
               step="0.2"
               value={baseSpeed}
               onChange={(e) => setBaseSpeed(Number(e.target.value))}
-              className="w-full accent-blue-500 h-1.5 bg-zinc-800 rounded-lg cursor-pointer"
+              className="w-full accent-violet-500 h-1.5 bg-zinc-800 rounded-lg cursor-pointer"
             />
           </div>
 
           <div>
             <div className="flex items-center justify-between text-xs mb-1.5 font-mono">
               <span className="text-zinc-300 font-medium">Velocity Sensitivity</span>
-              <span className="text-blue-400 font-semibold">{velocityMultiplier.toFixed(2)}x</span>
+              <span className="text-violet-400 font-semibold">{velocityMultiplier.toFixed(2)}x</span>
             </div>
             <input
               type="range"
@@ -107,7 +107,7 @@ export const MarqueePlayground: React.FC = () => {
               step="0.02"
               value={velocityMultiplier}
               onChange={(e) => setVelocityMultiplier(Number(e.target.value))}
-              className="w-full accent-blue-500 h-1.5 bg-zinc-800 rounded-lg cursor-pointer"
+              className="w-full accent-violet-500 h-1.5 bg-zinc-800 rounded-lg cursor-pointer"
             />
           </div>
 
@@ -116,15 +116,15 @@ export const MarqueePlayground: React.FC = () => {
               onClick={() => setDirection((d) => (d === 'left' ? 'right' : 'left'))}
               className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg border border-zinc-800 bg-zinc-900 hover:bg-zinc-800 text-xs font-mono text-zinc-200 transition-all cursor-pointer"
             >
-              <ArrowLeftRight className="w-3.5 h-3.5 text-blue-400" />
+              <ArrowLeftRight className="w-3.5 h-3.5 text-violet-400" />
               <span>{direction.toUpperCase()}</span>
             </button>
 
             <button
               onClick={handleScrollPulse}
-              className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg border border-blue-500/40 bg-blue-500/10 hover:bg-blue-500/20 text-xs font-mono text-blue-300 font-semibold transition-all cursor-pointer active:scale-95 shadow-lg"
+              className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg border border-violet-500/40 bg-violet-500/10 hover:bg-violet-500/20 text-xs font-mono text-violet-300 font-semibold transition-all cursor-pointer active:scale-95 shadow-lg"
             >
-              <Zap className="w-3.5 h-3.5 text-blue-400" />
+              <Zap className="w-3.5 h-3.5 text-violet-400" />
               <span>Scroll Pulse (Fling)</span>
             </button>
           </div>
@@ -134,7 +134,7 @@ export const MarqueePlayground: React.FC = () => {
         <>
           <div className="flex items-center justify-between">
             <span className="text-zinc-400">Live Kinetic Velocity:</span>
-            <span ref={velocityRef} className="text-blue-400 font-bold font-mono">
+            <span ref={velocityRef} className="text-violet-400 font-bold font-mono">
               0.0 px/f
             </span>
           </div>
@@ -166,13 +166,13 @@ export const MarqueePlayground: React.FC = () => {
         >
           <div className="flex items-center gap-8 font-mono text-sm sm:text-base font-bold text-white tracking-wider">
             <span>SCROLLCRAFT</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+            <span className="w-1.5 h-1.5 rounded-full bg-violet-500" />
             <span className="text-zinc-400">120 FPS SUBPIXEL</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+            <span className="w-1.5 h-1.5 rounded-full bg-violet-500" />
             <span className="text-zinc-200">ZERO JANK MOTION</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+            <span className="w-1.5 h-1.5 rounded-full bg-violet-500" />
             <span className="text-zinc-400">DIRECT COMPOSITOR</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+            <span className="w-1.5 h-1.5 rounded-full bg-violet-500" />
           </div>
         </VelocityMarquee>
       </div>

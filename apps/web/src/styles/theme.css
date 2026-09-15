@@ -17,18 +17,22 @@
   --color-canvas-subtle: #18181b;
   --color-canvas-dark: #000000;
 
-  /* Primary Brand: ScrollCraft Orange */
-  --color-brand-primary: #ff5a1f;
-  --color-brand-primary-hover: #e54800;
-  --color-brand-orange-tint: rgba(255, 90, 31, 0.1);
-  --color-brand-orange-border: rgba(255, 90, 31, 0.2);
-  --color-brand-orange-ring: rgba(255, 90, 31, 0.25);
+  /* Primary Brand: ScrollCraft Electric Violet (Signature Identity) */
+  --color-brand-primary: #7c3aed;
+  --color-brand-primary-hover: #6d28d9;
+  --color-brand-accent: #8b5cf6;
+  --color-brand-violet-tint: rgba(124, 58, 237, 0.12);
+  --color-brand-violet-border: rgba(139, 92, 246, 0.25);
+  --color-brand-violet-ring: rgba(124, 58, 237, 0.35);
 
-  /* Legacy brand color aliases mapped cleanly */
-  --color-brand-blue: #ff5a1f;
-  --color-brand-blue-hover: #e54800;
-  --color-brand-blue-light: #fff7ed;
-  --color-brand-blue-border: #ffedd5;
+  /* Legacy brand color aliases mapped cleanly to Electric Violet */
+  --color-brand-blue: #7c3aed;
+  --color-brand-blue-hover: #6d28d9;
+  --color-brand-blue-light: rgba(124, 58, 237, 0.08);
+  --color-brand-blue-border: rgba(139, 92, 246, 0.2);
+  --color-brand-orange-tint: rgba(124, 58, 237, 0.12);
+  --color-brand-orange-border: rgba(139, 92, 246, 0.25);
+  --color-brand-orange-ring: rgba(124, 58, 237, 0.35);
 
   /* Typography: Ink & Secondary -> Dark Mode Text */
   --color-text-primary: #ffffff;

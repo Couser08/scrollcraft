@@ -173,7 +173,7 @@ export function StickyShowcase() {
   return (
     <div className="relative flex gap-8 p-6">
       <Pin top={24} className="w-1/3 self-start">
-        <div className="p-6 rounded-2xl bg-blue-950/40 border border-blue-500/30">
+        <div className="p-6 rounded-2xl bg-violet-950/40 border border-violet-500/30">
           <h3 className="text-lg font-bold text-white">Pinned Focal Node</h3>
           <p className="text-zinc-400 mt-2">Sticky lock-in with 0 layout thrashing.</p>
         </div>
@@ -193,7 +193,7 @@ export function StickyShowcase() {
   return (
     <div className="flex gap-8">
       <Pin top={24} className="w-1/3">
-        <div className="p-6 rounded-xl bg-blue-950/40 border border-blue-500/30">
+        <div className="p-6 rounded-xl bg-violet-950/40 border border-violet-500/30">
           <h3 className="text-white font-bold">Sticky Hero</h3>
         </div>
       </Pin>
@@ -202,7 +202,7 @@ export function StickyShowcase() {
 }`,
       html: `<div class="flex gap-8">
   <div data-scrollcraft-pin="top" data-offset="24" class="w-1/3">
-    <div class="p-6 rounded-xl bg-blue-950/40 border border-blue-500/30">
+    <div class="p-6 rounded-xl bg-violet-950/40 border border-violet-500/30">
       <h3 class="text-white font-bold">Sticky Hero</h3>
     </div>
   </div>
@@ -222,7 +222,7 @@ export function HeaderProgressBar() {
   return (
     <div className="fixed top-0 left-0 right-0 h-1.5 z-50 bg-zinc-900">
       <ScrollProgress asChild>
-        <div className="h-full bg-gradient-to-r from-blue-500 via-sky-400 to-indigo-500 origin-left" />
+        <div className="h-full bg-gradient-to-r from-violet-500 via-purple-400 to-indigo-500 origin-left" />
       </ScrollProgress>
     </div>
   )
@@ -234,13 +234,13 @@ export function HeaderProgressBar() {
   return (
     <div className="fixed top-0 left-0 right-0 h-1.5 z-50 bg-zinc-900">
       <ScrollProgress asChild>
-        <div className="h-full bg-blue-500 origin-left" />
+        <div className="h-full bg-violet-500 origin-left" />
       </ScrollProgress>
     </div>
   )
 }`,
       html: `<div class="fixed top-0 left-0 right-0 h-1.5 z-50 bg-zinc-900">
-  <div data-scrollcraft-progress class="h-full bg-blue-500 origin-left"></div>
+  <div data-scrollcraft-progress class="h-full bg-violet-500 origin-left"></div>
 </div>`,
     },
   },
@@ -309,14 +309,14 @@ export function PrimitivesShowcase() {
           <div className="md:col-span-6 flex flex-col items-center text-center">
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0d0f14] border border-zinc-800 text-[11px] font-mono tracking-[0.25em] text-zinc-400 uppercase mb-4 shadow-sm">
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.8)]" />
+              <span className="w-1.5 h-1.5 rounded-full bg-violet-500 shadow-[0_0_8px_rgba(139,92,246,0.8)]" />
               <span>CORE PRIMITIVES &bull; BETA</span>
             </div>
 
             {/* Dual-Tone Headline */}
             <h2 className="text-3xl sm:text-5xl md:text-5xl lg:text-[3.5rem] font-bold tracking-tight leading-[1.08] mb-4">
               <span className="text-white block font-extrabold">You build the markup.</span>
-              <span className="bg-gradient-to-r from-blue-400 via-sky-300 to-indigo-300 bg-clip-text text-transparent block font-extrabold mt-1">
+              <span className="bg-gradient-to-r from-violet-400 via-purple-300 to-indigo-300 bg-clip-text text-transparent block font-extrabold mt-1">
                 We handle the physics.
               </span>
             </h2>
@@ -355,8 +355,8 @@ export function PrimitivesShowcase() {
                   onClick={() => setActivePrimitive(key)}
                   className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 cursor-pointer ${
                     isActive
-                      ? 'bg-[#1d6ff2] text-white shadow-[0_0_20px_rgba(29,111,242,0.4)] border border-blue-400/50 scale-[1.02]'
-                      : 'bg-[#0d0f14]/90 text-zinc-400 border border-white/[0.08] hover:border-white/20 hover:bg-[#151922] hover:text-white'
+                      ? 'bg-violet-600 text-white shadow-[0_0_20px_rgba(124,58,237,0.4)] border border-violet-400/50 scale-[1.02]'
+                      : 'bg-[#0d0f14]/90 text-zinc-400 border border-white/[0.08] hover:border-violet-500/30 hover:bg-[#151922] hover:text-white'
                   }`}
                 >
                   <Icon className="w-3.5 h-3.5 shrink-0" />
@@ -392,7 +392,7 @@ export function PrimitivesShowcase() {
             <div>
               {/* Clean Top Header of Code Card (No Source link, No CTAs) */}
               <div className="flex items-center gap-3 pb-4 border-b border-white/[0.06]">
-                <div className="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shrink-0 shadow-inner">
+                <div className="w-9 h-9 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center text-violet-400 shrink-0 shadow-inner">
                   <currentData.icon className="w-4 h-4" />
                 </div>
                 <div>
@@ -401,7 +401,7 @@ export function PrimitivesShowcase() {
                       {currentData.name}
                     </span>
                     {currentData.badge && (
-                      <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-400 border border-blue-500/30">
+                      <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-violet-500/15 text-violet-300 border border-violet-500/30">
                         {currentData.badge}
                       </span>
                     )}
@@ -485,7 +485,7 @@ export function PrimitivesShowcase() {
                 
                 {/* Clean Preview Badge */}
                 <div className="flex items-center gap-2">
-                  <span className="px-3 py-1 rounded-lg text-xs font-medium bg-blue-600/25 text-blue-400 border border-blue-500/30">
+                  <span className="px-3 py-1 rounded-lg text-xs font-medium bg-violet-600/25 text-violet-400 border border-violet-500/30">
                     Preview
                   </span>
                   <span className="text-[11px] font-mono text-zinc-500">
@@ -501,7 +501,7 @@ export function PrimitivesShowcase() {
                     title="Desktop View"
                     className={`p-1.5 rounded-md transition-colors cursor-pointer ${
                       activeDevice === 'desktop'
-                        ? 'bg-blue-600/30 text-blue-400 border border-blue-500/40'
+                        ? 'bg-violet-600/30 text-violet-400 border border-violet-500/40'
                         : 'text-zinc-500 hover:text-zinc-300'
                     }`}
                   >
@@ -513,7 +513,7 @@ export function PrimitivesShowcase() {
                     title="Tablet View"
                     className={`p-1.5 rounded-md transition-colors cursor-pointer ${
                       activeDevice === 'tablet'
-                        ? 'bg-blue-600/30 text-blue-400 border border-blue-500/40'
+                        ? 'bg-violet-600/30 text-violet-400 border border-violet-500/40'
                         : 'text-zinc-500 hover:text-zinc-300'
                     }`}
                   >
@@ -525,7 +525,7 @@ export function PrimitivesShowcase() {
                     title="Mobile View"
                     className={`p-1.5 rounded-md transition-colors cursor-pointer ${
                       activeDevice === 'mobile'
-                        ? 'bg-blue-600/30 text-blue-400 border border-blue-500/40'
+                        ? 'bg-violet-600/30 text-violet-400 border border-violet-500/40'
                         : 'text-zinc-500 hover:text-zinc-300'
                     }`}
                   >
@@ -584,7 +584,7 @@ export function PrimitivesShowcase() {
                     <Reveal direction="up" distance={25} duration={0.6}>
                       <div className="p-3.5 rounded-lg bg-zinc-900/90 border border-zinc-800 flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <span className="w-5 h-5 rounded-full bg-blue-500/20 text-blue-400 text-xs font-mono flex items-center justify-center font-bold">1</span>
+                          <span className="w-5 h-5 rounded-full bg-violet-500/20 text-violet-400 text-xs font-mono flex items-center justify-center font-bold">1</span>
                           <span className="text-xs font-semibold text-white">Direct Hardware Transform</span>
                         </div>
                         <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-500/30">GPU Mutex</span>
@@ -594,7 +594,7 @@ export function PrimitivesShowcase() {
                     <Reveal direction="up" distance={25} duration={0.6} delay={0.12}>
                       <div className="p-3.5 rounded-lg bg-zinc-900/90 border border-zinc-800 flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <span className="w-5 h-5 rounded-full bg-blue-500/20 text-blue-400 text-xs font-mono flex items-center justify-center font-bold">2</span>
+                          <span className="w-5 h-5 rounded-full bg-violet-500/20 text-violet-400 text-xs font-mono flex items-center justify-center font-bold">2</span>
                           <span className="text-xs font-semibold text-white">Batched IntersectionObserver</span>
                         </div>
                         <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-500/30">0 Re-renders</span>
@@ -604,7 +604,7 @@ export function PrimitivesShowcase() {
                     <Reveal direction="up" distance={25} duration={0.6} delay={0.24}>
                       <div className="p-3.5 rounded-lg bg-zinc-900/90 border border-zinc-800 flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <span className="w-5 h-5 rounded-full bg-blue-500/20 text-blue-400 text-xs font-mono flex items-center justify-center font-bold">3</span>
+                          <span className="w-5 h-5 rounded-full bg-violet-500/20 text-violet-400 text-xs font-mono flex items-center justify-center font-bold">3</span>
                           <span className="text-xs font-semibold text-white">Subpixel Lerp Interpolation</span>
                         </div>
                         <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-500/30">60 FPS</span>
@@ -623,8 +623,8 @@ export function PrimitivesShowcase() {
 
                     <div className="relative flex gap-4 flex-1 items-stretch">
                       <Pin top={12} className="w-2/5 shrink-0 self-start">
-                        <div className="p-4 rounded-xl bg-blue-950/40 border border-blue-500/40 shadow-lg">
-                          <span className="text-[10px] font-mono text-blue-400 uppercase font-bold block mb-1">PINNED NODE</span>
+                        <div className="p-4 rounded-xl bg-violet-950/40 border border-violet-500/40 shadow-lg">
+                          <span className="text-[10px] font-mono text-violet-400 uppercase font-bold block mb-1">PINNED NODE</span>
                           <h4 className="text-xs font-bold text-white leading-snug">Locked Focus</h4>
                           <p className="text-[10px] text-zinc-400 mt-1">Spacer-free sticky physics with 0 layout shift</p>
                         </div>
@@ -657,12 +657,12 @@ export function PrimitivesShowcase() {
                     <div className="w-full max-w-sm space-y-2">
                       <div className="flex justify-between text-xs font-mono text-zinc-400">
                         <span>Normalized Scroll Track</span>
-                        <span className="text-blue-400 font-bold">{Math.round(scrollProgress * 100)}%</span>
+                        <span className="text-violet-400 font-bold">{Math.round(scrollProgress * 100)}%</span>
                       </div>
                       {/* Real <ScrollProgress> Primitive from @scrollcraft/react */}
                       <div className="w-full h-3 rounded-full bg-zinc-900 border border-zinc-800 overflow-hidden">
                         <ScrollProgress asChild>
-                          <div className="h-full bg-gradient-to-r from-blue-500 via-sky-400 to-indigo-500 origin-left" />
+                          <div className="h-full bg-gradient-to-r from-violet-500 via-purple-400 to-indigo-500 origin-left" />
                         </ScrollProgress>
                       </div>
                     </div>
@@ -671,7 +671,7 @@ export function PrimitivesShowcase() {
                     <div className="grid grid-cols-2 gap-3 w-full max-w-sm text-center font-mono text-xs">
                       <div className="p-2.5 rounded-lg bg-zinc-900 border border-zinc-800">
                         <span className="text-[10px] text-zinc-500 block">scaleX</span>
-                        <span className="text-blue-400 font-bold">{scrollProgress.toFixed(3)}</span>
+                        <span className="text-violet-400 font-bold">{scrollProgress.toFixed(3)}</span>
                       </div>
                       <div className="p-2.5 rounded-lg bg-zinc-900 border border-zinc-800">
                         <span className="text-[10px] text-zinc-500 block">Velocity</span>
@@ -769,7 +769,7 @@ function renderSyntaxLine(line: string) {
       return <span key={i} className="text-emerald-300">{part}</span>;
     }
     if (part.startsWith('<') || part.endsWith('>')) {
-      return <span key={i} className="text-blue-300">{part}</span>;
+      return <span key={i} className="text-violet-300">{part}</span>;
     }
     if (/^[0-9.]+$/.test(part)) {
       return <span key={i} className="text-amber-300">{part}</span>;

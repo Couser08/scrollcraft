@@ -71,7 +71,7 @@ export const ParallaxPlayground: React.FC = () => {
           <div>
             <div className="flex items-center justify-between text-xs mb-1.5 font-mono">
               <span className="text-zinc-300 font-medium">Speed Multiplier</span>
-              <span className="text-blue-400 font-semibold">{speed.toFixed(2)}x</span>
+              <span className="text-violet-400 font-semibold">{speed.toFixed(2)}x</span>
             </div>
             <input
               type="range"
@@ -80,7 +80,7 @@ export const ParallaxPlayground: React.FC = () => {
               step="0.05"
               value={speed}
               onChange={(e) => setSpeed(Number(e.target.value))}
-              className="w-full accent-blue-500 h-1.5 bg-zinc-800 rounded-lg cursor-pointer"
+              className="w-full accent-violet-500 h-1.5 bg-zinc-800 rounded-lg cursor-pointer"
             />
             <div className="flex justify-between text-[10px] text-zinc-500 mt-1 font-mono">
               <span>0.05 (Subtle)</span>
@@ -102,7 +102,7 @@ export const ParallaxPlayground: React.FC = () => {
                     : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:text-zinc-200'
                 }`}
               >
-                <ArrowUpDown className="w-3 h-3 text-blue-400" />
+                <ArrowUpDown className="w-3 h-3 text-violet-400" />
                 <span>Vertical</span>
               </button>
               <button
@@ -113,7 +113,7 @@ export const ParallaxPlayground: React.FC = () => {
                     : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:text-zinc-200'
                 }`}
               >
-                <ArrowLeftRight className="w-3 h-3 text-blue-400" />
+                <ArrowLeftRight className="w-3 h-3 text-violet-400" />
                 <span>Horizontal</span>
               </button>
             </div>
@@ -146,7 +146,7 @@ export const ParallaxPlayground: React.FC = () => {
         <>
           <div className="flex items-center justify-between">
             <span className="text-zinc-400">Layer 1 (Background):</span>
-            <span ref={layer1Ref} className="text-blue-400 font-mono">
+            <span ref={layer1Ref} className="text-violet-400 font-mono">
               0.0 px
             </span>
           </div>
@@ -173,7 +173,7 @@ export const ParallaxPlayground: React.FC = () => {
     >
       <div className="flex flex-col gap-2">
         <div className="text-[11px] font-mono text-zinc-400 flex items-center gap-1.5">
-          <Layers className="w-3.5 h-3.5 text-blue-400" />
+          <Layers className="w-3.5 h-3.5 text-violet-400" />
           <span>Scroll this documentation page to see all 3 real layers displace:</span>
         </div>
 
@@ -203,7 +203,7 @@ export const ParallaxPlayground: React.FC = () => {
             direction={direction}
           >
             <div className="relative z-10 p-6 rounded-2xl bg-zinc-900/90 backdrop-blur-md border border-zinc-700/80 shadow-2xl text-center max-w-xs">
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 text-[10px] font-mono font-bold mb-2">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-violet-500/10 text-violet-400 border border-violet-500/20 text-[10px] font-mono font-bold mb-2">
                 <Layers className="w-3 h-3" />
                 <span>Real Parallax Primitive</span>
               </div>
@@ -211,7 +211,7 @@ export const ParallaxPlayground: React.FC = () => {
                 Direct Compositor Writes
               </h4>
               <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
-                Relative speed ratio <span className="text-blue-400 font-mono font-semibold">{(-speed * 0.9).toFixed(2)}x</span> on page scroll.
+                Relative speed ratio <span className="text-violet-400 font-mono font-semibold">{(-speed * 0.9).toFixed(2)}x</span> on page scroll.
               </p>
             </div>
           </Parallax>
@@ -223,7 +223,7 @@ export const ParallaxPlayground: React.FC = () => {
             direction={direction}
           >
             <div className="absolute bottom-6 right-6 z-20 px-3 py-1.5 rounded-xl bg-black/95 backdrop-blur-md border border-zinc-700 text-white font-mono text-[10px] shadow-2xl">
-              <span className="text-blue-400 font-bold">120 FPS </span>
+              <span className="text-violet-400 font-bold">120 FPS </span>
               GPU translate3d
             </div>
           </Parallax>

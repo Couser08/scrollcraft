@@ -3,6 +3,7 @@ import React from 'react';
 import Link from 'next/link';
 import { ShowcaseHub } from '@/components/showcase/showcase-hub';
 import { GithubIcon } from '@/components/ui/social-icons';
+import { ScrollCraftLogo } from '@/components/ui/scrollcraft-logo';
 
 export const metadata: Metadata = {
   title: 'Showcase — You Build. We Showcase. | ScrollCraft',
@@ -12,14 +13,13 @@ export const metadata: Metadata = {
 
 export default function ShowcasePage() {
   return (
-    <div className="w-full min-h-screen bg-[#050505] text-zinc-100 flex flex-col font-sans selection:bg-blue-500/20 selection:text-white">
+    <div className="w-full min-h-screen bg-[#050505] text-zinc-100 flex flex-col font-sans selection:bg-violet-600/30 selection:text-white">
       {/* Top Sticky Header */}
       <header className="w-full border-b border-zinc-800/80 bg-[#050505]/90 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-8">
             <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="w-5 h-5 rounded-full bg-blue-500 group-hover:scale-110 transition-transform shadow-[0_0_12px_rgba(59,130,246,0.6)]" />
-              <span className="text-lg font-bold text-white tracking-tight">ScrollCraft</span>
+              <ScrollCraftLogo variant="badge" badgeText="Beta" size="sm" />
             </Link>
 
             <nav className="hidden md:flex items-center gap-6 text-xs font-medium text-zinc-400">

@@ -7,7 +7,7 @@ import { BookOpen, ChevronUp, ChevronDown, ArrowUp } from 'lucide-react';
 
 export const ScrollProgressPlayground: React.FC = () => {
   const [barHeight, setBarHeight] = useState<number>(8); // px
-  const [gradientTheme, setGradientTheme] = useState<'blue' | 'emerald' | 'purple'>('blue');
+  const [gradientTheme, setGradientTheme] = useState<'violet' | 'emerald' | 'purple'>('violet');
 
   const { progressValue, scrollYValue } = useScrollProgress();
 
@@ -34,7 +34,8 @@ export const ScrollProgressPlayground: React.FC = () => {
       if (scrollYRef.current) scrollYRef.current.textContent = `${Math.round(scrollYValue.get())}px`;
 
       if (dialCircleRef.current) {
-        dialCircleRef.current.style.strokeDashoffset = `${circumference - normalized * circumference}px`;
+        const offset = circumference - normalized * circumference;
+        dialCircleRef.current.style.strokeDashoffset = `${offset}`;
       }
       if (dialTextRef.current) {
         dialTextRef.current.textContent = `${Math.round(normalized * 100)}%`;
@@ -59,7 +60,7 @@ export const ScrollProgressPlayground: React.FC = () => {
   };
 
   const gradients = {
-    blue: 'from-blue-500 via-sky-400 to-indigo-500',
+    violet: 'from-violet-600 via-purple-500 to-indigo-500',
     emerald: 'from-emerald-500 via-teal-400 to-cyan-500',
     purple: 'from-purple-500 via-fuchsia-400 to-pink-500',
   };
@@ -75,7 +76,7 @@ export const ScrollProgressPlayground: React.FC = () => {
       driverType="scroll-timeline"
       onReset={() => {
         setBarHeight(8);
-        setGradientTheme('blue');
+        setGradientTheme('violet');
       }}
       codeSnippet={codeSnippet}
       codeFileName="ReadingProgressBar.tsx"
@@ -84,7 +85,7 @@ export const ScrollProgressPlayground: React.FC = () => {
           <div>
             <div className="flex items-center justify-between text-xs mb-1.5 font-mono">
               <span className="text-zinc-300 font-medium">Bar Thickness</span>
-              <span className="text-blue-400 font-semibold">{barHeight}px</span>
+              <span className="text-violet-400 font-semibold">{barHeight}px</span>
             </div>
             <input
               type="range"
@@ -92,7 +93,7 @@ export const ScrollProgressPlayground: React.FC = () => {
               max="16"
               value={barHeight}
               onChange={(e) => setBarHeight(Number(e.target.value))}
-              className="w-full accent-blue-500 h-1.5 bg-zinc-800 rounded-lg cursor-pointer"
+              className="w-full accent-violet-500 h-1.5 bg-zinc-800 rounded-lg cursor-pointer"
             />
           </div>
 
@@ -101,7 +102,7 @@ export const ScrollProgressPlayground: React.FC = () => {
               Accent Palette
             </label>
             <div className="grid grid-cols-3 gap-2">
-              {(['blue', 'emerald', 'purple'] as const).map((theme) => (
+              {(['violet', 'emerald', 'purple'] as const).map((theme) => (
                 <button
                   key={theme}
                   onClick={() => setGradientTheme(theme)}
@@ -151,7 +152,7 @@ export const ScrollProgressPlayground: React.FC = () => {
         <>
           <div className="flex items-center justify-between">
             <span className="text-zinc-400">Raw Normalized Progress:</span>
-            <span ref={progressFloatRef} className="text-blue-400 font-bold font-mono">
+            <span ref={progressFloatRef} className="text-violet-400 font-bold font-mono">
               0.0000
             </span>
           </div>
@@ -169,7 +170,7 @@ export const ScrollProgressPlayground: React.FC = () => {
           </div>
           <div className="flex items-center justify-between">
             <span className="text-zinc-400">Total Completion:</span>
-            <span ref={progressTextRef} className="text-sky-400 font-bold font-mono">
+            <span ref={progressTextRef} className="text-violet-400 font-bold font-mono">
               0.0%
             </span>
           </div>
@@ -181,7 +182,7 @@ export const ScrollProgressPlayground: React.FC = () => {
         <div className="p-4 rounded-xl bg-[#060608] border border-zinc-800/80 space-y-3">
           <div className="flex items-center justify-between text-xs font-mono text-zinc-400">
             <span className="flex items-center gap-1.5 font-semibold text-zinc-200">
-              <BookOpen className="w-3.5 h-3.5 text-blue-400" />
+              <BookOpen className="w-3.5 h-3.5 text-violet-400" />
               <span>Real &lt;ScrollProgress /&gt; Tracker</span>
             </span>
             <span className="text-[10px] text-zinc-500">Driven by this page&apos;s scroll</span>
@@ -213,7 +214,7 @@ export const ScrollProgressPlayground: React.FC = () => {
                   cx="32"
                   cy="32"
                   r={radius}
-                  className="stroke-blue-500 fill-none transition-[stroke-dashoffset] duration-75 ease-out"
+                  className="stroke-violet-500 fill-none transition-[stroke-dashoffset] duration-75 ease-out"
                   strokeWidth="5"
                   strokeDasharray={circumference}
                   strokeDashoffset={circumference}
@@ -232,7 +233,7 @@ export const ScrollProgressPlayground: React.FC = () => {
                 Compositor-Linked Dial
               </h4>
               <p className="text-xs text-zinc-400 mt-0.5 leading-relaxed">
-                Directly subscribes to <code className="text-blue-400">useScrollProgress().progressValue</code>. No virtual DOM diffs.
+                Directly subscribes to <code className="text-violet-400">useScrollProgress().progressValue</code>. No virtual DOM diffs.
               </p>
             </div>
           </div>

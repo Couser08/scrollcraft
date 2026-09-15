@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Geist, Geist_Mono, Caveat } from 'next/font/google';
 import { ScrollProvider, ScrollInspector } from '@scrollcraft/react';
 import '../styles/globals.css';
@@ -18,12 +18,52 @@ const caveat = Caveat({
   subsets: ['latin'],
 });
 
+export const viewport: Viewport = {
+  themeColor: '#050505',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+};
+
 export const metadata: Metadata = {
-  title: 'ScrollCraft — Animate on Scroll, Beautifully',
+  metadataBase: new URL('https://scrollcraft.dev'),
+  title: {
+    default: 'ScrollCraft — The Scroll Engine React Never Had',
+    template: '%s | ScrollCraft',
+  },
   description:
-    'ScrollCraft makes it easy to create smooth, performant and stunning scroll-based animations — without the complexity.',
+    'Composable primitives and reactive hooks for parallax, reveals, pins, and scroll-progress — powered by Lenis, safe in RSC, zero React re-renders.',
+  robots: {
+    index: false,
+    follow: false,
+    googleBot: {
+      index: false,
+      follow: false,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
   icons: {
     icon: '/icon.svg',
+    shortcut: '/icon.svg',
+    apple: '/icon.svg',
+  },
+  openGraph: {
+    title: 'ScrollCraft — The Scroll Engine React Never Had',
+    description:
+      'Composable primitives and reactive hooks for parallax, reveals, pins, and scroll-progress — powered by Lenis, safe in RSC, zero React re-renders.',
+    url: 'https://scrollcraft.dev',
+    siteName: 'ScrollCraft',
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'ScrollCraft — The Scroll Engine React Never Had',
+    description:
+      'Composable primitives and reactive hooks for parallax, reveals, pins, and scroll-progress — powered by Lenis, safe in RSC, zero React re-renders.',
+    creator: '@scrollcraft',
   },
 };
 
@@ -35,7 +75,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${caveat.variable} bg-[#050505] text-zinc-100 min-h-screen antialiased selection:bg-zinc-800 selection:text-white font-sans flex flex-col`}
+        className={`${geistSans.variable} ${geistMono.variable} ${caveat.variable} bg-[#050505] text-zinc-100 min-h-screen antialiased selection:bg-violet-600/30 selection:text-white font-sans flex flex-col`}
         suppressHydrationWarning
       >
         <ScrollProvider
