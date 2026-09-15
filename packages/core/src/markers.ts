@@ -23,7 +23,7 @@ export class TriggerRegistry {
 
   public register(record: ScrollTriggerRecord): void {
     this.triggers.set(record.id, record);
-    if (record.markers) {
+    if (record.markers || markerManager.isGlobalEnabled()) {
       markerManager.addTrigger(record);
     }
     this.notify();
@@ -34,7 +34,7 @@ export class TriggerRegistry {
     if (!record) return;
     record.startY = startY;
     record.endY = endY;
-    if (record.markers) {
+    if (record.markers || markerManager.isGlobalEnabled()) {
       markerManager.updateTriggerBounds(id, startY, endY);
     }
     this.notify();
@@ -44,16 +44,13 @@ export class TriggerRegistry {
     const record = this.triggers.get(id);
     if (!record) return;
     record.progress = progress;
-    if (record.markers) {
+    if (record.markers || markerManager.isGlobalEnabled()) {
       markerManager.updateTriggerProgress(id, progress);
     }
   }
 
   public unregister(id: string): void {
-    const record = this.triggers.get(id);
-    if (record?.markers) {
-      markerManager.removeTrigger(id);
-    }
+    markerManager.removeTrigger(id);
     this.triggers.delete(id);
     this.notify();
   }

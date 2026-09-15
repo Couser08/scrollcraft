@@ -38,13 +38,14 @@ const R3F_CODE = `import { useRef } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { useScroll3D } from '@scrollcraft/r3f'
 
-function Box() {
+function Box({ targetRef }) {
   const mesh = useRef()
-  const { scrollY } = useScroll3D()
+  const { tick } = useScroll3D(targetRef.current)
 
   useFrame(() => {
-    mesh.current.rotation.y = scrollY * Math.PI * 2
-    mesh.current.position.y = scrollY * 2
+    const { progress } = tick()
+    mesh.current.rotation.y = progress * Math.PI * 2
+    mesh.current.position.y = progress * 2
   })
 
   return <mesh ref={mesh}>
@@ -161,9 +162,28 @@ function renderR3FSyntaxLine(line: string, lineIndex: number): React.ReactNode {
 export function R3FPreviewSection() {
   const [copied, setCopied] = useState(false);
   const [autoRotate, setAutoRotate] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
   const scrollRef = useRef({ progress: 0, velocity: 0 });
 
   const { subscribe } = useScrollCraft();
+
+  // IntersectionObserver to pause Three.js frameloop offscreen
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el || typeof IntersectionObserver === 'undefined') {
+      setIsVisible(true);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry.isIntersecting);
+      },
+      { rootMargin: '200px' }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   // Pure mutable ref binding: zero React re-renders, zero jitter
   useEffect(() => {
@@ -188,6 +208,7 @@ export function R3FPreviewSection() {
 
   return (
     <section
+      ref={sectionRef}
       id="r3f"
       className="relative w-full bg-[#050505] py-24 sm:py-32 px-4 sm:px-6 lg:px-8 border-t border-zinc-800/80 overflow-hidden"
     >
@@ -375,6 +396,7 @@ export function R3FPreviewSection() {
               <R3FCanvasStage
                 scrollRef={scrollRef}
                 autoRotate={autoRotate}
+                isVisible={isVisible}
               />
 
               {/* Bottom-left overlay inside canvas */}

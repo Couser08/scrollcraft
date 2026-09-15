@@ -187,7 +187,7 @@ export const ParallaxPlayground: React.FC = () => {
           >
             <div className="absolute inset-0 opacity-40 filter brightness-90 pointer-events-none scale-110">
               <Image
-                src="/images/cta-mountains.jpg"
+                src="/images/mountains.jpg"
                 alt="Scenic Parallax Background"
                 fill
                 sizes="(max-width: 768px) 100vw, 600px"

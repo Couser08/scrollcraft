@@ -11,6 +11,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import {
   Layers,
   Eye,
@@ -542,12 +543,13 @@ export function PrimitivesShowcase() {
                   <div className="relative w-full h-[280px] rounded-xl overflow-hidden border border-white/[0.08] shadow-inner flex items-center justify-center bg-[#07080b]">
                     {/* Real <Parallax> Primitive from @scrollcraft/react with safe bounds */}
                     <Parallax speed={0.15} min={-40} max={40} className="absolute inset-x-0 -top-[20%] w-full h-[140%]">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
+                      <Image
                         src="/images/mountains.jpg"
                         alt="Mountains Parallax Preview"
-                        className="w-full h-full object-cover select-none pointer-events-none"
-                        loading="eager"
+                        fill
+                        loading="lazy"
+                        sizes="(max-width: 768px) 100vw, 600px"
+                        className="object-cover select-none pointer-events-none"
                       />
                     </Parallax>
 
@@ -613,9 +615,13 @@ export function PrimitivesShowcase() {
 
                 {/* 3. PIN DEMO */}
                 {activePrimitive === 'pin' && (
-                  <div className="relative w-full h-[280px] rounded-xl overflow-y-auto border border-white/[0.08] p-4 bg-[#07080b]">
-                    {/* Real <Pin> Primitive from @scrollcraft/react */}
-                    <div className="relative flex gap-4 min-h-[420px]">
+                  <div className="relative w-full h-[280px] rounded-xl border border-white/[0.08] p-4 bg-[#07080b] flex flex-col justify-between">
+                    <div className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider mb-2 flex items-center justify-between">
+                      <span>&lt;Pin /&gt; Sticky GPU Layout Mutex</span>
+                      <span className="text-emerald-400 font-semibold">Active</span>
+                    </div>
+
+                    <div className="relative flex gap-4 flex-1 items-stretch">
                       <Pin top={12} className="w-2/5 shrink-0 self-start">
                         <div className="p-4 rounded-xl bg-blue-950/40 border border-blue-500/40 shadow-lg">
                           <span className="text-[10px] font-mono text-blue-400 uppercase font-bold block mb-1">PINNED NODE</span>
@@ -623,18 +629,22 @@ export function PrimitivesShowcase() {
                           <p className="text-[10px] text-zinc-400 mt-1">Spacer-free sticky physics with 0 layout shift</p>
                         </div>
                       </Pin>
-                      <div className="w-3/5 space-y-3 pb-8">
-                        <div className="p-3 rounded-lg bg-zinc-900 border border-zinc-800 text-xs font-mono text-zinc-300">
-                          Phase 01 &bull; Measure bounds
+                      <div className="w-3/5 space-y-2 flex flex-col justify-center">
+                        <div className="p-2.5 rounded-lg bg-zinc-900 border border-zinc-800 text-xs font-mono text-zinc-300 flex items-center justify-between">
+                          <span>01 &bull; Measure bounds</span>
+                          <span className="text-[10px] text-emerald-400">Locked</span>
                         </div>
-                        <div className="p-3 rounded-lg bg-zinc-900 border border-zinc-800 text-xs font-mono text-zinc-300">
-                          Phase 02 &bull; Sticky lock
+                        <div className="p-2.5 rounded-lg bg-zinc-900 border border-zinc-800 text-xs font-mono text-zinc-300 flex items-center justify-between">
+                          <span>02 &bull; Sticky lock</span>
+                          <span className="text-[10px] text-sky-400">120 FPS</span>
                         </div>
-                        <div className="p-3 rounded-lg bg-zinc-900 border border-zinc-800 text-xs font-mono text-zinc-300">
-                          Phase 03 &bull; Scroll content
+                        <div className="p-2.5 rounded-lg bg-zinc-900 border border-zinc-800 text-xs font-mono text-zinc-300 flex items-center justify-between">
+                          <span>03 &bull; Scroll content</span>
+                          <span className="text-[10px] text-zinc-500">GPU Matched</span>
                         </div>
-                        <div className="p-3 rounded-lg bg-zinc-900 border border-zinc-800 text-xs font-mono text-zinc-300">
-                          Phase 04 &bull; Unpin cleanly
+                        <div className="p-2.5 rounded-lg bg-zinc-900 border border-zinc-800 text-xs font-mono text-zinc-300 flex items-center justify-between">
+                          <span>04 &bull; Unpin cleanly</span>
+                          <span className="text-[10px] text-zinc-500">0 Shift</span>
                         </div>
                       </div>
                     </div>

@@ -26,9 +26,6 @@ export default function ShowcasePage() {
               <Link href="/docs" className="hover:text-white transition-colors">
                 Docs
               </Link>
-              <Link href="/examples" className="hover:text-white transition-colors">
-                Examples
-              </Link>
               <Link href="/showcase" className="text-white font-bold transition-colors">
                 Showcase
               </Link>

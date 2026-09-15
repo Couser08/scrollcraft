@@ -7,7 +7,6 @@ import {
   HeroSection,
   PrimitivesShowcase,
   Footer,
-  FPSMeter
 } from '@/components/home/v4';
 
 // Code-split below-the-fold sections for instant initial render
@@ -44,7 +43,6 @@ export default function HomePage() {
       </a>
 
       <Navbar />
-      {process.env.NODE_ENV === 'development' && <FPSMeter />}
       
       <main id="main-content" className="flex flex-col w-full items-center justify-start">
         {/* Section 1: Hero */}

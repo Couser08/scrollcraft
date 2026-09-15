@@ -20,7 +20,6 @@ export function Footer() {
 
         <div className="flex flex-wrap gap-8 text-sm font-medium text-zinc-400">
           <Link href="/docs" className="hover:text-white transition-colors">Documentation</Link>
-          <Link href="/examples" className="hover:text-white transition-colors">Examples</Link>
           <Link href="/showcase" className="hover:text-white transition-colors">Showcase</Link>
         </div>
 

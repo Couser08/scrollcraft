@@ -28,6 +28,11 @@ const nextConfig: NextConfig = {
         destination: '/docs',
         permanent: true,
       },
+      {
+        source: '/examples',
+        destination: '/showcase',
+        permanent: true,
+      },
     ];
   },
   webpack: (config) => {

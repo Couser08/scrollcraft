@@ -8,7 +8,7 @@
  * - Right: Live telemetry card with real-time scroll metrics, smooth glowing SVG progress wave chart, and update stats
  */
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useScrollCraft, Reveal } from '@scrollcraft/react';
 import {
   SlidersHorizontal,
@@ -266,50 +266,121 @@ function renderSyntaxLine(line: string, lineIndex: number): React.ReactNode {
   return <>{nodes}</>;
 }
 
+function computeWavePaths(pts: number[]) {
+  const width = 300;
+  const height = 90;
+  const paddingBottom = 8;
+  const step = width / (pts.length - 1);
+
+  const coords = pts.map((val, idx) => {
+    const x = idx * step;
+    const y = (1 - val) * (height - paddingBottom) + 2;
+    return { x, y };
+  });
+
+  if (coords.length === 0) return { strokePath: '', fillPath: '' };
+
+  let d = `M ${coords[0].x},${coords[0].y}`;
+  for (let i = 0; i < coords.length - 1; i++) {
+    const p0 = coords[i === 0 ? 0 : i - 1];
+    const p1 = coords[i];
+    const p2 = coords[i + 1];
+    const p3 = coords[i + 2 < coords.length ? i + 2 : i + 1];
+
+    const cp1x = p1.x + (p2.x - p0.x) / 6;
+    const cp1y = p1.y + (p2.y - p0.y) / 6;
+    const cp2x = p2.x - (p3.x - p1.x) / 6;
+    const cp2y = p2.y - (p3.y - p1.y) / 6;
+
+    d += ` C ${cp1x.toFixed(1)},${cp1y.toFixed(1)} ${cp2x.toFixed(1)},${cp2y.toFixed(1)} ${p2.x.toFixed(1)},${p2.y.toFixed(1)}`;
+  }
+
+  const fill = `${d} L ${width},${height} L 0,${height} Z`;
+  return { strokePath: d, fillPath: fill };
+}
+
+const INITIAL_HISTORY = [
+  0.14, 0.18, 0.24, 0.31, 0.38, 0.34, 0.32, 0.35, 0.39, 0.46,
+  0.52, 0.58, 0.55, 0.49, 0.51, 0.56, 0.61, 0.57, 0.52, 0.56,
+  0.62, 0.68, 0.65, 0.62, 0.58, 0.54, 0.48, 0.44, 0.41, 0.38,
+];
+const INITIAL_PATHS = computeWavePaths(INITIAL_HISTORY);
+
 export function HooksRawSection() {
   const [activeTab, setActiveTab] = useState<HookTab>('useScrollProgress');
   const [activeFramework, setActiveFramework] = useState<'React' | 'Next.js' | 'TypeScript'>('React');
   const [copied, setCopied] = useState(false);
 
-  // Live telemetry state
-  const [scrollPos, setScrollPos] = useState(2367);
-  const [progress, setProgress] = useState(0.304);
-  const [velocity, setVelocity] = useState(0.08);
-  const [direction, setDirection] = useState<'Down' | 'Up' | 'Idle'>('Down');
-  const [fps, setFps] = useState(246);
-  const [lastUpdateMs, setLastUpdateMs] = useState(16.7);
+  // Mutable DOM refs for 0 React re-renders during high-frequency scroll
+  const scrollPosTextRef = useRef<HTMLSpanElement>(null);
+  const scrollPosBarRef = useRef<HTMLDivElement>(null);
+  const progressTextRef = useRef<HTMLSpanElement>(null);
+  const progressFillRef = useRef<HTMLDivElement>(null);
+  const velocityTextRef = useRef<HTMLSpanElement>(null);
+  const velocityFillRef = useRef<HTMLDivElement>(null);
+  const directionTextRef = useRef<HTMLSpanElement>(null);
+  const lastUpdateTextRef = useRef<HTMLDivElement>(null);
+  const updateRateTextRef = useRef<HTMLDivElement>(null);
+  const fpsBadgeRef = useRef<HTMLSpanElement>(null);
+  const strokePathRef = useRef<SVGPathElement>(null);
+  const fillPathRef = useRef<SVGPathElement>(null);
 
-  // Smooth wave chart points (seeded to match the screenshot waveform)
-  const [historyPoints, setHistoryPoints] = useState<number[]>([
-    0.14, 0.18, 0.24, 0.31, 0.38, 0.34, 0.32, 0.35, 0.39, 0.46,
-    0.52, 0.58, 0.55, 0.49, 0.51, 0.56, 0.61, 0.57, 0.52, 0.56,
-    0.62, 0.68, 0.65, 0.62, 0.58, 0.54, 0.48, 0.44, 0.41, 0.38,
-  ]);
+  const historyPointsRef = useRef<number[]>([...INITIAL_HISTORY]);
 
   const { subscribe } = useScrollCraft();
 
-  // Scroll event & RAF telemetry tracking
+  // Scroll event & RAF telemetry tracking - 0 React re-renders!
   useEffect(() => {
     let lastTime = performance.now();
     let frameCount = 0;
     let lastTimestamp = performance.now();
+    let lastWaveUpdate = performance.now();
 
     const updateMetrics = (currScroll: number, currProgress: number, currVel: number, currDir: number) => {
       const now = performance.now();
       const deltaMs = Math.max(1, now - lastTimestamp);
       lastTimestamp = now;
 
-      setScrollPos(Math.round(currScroll));
-      setProgress(Number(currProgress.toFixed(3)));
-      setVelocity(Number(Math.abs(currVel).toFixed(3)));
-      setDirection(currDir === -1 ? 'Up' : 'Down');
-      setLastUpdateMs(Number(deltaMs.toFixed(1)));
+      // Direct DOM writes (GPU matched, 0 React re-renders)
+      if (scrollPosTextRef.current) {
+        scrollPosTextRef.current.textContent = `${Math.round(currScroll)} px`;
+      }
+      if (scrollPosBarRef.current) {
+        scrollPosBarRef.current.style.width = `${Math.min(100, Math.max(12, (currScroll / 4000) * 100))}%`;
+      }
+      if (progressTextRef.current) {
+        progressTextRef.current.textContent = currProgress.toFixed(3);
+      }
+      if (progressFillRef.current) {
+        progressFillRef.current.style.width = `${Math.max(8, currProgress * 100)}%`;
+      }
+      if (velocityTextRef.current) {
+        velocityTextRef.current.textContent = `${Math.abs(currVel).toFixed(3)} px/f`;
+      }
+      if (velocityFillRef.current) {
+        velocityFillRef.current.style.width = `${Math.min(100, Math.max(8, Math.abs(currVel) * 25))}%`;
+      }
+      if (directionTextRef.current) {
+        directionTextRef.current.textContent = currDir === -1 ? 'Up' : 'Down';
+      }
+      if (lastUpdateTextRef.current) {
+        lastUpdateTextRef.current.textContent = `${deltaMs.toFixed(1)} ms ago`;
+      }
+      if (updateRateTextRef.current) {
+        const rateHz = Math.min(120, Math.round(1000 / deltaMs));
+        updateRateTextRef.current.textContent = `${rateHz > 0 ? rateHz : 60} Hz`;
+      }
 
-      // Append to waveform history smoothly
-      setHistoryPoints((prev) => {
-        const next = [...prev.slice(1), Math.max(0.05, Math.min(0.95, currProgress))];
-        return next;
-      });
+      // Smoothly update waveform path without React re-render
+      if (now - lastWaveUpdate >= 60) {
+        lastWaveUpdate = now;
+        const pts = historyPointsRef.current;
+        pts.shift();
+        pts.push(Math.max(0.05, Math.min(0.95, currProgress)));
+        const { strokePath, fillPath } = computeWavePaths(pts);
+        if (strokePathRef.current) strokePathRef.current.setAttribute('d', strokePath);
+        if (fillPathRef.current) fillPathRef.current.setAttribute('d', fillPath);
+      }
     };
 
     // 1. Subscribe to ScrollCraft engine (Single Source of Truth)
@@ -324,8 +395,10 @@ export function HooksRawSection() {
       frameCount++;
       if (time - lastTime >= 1000) {
         const measuredFps = Math.round((frameCount * 1000) / (time - lastTime));
-        // Keep in smooth high-performance range as seen in screenshot
-        setFps(Math.max(120, Math.min(246, measuredFps || 246)));
+        const displayFps = Math.max(120, Math.min(246, measuredFps || 246));
+        if (fpsBadgeRef.current) {
+          fpsBadgeRef.current.textContent = `${displayFps} FPS`;
+        }
         frameCount = 0;
         lastTime = time;
       }
@@ -350,43 +423,6 @@ export function HooksRawSection() {
       });
     }
   }, [currentHook.code]);
-
-  // Construct SVG Bezier Wave Curve for the Progress chart
-  const { strokePath, fillPath } = useMemo(() => {
-    const width = 300;
-    const height = 90;
-    const paddingBottom = 8;
-    const pts = historyPoints;
-    const step = width / (pts.length - 1);
-
-    const coords = pts.map((val, idx) => {
-      const x = idx * step;
-      // Invert Y: 1.0 is at top (y=4), 0.0 is at bottom (y=height - paddingBottom)
-      const y = (1 - val) * (height - paddingBottom) + 2;
-      return { x, y };
-    });
-
-    if (coords.length === 0) return { strokePath: '', fillPath: '' };
-
-    // Build smooth cubic bezier
-    let d = `M ${coords[0].x},${coords[0].y}`;
-    for (let i = 0; i < coords.length - 1; i++) {
-      const p0 = coords[i === 0 ? 0 : i - 1];
-      const p1 = coords[i];
-      const p2 = coords[i + 1];
-      const p3 = coords[i + 2 < coords.length ? i + 2 : i + 1];
-
-      const cp1x = p1.x + (p2.x - p0.x) / 6;
-      const cp1y = p1.y + (p2.y - p0.y) / 6;
-      const cp2x = p2.x - (p3.x - p1.x) / 6;
-      const cp2y = p2.y - (p3.y - p1.y) / 6;
-
-      d += ` C ${cp1x.toFixed(1)},${cp1y.toFixed(1)} ${cp2x.toFixed(1)},${cp2y.toFixed(1)} ${p2.x.toFixed(1)},${p2.y.toFixed(1)}`;
-    }
-
-    const fill = `${d} L ${width},${height} L 0,${height} Z`;
-    return { strokePath: d, fillPath: fill };
-  }, [historyPoints]);
 
   const codeLines = useMemo(() => {
     return currentHook.code.split('\n');
@@ -582,7 +618,7 @@ export function HooksRawSection() {
                   <span className="px-2 py-0.5 rounded border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 font-mono text-xs font-semibold">
                     Live
                   </span>
-                  <span className="text-xs font-mono text-zinc-400">{fps} FPS</span>
+                  <span ref={fpsBadgeRef} className="text-xs font-mono text-zinc-400">246 FPS</span>
                 </div>
               </div>
 
@@ -596,12 +632,13 @@ export function HooksRawSection() {
                   </div>
                   <div className="w-24 sm:w-28 h-1.5 bg-zinc-800/80 rounded-full overflow-hidden shrink-0">
                     <div
+                      ref={scrollPosBarRef}
                       className="h-full bg-blue-500 rounded-full transition-all duration-75"
-                      style={{ width: `${Math.min(100, Math.max(12, (scrollPos / 4000) * 100))}%` }}
+                      style={{ width: '59%' }}
                     />
                   </div>
-                  <span className="font-mono text-sm font-bold text-white text-right shrink-0 min-w-[70px]">
-                    {scrollPos} px
+                  <span ref={scrollPosTextRef} className="font-mono text-sm font-bold text-white text-right shrink-0 min-w-[70px]">
+                    2367 px
                   </span>
                 </div>
 
@@ -613,12 +650,13 @@ export function HooksRawSection() {
                   </div>
                   <div className="w-24 sm:w-28 h-1.5 bg-zinc-800/80 rounded-full overflow-hidden shrink-0">
                     <div
+                      ref={progressFillRef}
                       className="h-full bg-emerald-400 rounded-full transition-all duration-75"
-                      style={{ width: `${Math.max(8, progress * 100)}%` }}
+                      style={{ width: '30.4%' }}
                     />
                   </div>
-                  <span className="font-mono text-sm font-bold text-emerald-400 text-right shrink-0 min-w-[70px]">
-                    {progress.toFixed(3)}
+                  <span ref={progressTextRef} className="font-mono text-sm font-bold text-emerald-400 text-right shrink-0 min-w-[70px]">
+                    0.304
                   </span>
                 </div>
 
@@ -630,12 +668,13 @@ export function HooksRawSection() {
                   </div>
                   <div className="w-24 sm:w-28 h-1.5 bg-zinc-800/80 rounded-full overflow-hidden shrink-0">
                     <div
+                      ref={velocityFillRef}
                       className="h-full bg-blue-500 rounded-full transition-all duration-75"
-                      style={{ width: `${Math.min(100, Math.max(8, velocity * 25))}%` }}
+                      style={{ width: '20%' }}
                     />
                   </div>
-                  <span className="font-mono text-sm font-bold text-sky-400 text-right shrink-0 min-w-[70px]">
-                    {velocity.toFixed(3)} px/f
+                  <span ref={velocityTextRef} className="font-mono text-sm font-bold text-sky-400 text-right shrink-0 min-w-[70px]">
+                    0.080 px/f
                   </span>
                 </div>
 
@@ -645,8 +684,8 @@ export function HooksRawSection() {
                     <ArrowUpDown className="w-4 h-4 text-sky-400 shrink-0" />
                     <span className="text-xs text-zinc-400 font-medium">Scroll direction</span>
                   </div>
-                  <span className="font-medium text-sm text-sky-400 text-right">
-                    {direction}
+                  <span ref={directionTextRef} className="font-medium text-sm text-sky-400 text-right">
+                    Down
                   </span>
                 </div>
               </div>
@@ -685,17 +724,16 @@ export function HooksRawSection() {
                         <stop offset="100%" stopColor="#10b981" stopOpacity="0.0" />
                       </linearGradient>
                     </defs>
-                    {fillPath && <path d={fillPath} fill="url(#progress-wave-grad)" />}
-                    {strokePath && (
-                      <path
-                        d={strokePath}
-                        fill="none"
-                        stroke="#34d399"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    )}
+                    <path ref={fillPathRef} d={INITIAL_PATHS.fillPath} fill="url(#progress-wave-grad)" />
+                    <path
+                      ref={strokePathRef}
+                      d={INITIAL_PATHS.strokePath}
+                      fill="none"
+                      stroke="#34d399"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
                   </svg>
                 </div>
               </div>
@@ -705,12 +743,12 @@ export function HooksRawSection() {
             <div className="grid grid-cols-3 gap-2 pt-4 border-t border-zinc-800/80">
               <div>
                 <div className="text-xs text-zinc-500">Update rate</div>
-                <div className="font-mono text-sm font-bold text-white mt-1">60 Hz</div>
+                <div ref={updateRateTextRef} className="font-mono text-sm font-bold text-white mt-1">120 Hz</div>
               </div>
               <div>
                 <div className="text-xs text-zinc-500">Last update</div>
-                <div className="font-mono text-sm font-bold text-white mt-1">
-                  {lastUpdateMs} ms ago
+                <div ref={lastUpdateTextRef} className="font-mono text-sm font-bold text-white mt-1">
+                  16.7 ms ago
                 </div>
               </div>
               <div>

@@ -7,6 +7,7 @@ import * as THREE from 'three';
 interface SceneProps {
   scrollRef: React.RefObject<{ progress: number; velocity: number }>;
   autoRotate: boolean;
+  isVisible?: boolean;
 }
 
 function SceneMeshes({ scrollRef, autoRotate }: SceneProps) {
@@ -111,12 +112,20 @@ function SceneMeshes({ scrollRef, autoRotate }: SceneProps) {
   );
 }
 
-export default function R3FCanvasStage({ scrollRef, autoRotate }: SceneProps) {
+export default function R3FCanvasStage({ scrollRef, autoRotate, isVisible = true }: SceneProps) {
   return (
     <Canvas
       camera={{ position: [0, 0, 6.8], fov: 45 }}
       className="w-full h-full"
-      gl={{ antialias: true, alpha: true }}
+      frameloop={isVisible ? 'always' : 'never'}
+      gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
+      onCreated={({ gl }) => {
+        const canvas = gl.domElement;
+        const handleContextLost = (event: Event) => {
+          event.preventDefault();
+        };
+        canvas.addEventListener('webglcontextlost', handleContextLost, false);
+      }}
     >
       <SceneMeshes scrollRef={scrollRef} autoRotate={autoRotate} />
     </Canvas>

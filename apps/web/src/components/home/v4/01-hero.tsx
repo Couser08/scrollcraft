@@ -18,6 +18,7 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
+import { Parallax, Reveal } from '@scrollcraft/react';
 import { Zap, Box, Leaf, Eye, Lock, Disc3 } from 'lucide-react';
 
 interface PrimitivePill {
@@ -84,16 +85,20 @@ export function HeroSection() {
               <span>BETA</span>
             </div>
 
-            {/* Main Dual-Tone Headline */}
-            <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-[4.4rem] font-bold tracking-tight leading-[1.08] mb-6">
-              <span className="text-white block font-extrabold">You build the markup.</span>
-              <span className="text-zinc-500 block font-bold mt-1">We handle the physics.</span>
-            </h1>
+            {/* Main Dual-Tone Headline with Reveal */}
+            <Reveal direction="up" distance={20}>
+              <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-[4.4rem] font-bold tracking-tight leading-[1.08] mb-6">
+                <span className="text-white block font-extrabold">You build the markup.</span>
+                <span className="text-zinc-500 block font-bold mt-1">We handle the physics.</span>
+              </h1>
+            </Reveal>
 
             {/* Subtitle Description */}
-            <p className="text-base sm:text-lg text-zinc-400 max-w-xl font-normal leading-relaxed mb-8">
-              Declarative, slot-based components that mutate hardware transform styles directly on the GPU thread.
-            </p>
+            <Reveal direction="up" distance={15} delay={0.1}>
+              <p className="text-base sm:text-lg text-zinc-400 max-w-xl font-normal leading-relaxed mb-8">
+                Declarative, slot-based components that mutate hardware transform styles directly on the GPU thread.
+              </p>
+            </Reveal>
 
             {/* Interactive Primitive Selection Pills */}
             <div className="flex flex-wrap items-center gap-3 mb-12">
@@ -206,19 +211,22 @@ export function HeroSection() {
               <div className="w-8 h-[1px] bg-zinc-800 mt-2 self-start lg:self-end" />
             </div>
 
-            {/* 3D Mountain & Code Block Graphic Preview */}
+            {/* 3D Mountain & Code Block Graphic Preview with Parallax */}
             <div className="relative w-full flex items-center justify-center my-auto">
-              <div className="relative w-full max-w-[580px] xl:max-w-[640px] transform transition-transform duration-500 hover:scale-[1.02] cursor-default">
-                <Image
-                  src="/images/hero-mountain-code.webp"
-                  alt="ScrollCraft 3D Mountain and Code Window"
-                  width={960}
-                  height={640}
-                  priority
-                  quality={95}
-                  className="w-full h-auto object-contain drop-shadow-[0_25px_60px_rgba(0,0,0,0.9)] select-none pointer-events-none"
-                />
-              </div>
+              <Parallax speed={0.08} min={-25} max={25} className="w-full flex items-center justify-center">
+                <div className="relative w-full max-w-[580px] xl:max-w-[640px] transform transition-transform duration-500 hover:scale-[1.02] cursor-default">
+                  <Image
+                    src="/images/hero-mountain-code.webp"
+                    alt="ScrollCraft 3D Mountain and Code Window"
+                    width={960}
+                    height={640}
+                    priority
+                    quality={85}
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 640px"
+                    className="w-full h-auto object-contain drop-shadow-[0_25px_60px_rgba(0,0,0,0.9)] select-none pointer-events-none"
+                  />
+                </div>
+              </Parallax>
             </div>
 
             {/* Bottom Right Tag */}

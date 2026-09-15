@@ -126,4 +126,62 @@ describe('TriggerRegistry & MarkerManager', () => {
       (globalThis as any).window = origWin;
     }
   });
+
+  it('supports global markers for dynamically registered triggers and cleans up on unregister', () => {
+    const origDoc = (globalThis as any).document;
+    const origWin = (globalThis as any).window;
+
+    const mockElements: any[] = [];
+    (globalThis as any).document = {
+      createElement: () => {
+        const el = {
+          style: {},
+          appendChild: vi.fn(),
+          remove: vi.fn(),
+          setAttribute: vi.fn(),
+          className: '',
+          innerText: '',
+        };
+        mockElements.push(el);
+        return el;
+      },
+      body: { appendChild: vi.fn(), removeChild: vi.fn() },
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    };
+    (globalThis as any).window = { scrollY: 0, addEventListener: vi.fn(), removeEventListener: vi.fn() };
+
+    try {
+      markerMgr.setGlobalMarkers(true);
+      expect(markerMgr.isGlobalEnabled()).toBe(true);
+
+      // Register trigger that has markers: false - should still be added to markerManager
+      const record: ScrollTriggerRecord = {
+        id: 'dyn-trigger-1',
+        type: 'transform',
+        element: {} as Element,
+        startTrigger: 'top bottom',
+        endTrigger: 'bottom top',
+        startY: 100,
+        endY: 400,
+        progress: 0,
+        markers: false,
+      };
+
+      registry.register(record);
+      // update bounds
+      registry.updateBounds('dyn-trigger-1', 120, 420);
+      registry.updateProgress('dyn-trigger-1', 0.5);
+
+      // Unregister should cleanly remove the trigger from markerManager
+      registry.unregister('dyn-trigger-1');
+      expect(registry.getAll()).toHaveLength(0);
+
+      markerMgr.setGlobalMarkers(false);
+      expect(markerMgr.isGlobalEnabled()).toBe(false);
+    } finally {
+      (globalThis as any).document = origDoc;
+      (globalThis as any).window = origWin;
+    }
+  });
 });

@@ -7,4 +7,3 @@ export * from './06-comparison';
 export * from './07-final-cta';
 export * from './11-footer';
 export * from './navbar';
-export * from './fps-meter';
