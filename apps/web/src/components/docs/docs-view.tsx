@@ -4,6 +4,7 @@ import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { DocsSidebar } from './docs-sidebar';
 import { TocItem } from './docs-toc';
 import { DOCS_CATEGORIES } from './docs-data';
+import { useScrollCraft } from '@scrollcraft/react';
 import dynamic from 'next/dynamic';
 import { DocGettingStarted } from './sections/doc-getting-started';
 
@@ -148,6 +149,7 @@ const TOC_MAPPING: Record<string, TocItem[]> = {
 };
 
 export function DocsView() {
+  const { subscribe } = useScrollCraft();
   const [activeSection, setActiveSection] = useState('introduction');
   const [searchQuery, setSearchQuery] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -218,10 +220,12 @@ export function DocsView() {
       }
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
+    const unsubscribe = subscribe(() => {
+      handleScroll();
+    });
     handleScroll();
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [tocItems, activeSection]);
+    return () => unsubscribe();
+  }, [tocItems, activeSection, subscribe]);
 
   // Sync section with URL hash on load and back/forward navigation
   useEffect(() => {

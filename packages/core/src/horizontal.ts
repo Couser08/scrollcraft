@@ -70,6 +70,10 @@ class JSHorizontalDriver implements ScrollDriver {
   }
 
   public render(): void {
+    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      TransformComposer.set(this.innerContainer, 'horizontal', 'translate3d(0, 0, 0)');
+      return;
+    }
     const dpr = typeof window !== 'undefined' ? (window.devicePixelRatio || 1) : 1;
     const snappedOffset = Math.round(this.state.offset * dpr) / dpr;
     TransformComposer.set(this.innerContainer, 'horizontal', `translate3d(${snappedOffset.toFixed(2)}px, 0, 0)`);
@@ -115,15 +119,21 @@ class NativeHorizontalDriver implements ScrollDriver {
     this.innerContainer.style.willChange = 'transform';
   }
 
+  public setVisible(_visible: boolean): void {
+    // Native driver managed by compositor
+  }
+
   public measure(): void {
-    if (typeof window === 'undefined' || typeof document === 'undefined') return;
-    this.trackWidth = Math.max(0, this.innerContainer.scrollWidth - window.innerWidth);
+    if (typeof window === 'undefined') return;
     
     const rect = this.element.getBoundingClientRect();
     const scrollTop = window.scrollY || window.pageYOffset;
+    
     this.elementTop = rect.top + scrollTop;
-    this.maxScrollDistance = Math.max(1, rect.height - window.innerHeight);
+    this.trackWidth = Math.max(0, this.innerContainer.scrollWidth - window.innerWidth);
+    
     const speed = Math.max(0.001, this.options.speed || 1);
+    this.maxScrollDistance = Math.max(1, rect.height - window.innerHeight);
     this.effectiveScrollDistance = Math.max(1, this.maxScrollDistance / speed);
 
     const styleId = `sc-horizontal-style-${this.animationName}`;
@@ -140,16 +150,30 @@ class NativeHorizontalDriver implements ScrollDriver {
     if (speed >= 1) {
       const stopPercent = (100 / speed).toFixed(3);
       keyframes = `
-        @keyframes ${this.animationName} {
-          0% { transform: translate3d(0px, 0, 0); }
-          ${stopPercent}%, 100% { transform: translate3d(var(--sc-slide-end, 0px), 0, 0); }
+        @media (prefers-reduced-motion: no-preference) {
+          @keyframes ${this.animationName} {
+            0% { transform: translate3d(0px, 0, 0); }
+            ${stopPercent}%, 100% { transform: translate3d(var(--sc-slide-end, 0px), 0, 0); }
+          }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          @keyframes ${this.animationName} {
+            0%, 100% { transform: none; }
+          }
         }
       `;
     } else {
       keyframes = `
-        @keyframes ${this.animationName} {
-          0% { transform: translate3d(0px, 0, 0); }
-          100% { transform: translate3d(calc(var(--sc-slide-end, 0px) * ${speed.toFixed(3)}), 0, 0); }
+        @media (prefers-reduced-motion: no-preference) {
+          @keyframes ${this.animationName} {
+            0% { transform: translate3d(0px, 0, 0); }
+            100% { transform: translate3d(calc(var(--sc-slide-end, 0px) * ${speed.toFixed(3)}), 0, 0); }
+          }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          @keyframes ${this.animationName} {
+            0%, 100% { transform: none; }
+          }
         }
       `;
     }
@@ -197,7 +221,14 @@ export class HorizontalScrollSolver {
     const useNative = opts.driver === 'native' || (opts.driver === 'auto' && Capabilities.get().isNativeReady);
 
     if (useNative) {
-      this.driver = new NativeHorizontalDriver(element, innerContainer, opts);
+      try {
+        this.driver = new NativeHorizontalDriver(element, innerContainer, opts);
+      } catch (err) {
+        if (typeof process !== 'undefined' && process.env?.NODE_ENV !== 'production') {
+          console.warn('[ScrollCraft] NativeHorizontalDriver failed to initialize, falling back to JS driver:', err);
+        }
+        this.driver = new JSHorizontalDriver(element, innerContainer, opts);
+      }
     } else {
       this.driver = new JSHorizontalDriver(element, innerContainer, opts);
     }

@@ -26,7 +26,7 @@ export const VelocityMarquee: React.FC<VelocityMarqueeProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
-  const { engine } = useScrollCraft();
+  const { engine, reducedMotion } = useScrollCraft();
 
   useEffect(() => {
     const track = trackRef.current;
@@ -42,15 +42,23 @@ export const VelocityMarquee: React.FC<VelocityMarqueeProps> = ({
 
     const taskId = `marquee-${Math.random().toString(36).slice(2, 8)}`;
 
-    const measure = () => solver.measure();
+    let isMounted = true;
+    const measure = () => {
+      if (isMounted) solver.measure();
+    };
     const unobserveResize = GlobalResizeManager.observe(track, measure);
     if (typeof document !== 'undefined' && 'fonts' in document) {
-      document.fonts.ready.then(measure);
+      document.fonts.ready.then(() => {
+        if (isMounted) measure();
+      });
     }
     
     requestAnimationFrame(() => measure());
 
     ticker.add(taskId, 'update', (dt) => {
+      if (reducedMotion || (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) {
+        return;
+      }
       const scrollY = engine?.getMetrics().scroll ?? (window.scrollY || window.pageYOffset);
       const velocity = engine?.getMetrics().velocity ?? 0;
       solver.update(scrollY, velocity, dt);
@@ -72,12 +80,13 @@ export const VelocityMarquee: React.FC<VelocityMarqueeProps> = ({
     });
 
     return () => {
+      isMounted = false;
       unobserveVisibility();
       unobserveResize();
       ticker.remove(taskId);
       solver.destroy();
     };
-  }, [baseSpeed, velocityMultiplier, direction, maxSpeed, engine]);
+  }, [baseSpeed, velocityMultiplier, direction, maxSpeed, engine, reducedMotion]);
 
   return (
     <div ref={containerRef} className={`overflow-hidden flex flex-nowrap w-full ${className}`} {...domProps}>

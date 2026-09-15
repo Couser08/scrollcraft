@@ -7,7 +7,7 @@
 import { springStep } from './math';
 import { SpringConfig, SpringState } from './types';
 import { ticker } from './ticker';
-import { TransformComposer } from './dom';
+import { TransformComposer, GlobalResizeManager } from './dom';
 
 export interface MagneticOptions {
   strength?: number;
@@ -32,6 +32,7 @@ export class MagneticSolver {
   private isHovering: boolean = false;
   private isTicking: boolean = false;
   private cachedAbsoluteRect: { left: number; top: number; width: number; height: number } | null = null;
+  private unobserveResize: (() => void) | null = null;
 
   constructor(element: HTMLElement, options?: MagneticOptions) {
     this.element = element;
@@ -115,7 +116,7 @@ export class MagneticSolver {
     this.element.addEventListener('mousemove', this.onMouseMove);
     this.element.addEventListener('mouseleave', this.onMouseLeave);
     
-    window.addEventListener('resize', this.measureRect, { passive: true });
+    this.unobserveResize = GlobalResizeManager.observe(this.element, () => this.measureRect());
   }
 
   public destroy() {
@@ -123,7 +124,8 @@ export class MagneticSolver {
     this.element.removeEventListener('mouseenter', this.onMouseEnter);
     this.element.removeEventListener('mousemove', this.onMouseMove);
     this.element.removeEventListener('mouseleave', this.onMouseLeave);
-    window.removeEventListener('resize', this.measureRect);
+    this.unobserveResize?.();
+    this.unobserveResize = null;
     ticker.remove(this.taskId);
     ticker.remove(this.taskId + '-render');
     this.isTicking = false;

@@ -196,10 +196,17 @@ export class ParallaxSolver {
     };
 
     const shouldUseNative =
-      opts.driver === 'native' && Capabilities.get().isNativeReady;
+      (opts.driver === 'native' || opts.driver === 'auto') && Capabilities.get().isNativeReady;
 
     if (shouldUseNative) {
-      this.driver = new NativeParallaxDriver(element, opts);
+      try {
+        this.driver = new NativeParallaxDriver(element, opts);
+      } catch (err) {
+        if (typeof process !== 'undefined' && process.env?.NODE_ENV !== 'production') {
+          console.warn('[ScrollCraft] NativeParallaxDriver failed to initialize, falling back to JS driver:', err);
+        }
+        this.driver = new JSParallaxDriver(element, opts);
+      }
     } else {
       this.driver = new JSParallaxDriver(element, opts);
     }

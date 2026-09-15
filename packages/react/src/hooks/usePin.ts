@@ -31,7 +31,7 @@ export function usePin<T extends HTMLElement = HTMLDivElement>(
     : fallbackRef) as React.RefObject<T>;
 
   const options = isRefPassed ? (maybeOptions ?? {}) : ((targetRefOrOptions as PinOptions) ?? {});
-  const { top = 0, duration, onProgress, trackState = isRefPassed ? false : true } = options;
+  const { top = 0, duration, onProgress, trackState = false } = options;
 
   const { engine } = useScrollCraft();
 
@@ -48,6 +48,8 @@ export function usePin<T extends HTMLElement = HTMLDivElement>(
   useEffect(() => {
     const node = targetRef.current;
     if (!node || typeof window === 'undefined') return;
+
+    let isMounted = true;
 
     node.style.position = 'sticky';
     node.style.top = `${top}px`;
@@ -74,10 +76,14 @@ export function usePin<T extends HTMLElement = HTMLDivElement>(
       disableTransform: options.disableTransform ?? true,
     });
 
-    const measureGeometry = () => solver.measure();
+    const measureGeometry = () => {
+      if (isMounted) solver.measure();
+    };
     const unobserve = GlobalResizeManager.observe(node, measureGeometry);
     if (typeof document !== 'undefined' && 'fonts' in document) {
-      document.fonts.ready.then(measureGeometry);
+      document.fonts.ready.then(() => {
+        if (isMounted) measureGeometry();
+      });
     }
 
     const taskId = taskIdRef.current;
@@ -106,6 +112,7 @@ export function usePin<T extends HTMLElement = HTMLDivElement>(
     });
 
     return () => {
+      isMounted = false;
       unobserve();
       ticker.remove(taskId);
       solver.destroy();

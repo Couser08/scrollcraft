@@ -43,11 +43,16 @@ export function useParallax<T extends HTMLElement>(
     const solver = new ParallaxSolver(node, options);
     const taskId = `parallax-${Math.random().toString(36).slice(2, 8)}`;
 
+    let isMounted = true;
     // Re-measure on window resize and font readiness
-    const measureGeometry = () => solver.measure();
+    const measureGeometry = () => {
+      if (isMounted) solver.measure();
+    };
     const unobserveResize = GlobalResizeManager.observe(node, measureGeometry);
     if (typeof document !== 'undefined' && 'fonts' in document) {
-      document.fonts.ready.then(measureGeometry);
+      document.fonts.ready.then(() => {
+        if (isMounted) measureGeometry();
+      });
     }
 
     // Register strictly separated Ticker phases
@@ -73,6 +78,7 @@ export function useParallax<T extends HTMLElement>(
     });
 
     return () => {
+      isMounted = false;
       unobserveVisibility();
       unobserveResize();
       ticker.remove(taskId);

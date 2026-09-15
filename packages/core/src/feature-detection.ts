@@ -82,58 +82,25 @@ export function detectPerformanceTier(): PerformanceTier {
   }
 
   try {
-    // 1. Inspect WebGL Hardware Acceleration status
-    const canvas = document.createElement('canvas');
-    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-    
-    if (!gl) {
+    const cores = typeof navigator !== 'undefined' ? (navigator.hardwareConcurrency || 4) : 4;
+    const isMobile = typeof navigator !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent || '');
+    const isSafari = typeof navigator !== 'undefined' && /^((?!chrome|android).)*safari/i.test(navigator.userAgent || '');
+
+    // Low Tier: 2 or fewer cores (budget / legacy devices)
+    if (cores <= 2) {
       cachedTier = 'low';
       return cachedTier;
     }
 
-    let isSoftware = false;
-    const debugInfo = (gl as WebGLRenderingContext).getExtension('WEBGL_debug_renderer_info');
-    if (debugInfo) {
-      const renderer = (gl as WebGLRenderingContext).getParameter(debugInfo.UNMASKED_RENDERER_WEBGL)?.toLowerCase() || '';
-      // Identify Software Rasterizers
-      if (
-        renderer.includes('swiftshader') ||
-        renderer.includes('llvmpipe') ||
-        renderer.includes('software') ||
-        renderer.includes('basic render') ||
-        renderer.includes('microsoft basic')
-      ) {
-        isSoftware = true;
-      }
-    }
-
-    // Immediately release WebGL context to prevent mobile GPU freezes and context leaks
-    try {
-      (gl as WebGLRenderingContext).getExtension('WEBGL_lose_context')?.loseContext();
-    } catch {
-      // graceful fallback
-    }
-
-    if (isSoftware) {
-      cachedTier = 'low';
-      return cachedTier;
-    }
-
-    // 2. Inspect Hardware Concurrency & Memory
-    const cores = navigator.hardwareConcurrency || 4;
-    const memory = (navigator as unknown as { deviceMemory?: number }).deviceMemory;
-
-    if (cores <= 2 || (memory !== undefined && memory <= 2)) {
-      cachedTier = 'low';
-      return cachedTier;
-    }
-
-    // 3. High Tier: >= 6 cores and hardware-accelerated WebGL
-    if (cores >= 6 && (memory === undefined || memory >= 6)) {
+    // High Tier: 8 or more cores on desktop non-Safari
+    // Safari and mobile devices default conservatively to 'balanced' to prevent GPU layer memory exhaustion
+    if (cores >= 8 && !isMobile && !isSafari) {
       cachedTier = 'high';
       return cachedTier;
     }
 
+    // Default to 'balanced'. The Ticker's rolling 60-frame sampler will autonomously
+    // self-heal and step down to 'low' if sustained frame drops (<45 FPS) occur.
     cachedTier = 'balanced';
     return cachedTier;
   } catch {

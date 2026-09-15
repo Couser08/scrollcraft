@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useEffect } from 'react';
-import { SequenceSolver, SequenceOptions, ticker } from '@scrollcraft/core';
+import { SequenceSolver, SequenceOptions, ticker, GlobalResizeManager } from '@scrollcraft/core';
 import { useScrollCraft } from '../context';
 
 interface ScrollSequenceProps extends SequenceOptions {
@@ -29,8 +29,11 @@ export const ScrollSequence: React.FC<ScrollSequenceProps> = ({
     const solver = new SequenceSolver(canvas, container, { frames, speed });
     const taskId = `sequence-${Math.random().toString(36).slice(2, 8)}`;
 
-    const measure = () => solver.measure();
-    window.addEventListener('resize', measure, { passive: true });
+    let isMounted = true;
+    const measure = () => {
+      if (isMounted) solver.measure();
+    };
+    const unobserveResize = GlobalResizeManager.observe(container, measure);
     
     ticker.add(taskId, 'update', () => {
       const scrollY = engine?.getMetrics().scroll ?? (window.scrollY || window.pageYOffset);
@@ -42,7 +45,8 @@ export const ScrollSequence: React.FC<ScrollSequenceProps> = ({
     });
 
     return () => {
-      window.removeEventListener('resize', measure);
+      isMounted = false;
+      unobserveResize();
       ticker.remove(taskId);
       solver.destroy();
     };

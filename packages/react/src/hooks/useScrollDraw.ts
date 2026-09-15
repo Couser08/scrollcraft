@@ -25,13 +25,18 @@ export function useScrollDraw<T extends SVGGeometryElement = SVGPathElement>(
 
     const taskId = `draw-${Math.random().toString(36).slice(2, 8)}`;
     
-    const measureGeometry = () => solver.measure();
+    let isMounted = true;
+    const measureGeometry = () => {
+      if (isMounted) solver.measure();
+    };
     const unobserveElement = GlobalResizeManager.observe(element, measureGeometry);
     const unobserveParent = element.parentElement
       ? GlobalResizeManager.observe(element.parentElement, measureGeometry)
       : () => {};
     if (typeof document !== 'undefined' && 'fonts' in document) {
-      document.fonts.ready.then(measureGeometry);
+      document.fonts.ready.then(() => {
+        if (isMounted) measureGeometry();
+      });
     }
 
     let currentScroll = 0;
@@ -54,6 +59,7 @@ export function useScrollDraw<T extends SVGGeometryElement = SVGPathElement>(
     solver.measure();
 
     return () => {
+      isMounted = false;
       unsubscribe();
       unobserveElement();
       unobserveParent();

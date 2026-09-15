@@ -42,39 +42,46 @@ export class GlobalRevealObserver {
     return GlobalRevealObserver.instance;
   }
 
-  private getObserver(threshold: number): IntersectionObserver {
-    if (typeof window === 'undefined') throw new Error('Cannot init observer on server');
+  private getObserver(threshold: number): IntersectionObserver | null {
+    if (typeof window === 'undefined' || typeof IntersectionObserver === 'undefined') return null;
     
     if (!this.observers.has(threshold)) {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          for (const entry of entries) {
-            const target = entry.target as HTMLElement;
-            const data = this.entries.get(target);
-            if (!data) continue;
+      try {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              const target = entry.target as HTMLElement;
+              const data = this.entries.get(target);
+              if (!data) continue;
 
-            // Robust check: if it's intersecting, OR if it's already above the viewport (we scrolled past it fast)
-            if (entry.isIntersecting || entry.boundingClientRect.bottom < 0) {
-              data.hasRevealed = true;
-              this.applyRevealedState(target, data.options);
+              // Robust check: if it's intersecting, OR if it's already above the viewport (we scrolled past it fast)
+              if (entry.isIntersecting || entry.boundingClientRect.bottom < 0) {
+                data.hasRevealed = true;
+                this.applyRevealedState(target, data.options);
 
-              if (data.options.once) {
-                for (const observer of this.observers.values()) {
-                  observer.unobserve(target);
+                if (data.options.once) {
+                  for (const obs of this.observers.values()) {
+                    obs.unobserve(target);
+                  }
+                  data.isObserved = false;
                 }
-                data.isObserved = false;
+              } else if (!data.options.once && data.hasRevealed) {
+                data.hasRevealed = false;
+                this.applyHiddenState(target, data.options);
               }
-            } else if (!data.options.once && data.hasRevealed) {
-              data.hasRevealed = false;
-              this.applyHiddenState(target, data.options);
             }
-          }
-        },
-        { threshold }
-      );
-      this.observers.set(threshold, observer);
+          },
+          { threshold }
+        );
+        this.observers.set(threshold, observer);
+      } catch (err) {
+        if (typeof process !== 'undefined' && process.env?.NODE_ENV !== 'production') {
+          console.warn('[ScrollCraft] Failed to instantiate IntersectionObserver in reveal:', err);
+        }
+        return null;
+      }
     }
-    return this.observers.get(threshold)!;
+    return this.observers.get(threshold) ?? null;
   }
 
   private getHiddenTransform(direction: string, distance: number): string {
@@ -143,6 +150,15 @@ export class GlobalRevealObserver {
     };
     this.entries.set(element, entry);
 
+    // Reduced motion handling: reveal immediately without translation if reduced-motion preferred
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      entry.hasRevealed = true;
+      element.style.opacity = '1';
+      element.style.transition = 'none';
+      TransformComposer.set(element, 'reveal', 'translate3d(0, 0, 0)');
+      return;
+    }
+
     // Initial State Check: If already scrolled past the viewport above on mount, reveal instantly without animation
     if (rect.bottom < 0) {
       entry.hasRevealed = true;
@@ -159,6 +175,12 @@ export class GlobalRevealObserver {
     }
 
     const observer = this.getObserver(safeThreshold);
+    if (!observer) {
+      entry.hasRevealed = true;
+      element.style.opacity = '1';
+      TransformComposer.set(element, 'reveal', 'translate3d(0, 0, 0)');
+      return;
+    }
     observer.observe(element);
     entry.isObserved = true;
   }

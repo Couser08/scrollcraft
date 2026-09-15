@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useEffect } from 'react';
-import { HorizontalScrollSolver, HorizontalScrollOptions, ticker } from '@scrollcraft/core';
+import { HorizontalScrollSolver, HorizontalScrollOptions, ticker, GlobalResizeManager } from '@scrollcraft/core';
 import { useScrollCraft } from '../context';
 
 export interface HorizontalScrollProps extends React.HTMLAttributes<HTMLDivElement>, HorizontalScrollOptions {
@@ -33,8 +33,11 @@ export const HorizontalScroll: React.FC<HorizontalScrollProps> = ({
     const solver = new HorizontalScrollSolver(container, track, { speed, driver });
     const taskId = `horizontal-${Math.random().toString(36).slice(2, 8)}`;
 
-    const measure = () => solver.measure();
-    window.addEventListener('resize', measure, { passive: true });
+    let isMounted = true;
+    const measure = () => {
+      if (isMounted) solver.measure();
+    };
+    const unobserveResize = GlobalResizeManager.observe(container, measure);
     requestAnimationFrame(() => measure());
 
     ticker.add(taskId, 'update', () => {
@@ -47,7 +50,8 @@ export const HorizontalScroll: React.FC<HorizontalScrollProps> = ({
     });
 
     return () => {
-      window.removeEventListener('resize', measure);
+      isMounted = false;
+      unobserveResize();
       ticker.remove(taskId);
       solver.destroy();
     };

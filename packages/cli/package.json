@@ -1,6 +1,7 @@
 {
   "name": "@scrollcraft/cli",
   "version": "0.1.0",
+  "private": true,
   "description": "Command-line interface to add high-performance ScrollCraft Pro components to React & Next.js projects",
   "bin": {
     "scrollcraft": "./bin/scrollcraft.js"
