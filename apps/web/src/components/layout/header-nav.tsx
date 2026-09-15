@@ -34,7 +34,7 @@ export const HeaderNav: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
         {/* Left: Brand Logo & Version Badge */}
         <Link href="/" className="flex items-center gap-2 group">
-          <ScrollCraftLogo variant="badge" badgeText="v0.1.0" size="md" />
+          <ScrollCraftLogo variant="badge" badgeText="v0.1.1" size="md" />
         </Link>
 
         {/* Center: Desktop Navigation Links */}

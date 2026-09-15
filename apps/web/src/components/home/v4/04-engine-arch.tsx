@@ -109,7 +109,7 @@ export function EngineArchitectureSection() {
                       @scrollcraft/core
                     </span>
                     <span className="px-2 py-0.5 rounded bg-zinc-900 border border-zinc-800 text-[10px] font-mono text-zinc-400">
-                      v0.1.0-beta
+                      v0.1.1-beta
                     </span>
                   </div>
                   <p className="text-xs text-zinc-400 mt-0.5">
