@@ -163,7 +163,7 @@ export default async function Image() {
             }}
           >
             <span style={{ fontSize: '12px', color: '#71717a', fontFamily: 'monospace' }}>BUNDLE SIZE</span>
-            <span style={{ fontSize: '18px', fontWeight: 700, color: '#ffffff' }}>&lt; 4.2 KB gzip</span>
+            <span style={{ fontSize: '18px', fontWeight: 700, color: '#ffffff' }}>&lt; 5 KB brotli</span>
           </div>
 
           <div

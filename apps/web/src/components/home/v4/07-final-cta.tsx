@@ -299,7 +299,7 @@ export default function App() {
                           </div>
                           <div className="flex items-center gap-2 text-emerald-400 font-medium">
                             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                            <span>0 dependencies &bull; 4.2 KB brotli &bull; Zero shift</span>
+                            <span>0 dependencies &bull; &lt; 5 KB brotli &bull; Zero shift</span>
                           </div>
                         </div>
 
@@ -366,8 +366,8 @@ export default function App() {
                       <div className="grid grid-cols-2 gap-2.5 font-mono text-xs">
                         <div className="p-3 rounded-xl bg-black/50 border border-zinc-800/80 flex flex-col justify-between">
                           <span className="text-[10px] text-zinc-500 uppercase tracking-wider">Bundle Size</span>
-                          <span className="text-xl font-bold text-white mt-1">4.2 KB</span>
-                          <span className="text-[10px] text-zinc-400 mt-0.5">Brotli compressed</span>
+                          <span className="text-xl font-bold text-white mt-1">&lt; 5 KB</span>
+                          <span className="text-[10px] text-zinc-400 mt-0.5">Brotli (tree-shaken)</span>
                         </div>
 
                         <div className="p-3 rounded-xl bg-black/50 border border-zinc-800/80 flex flex-col justify-between">

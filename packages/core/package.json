@@ -20,6 +20,81 @@
       "import": "./dist/index.js",
       "require": "./dist/index.js",
       "default": "./dist/index.js"
+    },
+    "./ticker": {
+      "types": "./dist/ticker.d.ts",
+      "import": "./dist/ticker.js",
+      "default": "./dist/ticker.js"
+    },
+    "./parallax": {
+      "types": "./dist/parallax.d.ts",
+      "import": "./dist/parallax.js",
+      "default": "./dist/parallax.js"
+    },
+    "./reveal": {
+      "types": "./dist/reveal.d.ts",
+      "import": "./dist/reveal.js",
+      "default": "./dist/reveal.js"
+    },
+    "./pinning": {
+      "types": "./dist/pinning.d.ts",
+      "import": "./dist/pinning.js",
+      "default": "./dist/pinning.js"
+    },
+    "./horizontal": {
+      "types": "./dist/horizontal.d.ts",
+      "import": "./dist/horizontal.js",
+      "default": "./dist/horizontal.js"
+    },
+    "./transform": {
+      "types": "./dist/transform-solver.d.ts",
+      "import": "./dist/transform-solver.js",
+      "default": "./dist/transform-solver.js"
+    },
+    "./draw": {
+      "types": "./dist/draw-solver.d.ts",
+      "import": "./dist/draw-solver.js",
+      "default": "./dist/draw-solver.js"
+    },
+    "./marquee": {
+      "types": "./dist/marquee.d.ts",
+      "import": "./dist/marquee.js",
+      "default": "./dist/marquee.js"
+    },
+    "./sequence": {
+      "types": "./dist/sequence.d.ts",
+      "import": "./dist/sequence.js",
+      "default": "./dist/sequence.js"
+    },
+    "./magnetic": {
+      "types": "./dist/magnetic.d.ts",
+      "import": "./dist/magnetic.js",
+      "default": "./dist/magnetic.js"
+    },
+    "./inertia": {
+      "types": "./dist/inertia.d.ts",
+      "import": "./dist/inertia.js",
+      "default": "./dist/inertia.js"
+    },
+    "./dom": {
+      "types": "./dist/dom.d.ts",
+      "import": "./dist/dom.js",
+      "default": "./dist/dom.js"
+    },
+    "./math": {
+      "types": "./dist/math.d.ts",
+      "import": "./dist/math.js",
+      "default": "./dist/math.js"
+    },
+    "./feature-detection": {
+      "types": "./dist/feature-detection.d.ts",
+      "import": "./dist/feature-detection.js",
+      "default": "./dist/feature-detection.js"
+    },
+    "./markers": {
+      "types": "./dist/markers.d.ts",
+      "import": "./dist/markers.js",
+      "default": "./dist/markers.js"
     }
   },
   "scripts": {

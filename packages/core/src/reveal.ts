@@ -216,4 +216,4 @@ export class GlobalRevealObserver {
   }
 }
 
-export const revealObserver = GlobalRevealObserver.get();
+export const revealObserver = /* @__PURE__ */ GlobalRevealObserver.get();

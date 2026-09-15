@@ -348,4 +348,4 @@ export class Ticker {
   };
 }
 
-export const ticker = Ticker.get();
+export const ticker = /* @__PURE__ */ Ticker.get();

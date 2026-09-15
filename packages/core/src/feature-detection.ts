@@ -151,4 +151,4 @@ export const Capabilities = {
   }
 };
 
-export const tierStore = ScrollCraftTierStore.get();
+export const tierStore = /* @__PURE__ */ ScrollCraftTierStore.get();

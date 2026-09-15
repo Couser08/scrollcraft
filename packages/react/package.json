@@ -20,6 +20,46 @@
       "import": "./dist/index.js",
       "require": "./dist/index.js",
       "default": "./dist/index.js"
+    },
+    "./parallax": {
+      "types": "./dist/primitives/parallax.d.ts",
+      "import": "./dist/primitives/parallax.js",
+      "default": "./dist/primitives/parallax.js"
+    },
+    "./reveal": {
+      "types": "./dist/primitives/reveal.d.ts",
+      "import": "./dist/primitives/reveal.js",
+      "default": "./dist/primitives/reveal.js"
+    },
+    "./pin": {
+      "types": "./dist/primitives/pin.d.ts",
+      "import": "./dist/primitives/pin.js",
+      "default": "./dist/primitives/pin.js"
+    },
+    "./progress": {
+      "types": "./dist/primitives/scroll-progress.d.ts",
+      "import": "./dist/primitives/scroll-progress.js",
+      "default": "./dist/primitives/scroll-progress.js"
+    },
+    "./transform": {
+      "types": "./dist/primitives/scroll-transform.d.ts",
+      "import": "./dist/primitives/scroll-transform.js",
+      "default": "./dist/primitives/scroll-transform.js"
+    },
+    "./draw": {
+      "types": "./dist/primitives/scroll-draw.d.ts",
+      "import": "./dist/primitives/scroll-draw.js",
+      "default": "./dist/primitives/scroll-draw.js"
+    },
+    "./marquee": {
+      "types": "./dist/components/velocity-marquee.d.ts",
+      "import": "./dist/components/velocity-marquee.js",
+      "default": "./dist/components/velocity-marquee.js"
+    },
+    "./inspector": {
+      "types": "./dist/components/scroll-inspector.d.ts",
+      "import": "./dist/components/scroll-inspector.js",
+      "default": "./dist/components/scroll-inspector.js"
     }
   },
   "scripts": {

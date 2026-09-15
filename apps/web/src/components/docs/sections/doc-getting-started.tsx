@@ -131,7 +131,7 @@ export const DocGettingStarted: React.FC<DocGettingStartedProps> = ({ sectionId 
           <div className="p-4 rounded-xl bg-[#0a0a0c] border border-zinc-800 space-y-1.5">
             <div className="flex items-center gap-2 text-purple-400 font-mono text-xs font-bold">
               <Cpu className="w-3.5 h-3.5" />
-              <span>&lt; 4.2 KB Gzip</span>
+              <span>&lt; 5 KB Brotli</span>
             </div>
             <p className="text-zinc-400 text-xs font-sans leading-relaxed">
               Tree-shakeable architecture with zero external runtime dependencies. Built on high-precision physics.

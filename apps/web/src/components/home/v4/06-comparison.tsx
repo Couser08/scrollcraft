@@ -61,7 +61,7 @@ const COMPARISON_DATA: ComparisonRow[] = [
   },
   {
     dimension: 'Core Bundle Footprint',
-    scrollcraft: '< 4.2 KB',
+    scrollcraft: '< 5 KB (tree-shaken)',
     gsap: '~32 KB (ScrollTrigger)',
     framer: '~35 KB (motion)',
     lenis: '~3.8 KB (physics only)',

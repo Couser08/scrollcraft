@@ -222,7 +222,7 @@ export function HeroSection() {
                     Tree-shakeable
                   </div>
                   <div className="text-xs text-zinc-400 mt-0.5">
-                    &lt; 4.2 KB core
+                    &lt; 5 KB brotli
                   </div>
                 </div>
               </div>

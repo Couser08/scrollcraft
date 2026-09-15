@@ -3,7 +3,7 @@
 [![@scrollcraft/core](https://img.shields.io/badge/@scrollcraft/core-beta-7C3AED.svg)](https://www.npmjs.com/package/@scrollcraft/core)
 [![@scrollcraft/react](https://img.shields.io/badge/@scrollcraft/react-beta-7C3AED.svg)](https://www.npmjs.com/package/@scrollcraft/react)
 [![@scrollcraft/r3f](https://img.shields.io/badge/@scrollcraft/r3f-alpha-amber.svg)](https://www.npmjs.com/package/@scrollcraft/r3f)
-[![Bundle Size](https://img.shields.io/badge/bundle%20size-%3C%204.2%20KB%20gzip-7C3AED.svg)](#packages-in-this-monorepo)
+[![Bundle Size](https://img.shields.io/badge/bundle%20size-%3C%205%20KB%20brotli-7C3AED.svg)](#packages-in-this-monorepo)
 [![License: MIT](https://img.shields.io/badge/License-MIT-zinc.svg)](LICENSE)
 
 **The scroll engine React never had.**
@@ -17,11 +17,11 @@ Composable primitives and hooks for parallax, reveals, pins, and scroll-progress
 
 ## Packages in This Monorepo
 
-| Package | Status | Size | Description |
+| Package | Status | Size (Brotli) | Description |
 |---|---|---|---|
-| [`@scrollcraft/core`](./packages/core) | **Beta** | `~2.8 KB gzip` | Headless 3-phase ticker, inertia physics, timeline solver & pin solver. |
-| [`@scrollcraft/react`](./packages/react) | **Beta** | `~4.1 KB gzip` | Declarative React primitives (`<Parallax>`, `<Reveal>`, `<Pin>`, `<ScrollProgress>`) & hooks. |
-| [`@scrollcraft/r3f`](./packages/r3f) | **Alpha (Experimental)** | `~1.2 KB gzip` | Experimental pull-based Three.js / React Three Fiber scroll bridge with zero RAF conflicts. |
+| [`@scrollcraft/core`](./packages/core) | **Beta** | `~1.4 - 2.2 KB (per solver)` | Headless 3-phase ticker, inertia physics, timeline solver & pin solver. |
+| [`@scrollcraft/react`](./packages/react) | **Beta** | `~2.8 - 5.0 KB (per primitive)` | Declarative React primitives (`<Parallax>`, `<Reveal>`, `<Pin>`, `<ScrollProgress>`) & hooks. |
+| [`@scrollcraft/r3f`](./packages/r3f) | **Alpha (Experimental)** | `~1.7 KB` | Experimental pull-based Three.js / React Three Fiber scroll bridge with zero RAF conflicts. |
 
 ---
 

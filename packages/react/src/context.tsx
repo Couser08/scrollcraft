@@ -19,7 +19,17 @@ import React, {
 } from 'react';
 import { InertiaEngine, ScrollMetrics, tierStore, PerformanceTier, GlobalResizeManager } from '@scrollcraft/core';
 import { ScrollContextValue, ScrollProviderProps } from './types';
-import { ScrollInspector } from './components/scroll-inspector';
+
+// Lazily instantiate inspector only if debug prop is enabled in ScrollProvider
+let LazyScrollInspector: React.ComponentType<any> | null = null;
+function getLazyScrollInspector() {
+  if (!LazyScrollInspector && typeof window !== 'undefined') {
+    LazyScrollInspector = React.lazy(() =>
+      import('./components/scroll-inspector').then((m) => ({ default: m.ScrollInspector }))
+    );
+  }
+  return LazyScrollInspector;
+}
 
 declare const process: any;
 
@@ -34,7 +44,7 @@ const defaultMetrics: ScrollMetrics = {
   maxScroll: 0,
 };
 
-const ScrollContext = createContext<ScrollContextValue>({
+const ScrollContext = /* @__PURE__ */ createContext<ScrollContextValue>({
   engine: null,
   scrollTo: () => {},
   resize: () => {},
@@ -206,13 +216,18 @@ export const ScrollProvider: React.FC<ScrollProviderProps> = ({
   return (
     <ScrollContext.Provider value={contextValue}>
       {children}
-      {debug && (
-        <ScrollInspector
-          position={typeof debug === 'object' ? debug.position : 'bottom-right'}
-          defaultCollapsed={typeof debug === 'object' ? debug.collapsed : false}
-          markers={typeof debug === 'object' ? debug.markers : false}
-        />
-      )}
+      {debug && (() => {
+        const Inspector = getLazyScrollInspector();
+        return Inspector ? (
+          <React.Suspense fallback={null}>
+            <Inspector
+              position={typeof debug === 'object' ? debug.position : 'bottom-right'}
+              defaultCollapsed={typeof debug === 'object' ? debug.collapsed : false}
+              markers={typeof debug === 'object' ? debug.markers : false}
+            />
+          </React.Suspense>
+        ) : null;
+      })()}
     </ScrollContext.Provider>
   );
 };

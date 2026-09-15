@@ -54,7 +54,7 @@ const ARCHITECTURE_PARADIGMS = [
   },
   {
     feature: 'Core Bundle Footprint',
-    scrollcraft: '< 4.2 KB (brotli, tree-shakeable)',
+    scrollcraft: '< 5 KB (brotli, tree-shaken)',
     virtual: '18 - 35 KB',
     stateDriven: '28 - 45 KB',
     pureCss: '0 KB JS runtime',

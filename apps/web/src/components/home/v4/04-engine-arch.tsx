@@ -121,7 +121,7 @@ export function EngineArchitectureSection() {
               {/* Bundle Size Pill */}
               <div className="self-start sm:self-auto inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-violet-500/30 bg-violet-500/10 text-violet-300 font-mono text-xs shadow-xs">
                 <Code className="w-3.5 h-3.5" />
-                <span>&lt; 4.2 KB (brotli)</span>
+                <span>&lt; 5 KB (tree-shaken)</span>
               </div>
             </div>
 

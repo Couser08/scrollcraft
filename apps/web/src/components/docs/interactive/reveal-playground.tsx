@@ -36,7 +36,7 @@ export const RevealPlayground: React.FC = () => {
       badge: 'Radix Pattern',
       desc: 'Zero dummy wrapper divs injected into your DOM tree. 100% compatible with Tailwind & CSS Grid.',
       icon: <Box className="w-4 h-4 text-purple-400" />,
-      metric: '< 4.2 kB Brotli',
+      metric: '< 3.2 kB Brotli',
     },
   ];
 

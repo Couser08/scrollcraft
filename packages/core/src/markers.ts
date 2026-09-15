@@ -78,7 +78,7 @@ export class TriggerRegistry {
   }
 }
 
-export const triggerRegistry = TriggerRegistry.get();
+export const triggerRegistry = /* @__PURE__ */ TriggerRegistry.get();
 
 interface MarkerElements {
   startLine: HTMLElement;
@@ -298,4 +298,4 @@ export class MarkerManager {
   }
 }
 
-export const markerManager = MarkerManager.get();
+export const markerManager = /* @__PURE__ */ MarkerManager.get();
