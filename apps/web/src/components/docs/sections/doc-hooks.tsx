@@ -111,7 +111,12 @@ import { usePin } from '@scrollcraft/react';
 
 export function StickyCard() {
   const ref = useRef<HTMLDivElement>(null);
-  const { isPinned, progress } = usePin(ref, { start: 'top top', end: '+=100%' });
+  // trackState: true opts-in to React re-renders. Default is false (zero re-renders).
+  const { isPinned, progress } = usePin(ref, { 
+    start: 'top top', 
+    end: '+=100%',
+    trackState: true 
+  });
 
   return (
     <div ref={ref}>
@@ -122,8 +127,9 @@ export function StickyCard() {
 }`,
     whatItDoes: 'Tracks sticky viewport locking states and relative scroll progress through a pinned travel budget.',
     capabilities: [
-      { param: 'isPinned', type: 'boolean', desc: 'Boolean indicating if target is actively locked in sticky viewport position.' },
-      { param: 'progress', type: 'number', desc: 'Relative progression ratio within the designated pin range (0.0 to 1.0).' },
+      { param: 'isPinned', type: 'boolean', desc: 'Boolean indicating if target is actively locked in sticky viewport position (requires trackState: true).' },
+      { param: 'progress', type: 'number', desc: 'Relative progression ratio within the designated pin range (0.0 to 1.0, requires trackState: true).' },
+      { param: 'trackState', type: 'boolean', desc: 'Opt-in to reactive React re-renders during scroll. Default false for zero-rerender performance.' },
       { param: 'start', type: 'string | number', desc: 'Trigger point initiating sticky pin (default: "top top").' },
       { param: 'end', type: 'string | number', desc: 'Total travel distance for the pin lock (default: "+=100%").' },
       { param: 'top', type: 'number', desc: 'Sticky offset from viewport top edge in pixels (default: 0).' },

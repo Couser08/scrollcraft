@@ -141,6 +141,7 @@ export function PinDemo() {
     start: 'top top',
     end: '+=100%',
     pinSpacing: true,
+    trackState: true, // Opt-in to JSX re-renders (default: false for zero-rerender)
   });
 
   return (
