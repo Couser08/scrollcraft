@@ -16,7 +16,7 @@
  *   - Tag: SMOOTH / SCROLL. / REAL IMPACT.
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { Parallax, Reveal, useScrollCraft, ScrollMetrics } from '@scrollcraft/react';
 import { Zap, Box, Leaf, Eye, Lock, Disc3 } from 'lucide-react';
@@ -31,21 +31,23 @@ interface PrimitivePill {
 
 export function HeroSection() {
   const [activePrimitive, setActivePrimitive] = useState<string>('parallax');
-  const [metrics, setMetrics] = useState<ScrollMetrics>({
-    scroll: 0,
-    progress: 0,
-    velocity: 0,
-    direction: 0,
-    limit: 0,
-    current: 0,
-    target: 0,
-    maxScroll: 0,
-  });
+  const velocityTextRef = useRef<HTMLSpanElement>(null);
+  const progressTextRef = useRef<HTMLSpanElement>(null);
+  const progressBarRef = useRef<HTMLDivElement>(null);
   const { subscribe } = useScrollCraft();
 
   useEffect(() => {
+    // Zero-rerender DOM subscription for live telemetry
     const unsub = subscribe((m: ScrollMetrics) => {
-      setMetrics(m);
+      if (velocityTextRef.current) {
+        velocityTextRef.current.textContent = `${Math.abs(m.velocity || 0).toFixed(1)} px/f`;
+      }
+      if (progressTextRef.current) {
+        progressTextRef.current.textContent = `${Math.round((m.progress || 0) * 100)}%`;
+      }
+      if (progressBarRef.current) {
+        progressBarRef.current.style.width = `${Math.max(4, Math.round((m.progress || 0) * 100))}%`;
+      }
     });
     return () => unsub();
   }, [subscribe]);
@@ -278,16 +280,17 @@ export function HeroSection() {
                       <span className="text-violet-400 font-semibold">{currentPrim.codeSnippet}</span>
                     </div>
 
-                    {/* Dynamic Real-time Metric scrub per active primitive */}
+                    {/* Dynamic Real-time Metric scrub per active primitive (Zero React re-render via DOM refs) */}
                     {activePrimitive === 'progress' ? (
                       <div className="space-y-1.5">
                         <div className="flex justify-between text-[10px] font-mono text-zinc-400">
                           <span>Normalized Scroll Progress</span>
-                          <span className="text-violet-400 font-bold">{Math.round((metrics.progress || 0) * 100)}%</span>
+                          <span ref={progressTextRef} className="text-violet-400 font-bold">0%</span>
                         </div>
                         <div className="w-full h-1.5 rounded-full bg-zinc-800 overflow-hidden">
                           <div
-                            style={{ width: `${Math.max(4, Math.round((metrics.progress || 0) * 100))}%` }}
+                            ref={progressBarRef}
+                            style={{ width: '4%' }}
                             className="h-full bg-gradient-to-r from-violet-500 to-indigo-400 transition-all duration-75"
                           />
                         </div>
@@ -296,11 +299,11 @@ export function HeroSection() {
                       <div className="grid grid-cols-2 gap-2 text-[10px] font-mono text-zinc-400">
                         <div className="flex items-center justify-between px-2 py-1 rounded bg-zinc-900/80 border border-white/5">
                           <span>Velocity:</span>
-                          <span className="text-emerald-400 font-bold">{Math.abs(metrics.velocity || 0).toFixed(1)} px/f</span>
+                          <span ref={velocityTextRef} className="text-emerald-400 font-bold">0.0 px/f</span>
                         </div>
                         <div className="flex items-center justify-between px-2 py-1 rounded bg-zinc-900/80 border border-white/5">
-                          <span>Framerate:</span>
-                          <span className="text-violet-400 font-bold">120 FPS</span>
+                          <span>Compositor:</span>
+                          <span className="text-violet-400 font-bold">GPU Active</span>
                         </div>
                       </div>
                     )}

@@ -1,12 +1,13 @@
 'use client';
 
 /**
- * 120 FPS Direct DOM Parallax Hook
+ * Direct DOM Parallax Hook (Zero-Rerender Subpixel Transforms)
  * Forwards React ref to the @scrollcraft/core ParallaxSolver.
  * Features:
  * - Autonomous viewport visibility culling via globalVisibilityManager
  * - SmartCompositor dynamic layer lifecycle
  * - Zero layout thrashing on scroll
+ * - Resilient layout shift detection (ResizeObserver, font ready, image load)
  * Strictly under 650 LOC.
  */
 
@@ -44,12 +45,22 @@ export function useParallax<T extends HTMLElement>(
     const taskId = `parallax-${Math.random().toString(36).slice(2, 8)}`;
 
     let isMounted = true;
-    // Re-measure on window resize, element resize, and font readiness
+    // Re-measure on window resize, element resize, font readiness, and image load
     const measureGeometry = () => {
       if (isMounted) solver.measure();
     };
     const unobserveResize = GlobalResizeManager.observe(node, measureGeometry);
     window.addEventListener('resize', measureGeometry, { passive: true });
+    window.addEventListener('load', measureGeometry, { passive: true });
+
+    // Capture image load events across the document to update animationRange upon layout shifts
+    const onImageLoad = (e: Event) => {
+      if ((e.target as HTMLElement)?.tagName === 'IMG') {
+        measureGeometry();
+      }
+    };
+    window.addEventListener('load', onImageLoad, { capture: true, passive: true });
+
     if (typeof document !== 'undefined' && 'fonts' in document) {
       document.fonts.ready.then(() => {
         if (isMounted) measureGeometry();
@@ -83,6 +94,8 @@ export function useParallax<T extends HTMLElement>(
     return () => {
       isMounted = false;
       window.removeEventListener('resize', measureGeometry);
+      window.removeEventListener('load', measureGeometry);
+      window.removeEventListener('load', onImageLoad, true);
       unobserveVisibility();
       unobserveResize();
       ticker.remove(taskId);

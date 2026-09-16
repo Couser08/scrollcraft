@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { InertiaEngine } from '../inertia';
 import { ParallaxSolver } from '../parallax';
+import { Capabilities } from '../feature-detection';
 import { PinSolver } from '../pinning';
 import { TransformSolver } from '../transform-solver';
 import { VelocityMarqueeSolver } from '../marquee';
@@ -59,7 +60,12 @@ describe('ScrollCraft Solvers Robustness & Integrity', () => {
       ResizeObserver: MockResizeObserver,
       IntersectionObserver: MockIntersectionObserver,
       document: {
-        documentElement: { scrollHeight: 3000, classList: mockClassList() },
+        documentElement: {
+          scrollHeight: 3000,
+          classList: mockClassList(),
+          setAttribute: vi.fn(),
+          getAttribute: vi.fn(),
+        },
         body: { scrollHeight: 3000, classList: mockClassList() },
         createElement: (tag: string) => ({
           tagName: tag.toUpperCase(),
@@ -150,6 +156,130 @@ describe('ScrollCraft Solvers Robustness & Integrity', () => {
       const state = solver.update(1000); // would be 500+ without clamping
       expect(state.offset).toBe(50);
       solver.destroy();
+    });
+
+    it('selects NativeParallaxDriver when driver is auto and Capabilities.isNativeReady is true', () => {
+      const originalCSS = globalThis.CSS;
+      try {
+        globalThis.CSS = {
+          supports: vi.fn((prop: string) => {
+            return prop === 'scroll-timeline-name' || prop === 'animation-range' || prop === 'view-timeline-name';
+          }),
+        } as unknown as typeof CSS;
+        Capabilities.reset();
+        expect(Capabilities.get().isNativeReady).toBe(true);
+
+        const classes = new Set<string>();
+        const customProps: Record<string, string> = {};
+        const element = {
+          style: {
+            animationTimeline: '',
+            animationRange: '',
+            setProperty: vi.fn((k: string, v: string) => { customProps[k] = v; }),
+            removeProperty: vi.fn((k: string) => { delete customProps[k]; }),
+          } as unknown as CSSStyleDeclaration,
+          classList: {
+            add: vi.fn((c: string) => classes.add(c)),
+            remove: vi.fn((c: string) => classes.delete(c)),
+            contains: vi.fn((c: string) => classes.has(c)),
+          },
+          getBoundingClientRect: () => ({ top: 400, left: 0, width: 200, height: 200 }),
+        } as unknown as HTMLElement;
+
+        const solver = new ParallaxSolver(element, { driver: 'auto' });
+        expect(solver.getDriverType()).toBe('native');
+        expect(classes.has('sc-parallax-target')).toBe(true);
+        expect(element.style.animationTimeline).toBe('--sc-doc-scroll');
+
+        // Verify animation range is set based on elementTop (400) and windowHeight (1000):
+        // startScroll = 400 - 1000 = -600px; endScroll = 400 + 200 = 600px;
+        expect(element.style.animationRange).toBe('-600.00px 600.00px');
+
+        solver.destroy();
+        expect(classes.has('sc-parallax-target')).toBe(false);
+        expect(element.style.animationTimeline).toBe('');
+      } finally {
+        globalThis.CSS = originalCSS;
+        Capabilities.reset();
+      }
+    });
+
+    it('falls back to JSParallaxDriver when driver is auto and Capabilities.isNativeReady is false', () => {
+      const originalCSS = globalThis.CSS;
+      try {
+        globalThis.CSS = {
+          supports: vi.fn().mockReturnValue(false),
+        } as unknown as typeof CSS;
+        Capabilities.reset();
+        expect(Capabilities.get().isNativeReady).toBe(false);
+
+        const element = {
+          style: { transform: '' },
+          getBoundingClientRect: () => ({ top: 400, left: 0, width: 200, height: 200 }),
+        } as unknown as HTMLElement;
+
+        const solver = new ParallaxSolver(element, { driver: 'auto' });
+        expect(solver.getDriverType()).toBe('js');
+        solver.destroy();
+      } finally {
+        globalThis.CSS = originalCSS;
+        Capabilities.reset();
+      }
+    });
+
+    it('forces NativeParallaxDriver when driver is explicitly native', () => {
+      const originalCSS = globalThis.CSS;
+      try {
+        globalThis.CSS = {
+          supports: vi.fn().mockReturnValue(true),
+        } as unknown as typeof CSS;
+        Capabilities.reset();
+
+        const classes = new Set<string>();
+        const customProps: Record<string, string> = {};
+        const element = {
+          style: {
+            animationTimeline: '',
+            setProperty: vi.fn((k: string, v: string) => { customProps[k] = v; }),
+            removeProperty: vi.fn((k: string) => { delete customProps[k]; }),
+          } as unknown as CSSStyleDeclaration,
+          classList: {
+            add: vi.fn((c: string) => classes.add(c)),
+            remove: vi.fn((c: string) => classes.delete(c)),
+            contains: vi.fn((c: string) => classes.has(c)),
+          },
+          getBoundingClientRect: () => ({ top: 0, left: 0, width: 100, height: 100 }),
+        } as unknown as HTMLElement;
+
+        const solver = new ParallaxSolver(element, { driver: 'native' });
+        expect(solver.getDriverType()).toBe('native');
+        solver.destroy();
+      } finally {
+        globalThis.CSS = originalCSS;
+        Capabilities.reset();
+      }
+    });
+
+    it('forces JSParallaxDriver when driver is explicitly js even if isNativeReady is true', () => {
+      const originalCSS = globalThis.CSS;
+      try {
+        globalThis.CSS = {
+          supports: vi.fn().mockReturnValue(true),
+        } as unknown as typeof CSS;
+        Capabilities.reset();
+
+        const element = {
+          style: { transform: '' },
+          getBoundingClientRect: () => ({ top: 400, left: 0, width: 200, height: 200 }),
+        } as unknown as HTMLElement;
+
+        const solver = new ParallaxSolver(element, { driver: 'js' });
+        expect(solver.getDriverType()).toBe('js');
+        solver.destroy();
+      } finally {
+        globalThis.CSS = originalCSS;
+        Capabilities.reset();
+      }
     });
   });
 

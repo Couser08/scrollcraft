@@ -7,6 +7,7 @@
 
 import { clamp } from './math';
 import { ScrollDriver, DriverState } from './driver';
+import { Capabilities } from './feature-detection';
 import { injectNativeStyles } from './native-styles';
 import { TransformComposer, smartCompositor } from './dom';
 
@@ -15,7 +16,7 @@ export interface ParallaxOptions {
   direction?: 'vertical' | 'horizontal';
   min?: number;
   max?: number;
-  /** Driver selection: 'js' (120 FPS direct composite writes), 'native' (CSS view-timeline), or 'auto' (default: 'js') */
+  /** Driver selection: 'auto' (native CSS scroll-timeline with JS fallback), 'native' (force native), or 'js' (force JS ticker) */
   driver?: 'auto' | 'js' | 'native';
 }
 
@@ -119,24 +120,41 @@ class JSParallaxDriver implements ScrollDriver {
 }
 
 /**
- * Native CSS view-timeline Driver
- * Zero main-thread execution during scroll. 100% Compositor driven.
+ * Native CSS scroll-timeline Driver
+ * Binds to document-level named scroll-timeline (--sc-doc-scroll) on :root.
+ * Bypasses intermediate overflow: hidden ancestor containers with zero main-thread scroll overhead.
  */
 class NativeParallaxDriver implements ScrollDriver {
   private state: ParallaxState = { offset: 0 };
+  private onLayoutShift = (): void => {
+    this.measure();
+  };
 
   constructor(
     private element: HTMLElement,
     private options: Required<ParallaxOptions>
   ) {
     injectNativeStyles();
-    // Initialize CSS properties for the timeline
-    this.element.style.animationTimeline = 'view()';
-    this.element.style.animationRange = 'entry 0% exit 100%';
+    // Initialize CSS properties for the named document scroll timeline
+    this.element.classList.add('sc-parallax-target');
+    this.element.style.animationTimeline = '--sc-doc-scroll';
     this.element.style.animationName = this.options.direction === 'vertical' ? 'sc-parallax-y' : 'sc-parallax-x';
     this.element.style.animationFillMode = 'both';
     this.element.style.animationTimingFunction = 'linear';
     smartCompositor.promote(element);
+
+    // Auto-remeasure upon late font readiness, image loads, and window resizing
+    if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+      window.addEventListener('load', this.onLayoutShift, { passive: true });
+      window.addEventListener('resize', this.onLayoutShift, { passive: true });
+    }
+    if (typeof document !== 'undefined' && 'fonts' in document) {
+      document.fonts.ready.then(() => {
+        if (this.element.isConnected) {
+          this.measure();
+        }
+      });
+    }
   }
 
   public setVisible(_visible: boolean): void {
@@ -146,8 +164,14 @@ class NativeParallaxDriver implements ScrollDriver {
   public measure(): void {
     if (typeof window === 'undefined') return;
     const rect = this.element.getBoundingClientRect();
+    const scrollTop = window.scrollY || window.pageYOffset;
+    const elementTop = rect.top + scrollTop;
     const windowHeight = window.innerHeight;
     const elementHeight = rect.height;
+
+    // Timeline range: start when element top enters viewport bottom, end when element bottom exits viewport top
+    const startScroll = elementTop - windowHeight;
+    const endScroll = elementTop + elementHeight;
 
     const maxDistance = (windowHeight + elementHeight) / 2;
 
@@ -157,6 +181,7 @@ class NativeParallaxDriver implements ScrollDriver {
     startOffset = clamp(startOffset, this.options.min, this.options.max);
     endOffset = clamp(endOffset, this.options.min, this.options.max);
 
+    this.element.style.animationRange = `${startScroll.toFixed(2)}px ${endScroll.toFixed(2)}px`;
     this.element.style.setProperty('--sc-parallax-start', `${startOffset.toFixed(2)}px`);
     this.element.style.setProperty('--sc-parallax-end', `${endOffset.toFixed(2)}px`);
   }
@@ -172,6 +197,11 @@ class NativeParallaxDriver implements ScrollDriver {
   }
 
   public destroy(): void {
+    if (typeof window !== 'undefined' && typeof window.removeEventListener === 'function') {
+      window.removeEventListener('load', this.onLayoutShift);
+      window.removeEventListener('resize', this.onLayoutShift);
+    }
+    this.element.classList?.remove('sc-parallax-target');
     this.element.style.animationTimeline = '';
     this.element.style.animationRange = '';
     this.element.style.animationName = '';
@@ -198,9 +228,10 @@ export class ParallaxSolver {
       driver: options?.driver ?? 'auto',
     };
 
-    // Native CSS view-timeline is only used when explicitly requested ('native') and supported.
-    // 'auto' defaults to 120 FPS JS driver to guarantee compatibility with Lenis, overflow-hidden cards, and cross-browser.
-    const shouldUseNative = opts.driver === 'native';
+    // Native CSS scroll-timeline is used when supported and driver is 'auto', or when explicitly requested ('native').
+    // Falls back to JSParallaxDriver in environments without native scroll-driven animations.
+    const shouldUseNative =
+      opts.driver === 'native' || (opts.driver === 'auto' && Capabilities.get().isNativeReady);
 
     if (shouldUseNative) {
       try {
@@ -216,6 +247,10 @@ export class ParallaxSolver {
     }
 
     this.measure();
+  }
+
+  public getDriverType(): 'native' | 'js' {
+    return this.driver instanceof NativeParallaxDriver ? 'native' : 'js';
   }
 
   public setVisible(visible: boolean): void {

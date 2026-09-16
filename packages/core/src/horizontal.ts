@@ -7,6 +7,7 @@
 
 import { ScrollDriver, DriverState } from './driver';
 import { clamp } from './math';
+import { Capabilities } from './feature-detection';
 import { injectNativeStyles } from './native-styles';
 import { TransformComposer } from './dom';
 
@@ -93,8 +94,10 @@ class NativeHorizontalDriver implements ScrollDriver {
   private maxScrollDistance: number = 0;
   private effectiveScrollDistance: number = 0;
   private trackWidth: number = 0;
-  private timelineName: string;
   private animationName: string;
+  private onLayoutShift = (): void => {
+    this.measure();
+  };
 
   constructor(
     private element: HTMLElement,
@@ -103,19 +106,31 @@ class NativeHorizontalDriver implements ScrollDriver {
   ) {
     injectNativeStyles();
     
-    // Unique timeline and animation identifier per instance to prevent multi-section style collisions
+    // Unique animation identifier per instance to prevent multi-section style collisions
     const id = Math.random().toString(36).slice(2, 8);
-    this.timelineName = `--sc-horizontal-track-${id}`;
     this.animationName = `sc-horizontal-slide-${id}`;
-    this.element.style.viewTimelineName = this.timelineName;
-    this.element.style.viewTimelineAxis = 'block';
 
-    this.innerContainer.style.animationTimeline = this.timelineName;
-    this.innerContainer.style.animationRange = 'entry 100% exit 100%';
+    // Bind directly to the document-level named scroll-timeline (--sc-doc-scroll)
+    // This provides 100% immunity to any intermediate overflow: hidden ancestor clipping
+    this.innerContainer.classList?.add('sc-horizontal-target');
+    this.innerContainer.style.animationTimeline = '--sc-doc-scroll';
     this.innerContainer.style.animationName = this.animationName;
     this.innerContainer.style.animationFillMode = 'both';
     this.innerContainer.style.animationTimingFunction = 'linear';
     this.innerContainer.style.willChange = 'transform';
+
+    // Auto-remeasure upon late font readiness, image loads, and window resizing
+    if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+      window.addEventListener('load', this.onLayoutShift, { passive: true });
+      window.addEventListener('resize', this.onLayoutShift, { passive: true });
+    }
+    if (typeof document !== 'undefined' && 'fonts' in document) {
+      document.fonts.ready.then(() => {
+        if (this.element.isConnected) {
+          this.measure();
+        }
+      });
+    }
   }
 
   public setVisible(_visible: boolean): void {
@@ -134,6 +149,10 @@ class NativeHorizontalDriver implements ScrollDriver {
     const speed = Math.max(0.001, this.options.speed || 1);
     this.maxScrollDistance = Math.max(1, rect.height - window.innerHeight);
     this.effectiveScrollDistance = Math.max(1, this.maxScrollDistance / speed);
+
+    const startScroll = this.elementTop;
+    const endScroll = this.elementTop + this.maxScrollDistance;
+    this.innerContainer.style.animationRange = `${startScroll.toFixed(2)}px ${endScroll.toFixed(2)}px`;
 
     const styleId = `sc-horizontal-style-${this.animationName}`;
     let styleEl = document.getElementById(styleId) as HTMLStyleElement | null;
@@ -191,8 +210,11 @@ class NativeHorizontalDriver implements ScrollDriver {
   public getState(): HorizontalState { return this.state; }
   
   public destroy(): void {
-    this.element.style.viewTimelineName = '';
-    this.element.style.viewTimelineAxis = '';
+    if (typeof window !== 'undefined' && typeof window.removeEventListener === 'function') {
+      window.removeEventListener('load', this.onLayoutShift);
+      window.removeEventListener('resize', this.onLayoutShift);
+    }
+    this.innerContainer.classList?.remove('sc-horizontal-target');
     this.innerContainer.style.animationTimeline = '';
     this.innerContainer.style.animationRange = '';
     this.innerContainer.style.animationName = '';
@@ -217,7 +239,11 @@ export class HorizontalScrollSolver {
       driver: options?.driver ?? 'auto',
     };
 
-    const useNative = opts.driver === 'native';
+    // Note: Horizontal sections define explicit named viewTimelineName on their sticky root container
+    // rather than using anonymous view() timelines, so they are not subject to intermediate clipping.
+    // 'native' explicitly requests Native driver; 'auto' uses NativeHorizontalDriver when supported and falls back safely.
+    const useNative =
+      opts.driver === 'native' || (opts.driver === 'auto' && Capabilities.get().isNativeReady);
 
     if (useNative) {
       try {

@@ -52,4 +52,47 @@ describe('Math Utilities', () => {
     expect(Number.isFinite(result.velocity)).toBe(true);
     expect(result.position).toBeLessThan(150); // Did not violently explode
   });
+
+  // ══════════════════════════════════════════════════════════════════
+  // GOLDEN BASELINE REGRESSION SAFETY: Legitimate values remain unchanged
+  // ══════════════════════════════════════════════════════════════════
+  it('preserves exact analytical known-good outputs for legitimate production values', () => {
+    // 1. lerp golden baseline: 10 + (50 - 10) * 0.25 = 20
+    expect(lerp(10, 50, 0.25)).toBe(20);
+    expect(lerp(-100, 100, 0.75)).toBe(50);
+
+    // 2. clamp golden baseline
+    expect(clamp(45, 10, 40)).toBe(40);
+    expect(clamp(5, 10, 40)).toBe(10);
+    expect(clamp(25, 10, 40)).toBe(25);
+
+    // 3. damp golden baseline: 100 + (0 - 100) * exp(-10 * 0.016) = 14.7856211...
+    const dampResult = damp(0, 100, 10, 0.016);
+    expect(dampResult).toBeCloseTo(14.78562, 4);
+
+    // 4. mapRange golden baseline: maps [0, 100] -> [200, 400] at 50 to 300
+    expect(mapRange(0, 100, 200, 400, 50)).toBe(300);
+    expect(mapRange(-50, 50, 0, 1, 0)).toBe(0.5);
+
+    // 5. springStep golden baseline:
+    // With current=0, target=100, velocity=0, stiffness=100, damping=10, mass=1, dt=0.016:
+    // delta = -100 -> springForce = 10000 -> acc = 10000
+    // nextVel = 10000 * 0.016 = 160
+    // nextPos = 160 * 0.016 = 2.56
+    const config = { stiffness: 100, damping: 10, mass: 1, precision: 0.001 };
+    const step1 = springStep(0, 100, 0, config, 0.016);
+    expect(step1.velocity).toBe(160);
+    expect(step1.position).toBe(2.56);
+    expect(step1.settled).toBe(false);
+
+    // Step 2 from (pos: 2.56, vel: 160):
+    // delta = 2.56 - 100 = -97.44 -> springForce = 9744
+    // dampingForce = -10 * 160 = -1600 -> acc = (9744 - 1600) / 1 = 8144
+    // nextVel = 160 + 8144 * 0.016 = 290.304
+    // nextPos = 2.56 + 290.304 * 0.016 = 7.204864
+    const step2 = springStep(step1.position, 100, step1.velocity, config, 0.016);
+    expect(step2.velocity).toBeCloseTo(290.304, 3);
+    expect(step2.position).toBeCloseTo(7.204864, 5);
+    expect(step2.settled).toBe(false);
+  });
 });

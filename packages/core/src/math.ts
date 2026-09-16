@@ -7,10 +7,17 @@
 import { SpringConfig, SpringState } from './types';
 
 /**
- * Standard linear interpolation
+ * Standard linear interpolation with NaN/Infinity protection
  */
 export function lerp(a: number, b: number, t: number): number {
-  return a + (b - a) * t;
+  if (!Number.isFinite(a)) return Number.isFinite(b) ? b : 0;
+  if (!Number.isFinite(b)) return a;
+  if (!Number.isFinite(t)) return a;
+  const result = a + (b - a) * t;
+  if (!Number.isFinite(result)) {
+    return t >= 0.5 ? b : a;
+  }
+  return result;
 }
 
 /**
@@ -18,7 +25,7 @@ export function lerp(a: number, b: number, t: number): number {
  * Ensures 60Hz and 120Hz/144Hz monitors experience the exact same physics decay.
  */
 export function damp(current: number, target: number, lambda: number, dt: number): number {
-  if (!Number.isFinite(current)) return target;
+  if (!Number.isFinite(current)) return Number.isFinite(target) ? target : 0;
   if (!Number.isFinite(target)) return current;
   const safeLambda = Math.max(0, Number.isFinite(lambda) ? lambda : 0);
   const safeDt = Math.max(0, Number.isFinite(dt) ? dt : 0);
@@ -26,13 +33,20 @@ export function damp(current: number, target: number, lambda: number, dt: number
 }
 
 /**
- * Clamps value between min and max bounds
+ * Clamps value between min and max bounds with robustness against inverted or infinite bounds
  */
 export function clamp(val: number, min: number, max: number): number {
-  if (Number.isNaN(val)) return Number.isFinite(min) ? min : 0;
-  if (val === Infinity) return max;
-  if (val === -Infinity) return min;
-  return Math.min(Math.max(val, min), max);
+  const safeMin = Number.isFinite(min) ? min : (min === -Infinity ? -Number.MAX_VALUE : 0);
+  const safeMax = Number.isFinite(max) ? max : (max === Infinity ? Number.MAX_VALUE : 0);
+  const effectiveMin = Math.min(safeMin, safeMax);
+  const effectiveMax = Math.max(safeMin, safeMax);
+
+  if (!Number.isFinite(val)) {
+    if (val === Infinity) return effectiveMax;
+    if (val === -Infinity) return effectiveMin;
+    return effectiveMin;
+  }
+  return Math.min(Math.max(val, effectiveMin), effectiveMax);
 }
 
 /**
@@ -46,9 +60,9 @@ export function mapRange(
   val: number,
   shouldClamp: boolean = true
 ): number {
-  if (Number.isNaN(val)) return outMin;
+  if (!Number.isFinite(val)) return Number.isFinite(outMin) ? outMin : 0;
   const range = inMax - inMin;
-  if (range === 0 || !Number.isFinite(range)) return outMin;
+  if (range === 0 || !Number.isFinite(range)) return Number.isFinite(outMin) ? outMin : 0;
   const progress = (val - inMin) / range;
   const mapped = outMin + progress * (outMax - outMin);
   return shouldClamp ? clamp(mapped, Math.min(outMin, outMax), Math.max(outMin, outMax)) : mapped;
@@ -67,24 +81,32 @@ export function springStep(
   dt: number,
   out?: SpringState
 ): SpringState {
-  const { stiffness, damping, mass, precision = 0.001 } = config;
-  const safeMass = mass && Number.isFinite(mass) && mass > 0 ? mass : 1;
-  const safeCurrent = Number.isFinite(current) ? current : target;
-  const safeVelocity = Number.isFinite(velocity) ? velocity : 0;
+  const stiffness = config?.stiffness;
+  const damping = config?.damping;
+  const mass = config?.mass;
+  const precision = config?.precision;
 
-  // Strictly clamp dt to 33ms to prevent semi-implicit Euler divergence on tab restore / lag spikes
+  const safeTarget = Number.isFinite(target) ? target : 0;
+  const safeCurrent = Number.isFinite(current) ? current : safeTarget;
+  const safeVelocity = Number.isFinite(velocity) ? velocity : 0;
+  const safeStiffness = typeof stiffness === 'number' && Number.isFinite(stiffness) && stiffness >= 0 ? stiffness : 100;
+  const safeDamping = typeof damping === 'number' && Number.isFinite(damping) && damping >= 0 ? damping : 10;
+  const safeMass = typeof mass === 'number' && Number.isFinite(mass) && mass > 0 ? mass : 1;
+  const safePrecision = typeof precision === 'number' && Number.isFinite(precision) && precision > 0 ? precision : 0.001;
+
+  // Strictly clamp dt to [0, 0.033] (33ms) to prevent semi-implicit Euler divergence on tab restore / lag spikes
   const safeDt = Math.min(Math.max(Number.isFinite(dt) ? dt : 0, 0), 0.033);
-  const delta = safeCurrent - target;
-  const springForce = -stiffness * delta;
-  const dampingForce = -damping * safeVelocity;
+  const delta = safeCurrent - safeTarget;
+  const springForce = -safeStiffness * delta;
+  const dampingForce = -safeDamping * safeVelocity;
   const acceleration = (springForce + dampingForce) / safeMass;
 
   const nextVelocity = safeVelocity + acceleration * safeDt;
   const nextPosition = safeCurrent + nextVelocity * safeDt;
 
-  const settled = Math.abs(nextVelocity) < precision && Math.abs(nextPosition - target) < precision;
-  const resolvedPos = settled ? target : nextPosition;
-  const resolvedVel = settled ? 0 : nextVelocity;
+  const settled = Math.abs(nextVelocity) < safePrecision && Math.abs(nextPosition - safeTarget) < safePrecision;
+  const resolvedPos = settled ? safeTarget : (Number.isFinite(nextPosition) ? nextPosition : safeTarget);
+  const resolvedVel = settled ? 0 : (Number.isFinite(nextVelocity) ? nextVelocity : 0);
 
   if (out) {
     out.position = resolvedPos;

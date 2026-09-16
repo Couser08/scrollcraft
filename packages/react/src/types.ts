@@ -89,7 +89,7 @@ export interface ParallaxOptions {
   max?: number;
   /** Disable transform if prefers-reduced-motion is active. Default: true */
   respectReducedMotion?: boolean;
-  /** Driver selection: 'js' (120 FPS direct composite writes), 'native' (CSS view-timeline), or 'auto' (default: 'js') */
+  /** Driver selection: 'auto' (native CSS scroll-timeline with JS fallback), 'native' (force native), or 'js' (force JS ticker). Default: 'auto' */
   driver?: 'auto' | 'js' | 'native';
 }
 

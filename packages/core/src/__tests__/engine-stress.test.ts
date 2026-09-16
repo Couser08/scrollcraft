@@ -89,31 +89,40 @@ describe('ScrollCraft Engine High-Load Stress Testing', () => {
       solvers.push(new ParallaxSolver(el, { speed: 0.1 + (i % 10) * 0.05 }));
     }
 
-    // Warmup
+    // Warmup JIT compiler
     for (let i = 0; i < COUNT; i++) {
       solvers[i].update(500);
       solvers[i].render();
     }
 
-    // Benchmark 60 consecutive frames
-    const FRAMES = 60;
-    const start = performance.now();
+    // Benchmark: 5-sample median to eliminate JIT compilation and CPU scheduling variance
+    const SAMPLES = 5;
+    const FRAMES_PER_SAMPLE = 60;
+    const sampleResults: number[] = [];
 
-    for (let f = 0; f < FRAMES; f++) {
-      const scrollY = f * 20;
-      for (let i = 0; i < COUNT; i++) {
-        solvers[i].update(scrollY);
-        solvers[i].render();
+    for (let s = 0; s < SAMPLES; s++) {
+      const start = performance.now();
+      for (let f = 0; f < FRAMES_PER_SAMPLE; f++) {
+        const scrollY = (s * FRAMES_PER_SAMPLE + f) * 10;
+        for (let i = 0; i < COUNT; i++) {
+          solvers[i].update(scrollY);
+          solvers[i].render();
+        }
       }
+      const duration = performance.now() - start;
+      sampleResults.push(duration / FRAMES_PER_SAMPLE);
     }
 
-    const totalMs = performance.now() - start;
-    const avgMsPerFrame = totalMs / FRAMES;
+    const sorted = [...sampleResults].sort((a, b) => a - b);
+    const medianMsPerFrame = sorted[Math.floor(SAMPLES / 2)];
+    const theoreticalFps = Math.round(1000 / medianMsPerFrame);
 
-    console.log(`\n>>> STRESS: 500 Parallax Elements: ${avgMsPerFrame.toFixed(3)}ms / frame (${(1000 / avgMsPerFrame).toFixed(0)} theoretical FPS)`);
+    console.log(
+      `\n>>> STRESS: 500 Parallax Elements (5-run median): ${medianMsPerFrame.toFixed(3)}ms / frame (${theoreticalFps} theoretical FPS) [sorted samples: ${sorted.map((v) => v.toFixed(3) + 'ms').join(', ')}]`
+    );
 
-    // 120 FPS budget is 8.33ms; on Node/V8 without native GPU painting, JS math should be < 5ms
-    expect(avgMsPerFrame).toBeLessThan(8.33);
+    // 120 FPS budget is 8.33ms; median JS math execution must comfortably sustain < 8.33ms
+    expect(medianMsPerFrame).toBeLessThan(8.33);
 
     // Teardown
     for (const solver of solvers) solver.destroy();
@@ -126,31 +135,43 @@ describe('ScrollCraft Engine High-Load Stress Testing', () => {
     const TASK_COUNT = 1000;
     let executedCount = 0;
 
-    const start = performance.now();
+    // Benchmark: 5-sample median to eliminate task churn scheduling variance
+    const SAMPLES = 5;
+    const sampleDurations: number[] = [];
 
-    // Register 1,000 tasks across measure, update, and render
-    for (let i = 0; i < TASK_COUNT; i++) {
-      const id = `churn-task-${i}`;
-      const phase = i % 3 === 0 ? 'measure' : i % 3 === 1 ? 'update' : 'render';
-      ticker.add(id, phase, () => {
-        executedCount++;
-      });
+    for (let s = 0; s < SAMPLES; s++) {
+      const start = performance.now();
+
+      // Register 1,000 tasks across measure, update, and render
+      for (let i = 0; i < TASK_COUNT; i++) {
+        const id = `churn-task-${s}-${i}`;
+        const phase = i % 3 === 0 ? 'measure' : i % 3 === 1 ? 'update' : 'render';
+        ticker.add(id, phase, () => {
+          executedCount++;
+        });
+      }
+
+      // Remove half of them before tick
+      for (let i = 0; i < TASK_COUNT; i += 2) {
+        ticker.remove(`churn-task-${s}-${i}`);
+      }
+
+      // Remove the remaining half
+      for (let i = 1; i < TASK_COUNT; i += 2) {
+        ticker.remove(`churn-task-${s}-${i}`);
+      }
+
+      sampleDurations.push(performance.now() - start);
     }
 
-    // Remove half of them before tick
-    for (let i = 0; i < TASK_COUNT; i += 2) {
-      ticker.remove(`churn-task-${i}`);
-    }
+    const sorted = [...sampleDurations].sort((a, b) => a - b);
+    const medianDuration = sorted[Math.floor(SAMPLES / 2)];
 
-    // Remove the remaining half
-    for (let i = 1; i < TASK_COUNT; i += 2) {
-      ticker.remove(`churn-task-${i}`);
-    }
+    console.log(
+      `>>> STRESS: 1,000 Task Churn Duration (5-run median): ${medianDuration.toFixed(2)}ms [sorted samples: ${sorted.map((v) => v.toFixed(2) + 'ms').join(', ')}]`
+    );
 
-    const duration = performance.now() - start;
-    console.log(`>>> STRESS: 1,000 Task Churn Duration: ${duration.toFixed(2)}ms`);
-
-    expect(duration).toBeLessThan(50); // High throughput task management
+    expect(medianDuration).toBeLessThan(50); // High throughput task management
     expect(executedCount).toBe(0);
   });
 
@@ -196,14 +217,26 @@ describe('ScrollCraft Engine High-Load Stress Testing', () => {
     expect(element.style.transform).toContain('translate3d(0, 0px, 0)');
     expect(element.style.transform).toContain('translate3d(0, 49px, 0)');
 
-    // Fast-path test: 1,000 consecutive identical sets must skip re-composition
-    const start = performance.now();
-    for (let i = 0; i < 1000; i++) {
-      TransformComposer.set(element, 'module-25', 'translate3d(0, 25px, 0)');
+    // Fast-path benchmark: 5-sample median of 1,000 consecutive identical sets
+    const SAMPLES = 5;
+    const sampleDurations: number[] = [];
+
+    for (let s = 0; s < SAMPLES; s++) {
+      const start = performance.now();
+      for (let i = 0; i < 1000; i++) {
+        TransformComposer.set(element, 'module-25', 'translate3d(0, 25px, 0)');
+      }
+      sampleDurations.push(performance.now() - start);
     }
-    const duration = performance.now() - start;
-    console.log(`>>> STRESS: 1,000 Static Compositions Fast-Path: ${duration.toFixed(3)}ms`);
-    expect(duration).toBeLessThan(15); // Ultra-fast cache hit under multi-worker load
+
+    const sorted = [...sampleDurations].sort((a, b) => a - b);
+    const medianDuration = sorted[Math.floor(SAMPLES / 2)];
+
+    console.log(
+      `>>> STRESS: 1,000 Static Compositions Fast-Path (5-run median): ${medianDuration.toFixed(3)}ms [sorted samples: ${sorted.map((v) => v.toFixed(3) + 'ms').join(', ')}]`
+    );
+
+    expect(medianDuration).toBeLessThan(15); // Ultra-fast cache hit under multi-worker load
 
     // Clear all owners
     for (let i = 0; i < 50; i++) {
@@ -249,5 +282,62 @@ describe('ScrollCraft Engine High-Load Stress Testing', () => {
     const zeroPin = new PinSolver(zeroElem, { duration: 0 });
     expect(() => zeroPin.update(0)).not.toThrow();
     zeroPin.destroy();
+  });
+
+  // ══════════════════════════════════════════════════════════════════
+  // STRESS TEST 6: Background Tab Suspension & Visibility Recovery (Layer 4)
+  // ══════════════════════════════════════════════════════════════════
+  it('STRESS: tab backgrounding suspends RAF loop and foregrounding cleanly resumes without frame burst', () => {
+    let cancelCount = 0;
+    let rafCount = 0;
+    (globalThis as any).cancelAnimationFrame = vi.fn(() => {
+      cancelCount++;
+    });
+    (globalThis as any).requestAnimationFrame = vi.fn(() => {
+      rafCount++;
+      return 42;
+    });
+
+    const listeners: Record<string, ((event?: any) => void)[]> = {};
+    (document as any).addEventListener = vi.fn((evt: string, handler: any) => {
+      listeners[evt] = listeners[evt] || [];
+      listeners[evt].push(handler);
+    });
+
+    (ticker as any).eventsBound = false;
+    (ticker as any).stop();
+
+    // Register active task to wake ticker
+    ticker.add('bg-test-task', 'update', vi.fn());
+    expect((ticker as any).isRunning).toBe(true);
+    expect(ticker.hasActiveTasks()).toBe(true);
+
+    // Verify visibilitychange listener was bound
+    expect(listeners['visibilitychange']).toBeDefined();
+    expect(listeners['visibilitychange'].length).toBeGreaterThan(0);
+
+    // 1. Simulate tab hidden (document.hidden = true)
+    (document as any).hidden = true;
+    for (const listener of listeners['visibilitychange']) {
+      listener();
+    }
+
+    // Must immediately halt RAF loop to conserve battery & prevent runaway physics
+    expect((ticker as any).isRunning).toBe(false);
+    expect(cancelCount).toBeGreaterThanOrEqual(1);
+
+    // 2. Simulate tab unhidden (document.hidden = false)
+    (document as any).hidden = false;
+    for (const listener of listeners['visibilitychange']) {
+      listener();
+    }
+
+    // Must immediately resume RAF loop since active tasks exist
+    expect((ticker as any).isRunning).toBe(true);
+    expect(rafCount).toBeGreaterThanOrEqual(2);
+
+    // Teardown
+    ticker.remove('bg-test-task');
+    ticker.stop();
   });
 });

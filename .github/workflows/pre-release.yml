@@ -1,0 +1,56 @@
+name: Pre-Release Gate & Package Verification
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  pre-release-gate:
+    name: 8-Layer Hardening & Release Verification
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.12.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Layer 0 — Static Gate & Typecheck
+        run: pnpm lint
+
+      - name: Layers 1, 2, 4, 5 — Fuzzing, Chaos, Clock & Memory Soak
+        run: pnpm test
+
+      - name: Production Build Verification
+        run: pnpm build
+
+      - name: Micro-Benchmarks Validation
+        run: pnpm test:bench
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      - name: Layer 3 — E2E Parity & Cross-Browser Verification
+        run: pnpm test:browser
+
+      - name: Package Packaging Dry-Run
+        run: |
+          pnpm --filter @scrollcraft/core pack
+          pnpm --filter @scrollcraft/react pack
+          pnpm --filter @scrollcraft/r3f pack
+
+      - name: Upload Packaged Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: scrollcraft-tarballs
+          path: packages/*/*.tgz

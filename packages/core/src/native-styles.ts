@@ -20,6 +20,14 @@ export function injectNativeStyles(): void {
   const style = document.createElement('style');
   style.id = styleId;
   style.textContent = `
+    :root {
+      scroll-timeline: --sc-doc-scroll block;
+      scroll-timeline-name: --sc-doc-scroll;
+      scroll-timeline-axis: block;
+    }
+    .sc-parallax-target {
+      animation-timeline: --sc-doc-scroll;
+    }
     @media (prefers-reduced-motion: no-preference) {
       @keyframes sc-parallax-y {
         0% { transform: translate3d(0, var(--sc-parallax-start, 0px), 0); }
@@ -41,4 +49,14 @@ export function injectNativeStyles(): void {
   `;
   document.head.appendChild(style);
   injected = true;
+}
+
+export function resetNativeStylesForTesting(): void {
+  injected = false;
+  if (typeof document !== 'undefined') {
+    const el = document.getElementById('scrollcraft-native-engine');
+    if (el && el.parentNode) {
+      el.parentNode.removeChild(el);
+    }
+  }
 }
