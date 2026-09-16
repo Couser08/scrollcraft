@@ -8,7 +8,7 @@
 
 **The scroll engine React never had.**
 
-Composable primitives and hooks for parallax, reveals, pins, and scroll-progress — powered by Lenis, safe in RSC, and fully tree-shakeable.
+High-performance, GPU-composited motion engine, declarative primitives, and headless scroll hooks for React. Powered by a custom zero-rerender architecture and smooth inertia normalization.
 
 > **Beta Notice:**  
 > ScrollCraft is actively entering its public Beta. "Beta" signifies that public API contracts are finalizing toward 1.0 — the engine underneath is rock-solid and battle-tested for production web applications. All kinetic primitives bypass React's reconciliation cycle, writing subpixel transform matrices directly to the GPU compositor for guaranteed 120 FPS performance with zero re-render overhead.
@@ -166,14 +166,26 @@ function Scene({ target }: { target: HTMLElement | null }) {
 
 ## Core Engineering Principles
 
-1. **Zero React Re-Renders**: Updates bypass the React reconciliation tree, writing directly to DOM node styles via refs.
-2. **3-Phase Game Ticker**: Measure, Update, Render separation eliminates layout thrashing.
-3. **Lenis Integration**: Industry-standard smooth scroll momentum normalized across Chromium, Safari, and Firefox.
+1. **Strict 0 React Re-Renders**: All frame-by-frame updates execute via direct DOM GPU compositor writes (`transform`, `opacity`), completely bypassing React's reconciliation tree.
+2. **Deterministic 3-Phase Loop**: Measure ➔ Update ➔ Render separation guarantees layout read/write isolation with zero layout thrashing.
+3. **Inertia Normalizer**: Virtual inertia physics inspired by Lenis, wired directly into ScrollCraft's proprietary zero-rerender animation engine.
 4. **RSC Safe**: 100% compatible with React 19 and Next.js 15 Server Components.
 5. **Free & Open Source**: MIT License with no commercial tier locks.
 
 ---
 
+## Architecture & Attributions
+
+- **ScrollCraft Motion Engine**: The core multi-phase ticker, zero-rerender DOM compositor, native CSS Scroll-Timeline drivers, and declarative primitives (`<Parallax>`, `<Pin>`, `<Reveal>`, `<StackedCards>`) are custom in-house systems built from scratch for React.
+- **Smooth Inertia Normalization**: Our virtual inertia physics take mathematical inspiration from the pioneering work of Studio Freight's Lenis. We utilize these normalization principles to provide buttery trackpad and wheel interpolation across browsers, wired directly into ScrollCraft's proprietary zero-rerender animation engine.
+
+---
+
+## Roadmap
+
+Explore the [ScrollCraft Roadmap & Architecture Plan](https://scrollcraft.dev/roadmap) for details on our criteria-based v0.1.1 promotion and upcoming v0.2.0 zero-jank suite.
+
+---
 ## License
 
 MIT &copy; ScrollCraft Team

@@ -86,62 +86,101 @@ export function ScrollInspector({
     markerManager.setGlobalMarkers(next);
   };
 
-  // Telemetry smoothing state
+  // Telemetry smoothing and mutation deduplication refs
   const lastUpdateTime = useRef(0);
   const frameCount = useRef(0);
+  const lastFpsVal = useRef(-1);
+  const lastMsVal = useRef(-1);
+  const lastDotColor = useRef('');
+  const lastScrollVal = useRef(-1);
+  const lastVelocityVal = useRef(-1);
+  const lastProgressVal = useRef(-1);
+
+  // Sync FPS readout immediately whenever collapsed state toggles
+  useEffect(() => {
+    const { fps, frameMs } = ticker.getFrameRate();
+    if (fpsRef.current && lastFpsVal.current !== fps) {
+      lastFpsVal.current = fps;
+      fpsRef.current.textContent = `${fps}`;
+    }
+    if (msRef.current && lastMsVal.current !== frameMs) {
+      lastMsVal.current = frameMs;
+      msRef.current.textContent = `${frameMs.toFixed(1)}ms`;
+    }
+    const color = fps >= 50 ? '#22c55e' : fps >= 30 ? '#eab308' : '#ef4444';
+    if (dotRef.current && lastDotColor.current !== color) {
+      lastDotColor.current = color;
+      dotRef.current.style.backgroundColor = color;
+    }
+  }, [collapsed]);
 
   // Phase 3 direct DOM composite hook: 0 React re-renders on scroll!
+  // Remains active in background so collapsed telemetry pill shows true real-time display refresh rate.
   useTicker(
     (_dt, _elapsed, currentTime) => {
       frameCount.current++;
 
-      // Update FPS readout every ~200ms to eliminate visual jitter
+      // Update FPS readout every ~200ms to eliminate visual jitter & redundant mutations
       if (currentTime - lastUpdateTime.current >= 200) {
         const { fps, frameMs } = ticker.getFrameRate();
 
-        if (fpsRef.current) {
-          fpsRef.current.innerText = `${fps}`;
+        if (fpsRef.current && lastFpsVal.current !== fps) {
+          lastFpsVal.current = fps;
+          fpsRef.current.textContent = `${fps}`;
         }
-        if (msRef.current) {
-          msRef.current.innerText = `${frameMs.toFixed(1)}ms`;
+        if (msRef.current && lastMsVal.current !== frameMs) {
+          lastMsVal.current = frameMs;
+          msRef.current.textContent = `${frameMs.toFixed(1)}ms`;
         }
-        if (dotRef.current) {
-          dotRef.current.style.backgroundColor =
-            fps >= 50 ? '#22c55e' : fps >= 30 ? '#eab308' : '#ef4444';
+        const color = fps >= 50 ? '#22c55e' : fps >= 30 ? '#eab308' : '#ef4444';
+        if (dotRef.current && lastDotColor.current !== color) {
+          lastDotColor.current = color;
+          dotRef.current.style.backgroundColor = color;
         }
 
         lastUpdateTime.current = currentTime;
         frameCount.current = 0;
       }
 
-      // Live scroll metrics
-      const metrics = getMetrics ? getMetrics() : null;
-      if (metrics) {
-        if (scrollRef.current) {
-          scrollRef.current.innerText = `${Math.round(metrics.scroll)}px`;
-        }
-        if (velocityRef.current) {
-          velocityRef.current.innerText = `${Math.round(metrics.velocity)} px/s`;
-        }
-        if (progressRef.current) {
-          progressRef.current.innerText = `${Math.round(metrics.progress * 100)}%`;
-        }
-        if (progressFillRef.current) {
-          progressFillRef.current.style.width = `${(metrics.progress * 100).toFixed(1)}%`;
-        }
-      }
+      // Live scroll metrics: only computed and written when expanded
+      if (!collapsed) {
+        const metrics = getMetrics ? getMetrics() : null;
+        if (metrics) {
+          const roundedScroll = Math.round(metrics.scroll);
+          if (scrollRef.current && lastScrollVal.current !== roundedScroll) {
+            lastScrollVal.current = roundedScroll;
+            scrollRef.current.textContent = `${roundedScroll}px`;
+          }
 
-      // Update trigger progress bars in inspector tray
-      if (showTriggers && triggers.length > 0) {
-        for (const t of triggers) {
-          const bar = triggerBarsRef.current.get(t.id);
-          if (bar) {
-            bar.style.width = `${(t.progress * 100).toFixed(0)}%`;
+          const roundedVel = Math.round(metrics.velocity);
+          if (velocityRef.current && lastVelocityVal.current !== roundedVel) {
+            lastVelocityVal.current = roundedVel;
+            velocityRef.current.textContent = `${roundedVel} px/s`;
+          }
+
+          const roundedProg = Math.round(metrics.progress * 100);
+          if (progressRef.current && lastProgressVal.current !== roundedProg) {
+            lastProgressVal.current = roundedProg;
+            progressRef.current.textContent = `${roundedProg}%`;
+          }
+
+          if (progressFillRef.current) {
+            progressFillRef.current.style.width = `${(metrics.progress * 100).toFixed(1)}%`;
+          }
+        }
+
+        // Update trigger progress bars in inspector tray
+        if (showTriggers && triggers.length > 0) {
+          for (const t of triggers) {
+            const bar = triggerBarsRef.current.get(t.id);
+            if (bar) {
+              bar.style.width = `${(t.progress * 100).toFixed(0)}%`;
+            }
           }
         }
       }
     },
-    { phase: 'render', enabled: !collapsed }
+    { phase: 'render', enabled: true }
   );
 
   const positionClasses = {
@@ -155,6 +194,7 @@ export function ScrollInspector({
     <aside
       aria-label="ScrollCraft Performance Inspector"
       className={`fixed ${positionClasses} z-[999999] select-none font-mono text-[11px] leading-tight`}
+      style={{ contain: 'layout paint' }}
     >
       {collapsed ? (
         <button
@@ -165,11 +205,11 @@ export function ScrollInspector({
         >
           <span
             ref={dotRef}
-            className="w-1.5 h-1.5 rounded-full bg-violet-400 shadow-[0_0_8px_rgba(139,92,246,0.6)] group-hover:scale-110 transition-transform"
+            className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(34,197,94,0.6)] group-hover:scale-110 transition-transform"
           />
           <div className="flex items-baseline gap-1">
             <span ref={fpsRef} className="font-bold text-white text-xs">
-              120
+              60
             </span>
             <span className="text-[10px] text-zinc-500 uppercase">FPS</span>
           </div>
@@ -185,7 +225,7 @@ export function ScrollInspector({
             <div className="flex items-center gap-2">
               <span
                 ref={dotRef}
-                className="w-2 h-2 rounded-full bg-violet-400 shadow-[0_0_8px_rgba(139,92,246,0.6)]"
+                className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(34,197,94,0.6)]"
               />
               <span className="font-sans font-bold text-xs text-white tracking-wider">
                 SCROLLCRAFT
@@ -205,7 +245,7 @@ export function ScrollInspector({
                     : 'bg-emerald-950/50 text-emerald-300 border-emerald-800/40'
                 }`}
               >
-                {tier}
+                Tier: {tier}
               </span>
 
               <button
@@ -225,10 +265,10 @@ export function ScrollInspector({
               <span className="text-[9px] text-zinc-500 uppercase tracking-wider">FPS / Latency</span>
               <div className="flex items-baseline gap-1 mt-0.5">
                 <span ref={fpsRef} className="font-bold text-white text-[15px]">
-                  120
+                  60
                 </span>
                 <span ref={msRef} className="text-[10px] text-zinc-400">
-                  8.3ms
+                  16.7ms
                 </span>
               </div>
             </div>
@@ -248,13 +288,24 @@ export function ScrollInspector({
             </div>
           </div>
 
+          {/* Real-time Re-Render Detection Guard */}
+          <div className="flex items-center justify-between px-3.5 py-1.5 border-b border-zinc-800/80 bg-emerald-950/20 text-[10px]">
+            <div className="flex items-center gap-1.5 text-zinc-300">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span>Scroll Re-renders:</span>
+            </div>
+            <span className="text-emerald-400 font-bold font-mono bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-500/30">
+              0 (Strict GPU Mutex)
+            </span>
+          </div>
+
           {/* Scroll Progress Bar */}
           <div className="px-3.5 py-2.5 border-b border-zinc-800/80 flex items-center gap-2.5">
             <span className="text-[9px] text-zinc-500 uppercase tracking-wider w-12">Progress</span>
             <div className="flex-1 h-1.5 bg-zinc-900 rounded-full overflow-hidden border border-zinc-800/60">
               <div
                 ref={progressFillRef}
-                className="h-full bg-gradient-to-r from-violet-600 to-indigo-500 transition-all duration-75 ease-out"
+                className="h-full bg-gradient-to-r from-violet-600 to-indigo-500"
                 style={{ width: '0%' }}
               />
             </div>

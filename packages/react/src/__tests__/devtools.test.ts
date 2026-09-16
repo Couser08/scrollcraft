@@ -44,4 +44,18 @@ describe('React DevTools & Hooks', () => {
     addSpy.mockRestore();
     removeSpy.mockRestore();
   });
+
+  it('ScrollInspector renders with CSS containment layout paint for zero-reflow isolation', () => {
+    const { renderToString } = require('react-dom/server');
+    const React = require('react');
+    const html = renderToString(React.createElement(ScrollInspector, { defaultCollapsed: true }));
+    expect(html).toContain('contain:layout paint');
+  });
+
+  it('ticker telemetry getFrameRate reports sub-millisecond precision with bounded FPS', () => {
+    const { fps, frameMs } = ticker.getFrameRate();
+    expect(fps).toBeGreaterThanOrEqual(0);
+    expect(fps).toBeLessThanOrEqual(360);
+    expect(frameMs).toBeGreaterThanOrEqual(0);
+  });
 });

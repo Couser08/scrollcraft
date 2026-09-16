@@ -287,7 +287,7 @@ export default function App() {
                         <div className="space-y-1.5 text-[11px] text-zinc-400">
                           <div className="flex items-center gap-2 text-zinc-300">
                             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                            <span>Resolving @scrollcraft/react (v0.1.1) [4ms]</span>
+                            <span>Resolving @scrollcraft/react (v0.1.1-beta) [4ms]</span>
                           </div>
                           <div className="flex items-center gap-2 text-zinc-300">
                             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />

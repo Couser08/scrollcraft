@@ -151,7 +151,7 @@ export function EngineArchitectureSection() {
                 <span className="w-2.5 h-2.5 rounded-full bg-violet-500 shadow-[0_0_8px_rgba(139,92,246,0.9)]" />
               </div>
 
-              {/* Phase 2: Inertia Physics */}
+              {/* Phase 2: Inertia Normalizer */}
               <div className="rounded-xl border border-zinc-800/90 bg-[#060608] p-4 sm:p-5 flex items-start gap-4 flex-1 shadow-md">
                 <div className="w-10 h-10 rounded-lg bg-zinc-900/90 border border-zinc-800 flex items-center justify-center text-violet-400 shrink-0">
                   <Activity className="w-5 h-5" />
@@ -162,10 +162,10 @@ export function EngineArchitectureSection() {
                     <span className="text-zinc-500">Phase 2</span>
                   </div>
                   <h4 className="text-sm sm:text-base font-bold text-white mt-0.5">
-                    Inertia Physics
+                    Inertia Normalizer
                   </h4>
                   <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
-                    Lenis-inspired momentum normalization across trackpads &amp; wheels.
+                    Powered by smooth scrolling physics inspired by Lenis, wired directly into ScrollCraft&apos;s proprietary zero-rerender animation engine.
                   </p>
                 </div>
               </div>

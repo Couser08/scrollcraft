@@ -131,10 +131,10 @@ export const DocsSidebar: React.FC<DocsSidebarProps> = ({
                       <li key={item.id}>
                         <button
                           onClick={() => onSelectSection(item.id)}
-                          className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-md text-xs transition-all text-left cursor-pointer ${
+                          className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-md text-xs border transition-colors text-left cursor-pointer ${
                             isActive
-                              ? 'text-white font-medium bg-zinc-800/90 shadow-xs border border-zinc-700/60'
-                              : 'text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/40'
+                              ? 'text-white font-medium bg-zinc-800/90 shadow-xs border-zinc-700/60'
+                              : 'text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/40 border-transparent'
                           }`}
                         >
                           <span className="truncate">{item.title}</span>

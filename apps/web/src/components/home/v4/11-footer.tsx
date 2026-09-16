@@ -22,9 +22,18 @@ export function Footer() {
         <div className="flex flex-wrap gap-8 text-sm font-medium text-zinc-400">
           <Link href="/docs" className="hover:text-white transition-colors">Documentation</Link>
           <Link href="/showcase" className="hover:text-white transition-colors">Showcase</Link>
+          <Link href="/roadmap" className="hover:text-white transition-colors">Roadmap</Link>
         </div>
 
         <div className="flex items-center gap-6 text-sm font-medium text-zinc-400">
+          <a
+            href="https://discord.gg/scrollcraft"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-white transition-colors"
+          >
+            Discord
+          </a>
           <a
             href="https://github.com/ScrollCraft/scrollcraft"
             target="_blank"
@@ -38,7 +47,7 @@ export function Footer() {
       </div>
       
       <div className="max-w-7xl mx-auto mt-12 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-zinc-600">
-        <span>&copy; {new Date().getFullYear()} ScrollCraft. Built with <span className="text-red-500">&hearts;</span> for the web.</span>
+        <span>&copy; {new Date().getFullYear()} ScrollCraft (v0.1.1 Beta). MIT Licensed. Physics inspired by Studio Freight&apos;s Lenis.</span>
         <span>Make the web move.</span>
       </div>
     </footer>

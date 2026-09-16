@@ -11,17 +11,17 @@
 
 import React, { useState } from 'react';
 import { CodeViewer } from '@/components/ui/code-viewer';
-import { Check, Copy, Terminal, ShieldCheck, BookOpen, Layers, Cpu, Zap } from 'lucide-react';
+import { Check, Copy, Terminal, ShieldCheck, BookOpen, Layers, Cpu, Zap, Heart } from 'lucide-react';
 
 interface DocGettingStartedProps {
   sectionId: string;
 }
 
 const PM_COMMANDS = {
-  pnpm: 'pnpm add @scrollcraft/react',
-  npm: 'npm i @scrollcraft/react',
-  yarn: 'yarn add @scrollcraft/react',
-  bun: 'bun add @scrollcraft/react',
+  pnpm: 'pnpm add @scrollcraft/react@beta',
+  npm: 'npm i @scrollcraft/react@beta',
+  yarn: 'yarn add @scrollcraft/react@beta',
+  bun: 'bun add @scrollcraft/react@beta',
 };
 
 const NEXT_LAYOUT_SETUP = `// app/layout.tsx
@@ -150,21 +150,40 @@ export const DocGettingStarted: React.FC<DocGettingStartedProps> = ({ sectionId 
         {/* Package Manager Selector & Copy Box */}
         <div className="rounded-xl border border-zinc-800 bg-[#09090b] p-4 space-y-3 shadow-lg">
           <div className="flex items-center gap-2 border-b border-zinc-800/80 pb-3">
-            {(['npm', 'pnpm', 'yarn', 'bun'] as const).map((pm) => (
-              <button
-                key={pm}
-                type="button"
-                onClick={() => setActivePm(pm)}
-                className={`px-3 py-1 rounded-md text-xs font-mono font-medium transition-colors cursor-pointer ${
-                  activePm === pm
-                    ? 'bg-zinc-800 text-white font-bold border border-zinc-700'
-                    : 'text-zinc-500 hover:text-zinc-300'
-                }`}
-              >
-                {pm}
-              </button>
-            ))}
+            {(['pnpm', 'npm', 'yarn', 'bun'] as const).map((pm) => {
+              const isUpcoming = pm === 'yarn' || pm === 'bun';
+              return (
+                <button
+                  key={pm}
+                  type="button"
+                  onClick={() => setActivePm(pm)}
+                  className={`px-3 py-1 rounded-md text-xs font-mono font-medium border transition-colors flex items-center gap-1.5 cursor-pointer ${
+                    activePm === pm
+                      ? 'bg-zinc-800 text-white font-bold border-zinc-700'
+                      : 'text-zinc-500 hover:text-zinc-300 border-transparent'
+                  }`}
+                >
+                  <span>{pm}</span>
+                  {isUpcoming && (
+                    <span className="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/15 text-amber-400 border border-amber-500/30 font-sans font-medium">
+                      Coming Soon
+                    </span>
+                  )}
+                </button>
+              );
+            })}
           </div>
+
+          {(activePm === 'yarn' || activePm === 'bun') && (
+            <div className="rounded-lg bg-amber-950/20 border border-amber-500/30 p-2.5 text-xs text-amber-300/90 font-sans flex items-center gap-2">
+              <span className="font-semibold text-amber-400 uppercase font-mono text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 border border-amber-500/30">
+                Notice
+              </span>
+              <span>
+                {activePm === 'yarn' ? 'Yarn' : 'Bun'} package registry integration is in validation. For v0.1.1 Beta, please use <strong>pnpm</strong> or <strong>npm</strong>.
+              </span>
+            </div>
+          )}
 
           <div className="flex items-center justify-between font-mono text-xs sm:text-sm text-zinc-200">
             <div className="flex items-center gap-2 overflow-x-auto">
@@ -262,6 +281,22 @@ export const DocGettingStarted: React.FC<DocGettingStartedProps> = ({ sectionId 
           <li><strong className="text-white">Deterministic 3-Phase Loop:</strong> Measure phase precedes all style mutator writes, eliminating layout thrashing.</li>
           <li><strong className="text-white">Full RSC Compatibility:</strong> Compatible with Next.js 15 Server Components and streaming SSR.</li>
         </ul>
+      </section>
+
+      {/* 5. Architecture & Attributions */}
+      <section className="p-5 rounded-2xl bg-zinc-900/40 border border-zinc-800/80 text-xs text-zinc-400 space-y-3 font-sans">
+        <div className="flex items-center gap-2 text-white font-mono font-bold">
+          <Heart className="w-4 h-4 text-violet-400" />
+          <span>Architecture &amp; Attributions</span>
+        </div>
+        <div className="space-y-2 leading-relaxed">
+          <p>
+            <strong className="text-zinc-200 font-mono">ScrollCraft Motion Engine:</strong> The core multi-phase ticker, zero-rerender DOM compositor, native CSS Scroll-Timeline drivers, and declarative primitives (<code className="text-violet-300">&lt;Parallax&gt;</code>, <code className="text-violet-300">&lt;Pin&gt;</code>, <code className="text-violet-300">&lt;Reveal&gt;</code>, <code className="text-violet-300">&lt;StackedCards&gt;</code>) are custom in-house systems built from scratch for React.
+          </p>
+          <p>
+            <strong className="text-zinc-200 font-mono">Smooth Inertia Normalization:</strong> Our virtual inertia physics take mathematical inspiration from the pioneering work of Studio Freight&apos;s Lenis. We utilize these normalization principles to provide buttery trackpad and wheel interpolation across browsers, wired directly into ScrollCraft&apos;s proprietary zero-rerender animation engine.
+          </p>
+        </div>
       </section>
     </div>
   );

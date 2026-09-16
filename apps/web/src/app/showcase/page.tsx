@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import React from 'react';
 import Link from 'next/link';
-import { Home, BookOpen, Sparkles } from 'lucide-react';
 import { ShowcaseHub } from '@/components/showcase/showcase-hub';
 import { GithubIcon } from '@/components/ui/social-icons';
 import { ScrollCraftLogo } from '@/components/ui/scrollcraft-logo';
@@ -23,27 +22,30 @@ export default function ShowcasePage() {
               <ScrollCraftLogo variant="badge" badgeText="Beta" size="sm" />
             </Link>
 
-            <nav className="flex items-center gap-1.5 text-xs font-medium">
+            <nav className="flex items-center gap-2 text-xs font-medium">
               <Link
                 href="/"
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors"
+                className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors"
               >
-                <Home className="w-3.5 h-3.5 text-zinc-400" />
-                <span>Home</span>
+                Home
               </Link>
               <Link
                 href="/docs"
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors"
+                className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors"
               >
-                <BookOpen className="w-3.5 h-3.5 text-violet-400" />
-                <span>Docs</span>
+                Docs
               </Link>
               <Link
                 href="/showcase"
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 text-white font-semibold border border-zinc-800 shadow-xs"
+                className="px-3 py-1.5 rounded-lg bg-zinc-900 text-white font-semibold border border-zinc-800 shadow-xs"
               >
-                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                <span>Showcase</span>
+                Showcase
+              </Link>
+              <Link
+                href="/roadmap"
+                className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors"
+              >
+                Roadmap
               </Link>
             </nav>
           </div>

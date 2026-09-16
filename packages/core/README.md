@@ -23,7 +23,7 @@ pnpm add @scrollcraft/core
 ## Features
 
 - **3-Phase Ticker**: Deterministic `Measure -> Update -> Render` execution loop prevents layout thrashing.
-- **Inertia Solver**: Lenis-powered subpixel scroll smoothing and momentum physics.
+- **Inertia Normalizer**: Virtual inertia physics inspired by Lenis, normalizing trackpad and wheel inputs into ScrollCraft's multi-phase ticker.
 - **Timeline Solver**: High-precision progress mapping across arbitrary viewport and element intersections.
 - **Pin Solver**: Sticky-pinning calculations and pin-spacing geometry.
 - **DOM Compositor**: Direct ref-based hardware-accelerated style mutations (`transform`, `opacity`) bypassing framework re-renders.
@@ -57,6 +57,13 @@ Window Scroll Event / Touch Event
           │ DOM Compositor│  (Direct GPU Transforms: Zero React Re-renders)
           └───────────────┘
 ```
+
+---
+
+## Architecture & Attributions
+
+- **ScrollCraft Motion Engine**: The core multi-phase ticker, zero-rerender DOM compositor, native CSS Scroll-Timeline drivers, and kinetic solvers (`TimelineSolver`, `PinSolver`, `ParallaxSolver`) are custom in-house systems built from scratch.
+- **Smooth Inertia Normalization**: Our virtual inertia physics take mathematical inspiration from the pioneering work of Studio Freight's Lenis. We utilize these normalization principles to provide buttery trackpad and wheel interpolation across browsers.
 
 ---
 

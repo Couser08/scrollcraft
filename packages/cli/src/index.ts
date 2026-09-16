@@ -15,7 +15,7 @@ const program = new Command();
 program
   .name('scrollcraft')
   .description('High-performance scroll animation & micro-interaction CLI for React & Next.js')
-  .version('0.1.0');
+  .version('0.1.1');
 
 program
   .command('list')

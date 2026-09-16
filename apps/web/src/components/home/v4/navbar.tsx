@@ -49,6 +49,9 @@ export function Navbar() {
           <Link href="/showcase" className="hover:text-white transition-colors">
             Showcase
           </Link>
+          <Link href="/roadmap" className="hover:text-white transition-colors">
+            Roadmap
+          </Link>
         </nav>
 
         {/* Right GitHub icon & Get Started button */}
