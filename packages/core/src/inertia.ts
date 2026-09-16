@@ -25,6 +25,7 @@ export class InertiaEngine {
   private subscribers: Set<(metrics: ScrollMetrics) => void> = new Set();
   private isInitialized: boolean = false;
   private taskId: string = `lenis-ticker-${Math.random().toString(36).slice(2, 8)}`;
+  private prevScrollRestoration: string | null = null;
 
   constructor(config?: InertiaConfig) {
     let lerp = config?.lerp;
@@ -64,6 +65,12 @@ export class InertiaEngine {
     if (typeof window === 'undefined' || this.isInitialized) return;
     this.isInitialized = true;
 
+    // Prevent browser native scrollRestoration from fighting Lenis & router transitions
+    if (typeof window !== 'undefined' && window.history && 'scrollRestoration' in window.history) {
+      this.prevScrollRestoration = window.history.scrollRestoration;
+      window.history.scrollRestoration = 'manual';
+    }
+
     // Instantiate Lenis with normalized cross-browser settings and input profiling
     this.lenis = new Lenis({
       lerp: this.config.lerp,
@@ -99,8 +106,14 @@ export class InertiaEngine {
     ticker.remove(this.taskId);
 
     if (this.lenis) {
+      this.lenis.off('scroll', this.onLenisScroll);
       this.lenis.destroy();
       this.lenis = null;
+    }
+
+    if (typeof window !== 'undefined' && window.history && 'scrollRestoration' in window.history && this.prevScrollRestoration) {
+      window.history.scrollRestoration = this.prevScrollRestoration as ScrollRestoration;
+      this.prevScrollRestoration = null;
     }
 
     this.subscribers.clear();

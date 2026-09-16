@@ -33,7 +33,7 @@ export default function App() {
           Make the web move.
         </h1>
       </Parallax>
-    </ScrollCraftProvider>
+    </ScrollProvider>
   );
 }`;
 
@@ -95,7 +95,7 @@ export default function App() {
             <Reveal direction="up" distance={20} delay={0.1}>
               <h2 className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight leading-[1.08] mb-5">
                 <span className="text-white">Ready when </span>
-                <span className="text-sky-400">you are.</span>
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-purple-300 to-indigo-300">you are.</span>
               </h2>
             </Reveal>
 
@@ -152,9 +152,9 @@ export default function App() {
             {/* Supported Technologies Row */}
             <div className="flex items-center gap-4 text-xs font-mono text-zinc-400 flex-wrap pt-2 border-t border-zinc-800/80 w-full">
               <div className="flex items-center gap-2 text-zinc-300">
-                <svg className="w-4 h-4 text-sky-400" viewBox="-11.5 -10.23174 23 20.46348">
-                  <circle cx="0" cy="0" r="2.05" fill="#38bdf8"/>
-                  <g stroke="#38bdf8" strokeWidth="1" fill="none">
+                <svg className="w-4 h-4 text-violet-400" viewBox="-11.5 -10.23174 23 20.46348">
+                  <circle cx="0" cy="0" r="2.05" fill="#a78bfa"/>
+                  <g stroke="#a78bfa" strokeWidth="1" fill="none">
                     <ellipse rx="11" ry="4.2"/>
                     <ellipse rx="11" ry="4.2" transform="rotate(60)"/>
                     <ellipse rx="11" ry="4.2" transform="rotate(120)"/>
@@ -182,7 +182,7 @@ export default function App() {
               <span className="text-zinc-700 select-none">|</span>
 
               <div className="flex items-center gap-1.5 text-zinc-300">
-                <Shield className="w-3.5 h-3.5 text-sky-400" />
+                <Shield className="w-3.5 h-3.5 text-violet-400" />
                 <span>MIT Licensed</span>
               </div>
             </div>
@@ -190,18 +190,18 @@ export default function App() {
 
           {/* Right Column: Professional Developer Quickstart & Runtime Console */}
           <div className="lg:col-span-5 flex items-center justify-center relative w-full">
-            <Reveal direction="up" distance={25} delay={0.15}>
+            <Reveal direction="up" distance={25} delay={0.15} className="w-full flex justify-center">
               <div className="relative w-full max-w-[480px]">
                 {/* Subtle Ambient Backing Glow */}
                 <div
                   aria-hidden="true"
-                  className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-violet-600/25 via-purple-500/15 to-indigo-600/20 blur-xl opacity-75"
+                  className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-violet-600/20 via-purple-500/15 to-indigo-600/20 blur-xl opacity-75"
                 />
 
-                {/* Main Console Box */}
-                <div className="relative w-full rounded-2xl border border-zinc-800/90 bg-[#090a0f]/95 shadow-2xl backdrop-blur-xl overflow-hidden flex flex-col">
-                  {/* Console Header Bar */}
-                  <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-800/80 bg-zinc-950/70">
+                {/* Main Console Box - Rigid Layout with ZERO Shift */}
+                <div className="relative w-full h-[360px] min-h-[360px] max-h-[360px] rounded-2xl border border-zinc-800/90 bg-[#090a0f]/95 shadow-2xl backdrop-blur-xl overflow-hidden flex flex-col justify-between">
+                  {/* Console Header Bar - Fixed 48px */}
+                  <div className="flex items-center justify-between px-4 h-12 min-h-[48px] max-h-[48px] border-b border-zinc-800/80 bg-zinc-950/70 shrink-0">
                     {/* Window Controls */}
                     <div className="flex items-center gap-2">
                       <div className="w-2.5 h-2.5 rounded-full bg-[#ff5f56]/80" />
@@ -209,12 +209,12 @@ export default function App() {
                       <div className="w-2.5 h-2.5 rounded-full bg-[#27c93f]/80" />
                     </div>
 
-                    {/* Interactive Tab Switcher */}
+                    {/* Interactive Tab Switcher - Fixed Button Widths */}
                     <div className="flex items-center gap-1 bg-zinc-900/90 p-1 rounded-lg border border-zinc-800/60">
                       <button
                         type="button"
                         onClick={() => setActiveTab('terminal')}
-                        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-mono transition-all ${
+                        className={`flex items-center justify-center gap-1.5 w-[76px] sm:w-[82px] py-1 rounded-md text-[11px] font-mono transition-all cursor-pointer ${
                           activeTab === 'terminal'
                             ? 'bg-zinc-800 text-white font-medium shadow-sm'
                             : 'text-zinc-400 hover:text-zinc-200'
@@ -227,7 +227,7 @@ export default function App() {
                       <button
                         type="button"
                         onClick={() => setActiveTab('quickstart')}
-                        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-mono transition-all ${
+                        className={`flex items-center justify-center gap-1.5 w-[76px] sm:w-[82px] py-1 rounded-md text-[11px] font-mono transition-all cursor-pointer ${
                           activeTab === 'quickstart'
                             ? 'bg-zinc-800 text-white font-medium shadow-sm'
                             : 'text-zinc-400 hover:text-zinc-200'
@@ -240,7 +240,7 @@ export default function App() {
                       <button
                         type="button"
                         onClick={() => setActiveTab('specs')}
-                        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-mono transition-all ${
+                        className={`flex items-center justify-center gap-1.5 w-[76px] sm:w-[82px] py-1 rounded-md text-[11px] font-mono transition-all cursor-pointer ${
                           activeTab === 'specs'
                             ? 'bg-zinc-800 text-white font-medium shadow-sm'
                             : 'text-zinc-400 hover:text-zinc-200'
@@ -254,25 +254,25 @@ export default function App() {
                     {/* Online Status Pill */}
                     <div className="flex items-center gap-1.5 text-[10px] font-mono text-emerald-400">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                      <span className="hidden sm:inline">120 FPS</span>
+                      <span className="hidden sm:inline">RAF Sync</span>
                     </div>
                   </div>
 
-                  {/* Tab Body */}
-                  <div className="p-4 sm:p-5 min-h-[250px] flex flex-col justify-between">
+                  {/* Tab Body - Locked 268px Height Container across all tabs */}
+                  <div className="p-4 sm:p-5 h-[268px] min-h-[268px] max-h-[268px] flex flex-col justify-between overflow-hidden">
                     {/* TAB 1: TERMINAL */}
                     {activeTab === 'terminal' && (
-                      <div className="space-y-3 font-mono text-xs">
+                      <div className="space-y-2.5 font-mono text-xs flex flex-col justify-between h-full">
                         {/* Interactive Command Prompt */}
                         <div className="flex items-center justify-between p-2.5 rounded-lg bg-black/60 border border-zinc-800/80 group">
-                          <div className="flex items-center gap-2 overflow-x-auto">
+                          <div className="flex items-center gap-2 overflow-hidden">
                             <span className="text-zinc-500 select-none">$</span>
-                            <span className="text-sky-300 font-semibold">{installCmd}</span>
+                            <span className="text-violet-300 font-semibold truncate">{installCmd}</span>
                           </div>
                           <button
                             type="button"
                             onClick={copyCommand}
-                            className="p-1.5 rounded text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+                            className="p-1.5 rounded text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors cursor-pointer"
                             title="Copy command"
                           >
                             {copied ? (
@@ -284,7 +284,7 @@ export default function App() {
                         </div>
 
                         {/* Simulated Build Logs */}
-                        <div className="space-y-1.5 text-[11px] text-zinc-400 pt-1">
+                        <div className="space-y-1.5 text-[11px] text-zinc-400">
                           <div className="flex items-center gap-2 text-zinc-300">
                             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                             <span>Resolving @scrollcraft/react (v0.1.1) [4ms]</span>
@@ -295,7 +295,7 @@ export default function App() {
                           </div>
                           <div className="flex items-center gap-2 text-zinc-300">
                             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                            <span>Subpixel RAF loop: Synchronized (120 FPS)</span>
+                            <span>Subpixel RAF loop: Synchronized (60–240 Hz)</span>
                           </div>
                           <div className="flex items-center gap-2 text-emerald-400 font-medium">
                             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
@@ -304,7 +304,7 @@ export default function App() {
                         </div>
 
                         {/* Interactive Verification Pill */}
-                        <div className="pt-2">
+                        <div className="pt-0.5">
                           <button
                             type="button"
                             onClick={runDoctor}
@@ -312,10 +312,10 @@ export default function App() {
                             className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-zinc-900/80 hover:bg-zinc-850 border border-zinc-800 text-[11px] text-zinc-300 transition-all cursor-pointer"
                           >
                             <span className="flex items-center gap-2">
-                              <Play className={`w-3 h-3 text-sky-400 ${isRunningDoctor ? 'animate-spin' : ''}`} />
+                              <Play className={`w-3 h-3 text-violet-400 ${isRunningDoctor ? 'animate-spin' : ''}`} />
                               <span>{isRunningDoctor ? 'Analyzing compositor frame delta...' : 'Run verify doctor check'}</span>
                             </span>
-                            <span className="text-[10px] font-mono text-emerald-400">
+                            <span className="text-[10px] font-mono text-emerald-400 font-semibold">
                               {isRunningDoctor ? 'calibrating...' : '✓ 0ms lag (Pass)'}
                             </span>
                           </button>
@@ -325,13 +325,13 @@ export default function App() {
 
                     {/* TAB 2: QUICKSTART CODE */}
                     {activeTab === 'quickstart' && (
-                      <div className="relative font-mono text-xs">
-                        <div className="flex items-center justify-between text-[11px] text-zinc-400 border-b border-zinc-800/60 pb-2 mb-2">
+                      <div className="relative font-mono text-xs flex flex-col justify-between h-full">
+                        <div className="flex items-center justify-between text-[11px] text-zinc-400 border-b border-zinc-800/60 pb-1 mb-1 shrink-0">
                           <span className="text-zinc-500">Drop-in JSX example</span>
                           <button
                             type="button"
                             onClick={copyQuickstart}
-                            className="flex items-center gap-1 text-zinc-400 hover:text-white transition-colors"
+                            className="flex items-center gap-1 text-zinc-400 hover:text-white transition-colors cursor-pointer"
                           >
                             {copiedCode ? (
                               <>
@@ -346,15 +346,15 @@ export default function App() {
                             )}
                           </button>
                         </div>
-                        <pre className="text-[11px] leading-relaxed text-zinc-300 overflow-x-auto p-1 font-mono">
-                          <span className="text-purple-400">import</span> &#123; <span className="text-violet-300">ScrollCraftProvider</span>, <span className="text-violet-300">Parallax</span> &#125; <span className="text-purple-400">from</span> <span className="text-emerald-300">&apos;@scrollcraft/react&apos;</span>;{'\n\n'}
-                          <span className="text-purple-400">export default function</span> <span className="text-violet-400">App</span>() &#123;{'\n'}
+                        <pre className="text-[11px] leading-[1.6] text-zinc-300 overflow-y-auto overflow-x-hidden p-1 font-mono flex-1 whitespace-pre-wrap break-words">
+                          <span className="text-purple-400">import</span> &#123; <span className="text-violet-300">ScrollProvider</span>, <span className="text-violet-300">Parallax</span> &#125; <span className="text-purple-400">from</span> <span className="text-emerald-300">&apos;@scrollcraft/react&apos;</span>;{'\n\n'}
+                          <span className="text-purple-400">export default function</span> <span className="text-violet-400 font-semibold">App</span>() &#123;{'\n'}
                           {'  '}<span className="text-purple-400">return</span> ({'\n'}
-                          {'    '}&lt;<span className="text-violet-300">ScrollCraftProvider</span> <span className="text-yellow-400">smooth</span>&gt;{'\n'}
-                          {'      '}&lt;<span className="text-violet-300">Parallax</span> <span className="text-yellow-400">speed</span>=&#123;<span className="text-amber-300">0.25</span>&#125;&gt;{'\n'}
-                          {'        '}&lt;<span className="text-sky-300">h1</span>&gt;Make the web move.&lt;/<span className="text-sky-300">h1</span>&gt;{'\n'}
-                          {'      '}&lt;/<span className="text-sky-300">Parallax</span>&gt;{'\n'}
-                          {'    '}&lt;/<span className="text-sky-300">ScrollCraftProvider</span>&gt;{'\n'}
+                          {'    '}&lt;<span className="text-violet-300">ScrollProvider</span> <span className="text-amber-300">smooth</span>&gt;{'\n'}
+                          {'      '}&lt;<span className="text-violet-300">Parallax</span> <span className="text-amber-300">speed</span>=&#123;<span className="text-emerald-400">0.25</span>&#125;&gt;{'\n'}
+                          {'        '}&lt;<span className="text-zinc-100">h1</span>&gt;Make the web move.&lt;/<span className="text-zinc-100">h1</span>&gt;{'\n'}
+                          {'      '}&lt;/<span className="text-violet-300">Parallax</span>&gt;{'\n'}
+                          {'    '}&lt;/<span className="text-violet-300">ScrollProvider</span>&gt;{'\n'}
                           {'  '});{'\n'}
                           &#125;
                         </pre>
@@ -363,42 +363,42 @@ export default function App() {
 
                     {/* TAB 3: ENGINE SPECS */}
                     {activeTab === 'specs' && (
-                      <div className="grid grid-cols-2 gap-2.5 font-mono text-xs">
+                      <div className="grid grid-cols-2 gap-2.5 font-mono text-xs h-full content-between">
                         <div className="p-3 rounded-xl bg-black/50 border border-zinc-800/80 flex flex-col justify-between">
                           <span className="text-[10px] text-zinc-500 uppercase tracking-wider">Bundle Size</span>
-                          <span className="text-xl font-bold text-white mt-1">&lt; 5 KB</span>
+                          <span className="text-lg sm:text-xl font-bold text-white mt-1">&lt; 5 KB</span>
                           <span className="text-[10px] text-zinc-400 mt-0.5">Brotli (tree-shaken)</span>
                         </div>
 
                         <div className="p-3 rounded-xl bg-black/50 border border-zinc-800/80 flex flex-col justify-between">
                           <span className="text-[10px] text-zinc-500 uppercase tracking-wider">Target Rate</span>
-                          <span className="text-xl font-bold text-sky-400 mt-1">120 FPS</span>
-                          <span className="text-[10px] text-zinc-400 mt-0.5">Subpixel hardware RAF</span>
+                          <span className="text-lg sm:text-xl font-bold text-emerald-400 mt-1">RAF Sync</span>
+                          <span className="text-[10px] text-zinc-400 mt-0.5">Hardware 60–240 Hz</span>
                         </div>
 
                         <div className="p-3 rounded-xl bg-black/50 border border-zinc-800/80 flex flex-col justify-between">
                           <span className="text-[10px] text-zinc-500 uppercase tracking-wider">Re-renders</span>
-                          <span className="text-xl font-bold text-emerald-400 mt-1">0 / scroll</span>
+                          <span className="text-lg sm:text-xl font-bold text-emerald-400 mt-1">0 / scroll</span>
                           <span className="text-[10px] text-zinc-400 mt-0.5">Pure mutable refs</span>
                         </div>
 
                         <div className="p-3 rounded-xl bg-black/50 border border-zinc-800/80 flex flex-col justify-between">
                           <span className="text-[10px] text-zinc-500 uppercase tracking-wider">Architecture</span>
-                          <span className="text-xl font-bold text-purple-400 mt-1">RSC Safe</span>
+                          <span className="text-lg sm:text-xl font-bold text-violet-400 mt-1">RSC Safe</span>
                           <span className="text-[10px] text-zinc-400 mt-0.5">React 18 & 19 Ready</span>
                         </div>
                       </div>
                     )}
                   </div>
 
-                  {/* Console Bottom Bar */}
-                  <div className="flex items-center justify-between px-4 py-2 bg-zinc-950/90 border-t border-zinc-800/80 text-[10px] font-mono text-zinc-500">
+                  {/* Console Bottom Bar - Fixed 44px */}
+                  <div className="flex items-center justify-between px-4 h-11 min-h-[44px] max-h-[44px] bg-zinc-950/90 border-t border-zinc-800/80 text-[10px] font-mono text-zinc-500 shrink-0">
                     <div className="flex items-center gap-3">
                       <span>engine: direct-dom</span>
                       <span className="text-zinc-700">&bull;</span>
                       <span>zero layout shift</span>
                     </div>
-                    <span className="text-sky-400">ready for production</span>
+                    <span className="text-emerald-400 font-medium">ready for production</span>
                   </div>
                 </div>
               </div>

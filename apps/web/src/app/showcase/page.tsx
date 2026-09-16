@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import React from 'react';
 import Link from 'next/link';
+import { Home, BookOpen, Sparkles } from 'lucide-react';
 import { ShowcaseHub } from '@/components/showcase/showcase-hub';
 import { GithubIcon } from '@/components/ui/social-icons';
 import { ScrollCraftLogo } from '@/components/ui/scrollcraft-logo';
@@ -17,17 +18,32 @@ export default function ShowcasePage() {
       {/* Top Sticky Header */}
       <header className="w-full border-b border-zinc-800/80 bg-[#050505]/90 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-8">
+          <div className="flex items-center gap-6 sm:gap-8">
             <Link href="/" className="flex items-center gap-2.5 group">
               <ScrollCraftLogo variant="badge" badgeText="Beta" size="sm" />
             </Link>
 
-            <nav className="hidden md:flex items-center gap-6 text-xs font-medium text-zinc-400">
-              <Link href="/docs" className="hover:text-white transition-colors">
-                Docs
+            <nav className="flex items-center gap-1.5 text-xs font-medium">
+              <Link
+                href="/"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors"
+              >
+                <Home className="w-3.5 h-3.5 text-zinc-400" />
+                <span>Home</span>
               </Link>
-              <Link href="/showcase" className="text-white font-bold transition-colors">
-                Showcase
+              <Link
+                href="/docs"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors"
+              >
+                <BookOpen className="w-3.5 h-3.5 text-violet-400" />
+                <span>Docs</span>
+              </Link>
+              <Link
+                href="/showcase"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 text-white font-semibold border border-zinc-800 shadow-xs"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                <span>Showcase</span>
               </Link>
             </nav>
           </div>

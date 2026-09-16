@@ -12,15 +12,7 @@
 
 import React from 'react';
 import { CodeViewer } from '@/components/ui/code-viewer';
-import { Zap, Play } from 'lucide-react';
-
-import { ParallaxPlayground } from '../interactive/parallax-playground';
-import { RevealPlayground } from '../interactive/reveal-playground';
-import { PinPlayground } from '../interactive/pin-playground';
-import { ScrollProgressPlayground } from '../interactive/scroll-progress-playground';
-import { MarqueePlayground } from '../interactive/marquee-playground';
-import { HorizontalPlayground } from '../interactive/horizontal-playground';
-import { ScrollSequencePlayground } from '../interactive/scroll-sequence-playground';
+import { Zap } from 'lucide-react';
 
 interface DocPrimitivesProps {
   primitiveId: string;
@@ -42,11 +34,25 @@ const PRIMITIVES_DATA: Record<string, PrimitiveReference> = {
     status: 'Beta',
     code: `import { Parallax } from '@scrollcraft/react';
 
-export function HeroLayer() {
+/**
+ * Multi-layer subpixel parallax with hardware composite writes.
+ * Positive speeds lag behind scroll; negative speeds accelerate ahead.
+ */
+export function HeroParallax() {
   return (
-    <Parallax speed={-0.2} direction="vertical" clamp={[-120, 120]}>
-      <div className="bg-element" />
-    </Parallax>
+    <div className="relative h-[600px] overflow-hidden rounded-2xl bg-zinc-950">
+      {/* Background layer: moves slower to establish focal depth */}
+      <Parallax speed={-0.25} direction="vertical" clamp={[-120, 120]}>
+        <div className="absolute inset-0 bg-cover bg-center" />
+      </Parallax>
+
+      {/* Foreground layer: accelerates slightly for dimensional contrast */}
+      <Parallax speed={0.15} direction="vertical">
+        <h1 className="text-6xl font-bold text-white tracking-tight">
+          Make The Web Move
+        </h1>
+      </Parallax>
+    </div>
   );
 }`,
     whatItDoes: 'Displaces children along vertical or horizontal scroll axes with subpixel physics offsets.',
@@ -66,11 +72,29 @@ export function HeroLayer() {
     status: 'Beta',
     code: `import { Reveal } from '@scrollcraft/react';
 
-export function CardEntrance() {
+/**
+ * Batched IntersectionObserver entrance animation.
+ * Promotes element to GPU layer on intersect, avoids layout thrashing.
+ */
+export function FeatureCards() {
   return (
-    <Reveal direction="up" distance={32} duration={0.6} delay={0.1}>
-      <div className="feature-card">High Performance Animation</div>
-    </Reveal>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Card 1: Enters when 15% visible with subpixel spring lerp */}
+      <Reveal direction="up" distance={28} duration={0.6} threshold={0.15}>
+        <div className="p-6 rounded-xl bg-zinc-900 border border-zinc-800">
+          <h3 className="text-lg font-bold text-white">Direct GPU Pipeline</h3>
+          <p className="text-sm text-zinc-400 mt-2">Zero React re-renders on scroll.</p>
+        </div>
+      </Reveal>
+
+      {/* Card 2: 120ms staggered entrance delay */}
+      <Reveal direction="up" distance={28} duration={0.6} delay={0.12}>
+        <div className="p-6 rounded-xl bg-zinc-900 border border-zinc-800">
+          <h3 className="text-lg font-bold text-white">3-Phase Microtask Loop</h3>
+          <p className="text-sm text-zinc-400 mt-2">Strictly separated measure, update, render phases.</p>
+        </div>
+      </Reveal>
+    </div>
   );
 }`,
     whatItDoes: 'Hardware-accelerated entrance animation triggered upon intersecting viewport visibility thresholds.',
@@ -92,11 +116,25 @@ export function CardEntrance() {
     status: 'Beta',
     code: `import { Pin } from '@scrollcraft/react';
 
-export function StickyDisplay() {
+/**
+ * Sticky viewport lock without synthetic spacer wrapper divs.
+ * Preserves normal document flow without layout reflow penalty.
+ */
+export function StickyNarrative() {
   return (
-    <Pin start="top top" end="+=150%" pinSpacing={true}>
-      <div className="locked-card">Holds viewport position</div>
-    </Pin>
+    <section className="relative min-h-[250vh]">
+      {/* Pins node at viewport top for 150% of viewport height scroll distance */}
+      <Pin start="top top" end="+=150%" pinSpacing={true}>
+        <div className="h-screen flex items-center justify-center">
+          <div className="max-w-xl p-8 rounded-2xl bg-zinc-900 border border-zinc-800">
+            <h2 className="text-3xl font-bold text-white">Sticky Hardware Focus</h2>
+            <p className="text-zinc-400 mt-2">
+              Cleanly unpins with 0 layout shift once scroll travel completes.
+            </p>
+          </div>
+        </div>
+      </Pin>
+    </section>
   );
 }`,
     whatItDoes: 'Locks elements into sticky viewport coordinates for a designated scroll travel distance budget.',
@@ -116,9 +154,19 @@ export function StickyDisplay() {
     status: 'Beta',
     code: `import { ScrollProgress } from '@scrollcraft/react';
 
-export function TopProgressBar() {
+/**
+ * Global normalized scroll indicator (0.0 to 1.0).
+ * Updates GPU transform matrix directly on the compositor thread.
+ */
+export function ViewportProgressIndicator() {
   return (
-    <ScrollProgress className="fixed top-0 left-0 right-0 h-1 bg-violet-500 origin-left" />
+    <header className="fixed top-0 left-0 right-0 z-50 pointer-events-none">
+      {/* GPU hardware-accelerated progress line with scaleX transform */}
+      <ScrollProgress
+        axis="y"
+        className="h-1 bg-gradient-to-r from-violet-500 to-indigo-500 origin-left"
+      />
+    </header>
   );
 }`,
     whatItDoes: 'Tracks and normalizes scroll completion from 0.0 to 1.0 across a container or entire viewport.',
@@ -137,11 +185,20 @@ export function TopProgressBar() {
     status: 'Beta',
     code: `import { VelocityMarquee } from '@scrollcraft/react';
 
-export function KineticStrip() {
+/**
+ * Scroll velocity-reactive continuous marquee track.
+ * Automatically accelerates on rapid scrolling and recovers base crawl speed.
+ */
+export function KineticVelocityMarquee() {
   return (
-    <VelocityMarquee baseSpeed={1.5} velocityMultiplier={0.08} direction="left">
-      <span>120 FPS SUBPIXEL &bull; ZERO RE-RENDERS &bull;&nbsp;</span>
-    </VelocityMarquee>
+    <div className="py-10 border-y border-zinc-800 bg-black overflow-hidden">
+      {/* Dynamic speed multiplier responsive to instantaneous scroll velocity */}
+      <VelocityMarquee baseSpeed={1.2} velocityMultiplier={0.08} direction="left" maxSpeed={45}>
+        <span className="text-3xl font-mono uppercase tracking-widest text-zinc-300">
+          120 FPS DIRECT DOM &bull; ZERO RE-RENDERS &bull; SUBPIXEL COMPOSITOR &bull;&nbsp;
+        </span>
+      </VelocityMarquee>
+    </div>
   );
 }`,
     whatItDoes: 'Continuous horizontal text/image track whose crawl velocity accelerates dynamically with user scroll.',
@@ -160,12 +217,21 @@ export function KineticStrip() {
     status: 'Beta',
     code: `import { HorizontalScroll } from '@scrollcraft/react';
 
-export function HorizontalGallery() {
+/**
+ * Pinned horizontal gallery layout.
+ * Directly translates vertical scroll momentum into horizontal track translation.
+ */
+export function HorizontalProjectGallery() {
   return (
-    <HorizontalScroll speed={2.5}>
-      <div className="flex gap-8 items-center h-screen">
-        <div className="w-80 h-96 bg-zinc-900 rounded-2xl" />
-        <div className="w-80 h-96 bg-zinc-900 rounded-2xl" />
+    <HorizontalScroll speed={2.5} className="bg-black">
+      {/* Horizontal track: slides are arrayed horizontally in full-height container */}
+      <div className="flex gap-8 items-center h-screen px-12">
+        <div className="w-[450px] h-[520px] rounded-2xl bg-zinc-900 border border-zinc-800 shrink-0 p-8">
+          <h4 className="text-xl font-bold text-white">Project One</h4>
+        </div>
+        <div className="w-[450px] h-[520px] rounded-2xl bg-zinc-900 border border-zinc-800 shrink-0 p-8">
+          <h4 className="text-xl font-bold text-white">Project Two</h4>
+        </div>
       </div>
     </HorizontalScroll>
   );
@@ -185,9 +251,21 @@ export function HorizontalGallery() {
     status: 'Beta',
     code: `import { ScrollSequence } from '@scrollcraft/react';
 
-export function CanvasScrub({ frames }: { frames: string[] }) {
+/**
+ * Canvas-based sequential image frame scrubber.
+ * Renders high-frame-rate 3D or product rotations pinned to scroll position.
+ */
+export function Product360Canvas({ frames }: { frames: string[] }) {
   return (
-    <ScrollSequence frames={frames} height="300vh" speed={1.5} />
+    <div className="relative">
+      {/* High-performance canvas scrubs through sequential frames across 300vh budget */}
+      <ScrollSequence
+        frames={frames}
+        height="300vh"
+        speed={1.5}
+        className="sticky top-0 w-full h-screen"
+      />
+    </div>
   );
 }`,
     whatItDoes: 'Preloads and scrubs sequential image frames on an HTML5 canvas based on pinned scroll progress.',
@@ -200,19 +278,8 @@ export function CanvasScrub({ frames }: { frames: string[] }) {
   },
 };
 
-const PLAYGROUNDS: Record<string, React.ComponentType> = {
-  parallax: ParallaxPlayground,
-  reveal: RevealPlayground,
-  pin: PinPlayground,
-  'scroll-progress': ScrollProgressPlayground,
-  'velocity-marquee': MarqueePlayground,
-  'horizontal-scroll': HorizontalPlayground,
-  'scroll-sequence': ScrollSequencePlayground,
-};
-
 export const DocPrimitives: React.FC<DocPrimitivesProps> = ({ primitiveId }) => {
   const primitive = PRIMITIVES_DATA[primitiveId] || PRIMITIVES_DATA.parallax;
-  const PlaygroundComponent = PLAYGROUNDS[primitiveId];
 
   return (
     <div className="space-y-10 not-prose">
@@ -233,23 +300,10 @@ export const DocPrimitives: React.FC<DocPrimitivesProps> = ({ primitiveId }) => 
         </div>
       </div>
 
-      {/* Live Interactive Playground Sandbox */}
-      {PlaygroundComponent && (
-        <div id="interactive-demo" className="space-y-3 scroll-mt-24">
-          <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-violet-400 font-semibold">
-            <Play className="w-3.5 h-3.5 text-violet-400" />
-            <span>Interactive Playground &bull; Live Telemetry</span>
-          </div>
-          <div className="rounded-2xl border border-zinc-800/80 overflow-hidden bg-[#070709] shadow-xl">
-            <PlaygroundComponent />
-          </div>
-        </div>
-      )}
-
-      {/* Minimal 5-10 Line Syntax Highlighted Code Snippet */}
+      {/* Production Sample Code */}
       <div id="syntax" className="space-y-3 scroll-mt-24">
         <span className="text-xs font-mono uppercase tracking-wider text-zinc-400 block font-semibold">
-          Syntax &bull; 5–10 Line Reference
+          Syntax &bull; Production Implementation
         </span>
         <CodeViewer code={primitive.code} fileName={`${primitive.name.toLowerCase()}.tsx`} />
       </div>

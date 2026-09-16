@@ -148,12 +148,31 @@ export class SmartCompositor {
     return SmartCompositor.instance;
   }
 
+  private pruneDisconnected(): void {
+    for (const el of this.promotedElements) {
+      if ((el as any).__sc_connected && !el.isConnected) {
+        const timer = this.demoteTimers.get(el);
+        if (timer) {
+          clearTimeout(timer);
+          this.demoteTimers.delete(el);
+        }
+        this.promotedElements.delete(el);
+        this.companionSet.delete(el);
+      }
+    }
+  }
+
   /**
    * Promotes element to compositor layer with willChange: transform.
    * Cancels any pending demotion. Enforces reject-new cap on Tier 1.
    */
   public promote(element: HTMLElement): boolean {
     if (!element || typeof window === 'undefined') return false;
+
+    if (element.isConnected) {
+      (element as any).__sc_connected = true;
+    }
+    this.pruneDisconnected();
 
     // Clear any pending demotion timer
     const pendingTimer = this.demoteTimers.get(element);
@@ -203,6 +222,7 @@ export class SmartCompositor {
   }
 
   public getPromotedCount(): number {
+    this.pruneDisconnected();
     return this.promotedElements.size;
   }
 

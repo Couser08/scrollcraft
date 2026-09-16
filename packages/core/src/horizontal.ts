@@ -7,7 +7,6 @@
 
 import { ScrollDriver, DriverState } from './driver';
 import { clamp } from './math';
-import { Capabilities } from './feature-detection';
 import { injectNativeStyles } from './native-styles';
 import { TransformComposer } from './dom';
 
@@ -218,7 +217,7 @@ export class HorizontalScrollSolver {
       driver: options?.driver ?? 'auto',
     };
 
-    const useNative = opts.driver === 'native' || (opts.driver === 'auto' && Capabilities.get().isNativeReady);
+    const useNative = opts.driver === 'native';
 
     if (useNative) {
       try {

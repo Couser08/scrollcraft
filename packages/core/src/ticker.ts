@@ -97,6 +97,14 @@ export class Ticker {
     if (phase) {
       const tasks = this.getPhaseTasks(phase);
       tasks.delete(id);
+      const stillHasTask =
+        this.measureTasks.has(id) ||
+        this.driverTasks.has(id) ||
+        this.updateTasks.has(id) ||
+        this.renderTasks.has(id);
+      if (!stillHasTask) {
+        this.dormantTasks.delete(id);
+      }
     } else {
       this.measureTasks.delete(id);
       this.driverTasks.delete(id);

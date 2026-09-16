@@ -51,6 +51,9 @@ import {
   ChevronRight,
   PanelLeftClose,
   PanelLeftOpen,
+  Home,
+  Sparkles,
+  BookOpen,
 } from 'lucide-react';
 import Link from 'next/link';
 import { ScrollCraftLogo } from '@/components/ui/scrollcraft-logo';
@@ -69,38 +72,31 @@ const TOC_MAPPING: Record<string, TocItem[]> = {
     { id: 'provider-setup', title: 'Root Layout Integration' },
   ],
   parallax: [
-    { id: 'interactive-demo', title: 'Interactive Sandbox' },
-    { id: 'syntax', title: 'Syntax & Example' },
+    { id: 'syntax', title: 'Syntax & Production Code' },
     { id: 'capabilities', title: 'Capabilities & Props' },
   ],
   reveal: [
-    { id: 'interactive-demo', title: 'Interactive Sandbox' },
-    { id: 'syntax', title: 'Syntax & Example' },
+    { id: 'syntax', title: 'Syntax & Production Code' },
     { id: 'capabilities', title: 'Capabilities & Props' },
   ],
   pin: [
-    { id: 'interactive-demo', title: 'Interactive Sandbox' },
-    { id: 'syntax', title: 'Syntax & Example' },
+    { id: 'syntax', title: 'Syntax & Production Code' },
     { id: 'capabilities', title: 'Capabilities & Props' },
   ],
   'scroll-progress': [
-    { id: 'interactive-demo', title: 'Interactive Sandbox' },
-    { id: 'syntax', title: 'Syntax & Example' },
+    { id: 'syntax', title: 'Syntax & Production Code' },
     { id: 'capabilities', title: 'Capabilities & Props' },
   ],
   'velocity-marquee': [
-    { id: 'interactive-demo', title: 'Interactive Sandbox' },
-    { id: 'syntax', title: 'Syntax & Example' },
+    { id: 'syntax', title: 'Syntax & Production Code' },
     { id: 'capabilities', title: 'Capabilities & Props' },
   ],
   'horizontal-scroll': [
-    { id: 'interactive-demo', title: 'Interactive Sandbox' },
-    { id: 'syntax', title: 'Syntax & Example' },
+    { id: 'syntax', title: 'Syntax & Production Code' },
     { id: 'capabilities', title: 'Capabilities & Props' },
   ],
   'scroll-sequence': [
-    { id: 'interactive-demo', title: 'Interactive Sandbox' },
-    { id: 'syntax', title: 'Syntax & Example' },
+    { id: 'syntax', title: 'Syntax & Production Code' },
     { id: 'capabilities', title: 'Capabilities & Props' },
   ],
   'use-scroll-progress': [
@@ -149,7 +145,7 @@ const TOC_MAPPING: Record<string, TocItem[]> = {
 };
 
 export function DocsView() {
-  const { subscribe } = useScrollCraft();
+  const { subscribe, scrollTo } = useScrollCraft();
   const [activeSection, setActiveSection] = useState('introduction');
   const [searchQuery, setSearchQuery] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -262,7 +258,7 @@ export function DocsView() {
     if (typeof window !== 'undefined') {
       window.history.replaceState(null, '', `#${id}`);
       if (!['installation', 'setup'].includes(id)) {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        scrollTo(0);
       }
     }
   };
@@ -273,7 +269,7 @@ export function DocsView() {
     if (el) {
       const yOffset = -88; // offset for sticky 64px header + padding
       const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
-      window.scrollTo({ top: y, behavior: 'smooth' });
+      scrollTo(y);
       setActiveHeadingId(id);
     }
   };
@@ -341,9 +337,27 @@ export function DocsView() {
           <Link href="/" className="flex items-center gap-2.5 group">
             <ScrollCraftLogo variant="badge" badgeText="Beta" size="sm" />
           </Link>
-          <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
-            <Link href="/docs" className="text-white hover:text-white transition-colors">
-              Docs
+          <nav className="hidden md:flex items-center gap-1.5 text-xs sm:text-sm font-medium">
+            <Link
+              href="/"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors"
+            >
+              <Home className="w-3.5 h-3.5 text-zinc-400" />
+              <span>Home</span>
+            </Link>
+            <Link
+              href="/docs"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 text-white font-semibold border border-zinc-800 shadow-xs"
+            >
+              <BookOpen className="w-3.5 h-3.5 text-violet-400" />
+              <span>Docs</span>
+            </Link>
+            <Link
+              href="/showcase"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+              <span>Showcase</span>
             </Link>
           </nav>
         </div>
@@ -441,6 +455,24 @@ export function DocsView() {
             }
           `}
         >
+          {/* Mobile Quick Links to Home and Showcase */}
+          <div className="md:hidden flex items-center gap-2 mb-4 pb-4 border-b border-zinc-800">
+            <Link
+              href="/"
+              className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-xs font-medium text-zinc-300 hover:text-white"
+            >
+              <Home className="w-3.5 h-3.5 text-zinc-400" />
+              <span>Home</span>
+            </Link>
+            <Link
+              href="/showcase"
+              className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-xs font-medium text-zinc-300 hover:text-white"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+              <span>Showcase</span>
+            </Link>
+          </div>
+
           {/* Version Selector & Stability Signal */}
           <div className="mb-6 space-y-2">
             <div className="w-full bg-zinc-900/90 border border-amber-500/30 rounded-lg px-3 py-1.5 text-xs text-zinc-300 font-mono flex items-center justify-between shadow-xs">

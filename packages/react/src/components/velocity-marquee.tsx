@@ -53,7 +53,9 @@ export const VelocityMarquee: React.FC<VelocityMarqueeProps> = ({
       });
     }
     
-    requestAnimationFrame(() => measure());
+    const rafId = requestAnimationFrame(() => {
+      if (isMounted) measure();
+    });
 
     ticker.add(taskId, 'update', (dt) => {
       if (reducedMotion || (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) {
@@ -81,6 +83,7 @@ export const VelocityMarquee: React.FC<VelocityMarqueeProps> = ({
 
     return () => {
       isMounted = false;
+      cancelAnimationFrame(rafId);
       unobserveVisibility();
       unobserveResize();
       ticker.remove(taskId);

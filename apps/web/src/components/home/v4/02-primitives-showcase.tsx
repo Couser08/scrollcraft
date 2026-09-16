@@ -30,7 +30,7 @@ import {
 import { Parallax, Reveal, Pin, ScrollProgress, useScrollCraft } from '@scrollcraft/react';
 
 type PrimitiveKey = 'parallax' | 'reveal' | 'pin' | 'progress';
-type FrameworkKey = 'react' | 'nextjs' | 'html';
+type FrameworkKey = 'react' | 'nextjs';
 type DeviceKey = 'desktop' | 'tablet' | 'mobile';
 
 interface PrimitiveData {
@@ -89,18 +89,6 @@ export function Hero() {
     </section>
   )
 }`,
-      html: `<section class="relative h-[80vh] overflow-hidden">
-  <div data-scrollcraft-parallax="0.3" class="absolute inset-0">
-    <img 
-      src="/images/mountains.jpg" 
-      alt="Mountains" 
-      class="h-full w-full object-cover" 
-    />
-  </div>
-  <div class="relative z-10 flex h-full items-center justify-center">
-    <h1 class="text-5xl font-semibold">Build without limits.</h1>
-  </div>
-</section>`,
     },
   },
   reveal: {
@@ -151,13 +139,6 @@ export function Features() {
     </div>
   )
 }`,
-      html: `<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-  <div data-scrollcraft-reveal="up" data-distance="32" data-duration="0.6">
-    <div class="p-6 rounded-2xl bg-zinc-900 border border-zinc-800">
-      <h3 class="text-lg font-bold text-white">Hardware Physics</h3>
-    </div>
-  </div>
-</div>`,
     },
   },
   pin: {
@@ -200,13 +181,6 @@ export function StickyShowcase() {
     </div>
   )
 }`,
-      html: `<div class="flex gap-8">
-  <div data-scrollcraft-pin="top" data-offset="24" class="w-1/3">
-    <div class="p-6 rounded-xl bg-violet-950/40 border border-violet-500/30">
-      <h3 class="text-white font-bold">Sticky Hero</h3>
-    </div>
-  </div>
-</div>`,
     },
   },
   progress: {
@@ -239,9 +213,6 @@ export function HeaderProgressBar() {
     </div>
   )
 }`,
-      html: `<div class="fixed top-0 left-0 right-0 h-1.5 z-50 bg-zinc-900">
-  <div data-scrollcraft-progress class="h-full bg-violet-500 origin-left"></div>
-</div>`,
     },
   },
 };
@@ -258,12 +229,13 @@ export function PrimitivesShowcase() {
   const { subscribe } = useScrollCraft();
 
   useEffect(() => {
+    if (activePrimitive !== 'progress') return;
     const unsub = subscribe((metrics) => {
       setScrollProgress(metrics.progress || 0);
       setScrollVelocity(metrics.velocity || 0);
     });
     return () => unsub();
-  }, [subscribe]);
+  }, [subscribe, activePrimitive]);
 
   const currentData = PRIMITIVES_DATA[activePrimitive];
   const currentCode = currentData.code[activeFramework];
@@ -415,9 +387,9 @@ export function PrimitivesShowcase() {
               {/* Framework Selector Tabs & Copy Action */}
               <div className="flex items-center justify-between mt-4 mb-3">
                 <div className="flex items-center gap-2">
-                  {(['react', 'nextjs', 'html'] as FrameworkKey[]).map((fw) => {
+                  {(['react', 'nextjs'] as FrameworkKey[]).map((fw) => {
                     const isFwActive = activeFramework === fw;
-                    const label = fw === 'react' ? 'React' : fw === 'nextjs' ? 'Next.js' : 'HTML';
+                    const label = fw === 'react' ? 'React' : 'Next.js';
                     return (
                       <button
                         key={fw}
@@ -454,16 +426,25 @@ export function PrimitivesShowcase() {
                 </button>
               </div>
 
-              {/* Syntax Highlighted Code Viewer with Line Numbers */}
-              <div className="rounded-xl bg-[#07080b] border border-white/[0.06] p-4 overflow-x-auto font-mono text-xs leading-relaxed max-h-[340px] select-text">
-                <table className="w-full border-collapse">
+              {/* Syntax Highlighted Code Viewer with Auto Word Wrap and Isolated Vertical Scroll */}
+              <div
+                data-lenis-prevent="true"
+                onWheel={(e) => e.stopPropagation()}
+                onTouchMove={(e) => e.stopPropagation()}
+                className="rounded-xl bg-[#07080b] border border-white/[0.06] p-4 overflow-y-auto overflow-x-hidden font-mono text-xs leading-relaxed h-[280px] max-h-[280px] select-text overscroll-contain"
+                style={{
+                  scrollbarWidth: 'thin',
+                  scrollbarColor: 'rgba(168, 85, 247, 0.4) rgba(255, 255, 255, 0.05)',
+                }}
+              >
+                <table className="w-full border-collapse table-fixed">
                   <tbody>
                     {currentCode.split('\n').map((line, idx) => (
                       <tr key={idx} className="hover:bg-white/[0.02]">
-                        <td className="pr-4 text-right select-none text-zinc-600 w-8 align-top text-[11px]">
+                        <td className="pr-3 text-right select-none text-zinc-600 w-7 align-top text-[11px] shrink-0">
                           {idx + 1}
                         </td>
-                        <td className="whitespace-pre text-zinc-300">
+                        <td className="whitespace-pre-wrap break-words text-zinc-300 overflow-hidden">
                           {renderSyntaxLine(line)}
                         </td>
                       </tr>
@@ -538,36 +519,66 @@ export function PrimitivesShowcase() {
               {/* Tab-wise Dynamic Primitive Execution using @scrollcraft/react */}
               <div className={`transition-all duration-300 ${deviceWidthClass}`}>
                 
-                {/* 1. PARALLAX DEMO */}
+                {/* 1. PURE PARALLAX DEMO (No scrub slider, multi-layer hardware parallax) */}
                 {activePrimitive === 'parallax' && (
-                  <div className="relative w-full h-[280px] rounded-xl overflow-hidden border border-white/[0.08] shadow-inner flex items-center justify-center bg-[#07080b]">
-                    {/* Real <Parallax> Primitive from @scrollcraft/react with safe bounds */}
-                    <Parallax speed={0.15} min={-40} max={40} className="absolute inset-x-0 -top-[20%] w-full h-[140%]">
-                      <Image
-                        src="/images/mountains.jpg"
-                        alt="Mountains Parallax Preview"
-                        fill
-                        loading="lazy"
-                        sizes="(max-width: 768px) 100vw, 600px"
-                        className="object-cover select-none pointer-events-none"
-                      />
-                    </Parallax>
+                  <div className="relative w-full h-[280px] rounded-xl overflow-hidden border border-white/[0.08] shadow-inner bg-[#07080b]">
+                    {/* Multi-layer Parallax Stage */}
+                    <div className="relative w-full h-full overflow-hidden flex items-center justify-center">
+                      {/* Layer 1 (Background): Mountain scenery with negative speed for deep parallax */}
+                      <Parallax speed={-0.35} min={-80} max={80} className="absolute inset-x-0 -top-[30%] w-full h-[160%]">
+                        <div className="w-full h-full relative">
+                          <Image
+                            src="/images/mountains.jpg"
+                            alt="Mountains Parallax Preview"
+                            fill
+                            loading="lazy"
+                            sizes="(max-width: 768px) 100vw, 600px"
+                            className="object-cover select-none pointer-events-none opacity-80"
+                          />
+                        </div>
+                      </Parallax>
 
-                    {/* Dark Vignette Overlay */}
-                    <div className="absolute inset-0 bg-black/30 pointer-events-none" />
+                      {/* Vignette Depth Gradient */}
+                      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-black/85 pointer-events-none" />
 
-                    {/* Centered Typography Matching Mockup */}
-                    <div className="relative z-10 text-center px-4 select-none">
-                      <h3 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight drop-shadow-md">
-                        Build without limits.
-                      </h3>
-                      <p className="text-xs sm:text-sm text-zinc-300 mt-1 font-sans drop-shadow">
-                        Scroll to feel the difference.
-                      </p>
-                    </div>
+                      {/* Layer 2 & 3: Content Stack with distinct parallax speeds */}
+                      <div className="relative z-10 flex flex-col items-center text-center px-4 select-none">
+                        {/* Midground Badge (speed 0.4) */}
+                        <Parallax speed={0.4} min={-50} max={50}>
+                          <div className="mb-2">
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-950/85 border border-violet-500/40 text-[10px] font-mono text-violet-300 tracking-wider backdrop-blur-md shadow-lg shadow-violet-950/50">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                              Hardware Subpixel Compositor
+                            </span>
+                          </div>
+                        </Parallax>
 
-                    <div className="absolute bottom-3 right-3 z-20 px-2.5 py-1 rounded-md bg-black/70 backdrop-blur-sm border border-white/10 text-[10px] font-mono text-zinc-300">
-                      &lt;Parallax speed=&#123;0.3&#125; /&gt;
+                        {/* Foreground Heading (speed 0.18) */}
+                        <Parallax speed={0.18} min={-30} max={30}>
+                          <div>
+                            <h3 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight drop-shadow-lg">
+                              Build without limits.
+                            </h3>
+                            <p className="text-xs sm:text-sm text-zinc-300 mt-1 font-sans drop-shadow">
+                              Real-time multi-layer subpixel parallax
+                            </p>
+                          </div>
+                        </Parallax>
+                      </div>
+
+                      {/* Component Tag Badge */}
+                      <div className="absolute top-3 right-3 z-20 px-2.5 py-1 rounded-md bg-black/75 backdrop-blur-sm border border-white/10 text-[10px] font-mono text-zinc-300">
+                        &lt;Parallax speed={'{0.35}'} /&gt;
+                      </div>
+
+                      {/* Bottom Status Pill */}
+                      <div className="absolute bottom-3 inset-x-3 z-20 px-3 py-1.5 rounded-lg bg-black/65 backdrop-blur-md border border-white/[0.08] flex items-center justify-between font-mono text-[11px] text-zinc-400">
+                        <span className="flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                          <span className="text-zinc-300 text-[10px]">Pure Scroll Driver Active</span>
+                        </span>
+                        <span className="text-[10px] text-violet-400">Scroll window to see layers move</span>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -636,7 +647,7 @@ export function PrimitivesShowcase() {
                         </div>
                         <div className="p-2.5 rounded-lg bg-zinc-900 border border-zinc-800 text-xs font-mono text-zinc-300 flex items-center justify-between">
                           <span>02 &bull; Sticky lock</span>
-                          <span className="text-[10px] text-sky-400">120 FPS</span>
+                          <span className="text-[10px] text-violet-400">RAF Sync</span>
                         </div>
                         <div className="p-2.5 rounded-lg bg-zinc-900 border border-zinc-800 text-xs font-mono text-zinc-300 flex items-center justify-between">
                           <span>03 &bull; Scroll content</span>

@@ -24,28 +24,33 @@ import {
 import Link from 'next/link';
 
 type HookTab = 'useScrollProgress' | 'useParallax' | 'useReveal' | 'usePin';
+type Framework = 'React' | 'Next.js' | 'TypeScript';
 
 interface HookDefinition {
   title: string;
   desc: string;
-  fileName: string;
+  fileName: Record<Framework, string>;
   docLink: string;
   refLink: string;
-  code: string;
+  code: Record<Framework, string>;
 }
 
 const HOOK_DEFINITIONS: Record<HookTab, HookDefinition> = {
   useScrollProgress: {
     title: 'useScrollProgress()',
     desc: 'Provides continuous scroll progress [0.0 to 1.0], frame-to-frame data velocity, and direction vector.',
-    fileName: 'useScrollProgress.tsx',
+    fileName: {
+      React: 'ScrollProgressDemo.tsx',
+      'Next.js': 'scroll-indicator.tsx',
+      TypeScript: 'scroll-telemetry.ts',
+    },
     docLink: '/docs#progress',
     refLink: '/docs#hooks',
-    code: `import { useScrollProgress } from '@scrollcraft/react';
+    code: {
+      React: `import { useScrollProgress } from '@scrollcraft/react';
 
 export function ScrollProgressDemo() {
   const { progress, velocity, direction } = useScrollProgress({
-    target: undefined, // viewport
     smooth: true,
   });
 
@@ -54,54 +59,152 @@ export function ScrollProgressDemo() {
       <div className="text-sm text-zinc-400">Scroll Progress</div>
       <div className="h-2 w-full bg-zinc-800 rounded-full overflow-hidden">
         <div
-          className="h-full bg-violet-500"
+          className="h-full bg-violet-500 transition-all duration-75"
           style={{ width: \`\${progress * 100}%\` }}
         />
       </div>
       <p className="text-xs text-zinc-500">
-        {progress.toFixed(3)} · {velocity.toFixed(3)} px/f · {direction}
+        {progress.toFixed(3)} · {velocity.toFixed(3)} px/f · {direction > 0 ? 'down' : 'up'}
       </p>
     </div>
   );
 }`,
+      'Next.js': `'use client';
+
+import { useScrollProgress } from '@scrollcraft/react';
+import { usePathname } from 'next/navigation';
+import { useEffect } from 'react';
+
+export default function NextScrollIndicator() {
+  const pathname = usePathname();
+  const { progress } = useScrollProgress({ smooth: true });
+
+  // Recalibrates scroll track on Next.js route transition
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [pathname]);
+
+  return (
+    <header className="fixed top-0 inset-x-0 z-50 h-1 bg-zinc-900">
+      <div
+        className="h-full bg-violet-500 transition-[width] duration-100 ease-out will-change-[width]"
+        style={{ width: \`\${progress * 100}%\` }}
+      />
+    </header>
+  );
+}`,
+      TypeScript: `import { ScrollEngine, ScrollMetrics } from '@scrollcraft/core';
+
+export class ScrollTelemetryService {
+  private engine: ScrollEngine;
+  private unsubscribe?: () => void;
+
+  constructor(engine: ScrollEngine) {
+    this.engine = engine;
+  }
+
+  public monitor(onUpdate: (metrics: ScrollMetrics) => void): () => void {
+    this.unsubscribe = this.engine.subscribe((metrics: ScrollMetrics) => {
+      const { scroll, progress, velocity, direction } = metrics;
+      onUpdate({ scroll, progress, velocity, direction });
+    });
+    return () => this.unsubscribe?.();
+  }
+}`,
+    },
   },
   useParallax: {
     title: 'useParallax()',
     desc: 'Direct hardware GPU ref mutator. Calculates bounding client rect in measure phase and updates transform in mutate phase.',
-    fileName: 'useParallax.tsx',
+    fileName: {
+      React: 'ParallaxDemo.tsx',
+      'Next.js': 'hero-parallax.tsx',
+      TypeScript: 'parallax-driver.ts',
+    },
     docLink: '/docs#parallax',
     refLink: '/docs#hooks',
-    code: `import { useRef } from 'react';
+    code: {
+      React: `import { useRef } from 'react';
 import { useParallax } from '@scrollcraft/react';
 
 export function ParallaxDemo() {
   const targetRef = useRef<HTMLDivElement>(null);
-  const { progress } = useParallax(targetRef, {
-    speed: 0.3,
+  useParallax(targetRef, {
+    speed: 0.35,
     direction: 'vertical',
-    clamp: [-100, 100],
+    min: -80,
+    max: 80,
   });
 
   return (
-    <div className="space-y-4">
-      <div className="text-sm text-zinc-400">Parallax Displacement</div>
+    <div className="relative overflow-hidden rounded-2xl bg-zinc-900 p-8">
       <div
         ref={targetRef}
-        className="p-6 rounded-xl bg-zinc-900 border border-zinc-800"
+        className="p-6 rounded-xl bg-violet-950/40 border border-violet-500/30 text-white"
       >
-        <p className="text-xs text-zinc-400">Target offset: {progress.toFixed(2)}</p>
+        <h4 className="text-sm font-bold">120 FPS Direct GPU Mutex</h4>
+        <p className="text-xs text-zinc-400 mt-1">Zero React re-renders on scroll</p>
       </div>
     </div>
   );
 }`,
+      'Next.js': `'use client';
+
+import { useRef } from 'react';
+import Image from 'next/image';
+import { useParallax } from '@scrollcraft/react';
+
+export function HeroParallax() {
+  const imageRef = useRef<HTMLDivElement>(null);
+  useParallax(imageRef, { speed: -0.25, min: -120, max: 120 });
+
+  return (
+    <div className="relative h-[480px] w-full overflow-hidden rounded-2xl">
+      <div ref={imageRef} className="absolute inset-0 -top-20 h-[140%] w-full">
+        <Image
+          src="/images/mountains.jpg"
+          alt="Hero Parallax Landscape"
+          fill
+          priority
+          className="object-cover"
+        />
+      </div>
+    </div>
+  );
+}`,
+      TypeScript: `import { ParallaxSolver, ticker, GlobalResizeManager } from '@scrollcraft/core';
+
+export function initParallaxElement(element: HTMLElement, speed = 0.3): () => void {
+  const solver = new ParallaxSolver(element, { speed, direction: 'vertical' });
+  const unobserveResize = GlobalResizeManager.observe(element, () => solver.measure());
+
+  const taskId = \`parallax-\${Math.random().toString(36).slice(2, 8)}\`;
+  ticker.add(taskId, 'update', () => {
+    solver.update(window.scrollY);
+  });
+  ticker.add(taskId, 'render', () => {
+    solver.render();
+  });
+
+  return () => {
+    ticker.remove(taskId);
+    unobserveResize();
+  };
+}`,
+    },
   },
   useReveal: {
     title: 'useReveal()',
     desc: 'IntersectionObserver wrapper computing distance-adjusted entry triggers with zero re-renders unless requested.',
-    fileName: 'useReveal.tsx',
+    fileName: {
+      React: 'RevealDemo.tsx',
+      'Next.js': 'client-reveal-card.tsx',
+      TypeScript: 'reveal-observer.ts',
+    },
     docLink: '/docs#reveal',
     refLink: '/docs#hooks',
-    code: `import { useRef } from 'react';
+    code: {
+      React: `import { useRef } from 'react';
 import { useReveal } from '@scrollcraft/react';
 
 export function RevealDemo() {
@@ -112,27 +215,78 @@ export function RevealDemo() {
   });
 
   return (
-    <div className="space-y-4">
-      <div className="text-sm text-zinc-400">Intersection Reveal</div>
-      <div
-        ref={targetRef}
-        className={\`p-6 rounded-xl border transition-all duration-700 \${
-          inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-        }\`}
-      >
-        <p className="text-xs text-emerald-400">Progress: {progress.toFixed(2)}</p>
-      </div>
+    <div
+      ref={targetRef}
+      className={\`p-6 rounded-xl border transition-all duration-700 \${
+        inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+      }\`}
+    >
+      <p className="text-xs text-emerald-400">Entry Progress: {progress.toFixed(2)}</p>
     </div>
   );
 }`,
+      'Next.js': `'use client';
+
+import { useRef } from 'react';
+import { useReveal } from '@scrollcraft/react';
+
+interface CardProps {
+  title: string;
+  description: string;
+  delay?: number;
+}
+
+export function NextRevealCard({ title, description, delay = 0 }: CardProps) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const { inView } = useReveal(cardRef, { threshold: 0.15, once: true });
+
+  return (
+    <div
+      ref={cardRef}
+      style={{ transitionDelay: \`\${delay}ms\` }}
+      className={\`p-6 rounded-2xl bg-zinc-900/60 border border-zinc-800 transition-all duration-500 ease-out \${
+        inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+      }\`}
+    >
+      <h3 className="text-lg font-bold text-white">{title}</h3>
+      <p className="text-sm text-zinc-400 mt-2">{description}</p>
+    </div>
+  );
+}`,
+      TypeScript: `import { globalVisibilityManager } from '@scrollcraft/core';
+
+export interface RevealConfig {
+  threshold?: number;
+  onEnter?: (el: HTMLElement) => void;
+  onLeave?: (el: HTMLElement) => void;
+}
+
+export function observeReveal(element: HTMLElement, config: RevealConfig = {}): () => void {
+  const unobserve = globalVisibilityManager.observe(element, (isVisible: boolean) => {
+    if (isVisible) {
+      element.setAttribute('data-visible', 'true');
+      config.onEnter?.(element);
+    } else {
+      element.removeAttribute('data-visible');
+      config.onLeave?.(element);
+    }
+  });
+  return unobserve;
+}`,
+    },
   },
   usePin: {
     title: 'usePin()',
     desc: 'Calculates pinning bounds and preserves document flow using native sticky physics without layout thrashing.',
-    fileName: 'usePin.tsx',
+    fileName: {
+      React: 'PinDemo.tsx',
+      'Next.js': 'sticky-section.tsx',
+      TypeScript: 'pinning-math.ts',
+    },
     docLink: '/docs#pin',
     refLink: '/docs#hooks',
-    code: `import { useRef } from 'react';
+    code: {
+      React: `import { useRef } from 'react';
 import { usePin } from '@scrollcraft/react';
 
 export function PinDemo() {
@@ -141,23 +295,60 @@ export function PinDemo() {
     start: 'top top',
     end: '+=100%',
     pinSpacing: true,
-    trackState: true, // Opt-in to JSX re-renders (default: false for zero-rerender)
+    trackState: true,
   });
 
   return (
-    <div className="space-y-4">
-      <div className="text-sm text-zinc-400">Sticky Pin Bounds</div>
-      <div
-        ref={containerRef}
-        className={\`p-6 rounded-xl border \${
-          isPinned ? 'border-violet-500 bg-violet-500/10' : 'border-zinc-800'
-        }\`}
-      >
-        <p className="text-xs text-zinc-300">Pinned: {progress.toFixed(2)}</p>
+    <div ref={containerRef} className="h-screen w-full relative">
+      <div className={\`p-6 rounded-xl border \${isPinned ? 'border-violet-500 bg-violet-500/10' : 'border-zinc-800'}\`}>
+        <span className="text-xs font-mono text-emerald-400">
+          {isPinned ? 'PINNED' : 'FLOWING'} · {(progress * 100).toFixed(0)}%
+        </span>
       </div>
     </div>
   );
 }`,
+      'Next.js': `'use client';
+
+import { useRef } from 'react';
+import { usePin } from '@scrollcraft/react';
+
+export function StickyShowcaseSection({ children }: { children: React.ReactNode }) {
+  const sectionRef = useRef<HTMLElement>(null);
+  const { isPinned } = usePin(sectionRef, {
+    start: 'top top',
+    end: '+=200%',
+    pinSpacing: true,
+  });
+
+  return (
+    <section ref={sectionRef} className="relative min-h-[250vh] w-full bg-black">
+      <div className="sticky top-0 h-screen w-full flex items-center justify-center">
+        <div className={\`transition-opacity duration-300 \${isPinned ? 'opacity-100' : 'opacity-70'}\`}>
+          {children}
+        </div>
+      </div>
+    </section>
+  );
+}`,
+      TypeScript: `import { PinController, PinOptions } from '@scrollcraft/core';
+
+export function setupPinning(element: HTMLElement, options: Partial<PinOptions> = {}): () => void {
+  const controller = new PinController(element, {
+    start: options.start ?? 'top top',
+    end: options.end ?? '+=100%',
+    pinSpacing: options.pinSpacing ?? true,
+  });
+
+  controller.init();
+  window.addEventListener('resize', controller.refresh, { passive: true });
+
+  return () => {
+    window.removeEventListener('resize', controller.refresh);
+    controller.destroy();
+  };
+}`,
+    },
   },
 };
 
@@ -368,7 +559,7 @@ export function HooksRawSection() {
         lastUpdateTextRef.current.textContent = `${deltaMs.toFixed(1)} ms ago`;
       }
       if (updateRateTextRef.current) {
-        const rateHz = Math.min(120, Math.round(1000 / deltaMs));
+        const rateHz = Math.max(30, Math.min(240, Math.round(1000 / deltaMs)));
         updateRateTextRef.current.textContent = `${rateHz > 0 ? rateHz : 60} Hz`;
       }
 
@@ -390,13 +581,13 @@ export function HooksRawSection() {
       updateMetrics(m.scroll || 0, m.progress || 0, m.velocity || 0, dir);
     });
 
-    // 2. FPS counter loop
+    // 2. Hardware FPS counter loop - accurately measures true display refresh rate (60Hz -> 60 FPS, 120Hz -> 120 FPS)
     let rafId: number;
     const calcFps = (time: number) => {
       frameCount++;
       if (time - lastTime >= 1000) {
         const measuredFps = Math.round((frameCount * 1000) / (time - lastTime));
-        const displayFps = Math.max(120, Math.min(246, measuredFps || 246));
+        const displayFps = Math.max(30, Math.min(240, measuredFps || 60));
         if (fpsBadgeRef.current) {
           fpsBadgeRef.current.textContent = `${displayFps} FPS`;
         }
@@ -414,20 +605,22 @@ export function HooksRawSection() {
   }, [subscribe]);
 
   const currentHook = HOOK_DEFINITIONS[activeTab];
+  const currentCode = currentHook.code[activeFramework];
+  const currentFileName = currentHook.fileName[activeFramework];
 
   // Copy code handler
   const handleCopy = useCallback(() => {
     if (typeof navigator !== 'undefined' && navigator.clipboard) {
-      navigator.clipboard.writeText(currentHook.code).then(() => {
+      navigator.clipboard.writeText(currentCode).then(() => {
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
       });
     }
-  }, [currentHook.code]);
+  }, [currentCode]);
 
   const codeLines = useMemo(() => {
-    return currentHook.code.split('\n');
-  }, [currentHook.code]);
+    return currentCode.split('\n');
+  }, [currentCode]);
 
   return (
     <section
@@ -439,11 +632,11 @@ export function HooksRawSection() {
         <div className="text-center max-w-3xl mx-auto mb-12">
           <Reveal direction="down" distance={15}>
             <div className="flex items-center justify-center gap-2 mb-3">
-              <span className="text-[11px] sm:text-xs font-mono font-bold tracking-[0.25em] uppercase text-sky-400">
+              <span className="text-[11px] sm:text-xs font-mono font-bold tracking-[0.25em] uppercase text-violet-400">
                 Reactive Hooks
               </span>
               <span className="text-xs font-mono text-zinc-600">/</span>
-              <span className="text-[11px] sm:text-xs font-mono font-bold tracking-[0.25em] uppercase text-sky-400">
+              <span className="text-[11px] sm:text-xs font-mono font-bold tracking-[0.25em] uppercase text-violet-400">
                 Raw Data
               </span>
             </div>
@@ -551,7 +744,7 @@ export function HooksRawSection() {
               {/* Filename & Copy Button */}
               <div className="flex items-center gap-3">
                 <span className="text-xs font-mono text-zinc-400 hidden sm:inline">
-                  {currentHook.fileName}
+                  {currentFileName}
                 </span>
                 <button
                   type="button"
@@ -578,16 +771,16 @@ export function HooksRawSection() {
               </div>
             </div>
 
-            {/* Syntax Highlighted Code Block */}
-            <div className="p-4 sm:p-5 bg-[#060608] overflow-x-auto flex-1 font-mono text-[12.5px] leading-relaxed select-text">
-              <table className="w-full border-collapse">
+            {/* Syntax Highlighted Code Block with Auto Word Wrap */}
+            <div className="p-4 sm:p-5 bg-[#060608] overflow-y-auto overflow-x-hidden flex-1 font-mono text-[12.5px] leading-relaxed select-text max-h-[380px]">
+              <table className="w-full border-collapse table-fixed">
                 <tbody>
                   {codeLines.map((line, idx) => (
                     <tr key={idx} className="hover:bg-zinc-900/30 transition-colors">
                       <td className="pr-4 text-right text-zinc-600 select-none w-7 align-top text-xs shrink-0">
                         {idx + 1}
                       </td>
-                      <td className="whitespace-pre text-zinc-200">
+                      <td className="whitespace-pre-wrap break-words text-zinc-200 overflow-hidden">
                         {renderSyntaxLine(line, idx)}
                       </td>
                     </tr>
@@ -600,7 +793,7 @@ export function HooksRawSection() {
             <div className="px-5 py-2.5 bg-[#09090b] border-t border-zinc-800/80 flex items-center justify-between text-xs font-mono text-zinc-500">
               <span>Ln 1, Col 1</span>
               <div className="flex items-center gap-2">
-                <span>React (TSX)</span>
+                <span>{activeFramework} {activeFramework === 'TypeScript' ? '(TS)' : '(TSX)'}</span>
                 <Settings className="w-3.5 h-3.5 text-zinc-500" />
               </div>
             </div>
@@ -619,7 +812,7 @@ export function HooksRawSection() {
                   <span className="px-2 py-0.5 rounded border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 font-mono text-xs font-semibold">
                     Live
                   </span>
-                  <span ref={fpsBadgeRef} className="text-xs font-mono text-zinc-400">246 FPS</span>
+                  <span ref={fpsBadgeRef} className="text-xs font-mono text-zinc-400">60 FPS</span>
                 </div>
               </div>
 
@@ -628,7 +821,7 @@ export function HooksRawSection() {
                 {/* 1. Scroll Position */}
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2.5 shrink-0">
-                    <Ruler className="w-4 h-4 text-sky-400 shrink-0" />
+                    <Ruler className="w-4 h-4 text-violet-400 shrink-0" />
                     <span className="text-xs text-zinc-400 font-medium">Scroll position</span>
                   </div>
                   <div className="w-24 sm:w-28 h-1.5 bg-zinc-800/80 rounded-full overflow-hidden shrink-0">
@@ -682,10 +875,10 @@ export function HooksRawSection() {
                 {/* 4. Scroll Direction */}
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2.5 shrink-0">
-                    <ArrowUpDown className="w-4 h-4 text-sky-400 shrink-0" />
+                    <ArrowUpDown className="w-4 h-4 text-violet-400 shrink-0" />
                     <span className="text-xs text-zinc-400 font-medium">Scroll direction</span>
                   </div>
-                  <span ref={directionTextRef} className="font-medium text-sm text-sky-400 text-right">
+                  <span ref={directionTextRef} className="font-medium text-sm text-emerald-400 text-right">
                     Down
                   </span>
                 </div>
@@ -744,7 +937,7 @@ export function HooksRawSection() {
             <div className="grid grid-cols-3 gap-2 pt-4 border-t border-zinc-800/80">
               <div>
                 <div className="text-xs text-zinc-500">Update rate</div>
-                <div ref={updateRateTextRef} className="font-mono text-sm font-bold text-white mt-1">120 Hz</div>
+                <div ref={updateRateTextRef} className="font-mono text-sm font-bold text-white mt-1">60 Hz</div>
               </div>
               <div>
                 <div className="text-xs text-zinc-500">Last update</div>

@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Geist, Geist_Mono, Caveat } from 'next/font/google';
 import { ScrollProvider, ScrollInspector } from '@scrollcraft/react';
+import { RouteScrollSync } from '@/components/layout/route-scroll-sync';
 import '../styles/globals.css';
 
 const geistSans = Geist({
@@ -81,8 +82,9 @@ export default function RootLayout({
         <ScrollProvider
           smooth={true}
           respectReducedMotion={true}
-          autoResetOnRouteChange={false}
+          autoResetOnRouteChange={true}
         >
+          <RouteScrollSync />
           <div className="relative flex-1 flex flex-col min-h-0">
             {children}
           </div>

@@ -38,7 +38,9 @@ export const HorizontalScroll: React.FC<HorizontalScrollProps> = ({
       if (isMounted) solver.measure();
     };
     const unobserveResize = GlobalResizeManager.observe(container, measure);
-    requestAnimationFrame(() => measure());
+    const rafId = requestAnimationFrame(() => {
+      if (isMounted) measure();
+    });
 
     ticker.add(taskId, 'update', () => {
       const scrollY = engine?.getMetrics().scroll ?? (window.scrollY || window.pageYOffset);
@@ -51,6 +53,7 @@ export const HorizontalScroll: React.FC<HorizontalScrollProps> = ({
 
     return () => {
       isMounted = false;
+      cancelAnimationFrame(rafId);
       unobserveResize();
       ticker.remove(taskId);
       solver.destroy();

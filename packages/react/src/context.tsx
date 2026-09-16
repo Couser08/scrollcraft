@@ -106,10 +106,40 @@ export const ScrollProvider: React.FC<ScrollProviderProps> = ({
       setIsReady(true);
     }
 
-    if (autoResetOnRouteChange && typeof process !== 'undefined' && process.env?.NODE_ENV !== 'production') {
-      console.warn(
-        '[ScrollCraft] autoResetOnRouteChange is deprecated. Call scrollTo(0) from your router transition instead.'
-      );
+    // Handle route changes automatically if enabled
+    let cleanupRouteChange: (() => void) | null = null;
+    if (autoResetOnRouteChange && typeof window !== 'undefined') {
+      const handleRouteChange = () => {
+        engine?.scrollTo(0, { immediate: true });
+        window.scrollTo(0, 0);
+        requestAnimationFrame(() => {
+          if (isMounted) engine?.resize();
+        });
+      };
+
+      window.addEventListener('popstate', handleRouteChange);
+
+      const originalPushState = window.history.pushState;
+      const originalReplaceState = window.history.replaceState;
+
+      window.history.pushState = function (...args) {
+        originalPushState.apply(this, args);
+        handleRouteChange();
+      };
+
+      window.history.replaceState = function (...args) {
+        originalReplaceState.apply(this, args);
+        const url = args[2];
+        if (url && typeof url === 'string' && !url.startsWith('#')) {
+          handleRouteChange();
+        }
+      };
+
+      cleanupRouteChange = () => {
+        window.removeEventListener('popstate', handleRouteChange);
+        window.history.pushState = originalPushState;
+        window.history.replaceState = originalReplaceState;
+      };
     }
 
     // Window resize handling (debounced via requestAnimationFrame, no body ResizeObserver loop)
@@ -159,6 +189,7 @@ export const ScrollProvider: React.FC<ScrollProviderProps> = ({
       isMounted = false;
       unsubTier();
       motionQuery.removeEventListener('change', onMotionChange);
+      cleanupRouteChange?.();
       if (autoRecalc) {
         window.removeEventListener('resize', handleResize);
         if (resizeRafId !== null) cancelAnimationFrame(resizeRafId);

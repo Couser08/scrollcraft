@@ -44,11 +44,12 @@ export function useParallax<T extends HTMLElement>(
     const taskId = `parallax-${Math.random().toString(36).slice(2, 8)}`;
 
     let isMounted = true;
-    // Re-measure on window resize and font readiness
+    // Re-measure on window resize, element resize, and font readiness
     const measureGeometry = () => {
       if (isMounted) solver.measure();
     };
     const unobserveResize = GlobalResizeManager.observe(node, measureGeometry);
+    window.addEventListener('resize', measureGeometry, { passive: true });
     if (typeof document !== 'undefined' && 'fonts' in document) {
       document.fonts.ready.then(() => {
         if (isMounted) measureGeometry();
@@ -71,6 +72,8 @@ export function useParallax<T extends HTMLElement>(
     const unobserveVisibility = globalVisibilityManager.observe(node, (isVisible) => {
       solver.setVisible(isVisible);
       if (isVisible) {
+        // Re-measure on entering viewport to avoid stale geometry from initial load shifts
+        solver.measure();
         ticker.resumeTask(taskId);
       } else {
         ticker.pauseTask(taskId);
@@ -79,6 +82,7 @@ export function useParallax<T extends HTMLElement>(
 
     return () => {
       isMounted = false;
+      window.removeEventListener('resize', measureGeometry);
       unobserveVisibility();
       unobserveResize();
       ticker.remove(taskId);

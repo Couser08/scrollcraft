@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { DocsCallout } from '../docs-callout';
-import { TickerVisualizer } from '../interactive/ticker-visualizer';
 import { Shield, Sparkles } from 'lucide-react';
 
 interface DocArchitectureProps {
@@ -78,9 +77,6 @@ export const DocArchitecture: React.FC<DocArchitectureProps> = ({
             How ScrollCraft completely eliminates layout thrashing, avoids forced synchronous reflows, and locks in 120 FPS frame consistency across refresh cycles.
           </p>
         </header>
-
-        {/* Embedded Interactive Ticker Visualizer */}
-        <TickerVisualizer />
 
         <section id="ticker-execution" className="flex flex-col gap-4">
           <h2 className="text-2xl font-bold tracking-tight text-white">
