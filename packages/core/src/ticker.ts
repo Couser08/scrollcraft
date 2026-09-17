@@ -44,6 +44,18 @@ export class Ticker {
   private sampledFrameCount: number = 0;
   private lastStepTime: number = 0;
 
+  /**
+   * Benchmark Contamination Guard:
+   * When true, disables performance.mark and performance.measure so synthetic test baselines
+   * (e.g. engine-stress.test.ts) are not skewed by tracing instrumentation overhead.
+   */
+  public benchmarkingMode: boolean = false;
+
+  // Frame drop ring buffer (last 60 frames)
+  private droppedFrames: number = 0;
+  private droppedFramesHistory: number[] = new Array(60).fill(0);
+  private droppedFramesIndex: number = 0;
+
   private constructor() {}
 
   public static get(): Ticker {
@@ -179,6 +191,17 @@ export class Ticker {
     dt: number,
     currentTime: number
   ): void {
+    const shouldProfile =
+      !this.benchmarkingMode &&
+      typeof process !== 'undefined' &&
+      process.env?.NODE_ENV !== 'production' &&
+      typeof performance !== 'undefined' &&
+      typeof performance.mark === 'function';
+
+    if (shouldProfile) {
+      performance.mark(`sc-${phase}-start`);
+    }
+
     for (let i = 0; i < tasks.length; i++) {
       const [id, callback] = tasks[i];
       // Guard: skip task if removed or marked dormant by visibility culling
@@ -195,6 +218,15 @@ export class Ticker {
         } catch {
           // Diagnostics must never interrupt the RAF loop
         }
+      }
+    }
+
+    if (shouldProfile) {
+      performance.mark(`sc-${phase}-end`);
+      try {
+        performance.measure(`ScrollCraft:${phase}`, `sc-${phase}-start`, `sc-${phase}-end`);
+      } catch {
+        // Safe no-op
       }
     }
   }
@@ -250,12 +282,20 @@ export class Ticker {
     this.frameHistory.fill(0.016);
     this.frameHistoryIndex = 0;
     this.sampledFrameCount = 0;
+    this.droppedFramesHistory.fill(0);
+    this.droppedFramesIndex = 0;
   }
 
   private recordFrameDelta(rawDelta: number, currentTime: number): void {
     this.frameHistory[this.frameHistoryIndex] = rawDelta;
     this.frameHistoryIndex = (this.frameHistoryIndex + 1) % 60;
     this.sampledFrameCount++;
+
+    // Frame dropped if delta exceeded 21.7ms (16.7ms + 5ms slack)
+    const isDrop = rawDelta > 0.0217;
+    this.droppedFramesHistory[this.droppedFramesIndex] = isDrop ? 1 : 0;
+    this.droppedFramesIndex = (this.droppedFramesIndex + 1) % 60;
+    if (isDrop) this.droppedFrames++;
 
     if (this.sampledFrameCount >= 60) {
       let slowFrames = 0;
@@ -306,6 +346,17 @@ export class Ticker {
     const frameMs = Math.round(avgDelta * 1000 * 10) / 10;
     const fps = avgDelta > 0 ? Math.min(Math.round(1 / avgDelta), 360) : 60;
     return { fps, frameMs };
+  }
+
+  /**
+   * Returns total lifetime dropped frames and recent (last 60 frames) dropped frames.
+   */
+  public getDroppedFrames(): { total: number; recent: number } {
+    let recent = 0;
+    for (let i = 0; i < 60; i++) {
+      recent += this.droppedFramesHistory[i];
+    }
+    return { total: this.droppedFrames, recent };
   }
 
   public stop(): void {

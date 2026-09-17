@@ -13,16 +13,23 @@ export interface RevealOptions {
   delay?: number;
   threshold?: number;
   once?: boolean;
+  blur?: boolean | number;
+  scale?: number;
+  rotateX?: number;
+  rotateY?: number;
+  onReveal?: () => void;
+  onReset?: () => void;
 }
 
 interface RevealEntry {
   element: HTMLElement;
-  options: Required<RevealOptions>;
+  options: RevealOptions;
   hasRevealed: boolean;
   initialStyles: {
     opacity: string;
     transition: string;
     willChange: string;
+    filter: string;
   };
   isObserved: boolean;
 }
@@ -58,6 +65,7 @@ export class GlobalRevealObserver {
               if (entry.isIntersecting || entry.boundingClientRect.bottom < 0) {
                 data.hasRevealed = true;
                 this.applyRevealedState(target, data.options);
+                data.options.onReveal?.();
 
                 if (data.options.once) {
                   for (const obs of this.observers.values()) {
@@ -68,6 +76,7 @@ export class GlobalRevealObserver {
               } else if (!data.options.once && data.hasRevealed) {
                 data.hasRevealed = false;
                 this.applyHiddenState(target, data.options);
+                data.options.onReset?.();
               }
             }
           },
@@ -84,53 +93,93 @@ export class GlobalRevealObserver {
     return this.observers.get(threshold) ?? null;
   }
 
-  private getHiddenTransform(direction: string, distance: number): string {
+  private getHiddenTransform(options: RevealOptions): string {
+    const direction = options.direction ?? 'up';
+    const distance = options.distance ?? 32;
+    const parts: string[] = [];
+
     switch (direction) {
-      case 'up': return `translate3d(0, ${distance}px, 0)`;
-      case 'down': return `translate3d(0, -${distance}px, 0)`;
-      case 'left': return `translate3d(${distance}px, 0, 0)`;
-      case 'right': return `translate3d(-${distance}px, 0, 0)`;
-      default: return 'none';
+      case 'up': parts.push(`translate3d(0, ${distance}px, 0)`); break;
+      case 'down': parts.push(`translate3d(0, -${distance}px, 0)`); break;
+      case 'left': parts.push(`translate3d(${distance}px, 0, 0)`); break;
+      case 'right': parts.push(`translate3d(-${distance}px, 0, 0)`); break;
+      default: break;
     }
+
+    if (options.scale !== undefined && options.scale !== 1) {
+      parts.push(`scale(${options.scale})`);
+    }
+    if (options.rotateX) {
+      parts.push(`rotateX(${options.rotateX}deg)`);
+    }
+    if (options.rotateY) {
+      parts.push(`rotateY(${options.rotateY}deg)`);
+    }
+
+    return parts.join(' ') || 'none';
   }
 
-  private applyInitialHiddenState(element: HTMLElement, options: Required<RevealOptions>): void {
+  private applyInitialHiddenState(element: HTMLElement, options: RevealOptions): void {
     element.style.transition = 'none';
     element.style.opacity = '0';
-    TransformComposer.set(element, 'reveal', this.getHiddenTransform(options.direction, options.distance));
+    if (options.blur) {
+      const blurPx = typeof options.blur === 'number' ? options.blur : 8;
+      element.style.filter = `blur(${blurPx}px)`;
+    }
+    TransformComposer.set(element, 'reveal', this.getHiddenTransform(options));
     void element.offsetHeight;
   }
 
-  private applyHiddenState(element: HTMLElement, options: Required<RevealOptions>): void {
-    element.style.transition = `opacity ${options.duration}s cubic-bezier(0.16, 1, 0.3, 1), transform ${options.duration}s cubic-bezier(0.16, 1, 0.3, 1)`;
+  private applyHiddenState(element: HTMLElement, options: RevealOptions): void {
+    const duration = options.duration ?? 0.6;
+    let transition = `opacity ${duration}s cubic-bezier(0.16, 1, 0.3, 1), transform ${duration}s cubic-bezier(0.16, 1, 0.3, 1)`;
+    if (options.blur) {
+      const blurPx = typeof options.blur === 'number' ? options.blur : 8;
+      element.style.filter = `blur(${blurPx}px)`;
+      transition += `, filter ${duration}s cubic-bezier(0.16, 1, 0.3, 1)`;
+    }
+    element.style.transition = transition;
     element.style.opacity = '0';
-    TransformComposer.set(element, 'reveal', this.getHiddenTransform(options.direction, options.distance));
+    TransformComposer.set(element, 'reveal', this.getHiddenTransform(options));
   }
 
-  private applyRevealedState(element: HTMLElement, options: Required<RevealOptions>): void {
-    const delayStr = options.delay > 0 ? ` ${options.delay}s` : '';
-    element.style.transition = `opacity ${options.duration}s cubic-bezier(0.16, 1, 0.3, 1)${delayStr}, transform ${options.duration}s cubic-bezier(0.16, 1, 0.3, 1)${delayStr}`;
+  private applyRevealedState(element: HTMLElement, options: RevealOptions): void {
+    const duration = options.duration ?? 0.6;
+    const delay = options.delay ?? 0;
+    const delayStr = delay > 0 ? ` ${delay}s` : '';
+    let transition = `opacity ${duration}s cubic-bezier(0.16, 1, 0.3, 1)${delayStr}, transform ${duration}s cubic-bezier(0.16, 1, 0.3, 1)${delayStr}`;
+    if (options.blur) {
+      element.style.filter = 'blur(0px)';
+      transition += `, filter ${duration}s cubic-bezier(0.16, 1, 0.3, 1)${delayStr}`;
+    }
+    element.style.transition = transition;
     element.style.opacity = '1';
     TransformComposer.set(element, 'reveal', 'translate3d(0, 0, 0)');
   }
 
   public observe(element: HTMLElement, options: RevealOptions): void {
-    if (typeof window === 'undefined') return;
+    if (!element || typeof window === 'undefined') return;
 
-    const fullOptions: Required<RevealOptions> = {
+    const fullOptions: RevealOptions = {
       direction: options.direction ?? 'up',
       distance: options.distance ?? 32,
       duration: options.duration ?? 0.6,
       delay: options.delay ?? 0,
       threshold: options.threshold ?? 0.15,
       once: options.once ?? true,
+      blur: options.blur,
+      scale: options.scale,
+      rotateX: options.rotateX,
+      rotateY: options.rotateY,
+      onReveal: options.onReveal,
+      onReset: options.onReset,
     };
 
     // Safety: If element is taller than window, IntersectionObserver might never hit 0.15 threshold
     // We dynamically clamp the threshold to ensure it triggers
     const wh = window.innerHeight;
     const rect = element.getBoundingClientRect();
-    let safeThreshold = fullOptions.threshold;
+    let safeThreshold = fullOptions.threshold ?? 0.15;
     if (rect.height > wh * 0.8) {
       safeThreshold = 0.05; // Drop threshold for massive elements
     }
@@ -139,6 +188,7 @@ export class GlobalRevealObserver {
       opacity: element.style.opacity || '',
       transition: element.style.transition || '',
       willChange: element.style.willChange || '',
+      filter: element.style.filter || '',
     };
 
     const entry: RevealEntry = {
@@ -155,7 +205,9 @@ export class GlobalRevealObserver {
       entry.hasRevealed = true;
       element.style.opacity = '1';
       element.style.transition = 'none';
+      if (fullOptions.blur) element.style.filter = 'none';
       TransformComposer.set(element, 'reveal', 'translate3d(0, 0, 0)');
+      fullOptions.onReveal?.();
       return;
     }
 
@@ -163,7 +215,9 @@ export class GlobalRevealObserver {
     if (rect.bottom < 0) {
       entry.hasRevealed = true;
       element.style.opacity = '1';
+      if (fullOptions.blur) element.style.filter = 'none';
       TransformComposer.set(element, 'reveal', 'translate3d(0, 0, 0)');
+      fullOptions.onReveal?.();
       
       if (fullOptions.once) {
         // Retain entry so unobserve() and destroy() can clean up, but do not register with IntersectionObserver
@@ -178,14 +232,17 @@ export class GlobalRevealObserver {
     if (!observer) {
       entry.hasRevealed = true;
       element.style.opacity = '1';
+      if (fullOptions.blur) element.style.filter = 'none';
       TransformComposer.set(element, 'reveal', 'translate3d(0, 0, 0)');
+      fullOptions.onReveal?.();
       return;
     }
     observer.observe(element);
     entry.isObserved = true;
   }
 
-  public unobserve(element: HTMLElement): void {
+  public unobserve(element: HTMLElement | null): void {
+    if (!element) return;
     const data = this.entries.get(element);
     if (!data) return;
 
@@ -199,6 +256,7 @@ export class GlobalRevealObserver {
     element.style.willChange = data.initialStyles.willChange;
     element.style.transition = data.initialStyles.transition;
     element.style.opacity = data.initialStyles.opacity;
+    element.style.filter = data.initialStyles.filter;
     TransformComposer.clear(element, 'reveal');
   }
 
@@ -210,6 +268,7 @@ export class GlobalRevealObserver {
       entry.element.style.willChange = entry.initialStyles.willChange;
       entry.element.style.transition = entry.initialStyles.transition;
       entry.element.style.opacity = entry.initialStyles.opacity;
+      entry.element.style.filter = entry.initialStyles.filter;
       TransformComposer.clear(entry.element, 'reveal');
     }
     this.entries.clear();

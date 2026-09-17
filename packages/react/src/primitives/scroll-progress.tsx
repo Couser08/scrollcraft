@@ -13,9 +13,25 @@ import { ScrollProgressProps } from '../types';
 
 export const ScrollProgress = React.memo(
   forwardRef<HTMLDivElement, ScrollProgressProps>((props, forwardedRef) => {
-    const { asChild = false, style, children, ...domProps } = props;
+    const {
+      asChild = false,
+      style,
+      children,
+      target,
+      offset,
+      orientation,
+      progressValue: customProgressValue,
+      onProgress,
+      ...domProps
+    } = props;
     const internalRef = useRef<HTMLDivElement | null>(null);
-    const { progressValue } = useScrollProgress();
+    const { progressValue } = useScrollProgress({
+      target,
+      offset,
+      orientation,
+      progressValue: customProgressValue,
+      onProgress,
+    });
 
     useEffect(() => {
       const node = internalRef.current;

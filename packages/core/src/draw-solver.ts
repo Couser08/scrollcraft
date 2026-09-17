@@ -140,6 +140,10 @@ export class DrawSolver {
     triggerRegistry.updateProgress(this.id, this.progress);
   }
 
+  public getProgress(): number {
+    return this.progress;
+  }
+
   public render(): void {
     if (this.totalLength === 0) return;
     // Only flush styles if visible or just exited visibility or first time

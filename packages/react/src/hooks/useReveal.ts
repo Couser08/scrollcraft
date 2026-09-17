@@ -2,7 +2,16 @@
 
 /**
  * 120 FPS Direct DOM Reveal-on-Enter Hook
- * Subscribes to the single global intersection observer.
+ * Universal Dual API:
+ *   - Headless: `const ref = useReveal<HTMLDivElement>(options)`
+ *   - Ref-Forwarding: `useReveal(existingRef, options)`
+ *
+ * Features:
+ * - Subscribes to the single global intersection observer (GlobalRevealObserver)
+ * - Atmospheric blur, 3D tilt (rotateX, rotateY), and scale entry
+ * - Automatic stagger indexing calculation (`delay + index * stagger`)
+ * - Zero-rerender callbacks (`onReveal`, `onReset`)
+ * - Captured-node closure cleanup preventing stale node leaks
  * Strictly under 650 LOC.
  */
 
@@ -10,25 +19,48 @@ import { useEffect } from 'react';
 import { revealObserver } from '@scrollcraft/core';
 import { useScrollCraft } from '../context';
 import { RevealOptions } from '../types';
+import { useDualRef, captureNode } from '../utils/ref';
 
-export function useReveal<T extends HTMLElement>(
+export function useReveal<T extends HTMLElement = HTMLDivElement>(
+  options?: RevealOptions
+): React.RefObject<T | null>;
+export function useReveal<T extends HTMLElement = HTMLDivElement>(
   targetRef: React.RefObject<T | null>,
-  options: RevealOptions = {}
-): void {
+  options?: RevealOptions
+): void;
+export function useReveal<T extends HTMLElement = HTMLDivElement>(
+  refOrOptions?: React.RefObject<T | null> | RevealOptions,
+  maybeOptions?: RevealOptions
+): React.RefObject<T | null> | void {
+  const { ref, options, isHeadless } = useDualRef<T, RevealOptions>(refOrOptions, maybeOptions);
   const { respectReducedMotion = true } = options;
   const { reducedMotion } = useScrollCraft();
 
   useEffect(() => {
-    const node = targetRef.current;
+    const node = captureNode(ref);
     if (!node || typeof window === 'undefined') return;
 
     if (reducedMotion && respectReducedMotion) {
       node.style.opacity = '1';
       node.style.transform = 'none';
+      if (options.blur) node.style.filter = 'none';
+      options.onReveal?.();
       return;
     }
 
-    revealObserver.observe(node, options);
+    // Calculate auto-stagger delay if index is provided
+    const baseDelay = options.delay ?? 0;
+    const staggerIncrement = options.stagger ?? 0.05;
+    const computedDelay = options.index !== undefined
+      ? baseDelay + (options.index * staggerIncrement)
+      : baseDelay;
+
+    const resolvedOptions = {
+      ...options,
+      delay: computedDelay,
+    };
+
+    revealObserver.observe(node, resolvedOptions);
 
     return () => {
       revealObserver.unobserve(node);
@@ -40,8 +72,20 @@ export function useReveal<T extends HTMLElement>(
     options.delay,
     options.threshold,
     options.once,
+    options.blur,
+    options.scale,
+    options.rotateX,
+    options.rotateY,
+    options.index,
+    options.stagger,
+    options.onReveal,
+    options.onReset,
     reducedMotion,
     respectReducedMotion,
-    targetRef,
+    ref,
   ]);
+
+  if (isHeadless) {
+    return ref;
+  }
 }

@@ -25,3 +25,4 @@ export * from './transform-solver';
 export * from './draw-solver';
 export * from './visibility';
 export * from './markers';
+export * from './stacked-cards-solver';

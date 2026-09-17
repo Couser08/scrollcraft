@@ -500,6 +500,34 @@ describe('ScrollCraft Solvers Robustness & Integrity', () => {
       unobserve2();
       GlobalResizeManager.disconnect();
     });
+
+    it('strictly guards unobserve and observe against null or undefined element (safe no-op)', () => {
+      // Must not throw any exception when passed null or undefined
+      expect(() => GlobalResizeManager.unobserve(null as any)).not.toThrow();
+      expect(() => GlobalResizeManager.unobserve(undefined as any)).not.toThrow();
+
+      const unobserveNull = GlobalResizeManager.observe(null as any, () => {});
+      expect(typeof unobserveNull).toBe('function');
+      expect(() => unobserveNull()).not.toThrow();
+
+      const unobserveUndefined = GlobalResizeManager.observe(undefined as any, () => {});
+      expect(typeof unobserveUndefined).toBe('function');
+      expect(() => unobserveUndefined()).not.toThrow();
+    });
+
+    it('suppresses mobile address bar resize jitter (< 100px height shift with identical width)', () => {
+      // 1. Mobile Safari address bar collapse: e.g. 390x844 -> 390x784 (delta 60px)
+      expect(GlobalResizeManager.shouldIgnoreResize(390, 844, 390, 784)).toBe(true);
+
+      // 2. Android Chrome URL bar collapse: e.g. 412x915 -> 412x859 (delta 56px)
+      expect(GlobalResizeManager.shouldIgnoreResize(412, 915, 412, 859)).toBe(true);
+
+      // 3. Real orientation change or desktop window resize (width changed): must NOT ignore
+      expect(GlobalResizeManager.shouldIgnoreResize(390, 844, 844, 390)).toBe(false);
+
+      // 4. Large viewport height shift (>= 100px, e.g. virtual keyboard or split screen): must NOT ignore
+      expect(GlobalResizeManager.shouldIgnoreResize(390, 844, 390, 500)).toBe(false);
+    });
   });
 
   describe('GlobalRevealObserver', () => {

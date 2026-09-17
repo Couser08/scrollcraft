@@ -2,36 +2,56 @@
 
 /**
  * 120 FPS Sticky Pinning Hook with Layout Diagnostics & Zero-Lag Throttling
- * Forwards React ref to @scrollcraft/core PinSolver.
+ * Universal Dual API:
+ *   - Headless: `const { ref, progressValue } = usePin<HTMLDivElement>(options)`
+ *   - Ref-Forwarding: `usePin(existingRef, options)`
+ *
+ * Features:
+ * - GSAP 4-state lifecycle: onEnter, onLeave, onEnterBack, onLeaveBack (0 re-renders)
+ * - Auto-spacing placeholder track height generation (`pinSpacing: boolean | number`)
+ * - Zero-rerender observable `progressValue: ScrollValue<number>`
+ * - Captured-node closure cleanup preventing stale node leaks
  * Strictly under 650 LOC.
  */
 
 import { useEffect, useRef, useState } from 'react';
-import { ticker, PinSolver, GlobalResizeManager } from '@scrollcraft/core';
+import { ticker, PinSolver, GlobalResizeManager, createScrollValue, ScrollValue } from '@scrollcraft/core';
 import { useScrollCraft } from '../context';
 import { PinOptions } from '../types';
+import { useDualRef, captureNode } from '../utils/ref';
 
 export interface UsePinReturn<T extends HTMLElement> {
-  ref: React.RefObject<T>;
+  ref: React.RefObject<T | null>;
   progress: number;
   pinOffsetY: number;
   isPinned: boolean;
+  progressValue: ScrollValue<number>;
 }
 
 export function usePin<T extends HTMLElement = HTMLDivElement>(
-  targetRefOrOptions?: React.RefObject<T> | PinOptions,
+  options?: PinOptions
+): UsePinReturn<T>;
+export function usePin<T extends HTMLElement = HTMLDivElement>(
+  targetRef: React.RefObject<T | null>,
+  options?: PinOptions
+): UsePinReturn<T>;
+export function usePin<T extends HTMLElement = HTMLDivElement>(
+  refOrOptions?: React.RefObject<T | null> | PinOptions,
   maybeOptions?: PinOptions
 ): UsePinReturn<T> {
-  const isRefPassed =
-    targetRefOrOptions && typeof targetRefOrOptions === 'object' && 'current' in targetRefOrOptions;
-
-  const fallbackRef = useRef<T>(null);
-  const targetRef = (isRefPassed
-    ? (targetRefOrOptions as React.RefObject<T>)
-    : fallbackRef) as React.RefObject<T>;
-
-  const options = isRefPassed ? (maybeOptions ?? {}) : ((targetRefOrOptions as PinOptions) ?? {});
-  const { top = 0, duration, onProgress, trackState = false } = options;
+  const { ref, options } = useDualRef<T, PinOptions>(refOrOptions, maybeOptions);
+  const {
+    top = 0,
+    duration,
+    onProgress,
+    trackState = false,
+    pinSpacing,
+    onEnter,
+    onLeave,
+    onEnterBack,
+    onLeaveBack,
+    progressValue: externalProgressValue,
+  } = options;
 
   const { engine } = useScrollCraft();
 
@@ -41,12 +61,25 @@ export function usePin<T extends HTMLElement = HTMLDivElement>(
 
   const progressRef = useRef(0);
   const taskIdRef = useRef<string>(`pin-${Math.random().toString(36).slice(2, 8)}`);
+  const internalProgressValue = useRef<ScrollValue<number> | null>(null);
+
+  if (!internalProgressValue.current) {
+    internalProgressValue.current = (externalProgressValue as ScrollValue<number>) ?? createScrollValue(0);
+  }
 
   const onProgressRef = useRef(onProgress);
   onProgressRef.current = onProgress;
+  const onEnterRef = useRef(onEnter);
+  onEnterRef.current = onEnter;
+  const onLeaveRef = useRef(onLeave);
+  onLeaveRef.current = onLeave;
+  const onEnterBackRef = useRef(onEnterBack);
+  onEnterBackRef.current = onEnterBack;
+  const onLeaveBackRef = useRef(onLeaveBack);
+  onLeaveBackRef.current = onLeaveBack;
 
   useEffect(() => {
-    const node = targetRef.current;
+    const node = captureNode(ref);
     if (!node || typeof window === 'undefined') return;
 
     let isMounted = true;
@@ -54,7 +87,22 @@ export function usePin<T extends HTMLElement = HTMLDivElement>(
     node.style.position = 'sticky';
     node.style.top = `${top}px`;
 
-    // Dev diagnostic
+    // Auto-spacing placeholder track generation when pinSpacing is enabled
+    let spacerElement: HTMLDivElement | null = null;
+    if (pinSpacing) {
+      spacerElement = document.createElement('div');
+      spacerElement.setAttribute('data-sc-pin-spacer', 'true');
+      spacerElement.style.display = 'block';
+      spacerElement.style.pointerEvents = 'none';
+      spacerElement.style.visibility = 'hidden';
+      const spacerHeight = typeof pinSpacing === 'number'
+        ? pinSpacing
+        : (duration ?? window.innerHeight);
+      spacerElement.style.height = `${spacerHeight}px`;
+      node.parentNode?.insertBefore(spacerElement, node.nextSibling);
+    }
+
+    // Dev diagnostic for overflow containers breaking position: sticky
     if (typeof process !== 'undefined' && process.env?.NODE_ENV !== 'production') {
       let parent = node.parentElement;
       while (parent && parent !== document.body && parent !== document.documentElement) {
@@ -87,14 +135,38 @@ export function usePin<T extends HTMLElement = HTMLDivElement>(
     }
 
     const taskId = taskIdRef.current;
+    let zoneState: 'before' | 'inside' | 'after' = 'before';
 
     ticker.add(taskId, 'update', () => {
       const scrollY = engine?.getMetrics().scroll ?? (window.scrollY || window.pageYOffset);
       const state = solver.update(scrollY);
+      const nextProgress = state.progress;
+
+      // Update zero-rerender observable
+      internalProgressValue.current?.set(nextProgress);
+
+      // GSAP 4-State Lifecycle transitions
+      let nextZone: 'before' | 'inside' | 'after' = 'before';
+      if (nextProgress > 0 && nextProgress < 1) {
+        nextZone = 'inside';
+      } else if (nextProgress >= 1) {
+        nextZone = 'after';
+      }
+
+      if (zoneState !== nextZone) {
+        if (zoneState === 'before' && nextZone === 'inside') {
+          onEnterRef.current?.();
+        } else if (zoneState === 'inside' && nextZone === 'after') {
+          onLeaveRef.current?.();
+        } else if (zoneState === 'after' && nextZone === 'inside') {
+          onEnterBackRef.current?.();
+        } else if (zoneState === 'inside' && nextZone === 'before') {
+          onLeaveBackRef.current?.();
+        }
+        zoneState = nextZone;
+      }
 
       // Extract state for optional reactive tracking
-      const nextProgress = state.progress;
-      
       if (trackState && Math.abs(nextProgress - progressRef.current) > 0.008) {
         progressRef.current = nextProgress;
         setProgress(nextProgress);
@@ -103,7 +175,7 @@ export function usePin<T extends HTMLElement = HTMLDivElement>(
       } else {
         progressRef.current = nextProgress;
       }
-      
+
       onProgressRef.current?.(nextProgress);
     });
 
@@ -116,17 +188,27 @@ export function usePin<T extends HTMLElement = HTMLDivElement>(
       unobserve();
       ticker.remove(taskId);
       solver.destroy();
-      if (node) {
-        node.style.position = '';
-        node.style.top = '';
+      if (spacerElement) {
+        spacerElement.remove();
       }
+      node.style.position = '';
+      node.style.top = '';
     };
-  }, [top, duration, options.disableTransform, targetRef, trackState, engine]);
+  }, [
+    top,
+    duration,
+    options.disableTransform,
+    pinSpacing,
+    trackState,
+    ref,
+    engine,
+  ]);
 
   return {
-    ref: targetRef,
+    ref,
     progress,
     pinOffsetY,
     isPinned,
+    progressValue: internalProgressValue.current ?? createScrollValue(0),
   };
 }

@@ -10,6 +10,7 @@ export * from './types';
 export * from './context';
 export * from './slot';
 export * from './factory';
+export * from './utils/ref';
 
 // Primitives
 export * from './primitives/parallax';
@@ -38,5 +39,6 @@ export * from './hooks/useScrollTransform';
 export * from './hooks/useScrollDraw';
 export * from './hooks/useMagnetic';
 export * from './hooks/useScrollTimeline';
+export * from './hooks/useScrollDirection';
 export * from './hooks/useTicker';
 export * from './hooks/useRenderTracker';

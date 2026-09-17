@@ -14,6 +14,7 @@ export interface MagneticOptions {
   radius?: number;
   stiffness?: number;
   damping?: number;
+  scale?: number;
 }
 
 export class MagneticSolver {
@@ -22,9 +23,11 @@ export class MagneticSolver {
   
   private targetX: number = 0;
   private targetY: number = 0;
+  private targetScale: number = 1;
   
   private stateX: SpringState = { position: 0, velocity: 0, settled: true };
   private stateY: SpringState = { position: 0, velocity: 0, settled: true };
+  private stateScale: SpringState = { position: 1, velocity: 0, settled: true };
   
   private springConfig: SpringConfig;
   private taskId: string;
@@ -41,6 +44,7 @@ export class MagneticSolver {
       radius: options?.radius ?? 120,
       stiffness: options?.stiffness ?? 220,
       damping: options?.damping ?? 16,
+      scale: options?.scale ?? 1,
     };
 
     this.springConfig = {
@@ -69,6 +73,7 @@ export class MagneticSolver {
 
   private onMouseEnter = () => {
     this.isHovering = true;
+    this.targetScale = this.options.scale;
     this.measureRect();
     this.ensureTicker();
   };
@@ -106,6 +111,7 @@ export class MagneticSolver {
     this.isHovering = false;
     this.targetX = 0;
     this.targetY = 0;
+    this.targetScale = 1;
     this.cachedAbsoluteRect = null;
     this.ensureTicker();
   };
@@ -134,7 +140,15 @@ export class MagneticSolver {
 
   private ensureTicker() {
     // If not settled, we make sure it's running in the ticker
-    if (this.stateX.settled && this.stateY.settled && this.targetX === 0 && this.targetY === 0 && !this.isHovering) {
+    if (
+      this.stateX.settled &&
+      this.stateY.settled &&
+      this.stateScale.settled &&
+      this.targetX === 0 &&
+      this.targetY === 0 &&
+      this.targetScale === 1 &&
+      !this.isHovering
+    ) {
       return; // fully idle
     }
     if (this.isTicking) return;
@@ -146,8 +160,16 @@ export class MagneticSolver {
   private update = (dt: number) => {
     springStep(this.stateX.position, this.targetX, this.stateX.velocity, this.springConfig, dt, this.stateX);
     springStep(this.stateY.position, this.targetY, this.stateY.velocity, this.springConfig, dt, this.stateY);
+    springStep(this.stateScale.position, this.targetScale, this.stateScale.velocity, this.springConfig, dt, this.stateScale);
     
-    if (this.stateX.settled && this.stateY.settled && this.targetX === 0 && this.targetY === 0) {
+    if (
+      this.stateX.settled &&
+      this.stateY.settled &&
+      this.stateScale.settled &&
+      this.targetX === 0 &&
+      this.targetY === 0 &&
+      this.targetScale === 1
+    ) {
       TransformComposer.clear(this.element, 'magnetic');
       ticker.remove(this.taskId);
       ticker.remove(this.taskId + '-render');
@@ -156,6 +178,7 @@ export class MagneticSolver {
   };
 
   private render = () => {
-    TransformComposer.set(this.element, 'magnetic', `translate3d(${this.stateX.position.toFixed(2)}px, ${this.stateY.position.toFixed(2)}px, 0)`);
+    const scale = this.options.scale !== 1 ? ` scale(${this.stateScale.position.toFixed(3)})` : '';
+    TransformComposer.set(this.element, 'magnetic', `translate3d(${this.stateX.position.toFixed(2)}px, ${this.stateY.position.toFixed(2)}px, 0)${scale}`);
   };
 }

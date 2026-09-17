@@ -60,6 +60,31 @@
       "types": "./dist/components/scroll-inspector.d.ts",
       "import": "./dist/components/scroll-inspector.js",
       "default": "./dist/components/scroll-inspector.js"
+    },
+    "./text-reveal": {
+      "types": "./dist/components/text-reveal.d.ts",
+      "import": "./dist/components/text-reveal.js",
+      "default": "./dist/components/text-reveal.js"
+    },
+    "./stacked-cards": {
+      "types": "./dist/components/stacked-cards.d.ts",
+      "import": "./dist/components/stacked-cards.js",
+      "default": "./dist/components/stacked-cards.js"
+    },
+    "./sequence": {
+      "types": "./dist/components/scroll-sequence.d.ts",
+      "import": "./dist/components/scroll-sequence.js",
+      "default": "./dist/components/scroll-sequence.js"
+    },
+    "./direction": {
+      "types": "./dist/hooks/useScrollDirection.d.ts",
+      "import": "./dist/hooks/useScrollDirection.js",
+      "default": "./dist/hooks/useScrollDirection.js"
+    },
+    "./magnetic": {
+      "types": "./dist/components/magnetic.d.ts",
+      "import": "./dist/components/magnetic.js",
+      "default": "./dist/components/magnetic.js"
     }
   },
   "scripts": {

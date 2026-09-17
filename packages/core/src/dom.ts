@@ -62,6 +62,10 @@ export class TransformComposer {
       composedTransforms.delete(element);
     }
   }
+
+  public static get(element: HTMLElement): string {
+    return composedTransforms.get(element)?.lastComposed ?? element.style.transform ?? '';
+  }
 }
 
 export class TransformWriter {
@@ -276,6 +280,11 @@ export class GlobalResizeManager {
   private static rafId: number | null = null;
   private static pendingEntries: ResizeObserverEntry[] = [];
 
+  private static lastWindowWidth: number = typeof window !== 'undefined' ? window.innerWidth : 0;
+  private static lastWindowHeight: number = typeof window !== 'undefined' ? window.innerHeight : 0;
+  private static windowListeners = new Set<() => void>();
+  private static isWindowBound = false;
+
   private static getObserver(): ResizeObserver | null {
     if (typeof window === 'undefined' || typeof ResizeObserver === 'undefined') return null;
     if (!this.observer) {
@@ -301,7 +310,8 @@ export class GlobalResizeManager {
     return this.observer;
   }
 
-  public static observe(element: Element, callback: GlobalResizeCallback): () => void {
+  public static observe(element: Element | null | undefined, callback: GlobalResizeCallback): () => void {
+    if (!element) return () => {};
     const obs = this.getObserver();
     if (!obs) return () => {};
 
@@ -318,14 +328,72 @@ export class GlobalResizeManager {
     };
   }
 
-  public static unobserve(element: Element, callback: GlobalResizeCallback): void {
+  /**
+   * Strictly null-safe unobserve implementation.
+   * Safe no-op if element is null or undefined.
+   */
+  public static unobserve(element: Element | null | undefined, callback?: GlobalResizeCallback): void {
+    if (!element) return;
     const cbs = this.callbacks.get(element);
     if (!cbs) return;
-    cbs.delete(callback);
+    if (callback) {
+      cbs.delete(callback);
+    } else {
+      cbs.clear();
+    }
     if (cbs.size === 0) {
       this.callbacks.delete(element);
       this.observer?.unobserve(element);
     }
+  }
+
+  /**
+   * Helper to determine whether a resize delta corresponds to mobile address bar collapse/expand.
+   * Ignores vertical shifts < 100px when width has not changed.
+   */
+  public static shouldIgnoreResize(prevWidth: number, prevHeight: number, newWidth: number, newHeight: number): boolean {
+    return prevWidth === newWidth && Math.abs(newHeight - prevHeight) < 100;
+  }
+
+  /**
+   * Subscribes to window resize events, automatically filtering out mobile address bar jitter (<100px height shift without width change).
+   */
+  public static onWindowResize(callback: () => void): () => void {
+    if (typeof window === 'undefined') return () => {};
+
+    if (!this.isWindowBound) {
+      this.isWindowBound = true;
+      this.lastWindowWidth = window.innerWidth;
+      this.lastWindowHeight = window.innerHeight;
+
+      window.addEventListener(
+        'resize',
+        () => {
+          const newWidth = window.innerWidth;
+          const newHeight = window.innerHeight;
+          const widthChanged = newWidth !== this.lastWindowWidth;
+          const heightDelta = Math.abs(newHeight - this.lastWindowHeight);
+
+          if (!widthChanged && heightDelta < 100) {
+            // Suppress mobile address bar expansion/collapse jitter
+            return;
+          }
+
+          this.lastWindowWidth = newWidth;
+          this.lastWindowHeight = newHeight;
+
+          for (const cb of this.windowListeners) {
+            cb();
+          }
+        },
+        { passive: true }
+      );
+    }
+
+    this.windowListeners.add(callback);
+    return () => {
+      this.windowListeners.delete(callback);
+    };
   }
 
   public static disconnect(): void {
@@ -337,6 +405,7 @@ export class GlobalResizeManager {
     this.observer?.disconnect();
     this.observer = null;
     this.callbacks.clear();
+    this.windowListeners.clear();
   }
 }
 

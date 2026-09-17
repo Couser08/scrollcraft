@@ -10,6 +10,9 @@ import type {
   SpringConfig,
   ElementTransform,
   InertiaEngine,
+  ScrollValue,
+  TransformProperties,
+  PropertyTimeline,
 } from '@scrollcraft/core';
 
 export type {
@@ -18,6 +21,9 @@ export type {
   SpringConfig,
   ElementTransform,
   InertiaEngine,
+  ScrollValue,
+  TransformProperties,
+  PropertyTimeline,
 };
 
 export interface DebugOptions {
@@ -87,6 +93,20 @@ export interface ParallaxOptions {
   min?: number;
   /** Clamp upper bound displacement in pixels */
   max?: number;
+  /**
+   * Reference anchor origin:
+   * - 'center' (default): displacement relative to viewport center
+   * - 'auto': Hero anti-jump anchor: displacement is strictly 0px when scrollY=0
+   * - 'top': displacement relative to viewport top
+   * - number: custom pixel offset anchor
+   */
+  origin?: 'auto' | 'center' | 'top' | number;
+  /** Auto-scales element to prevent unpainted gaps during strong parallax, clips parent container */
+  bleed?: boolean | number;
+  /** Optional scale multiplier */
+  scale?: number;
+  /** Optional rotate angle in degrees */
+  rotate?: number;
   /** Disable transform if prefers-reduced-motion is active. Default: true */
   respectReducedMotion?: boolean;
   /** Driver selection: 'auto' (native CSS scroll-timeline with JS fallback), 'native' (force native), or 'js' (force JS ticker). Default: 'auto' */
@@ -111,11 +131,27 @@ export interface RevealOptions {
   threshold?: number;
   /** Whether to trigger reveal only once. Default: true */
   once?: boolean;
+  /** Atmospheric blur reveal in px (e.g. 8 or true for 8px). Default: false */
+  blur?: boolean | number;
+  /** Entry scale factor (e.g. 0.85). Default: 1 */
+  scale?: number;
+  /** 3D entry tilt on X axis in degrees. Default: 0 */
+  rotateX?: number;
+  /** 3D entry tilt on Y axis in degrees. Default: 0 */
+  rotateY?: number;
+  /** Item index for automatic stagger sequencing */
+  index?: number;
+  /** Stagger increment in seconds between indexed siblings. Default: 0.05 */
+  stagger?: number;
+  /** Callback fired when element is revealed (0 re-renders) */
+  onReveal?: () => void;
+  /** Callback fired when element is reset to hidden state (0 re-renders) */
+  onReset?: () => void;
   /** Bypass slide/opacity if prefers-reduced-motion is active. Default: true */
   respectReducedMotion?: boolean;
 }
 
-export interface RevealProps extends React.HTMLAttributes<HTMLElement>, RevealOptions {
+export interface RevealProps extends Omit<React.HTMLAttributes<HTMLElement>, 'onReset'>, RevealOptions {
   asChild?: boolean;
   children?: React.ReactNode;
 }
@@ -129,6 +165,18 @@ export interface PinOptions {
   duration?: number;
   /** Callback receiving normalized progress (0 to 1) while pinned */
   onProgress?: (progress: number) => void;
+  /** Auto-spacing placeholder track height generation without <PinContainer>. Default: false */
+  pinSpacing?: boolean | number;
+  /** GSAP 4-State Lifecycle: fired when scroll enters pinned zone going forward */
+  onEnter?: () => void;
+  /** GSAP 4-State Lifecycle: fired when scroll leaves pinned zone going forward */
+  onLeave?: () => void;
+  /** GSAP 4-State Lifecycle: fired when scroll re-enters pinned zone going backward */
+  onEnterBack?: () => void;
+  /** GSAP 4-State Lifecycle: fired when scroll leaves pinned zone going backward */
+  onLeaveBack?: () => void;
+  /** Observable ScrollValue receiving normalized progress without re-renders */
+  progressValue?: ScrollValue;
   /** Whether to trigger React state updates for progress and pinOffsetY. Default: false */
   trackState?: boolean;
   /** Disable writing translate3d transform (e.g. when using native CSS position: sticky). Default: false */
@@ -146,9 +194,93 @@ export interface PinContainerProps extends React.HTMLAttributes<HTMLDivElement> 
   children?: React.ReactNode;
 }
 
-export interface ScrollProgressProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface ScrollProgressOptions {
+  /** Section / target element to measure viewport traversal for */
+  target?: React.RefObject<HTMLElement | null>;
+  /** Trigger offsets: [containerEnter, containerExit]. Default: ['top bottom', 'bottom top'] */
+  offset?: [string, string];
+  /** Scroll orientation: 'vertical' or 'horizontal'. Default: 'vertical' */
+  orientation?: 'vertical' | 'horizontal';
+  /** Zero-rerender progress observable */
+  progressValue?: ScrollValue;
+  /** If true, triggers React state re-renders via useSyncExternalStore. Default: false */
+  reactive?: boolean;
+  /** Progress callback */
+  onProgress?: (progress: number) => void;
+}
+
+export interface ScrollProgressProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onProgress'>, ScrollProgressOptions {
   asChild?: boolean;
   children?: React.ReactNode;
+}
+
+export interface ScrollTransformOptions {
+  id?: string;
+  /** Built-in animation preset */
+  preset?: 'zoom-in' | 'fade-up' | 'scale-down' | 'blur-in' | '3d-flip';
+  /** Unit-free or CSS-unit properties: x, y, scale, rotate, opacity, blur, backgroundColor, etc. */
+  properties?: TransformProperties | Record<string, (number | string)[]>;
+  start?: string;
+  end?: string;
+  scrub?: boolean | number;
+  snap?: boolean;
+  onSnap?: (targetScroll: number) => void;
+  markers?: boolean;
+  respectReducedMotion?: boolean;
+}
+
+export interface ScrollDrawOptions {
+  id?: string;
+  /** SVG stroke dash array pattern for technical drawing */
+  dashArray?: string;
+  start?: string;
+  end?: string;
+  scrub?: boolean | number;
+  direction?: 'forward' | 'reverse' | 'bidirectional';
+  markers?: boolean;
+  onDrawProgress?: (progress: number) => void;
+  respectReducedMotion?: boolean;
+}
+
+export interface MagneticOptions {
+  /** Magnetic attraction strength multiplier. Default: 0.3 */
+  strength?: number;
+  /** Activation radius in pixels. Default: 100 */
+  radius?: number;
+  /** Subtle hover inflation scale (e.g. 1.05). Default: 1 */
+  scale?: number;
+  /** Spring physics stiffness. Default: 150 */
+  stiffness?: number;
+  /** Spring physics damping. Default: 15 */
+  damping?: number;
+  /** Optional inner target element for layered parallax effect */
+  innerTargetRef?: React.RefObject<HTMLElement | null>;
+  /** Multiplier for inner layer movement. Default: 0.5 */
+  innerStrength?: number;
+  /** Bypass if prefers-reduced-motion is active. Default: true */
+  respectReducedMotion?: boolean;
+}
+
+export interface ScrollTimelineOptions {
+  timeline?: PropertyTimeline;
+  /** Keyframe timeline driving direct GPU transforms in Ticker Phase 3 */
+  keyframes?: Record<string, (number | string)[]> | Array<{ progress: number; transform?: ElementTransform; opacity?: number }>;
+  progress?: number;
+  onUpdate?: (values: Record<string, number>) => void;
+  respectReducedMotion?: boolean;
+}
+
+export interface ScrollDirectionOptions {
+  /** Downward travel required to trigger 'down' state. Default: 15px */
+  thresholdDown?: number;
+  /** Upward travel required to trigger 'up' state. Default: 25px */
+  thresholdUp?: number;
+  /** Target navbar/header element to automatically animate GPU translate with 0 re-renders */
+  targetRef?: React.RefObject<HTMLElement | null>;
+  /** Callback fired when direction changes or top boundary is hit */
+  onDirectionChange?: (direction: 'up' | 'down', isAtTop: boolean) => void;
+  /** Auto-hide transform CSS string. Default: 'translateY(-100%)' */
+  hideTransform?: string;
 }
 
 export interface ScrollElementProps extends React.HTMLAttributes<HTMLElement> {

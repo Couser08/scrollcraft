@@ -2,12 +2,17 @@
 
 /**
  * Direct DOM Parallax Hook (Zero-Rerender Subpixel Transforms)
- * Forwards React ref to the @scrollcraft/core ParallaxSolver.
+ * Universal Dual API:
+ *   - Headless: `const ref = useParallax<HTMLDivElement>(options)`
+ *   - Ref-Forwarding: `useParallax(existingRef, options)`
+ *
  * Features:
  * - Autonomous viewport visibility culling via globalVisibilityManager
  * - SmartCompositor dynamic layer lifecycle
  * - Zero layout thrashing on scroll
  * - Resilient layout shift detection (ResizeObserver, font ready, image load)
+ * - Auto-hero anti-jump (`origin="auto"`) and bleed prevention (`bleed={true}`)
+ * - Strictly 0 React re-renders during scroll
  * Strictly under 650 LOC.
  */
 
@@ -21,22 +26,29 @@ import {
 } from '@scrollcraft/core';
 import { useScrollCraft } from '../context';
 import { ParallaxOptions } from '../types';
+import { useDualRef, captureNode } from '../utils/ref';
 
-export function useParallax<T extends HTMLElement>(
+export function useParallax<T extends HTMLElement = HTMLDivElement>(
+  options?: ParallaxOptions
+): React.RefObject<T | null>;
+export function useParallax<T extends HTMLElement = HTMLDivElement>(
   targetRef: React.RefObject<T | null>,
-  options: ParallaxOptions = {}
-): void {
+  options?: ParallaxOptions
+): void;
+export function useParallax<T extends HTMLElement = HTMLDivElement>(
+  refOrOptions?: React.RefObject<T | null> | ParallaxOptions,
+  maybeOptions?: ParallaxOptions
+): React.RefObject<T | null> | void {
+  const { ref, options, isHeadless } = useDualRef<T, ParallaxOptions>(refOrOptions, maybeOptions);
   const { respectReducedMotion = true } = options;
   const { reducedMotion, engine } = useScrollCraft();
 
   useEffect(() => {
-    const node = targetRef.current;
+    const node = captureNode(ref);
     if (!node || typeof window === 'undefined') return;
 
     if (reducedMotion && respectReducedMotion) {
-      if (node) {
-        TransformComposer.clear(node, 'parallax');
-      }
+      TransformComposer.clear(node, 'parallax');
       return;
     }
 
@@ -106,10 +118,18 @@ export function useParallax<T extends HTMLElement>(
     options.direction,
     options.min,
     options.max,
+    options.origin,
+    options.bleed,
+    options.scale,
+    options.rotate,
     options.driver,
     reducedMotion,
     respectReducedMotion,
-    targetRef,
+    ref,
     engine,
   ]);
+
+  if (isHeadless) {
+    return ref;
+  }
 }

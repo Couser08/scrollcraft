@@ -16,6 +16,20 @@ export interface ParallaxOptions {
   direction?: 'vertical' | 'horizontal';
   min?: number;
   max?: number;
+  /**
+   * Reference anchor origin:
+   * - 'center' (default): displacement relative to viewport center
+   * - 'auto': Hero anti-jump anchor: displacement is strictly 0px when scrollY=0
+   * - 'top': displacement relative to viewport top
+   * - number: custom pixel offset anchor
+   */
+  origin?: 'auto' | 'center' | 'top' | number;
+  /** Auto-scales element to prevent unpainted gaps during strong parallax, clips parent container */
+  bleed?: boolean | number;
+  /** Optional scale multiplier */
+  scale?: number;
+  /** Optional rotate angle in degrees */
+  rotate?: number;
   /** Driver selection: 'auto' (native CSS scroll-timeline with JS fallback), 'native' (force native), or 'js' (force JS ticker) */
   driver?: 'auto' | 'js' | 'native';
 }
@@ -37,12 +51,24 @@ class JSParallaxDriver implements ScrollDriver {
   private state: ParallaxState = { offset: 0 };
   private isVisible: boolean = true;
   private lastRenderedOffset: number | null = null;
+  private bleedScale: number = 1;
+  private prevParentOverflow: string = '';
 
   constructor(
     private element: HTMLElement,
     private options: Required<ParallaxOptions>
   ) {
     smartCompositor.promote(element);
+
+    if (this.options.bleed) {
+      if (this.element.parentElement) {
+        this.prevParentOverflow = this.element.parentElement.style.overflow;
+        this.element.parentElement.style.overflow = 'hidden';
+      }
+      this.bleedScale = typeof this.options.bleed === 'number'
+        ? this.options.bleed
+        : 1 + Math.min(Math.abs(this.options.speed) * 0.4, 0.35);
+    }
   }
 
   public setVisible(visible: boolean): void {
@@ -84,11 +110,27 @@ class JSParallaxDriver implements ScrollDriver {
     const elementCenter = this.options.direction === 'vertical'
       ? this.elementTop + (this.elementHeight / 2)
       : this.elementLeft + (this.elementWidth / 2);
-    const distanceFromCenter = viewportCenter - elementCenter;
 
-    let offset = distanceFromCenter * this.options.speed;
+    let offset = 0;
+    if (this.options.origin === 'auto') {
+      // Hero anti-jump: anchor displacement at scrollY=0 to 0px
+      const initialDist = (this.viewportSize / 2) - elementCenter;
+      const initialOffset = initialDist * this.options.speed;
+      const dist = viewportCenter - elementCenter;
+      offset = (dist * this.options.speed) - initialOffset;
+    } else if (this.options.origin === 'top') {
+      const dist = scrollOffset - (this.options.direction === 'vertical' ? this.elementTop : this.elementLeft);
+      offset = dist * this.options.speed;
+    } else if (typeof this.options.origin === 'number') {
+      const dist = scrollOffset - this.options.origin;
+      offset = dist * this.options.speed;
+    } else {
+      // Default: 'center'
+      const distanceFromCenter = viewportCenter - elementCenter;
+      offset = distanceFromCenter * this.options.speed;
+    }
+
     offset = clamp(offset, this.options.min, this.options.max);
-
     this.state.offset = offset;
     return this.state;
   }
@@ -102,11 +144,20 @@ class JSParallaxDriver implements ScrollDriver {
     const dpr = typeof window !== 'undefined' ? (window.devicePixelRatio || 1) : 1;
     const snappedOffset = Math.round(this.state.offset * dpr) / dpr;
     const formattedOffset = snappedOffset.toFixed(2);
-    if (this.options.direction === 'vertical') {
-      TransformComposer.set(this.element, 'parallax', `translate3d(0, ${formattedOffset}px, 0)`);
-    } else {
-      TransformComposer.set(this.element, 'parallax', `translate3d(${formattedOffset}px, 0, 0)`);
+
+    let transform = this.options.direction === 'vertical'
+      ? `translate3d(0, ${formattedOffset}px, 0)`
+      : `translate3d(${formattedOffset}px, 0, 0)`;
+
+    const finalScale = (this.options.scale || 1) * this.bleedScale;
+    if (finalScale !== 1) {
+      transform += ` scale(${finalScale.toFixed(4)})`;
     }
+    if (this.options.rotate) {
+      transform += ` rotate(${this.options.rotate}deg)`;
+    }
+
+    TransformComposer.set(this.element, 'parallax', transform);
   }
 
   public getState(): ParallaxState {
@@ -114,6 +165,9 @@ class JSParallaxDriver implements ScrollDriver {
   }
 
   public destroy(): void {
+    if (this.options.bleed && this.element.parentElement) {
+      this.element.parentElement.style.overflow = this.prevParentOverflow;
+    }
     smartCompositor.destroy(this.element);
     TransformComposer.clear(this.element, 'parallax');
   }
@@ -178,6 +232,13 @@ class NativeParallaxDriver implements ScrollDriver {
     let startOffset = maxDistance * this.options.speed;
     let endOffset = -maxDistance * this.options.speed;
 
+    if (this.options.origin === 'auto') {
+      const distAt0 = (windowHeight / 2) - (elementTop + elementHeight / 2);
+      const initialOffset = distAt0 * this.options.speed;
+      startOffset -= initialOffset;
+      endOffset -= initialOffset;
+    }
+
     startOffset = clamp(startOffset, this.options.min, this.options.max);
     endOffset = clamp(endOffset, this.options.min, this.options.max);
 
@@ -225,6 +286,10 @@ export class ParallaxSolver {
       direction: options?.direction ?? 'vertical',
       min: options?.min ?? -Number.MAX_VALUE,
       max: options?.max ?? Number.MAX_VALUE,
+      origin: options?.origin ?? 'center',
+      bleed: options?.bleed ?? false,
+      scale: options?.scale ?? 1,
+      rotate: options?.rotate ?? 0,
       driver: options?.driver ?? 'auto',
     };
 

@@ -1,8 +1,9 @@
 'use client';
 
-import React from 'react';
-import { Slot } from '../slot';
-import { useMagnetic, MagneticOptions } from '../hooks/useMagnetic';
+import React, { useRef } from 'react';
+import { Slot, composeRefs } from '../slot';
+import { useMagnetic } from '../hooks/useMagnetic';
+import type { MagneticOptions } from '../types';
 
 export interface MagneticProps extends React.HTMLAttributes<HTMLElement>, MagneticOptions {
   children: React.ReactNode;
@@ -10,21 +11,16 @@ export interface MagneticProps extends React.HTMLAttributes<HTMLElement>, Magnet
 }
 
 export const Magnetic = React.forwardRef<HTMLElement, MagneticProps>(
-  ({ children, asChild, strength, radius, stiffness, damping, ...props }, forwardedRef) => {
-    const { ref: magneticRef } = useMagnetic({ strength, radius, stiffness, damping });
+  ({ children, asChild, strength, radius, stiffness, damping, scale, innerTargetRef, innerStrength, ...props }, forwardedRef) => {
+    const internalRef = useRef<HTMLElement | null>(null);
+    useMagnetic(internalRef, { strength, radius, stiffness, damping, scale, innerTargetRef, innerStrength });
     
     const Comp = asChild ? Slot : 'div';
+    const mergedRef = composeRefs(forwardedRef, internalRef);
 
     return (
       <Comp
-        ref={(node: HTMLElement | null) => {
-          magneticRef.current = node;
-          if (typeof forwardedRef === 'function') {
-            forwardedRef(node);
-          } else if (forwardedRef) {
-            forwardedRef.current = node;
-          }
-        }}
+        ref={mergedRef}
         {...props}
       >
         {children}
