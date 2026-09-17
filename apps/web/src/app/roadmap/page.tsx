@@ -11,6 +11,8 @@ import {
   Heart,
   MessageSquare,
   Bug,
+  Sparkles,
+  ExternalLink,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -446,42 +448,102 @@ export default function RoadmapPage() {
         </section>
 
         {/* Section 3: Architecture & Attributions */}
-        <section className="rounded-2xl border border-violet-500/20 bg-gradient-to-r from-violet-950/20 via-[#0a0a0e] to-zinc-900/30 p-6 sm:p-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-xl mb-16">
-          <div className="flex items-start gap-4">
-            <div className="w-12 h-12 rounded-xl bg-violet-950/50 border border-violet-500/30 flex items-center justify-center shrink-0 mt-1 text-violet-300">
-              <Heart className="w-6 h-6 text-violet-400 fill-violet-400/20" />
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-mono font-bold uppercase tracking-wider text-violet-400">
-                  Architecture &amp; Attributions
+        <section className="rounded-3xl border border-zinc-800 bg-gradient-to-b from-zinc-950 via-zinc-950 to-[#07070a] p-6 sm:p-10 shadow-2xl relative overflow-hidden mb-16">
+          {/* Header */}
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-8 border-b border-zinc-800/80 mb-8">
+            <div>
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className="text-xs font-mono font-semibold uppercase tracking-widest text-violet-400">
+                  ENGINEERING ARCHITECTURE &amp; PRIOR ART
                 </span>
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-violet-500/10 text-violet-300 border border-violet-500/20 font-mono">
-                  Open Source Credit
+                <span className="text-[10px] px-2 py-0.5 rounded-md bg-zinc-800 text-zinc-300 border border-zinc-700 font-mono font-medium">
+                  Open Source Attributions
                 </span>
               </div>
-              <h3 className="text-xl sm:text-2xl font-bold text-white font-sans">
-                Custom React Motion Engine &bull; Lenis Physics Prior Art
+              <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                Custom React Motion Core &bull; Inertia Normalization Prior Art
               </h3>
-              <div className="text-xs sm:text-sm text-zinc-400 max-w-3xl space-y-2 leading-relaxed font-sans">
-                <p>
-                  <strong className="text-zinc-200">ScrollCraft Motion Engine:</strong> The core multi-phase ticker, zero-rerender DOM compositor, and declarative primitives (<code className="text-violet-300">&lt;Parallax&gt;</code>, <code className="text-violet-300">&lt;Pin&gt;</code>, <code className="text-violet-300">&lt;Reveal&gt;</code>, <code className="text-violet-300">&lt;StackedCards&gt;</code>) are custom in-house systems built from scratch for React.
-                </p>
-                <p>
-                  <strong className="text-zinc-200">Smooth Inertia Normalization:</strong> Our virtual inertia physics take mathematical inspiration from the pioneering work of Studio Freight&apos;s Lenis. We utilize these normalization principles to provide buttery trackpad and wheel interpolation across browsers, wired directly into ScrollCraft&apos;s proprietary zero-rerender animation engine.
-                </p>
+            </div>
+
+            <a
+              href="https://github.com/darkroomengineering/lenis"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-xs font-mono text-zinc-200 hover:text-white transition-all shrink-0 cursor-pointer"
+            >
+              <span>View Lenis Repository</span>
+              <ExternalLink className="w-3.5 h-3.5 text-zinc-400" />
+            </a>
+          </div>
+
+          {/* Dual Architectural Pillars */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Pillar 1: ScrollCraft In-House Core */}
+            <div className="p-6 rounded-2xl bg-black/50 border border-zinc-800/80 space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-violet-950/60 border border-violet-500/30 flex items-center justify-center text-violet-300">
+                  <Sparkles className="w-4 h-4 text-violet-400" />
+                </div>
+                <div>
+                  <h4 className="text-base font-bold text-white">
+                    ScrollCraft Motion Core
+                  </h4>
+                  <span className="text-[11px] font-mono text-violet-400">
+                    In-House React 19 Architecture
+                  </span>
+                </div>
+              </div>
+
+              <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed font-sans">
+                The centralized 3-Phase Ticker, direct DOM Transform Composer, and all declarative primitives (<code className="text-violet-300">&lt;Parallax&gt;</code>, <code className="text-violet-300">&lt;Pin&gt;</code>, <code className="text-violet-300">&lt;Reveal&gt;</code>, <code className="text-violet-300">&lt;StackedCards&gt;</code>, <code className="text-violet-300">&lt;ScrollSequence&gt;</code>) are custom systems built specifically for React 19 concurrency and Next.js 15 App Router streaming.
+              </p>
+
+              <div className="flex flex-wrap gap-2 pt-1 text-[10px] font-mono text-zinc-400">
+                <span className="px-2 py-1 rounded-md bg-zinc-900 border border-zinc-800 flex items-center gap-1">
+                  <CheckCircle2 className="w-3 h-3 text-emerald-400" /> 3-Phase Ticker
+                </span>
+                <span className="px-2 py-1 rounded-md bg-zinc-900 border border-zinc-800 flex items-center gap-1">
+                  <CheckCircle2 className="w-3 h-3 text-emerald-400" /> GPU Compositor
+                </span>
+                <span className="px-2 py-1 rounded-md bg-zinc-900 border border-zinc-800 flex items-center gap-1">
+                  <CheckCircle2 className="w-3 h-3 text-emerald-400" /> 0 Re-Render Invariant
+                </span>
+              </div>
+            </div>
+
+            {/* Pillar 2: Open Source Pedigree & Lenis Attributions */}
+            <div className="p-6 rounded-2xl bg-black/50 border border-zinc-800/80 space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-300">
+                  <Heart className="w-4 h-4 text-rose-400" />
+                </div>
+                <div>
+                  <h4 className="text-base font-bold text-white">
+                    Inertia Physics Prior Art
+                  </h4>
+                  <span className="text-[11px] font-mono text-zinc-400">
+                    Studio Freight &amp; Clément Roche Lineage
+                  </span>
+                </div>
+              </div>
+
+              <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed font-sans">
+                Our virtual momentum calculations take mathematical inspiration from the pioneering work of Studio Freight&apos;s Lenis. We utilize these normalization principles to deliver smooth trackpad and wheel interpolation across platforms, wired directly into ScrollCraft&apos;s zero-rerender compositor pipeline.
+              </p>
+
+              <div className="flex flex-wrap gap-2 pt-1 text-[10px] font-mono text-zinc-400">
+                <span className="px-2 py-1 rounded-md bg-zinc-900 border border-zinc-800 flex items-center gap-1">
+                  <CheckCircle2 className="w-3 h-3 text-emerald-400" /> Kinetic Physics
+                </span>
+                <span className="px-2 py-1 rounded-md bg-zinc-900 border border-zinc-800 flex items-center gap-1">
+                  <CheckCircle2 className="w-3 h-3 text-emerald-400" /> Cross-Browser Deltas
+                </span>
+                <span className="px-2 py-1 rounded-md bg-zinc-900 border border-zinc-800 flex items-center gap-1">
+                  <CheckCircle2 className="w-3 h-3 text-emerald-400" /> MIT Collaboration
+                </span>
               </div>
             </div>
           </div>
-
-          <a
-            href="https://github.com/darkroomengineering/lenis"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-5 py-2.5 rounded-full bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-xs font-mono text-zinc-300 hover:text-white transition-colors shrink-0 whitespace-nowrap shadow-sm"
-          >
-            Explore Lenis Repository &rarr;
-          </a>
         </section>
       </main>
 

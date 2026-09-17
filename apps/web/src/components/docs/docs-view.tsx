@@ -143,6 +143,17 @@ export function DocsView() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  // Isolate wheel events on sidebar so mousewheel scrolling works natively without Lenis interception
+  useEffect(() => {
+    const sidebar = sidebarContainerRef.current;
+    if (!sidebar) return;
+    const handleWheel = (e: WheelEvent) => {
+      e.stopPropagation();
+    };
+    sidebar.addEventListener('wheel', handleWheel, { passive: true });
+    return () => sidebar.removeEventListener('wheel', handleWheel);
+  }, []);
+
   // Track active heading on scroll for Right TOC
   useEffect(() => {
     if (tocItems.length === 0) return;
@@ -265,154 +276,124 @@ export function DocsView() {
         onSelectSection={handleSelectSection}
       />
 
-      {/* Top Header - Fixed at top of viewport */}
-      <header className="h-16 shrink-0 border-b border-zinc-800/80 bg-[#050505]/95 backdrop-blur-md flex items-center justify-between px-6 z-50 sticky top-0">
-        <div className="flex items-center gap-6 sm:gap-10">
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <ScrollCraftLogo variant="badge" badgeText="Beta" size="sm" />
-          </Link>
-          <nav className="hidden md:flex items-center gap-2 text-xs sm:text-sm font-medium">
-            <Link
-              href="/"
-              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors"
-            >
-              Home
+      {/* Top Header - Consistent with Home/Showcase/Roadmap Navbar */}
+      <header className="w-full border-b border-zinc-800/80 bg-[#050505]/90 backdrop-blur-md sticky top-0 z-50">
+        <div className="max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-6 sm:gap-8">
+            <Link href="/" className="flex items-center gap-2.5 group">
+              <ScrollCraftLogo variant="badge" badgeText="Beta" size="sm" />
             </Link>
-            <Link
-              href="/docs"
-              className="px-3 py-1.5 rounded-lg bg-zinc-900 text-white font-semibold border border-zinc-800 shadow-xs"
+            <nav className="hidden md:flex items-center gap-2 text-xs font-medium">
+              <Link
+                href="/"
+                className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors"
+              >
+                Home
+              </Link>
+              <Link
+                href="/docs"
+                className="px-3 py-1.5 rounded-lg bg-zinc-900 text-white font-semibold border border-zinc-800 shadow-xs"
+              >
+                Docs
+              </Link>
+              <Link
+                href="/showcase"
+                className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors"
+              >
+                Showcase
+              </Link>
+              <Link
+                href="/roadmap"
+                className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors"
+              >
+                Roadmap
+              </Link>
+            </nav>
+          </div>
+
+          {/* Quick Search trigger & right actions */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setCommandPaletteOpen(true)}
+              className="flex items-center gap-2.5 bg-zinc-900/80 hover:bg-zinc-900 border border-zinc-800 hover:border-zinc-700 rounded-full h-9 px-3.5 text-xs text-zinc-400 transition-all cursor-pointer shadow-inner group"
             >
-              Docs
-            </Link>
-            <Link
-              href="/showcase"
-              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors"
+              <Search className="w-3.5 h-3.5 text-zinc-500 group-hover:text-zinc-300 transition-colors" />
+              <span className="hidden sm:inline text-zinc-400 text-xs">Search docs...</span>
+              <div className="hidden sm:flex items-center gap-0.5 ml-1">
+                <kbd className="px-1.5 py-0.5 text-[9px] bg-zinc-800 border border-zinc-700 rounded font-mono text-zinc-400">⌘K</kbd>
+              </div>
+            </button>
+
+            <a
+              href="https://github.com/ScrollCraft/scrollcraft"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="ScrollCraft GitHub Repository"
+              className="p-2 rounded-full border border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900 text-zinc-400 hover:text-white transition-colors"
             >
-              Showcase
-            </Link>
-            <Link
-              href="/roadmap"
-              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors"
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
+              </svg>
+            </a>
+
+            {/* Desktop Sidebar Toggle */}
+            <button
+              onClick={() => setDesktopSidebarOpen(!desktopSidebarOpen)}
+              className="hidden md:flex p-2 rounded-full border border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900 text-zinc-400 hover:text-white transition-colors cursor-pointer"
+              title={desktopSidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
             >
-              Roadmap
-            </Link>
-          </nav>
-        </div>
+              {desktopSidebarOpen ? <PanelLeftClose className="w-4 h-4" /> : <PanelLeftOpen className="w-4 h-4" />}
+            </button>
 
-        {/* Search Bar */}
-        <div className="flex-1 max-w-lg mx-6 hidden sm:block">
-          <button
-            onClick={() => setCommandPaletteOpen(true)}
-            className="w-full flex items-center justify-between bg-zinc-900/80 hover:bg-zinc-900 border border-zinc-800 hover:border-zinc-700 rounded-full h-9 px-3.5 text-sm text-zinc-400 transition-all cursor-pointer shadow-inner group"
-          >
-            <div className="flex items-center gap-2.5">
-              <Search className="w-4 h-4 text-zinc-500 group-hover:text-zinc-300 transition-colors" />
-              <span className="text-zinc-500 group-hover:text-zinc-400 text-xs sm:text-sm">
-                Search documentation, primitives, hooks...
-              </span>
-            </div>
-            <div className="flex items-center gap-1">
-              <kbd className="px-1.5 py-0.5 text-[10px] bg-zinc-800 border border-zinc-700 rounded font-mono text-zinc-400 shadow-xs">
-                ⌘
-              </kbd>
-              <kbd className="px-1.5 py-0.5 text-[10px] bg-zinc-800 border border-zinc-700 rounded font-mono text-zinc-400 shadow-xs">
-                K
-              </kbd>
-            </div>
-          </button>
-        </div>
-
-        {/* Right actions */}
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => setCommandPaletteOpen(true)}
-            className="sm:hidden p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800"
-            title="Search (⌘K)"
-          >
-            <Search className="w-5 h-5" />
-          </button>
-
-          <a
-            href="https://github.com/ScrollCraft/scrollcraft"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-zinc-400 hover:text-white transition-colors p-1"
-            title="GitHub Repository"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
-            </svg>
-          </a>
-
-          <button
-            onClick={() => handleSelectSection('installation')}
-            className="hidden sm:flex items-center gap-2 bg-white text-black px-4 py-1.5 rounded-full text-sm font-semibold hover:bg-zinc-200 transition-colors shadow-sm cursor-pointer"
-          >
-            Get Started
-            <ArrowRight className="w-4 h-4" />
-          </button>
-
-          {/* Desktop Sidebar Collapse Toggle */}
-          <button
-            onClick={() => setDesktopSidebarOpen(!desktopSidebarOpen)}
-            className="hidden md:flex p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors cursor-pointer"
-            title={desktopSidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
-          >
-            {desktopSidebarOpen ? (
-              <PanelLeftClose className="w-5 h-5" />
-            ) : (
-              <PanelLeftOpen className="w-5 h-5" />
-            )}
-          </button>
-
-          {/* Mobile Menu Toggle */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
-          >
-            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
+            {/* Mobile Menu Toggle */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 rounded-full border border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900 text-zinc-400 hover:text-white transition-colors"
+            >
+              {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+            </button>
+          </div>
         </div>
       </header>
 
-      {/* Main Container */}
-      <div className="relative w-full max-w-[1600px] mx-auto flex-1">
-        {/* Left Sidebar - Fixed & Isolated with overscroll-contain */}
+      {/* Mobile Drawer Backdrop */}
+      {mobileMenuOpen && (
+        <div
+          onClick={() => setMobileMenuOpen(false)}
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden"
+        />
+      )}
+
+      {/* Main Docs Content Layout: Framed in max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 */}
+      <div className="w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 flex-1 flex relative">
+        {/* Left Sidebar - Sticky within container, data-lenis-prevent, smoothly wheel-scrollable */}
         <aside
           ref={sidebarContainerRef}
+          data-lenis-prevent="true"
           className={`
-            fixed top-16 bottom-0 left-0 z-40 w-72 bg-[#050505] border-r border-zinc-800/80 px-4 py-6
+            sticky top-16 h-[calc(100vh-4rem)] w-64 lg:w-72 shrink-0 py-6 pr-6 border-r border-zinc-800/80
             overflow-y-auto overscroll-contain sidebar-scroll
             ${
               mobileMenuOpen
-                ? 'block shadow-2xl'
+                ? 'fixed inset-y-0 left-0 z-50 w-72 bg-[#050505] p-6 shadow-2xl block border-r border-zinc-800'
                 : desktopSidebarOpen
                 ? 'hidden md:block'
                 : 'hidden'
             }
           `}
         >
-          {/* Mobile Quick Links */}
-          <div className="md:hidden grid grid-cols-3 gap-2 mb-4 pb-4 border-b border-zinc-800">
-            <Link
-              href="/"
-              className="flex items-center justify-center py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-xs font-medium text-zinc-300 hover:text-white"
-            >
-              Home
-            </Link>
-            <Link
-              href="/showcase"
-              className="flex items-center justify-center py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-xs font-medium text-zinc-300 hover:text-white"
-            >
-              Showcase
-            </Link>
-            <Link
-              href="/roadmap"
-              className="flex items-center justify-center py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-xs font-medium text-zinc-300 hover:text-white"
-            >
-              Roadmap
-            </Link>
-          </div>
+          {/* Mobile Close Button inside Drawer */}
+          {mobileMenuOpen && (
+            <div className="md:hidden flex items-center justify-between pb-4 mb-4 border-b border-zinc-800">
+              <ScrollCraftLogo variant="badge" badgeText="Beta" size="sm" />
+              <button
+                onClick={() => setMobileMenuOpen(false)}
+                className="p-1 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+          )}
 
           {/* Version Selector & Stability Signal */}
           <div className="mb-6 space-y-2">
@@ -435,59 +416,55 @@ export function DocsView() {
           />
         </aside>
 
-        {/* Main Content Area */}
-        <main
-          className={`w-full min-h-[calc(100vh-4rem)] transition-[padding] duration-200 ${
-            desktopSidebarOpen ? 'md:pl-72' : 'pl-0'
-          } xl:pr-64`}
-        >
-          <div className="max-w-4xl mx-auto px-6 sm:px-10 lg:px-12 py-8 lg:py-12">
-            {/* Main Article Content */}
-            <article className="prose prose-invert prose-zinc max-w-none">
-              {renderSection()}
-            </article>
+        {/* Center Main Article */}
+        <main className="flex-1 min-w-0 px-4 sm:px-8 lg:px-12 py-8 lg:py-12">
+          <article className="prose prose-invert prose-zinc max-w-none">
+            {renderSection()}
+          </article>
 
-            {/* Pagination Cards */}
-            <div className="mt-20 pt-8 border-t border-zinc-800/80 grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {prevSection ? (
-                <button
-                  onClick={() => handleSelectSection(prevSection.id)}
-                  className="flex flex-col gap-1 p-5 rounded-xl border border-zinc-800/80 bg-[#09090b] hover:border-zinc-700 transition-all text-left group shadow-lg cursor-pointer"
-                >
-                  <div className="flex items-center gap-1.5 text-xs text-zinc-500 group-hover:text-zinc-300 font-mono mb-1">
-                    <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1" />
-                    <span>Previous</span>
-                  </div>
-                  <span className="text-base font-semibold text-white group-hover:text-violet-400 transition-colors">
-                    {prevSection.title}
-                  </span>
-                  <span className="text-xs text-zinc-500">{prevSection.categoryTitle}</span>
-                </button>
-              ) : (
-                <div />
-              )}
+          {/* Pagination Cards */}
+          <div className="mt-20 pt-8 border-t border-zinc-800/80 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {prevSection ? (
+              <button
+                onClick={() => handleSelectSection(prevSection.id)}
+                className="flex flex-col gap-1 p-5 rounded-xl border border-zinc-800/80 bg-[#09090b] hover:border-zinc-700 transition-all text-left group shadow-lg cursor-pointer"
+              >
+                <div className="flex items-center gap-1.5 text-xs text-zinc-500 group-hover:text-zinc-300 font-mono mb-1">
+                  <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1" />
+                  <span>Previous</span>
+                </div>
+                <span className="text-base font-semibold text-white group-hover:text-violet-400 transition-colors">
+                  {prevSection.title}
+                </span>
+                <span className="text-xs text-zinc-500">{prevSection.categoryTitle}</span>
+              </button>
+            ) : (
+              <div />
+            )}
 
-              {nextSection && (
-                <button
-                  onClick={() => handleSelectSection(nextSection.id)}
-                  className="flex flex-col gap-1 p-5 rounded-xl border border-zinc-800/80 bg-[#09090b] hover:border-zinc-700 transition-all text-right items-end group shadow-lg cursor-pointer"
-                >
-                  <div className="flex items-center gap-1.5 text-xs text-zinc-500 group-hover:text-zinc-300 font-mono mb-1">
-                    <span>Next</span>
-                    <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
-                  </div>
-                  <span className="text-base font-semibold text-white group-hover:text-violet-400 transition-colors">
-                    {nextSection.title}
-                  </span>
-                  <span className="text-xs text-zinc-500">{nextSection.categoryTitle}</span>
-                </button>
-              )}
-            </div>
+            {nextSection && (
+              <button
+                onClick={() => handleSelectSection(nextSection.id)}
+                className="flex flex-col gap-1 p-5 rounded-xl border border-zinc-800/80 bg-[#09090b] hover:border-zinc-700 transition-all text-right items-end group shadow-lg cursor-pointer"
+              >
+                <div className="flex items-center gap-1.5 text-xs text-zinc-500 group-hover:text-zinc-300 font-mono mb-1">
+                  <span>Next</span>
+                  <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+                </div>
+                <span className="text-base font-semibold text-white group-hover:text-violet-400 transition-colors">
+                  {nextSection.title}
+                </span>
+                <span className="text-xs text-zinc-500">{nextSection.categoryTitle}</span>
+              </button>
+            )}
           </div>
         </main>
 
-        {/* Right TOC Sidebar - Fixed & Isolated with overscroll-contain */}
-        <aside className="fixed top-16 bottom-0 right-0 z-30 w-64 px-6 py-12 hidden xl:block border-l border-zinc-800/80 overflow-y-auto overscroll-contain sidebar-scroll bg-[#050505]">
+        {/* Right TOC Sidebar - Sticky within container, data-lenis-prevent */}
+        <aside
+          data-lenis-prevent="true"
+          className="sticky top-16 h-[calc(100vh-4rem)] w-56 lg:w-64 shrink-0 py-12 pl-6 border-l border-zinc-800/80 overflow-y-auto overscroll-contain sidebar-scroll hidden xl:block"
+        >
           <div className="text-xs font-mono font-semibold uppercase tracking-wider text-zinc-400 mb-4">
             On this page
           </div>

@@ -59,10 +59,9 @@ class JSHorizontalDriver implements ScrollDriver {
   public update(scrollY: number): HorizontalState {
     if (this.effectiveScrollDistance <= 0) return this.state;
 
-    // Progress 0.0 to 1.0 based on how far we scrolled past the element's top scaled by speed
+    // Progress 0.0 to 1.0 based on how far we scrolled past the element's top
     const scrolledPastTop = scrollY - this.elementTop;
-    let progress = scrolledPastTop / this.effectiveScrollDistance;
-    progress = clamp(progress, 0, 1);
+    let progress = clamp(scrolledPastTop / this.effectiveScrollDistance, 0, 1);
 
     this.state.progress = progress;
     this.state.offset = -(progress * this.trackWidth);

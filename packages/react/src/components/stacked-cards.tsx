@@ -44,7 +44,7 @@ export const StackedCards = React.memo(
         ? typeof height === 'number'
           ? `${height}px`
           : height
-        : `${Math.max(cards.length * cardDistance + 600, 1000)}px`;
+        : `${Math.max(cards.length * (cardDistance + 350) + 800, 1600)}px`;
 
     useEffect(() => {
       const container = internalRef.current;
@@ -88,7 +88,7 @@ export const StackedCards = React.memo(
       <div
         ref={mergedRef}
         className={`relative w-full ${className}`}
-        style={{ minHeight: resolvedHeight, ...style }}
+        style={{ position: 'relative', minHeight: resolvedHeight, ...style }}
         {...domProps}
       >
         {cards.map((card, index) => (
@@ -97,10 +97,11 @@ export const StackedCards = React.memo(
             ref={(el) => {
               cardRefs.current[index] = el;
             }}
-            className="w-full origin-top"
+            className="w-full origin-top sticky"
             style={{
-              position: 'relative',
               top: `${top + index * offset}px`,
+              zIndex: index + 1,
+              marginBottom: index < cards.length - 1 ? `${cardDistance}px` : '0px',
             }}
           >
             {card}

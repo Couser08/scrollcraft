@@ -20,6 +20,8 @@ export interface TextRevealOptions {
   rotateY?: number;
   /** Entry slide distance in pixels. Default: 0 (disabled) */
   slide?: number;
+  /** Initial base opacity for unrevealed characters (0 to 1). Default: 0 */
+  baseOpacity?: number;
 }
 
 export class TextRevealSolver {
@@ -36,12 +38,14 @@ export class TextRevealSolver {
   private entryRotateX: number = 0;
   private entryRotateY: number = 0;
   private entrySlide: number = 0;
+  private baseOpacity: number = 0;
   private hasKineticTransforms: boolean = false;
 
   constructor(container: HTMLElement, chars: HTMLElement[], options: TextRevealOptions = {}) {
     this.container = container;
     this.chars = chars;
     this.range = options.range || [0, 1];
+    this.baseOpacity = options.baseOpacity !== undefined ? options.baseOpacity : 0;
     this.initialOpacities = chars.map((char) => char.style.opacity || '');
     this.initialFilters = chars.map((char) => char.style.filter || '');
 
@@ -103,8 +107,8 @@ export class TextRevealSolver {
       const charProgress = clamp(mapRange(charProgressStart, charProgressEnd, 0, 1, progress), 0, 1);
       this.progressValues[i] = charProgress;
 
-      const charOpacity = mapRange(0, 1, 0.1, 1, charProgress);
-      this.opacities[i] = clamp(charOpacity, 0.1, 1);
+      const charOpacity = mapRange(0, 1, this.baseOpacity, 1, charProgress);
+      this.opacities[i] = clamp(charOpacity, this.baseOpacity, 1);
     }
   }
 
@@ -118,7 +122,7 @@ export class TextRevealSolver {
       const charProgress = this.progressValues[i] ?? 0;
 
       // 1. Direct GPU opacity write
-      const newOpacity = String(this.opacities[i] ?? 0.1);
+      const newOpacity = String(this.opacities[i] ?? this.baseOpacity);
       if (char.style.opacity !== newOpacity) {
         char.style.opacity = newOpacity;
       }

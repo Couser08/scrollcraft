@@ -32,18 +32,19 @@ export class DrawSolver {
     this.element = element;
     this.id = options.id || (`draw-${Math.random().toString(36).slice(2, 8)}`);
     this.options = {
+      direction: 'forward',
+      scrub: true,
+      ...options,
       start: options.start ?? 'top bottom',
       end: options.end ?? 'bottom top',
-      direction: options.direction ?? 'forward',
-      scrub: options.scrub ?? true,
-      ...options,
     };
     this.initialStrokeDasharray = element.style.strokeDasharray || '';
     this.initialStrokeDashoffset = element.style.strokeDashoffset || '';
   }
 
-  private parseTrigger(trigger: string, rect: DOMRect, windowHeight: number): number {
-    const parts = trigger.split(' ');
+  private parseTrigger(trigger: string | undefined, rect: DOMRect, windowHeight: number): number {
+    const safeTrigger = trigger && typeof trigger === 'string' && trigger.trim() ? trigger.trim() : 'top bottom';
+    const parts = safeTrigger.split(/\s+/);
     const elAlign = parts[0] || 'top';
     const vpAlign = parts[1] || 'bottom';
     

@@ -42,6 +42,7 @@ export class StackedCardsSolver {
   private cards: CardRuntimeState[] = [];
   private options: Required<StackedCardsOptions>;
   private containerTop: number = 0;
+  private containerHeight: number = 0;
   private isVisible: boolean = true;
 
   constructor(
@@ -91,6 +92,7 @@ export class StackedCardsSolver {
     const scrollTop = window.scrollY || window.pageYOffset;
     const containerRect = this.container.getBoundingClientRect();
     this.containerTop = containerRect.top + scrollTop;
+    this.containerHeight = this.container.offsetHeight || containerRect.height || 2000;
 
     let accumulatedDistance = 0;
     const totalCards = this.cards.length;
@@ -119,6 +121,12 @@ export class StackedCardsSolver {
     if (!this.isVisible || this.cards.length === 0) return;
 
     const totalCards = this.cards.length;
+    // Boundary unpinning: When scroll exceeds container runway, cards stop following scroll
+    // and naturally scroll away with the container so they never block subsequent sections!
+    const lastCardHeight = this.cards[totalCards - 1]?.measuredHeight || 300;
+    const maxStackHeight = lastCardHeight + this.options.top;
+    const maxPinY = this.containerTop + Math.max(0, this.containerHeight - maxStackHeight);
+    const effectiveScroll = Math.min(scrollY, maxPinY);
 
     for (let i = 0; i < totalCards; i++) {
       const card = this.cards[i];
@@ -130,23 +138,31 @@ export class StackedCardsSolver {
         card.currentScale = 1;
         card.isBuried = false;
       } else {
-        // Pinned: travel with scroll until container/stack finishes
-        const pinnedY = scrollY - card.pinStartY;
-        card.currentY = pinnedY;
+        // Pinned: travel with scroll until container runway finishes
+        const pinnedY = effectiveScroll - card.pinStartY;
+        card.currentY = Math.max(0, pinnedY);
 
-        // Check whether subsequent card has stacked over this card
-        let buriedCount = 0;
+        // Continuous smooth scale degradation:
+        // As subsequent cards approach and stack on top, smoothly scale this card down!
+        let buriedDepth = 0;
         for (let j = i + 1; j < totalCards; j++) {
-          if (scrollY >= this.cards[j].pinStartY) {
-            buriedCount++;
+          const nextCard = this.cards[j];
+          if (scrollY >= nextCard.pinStartY) {
+            buriedDepth += 1;
+          } else {
+            const approachDist = Math.max(100, this.options.cardDistance);
+            if (scrollY > nextCard.pinStartY - approachDist) {
+              const fraction = (scrollY - (nextCard.pinStartY - approachDist)) / approachDist;
+              buriedDepth += clamp(fraction, 0, 1);
+            }
           }
         }
 
-        card.isBuried = buriedCount > 0;
+        card.isBuried = buriedDepth >= 1;
 
-        // Depth scale degradation: cards underneath scale down subtly
+        // Depth scale degradation: cards underneath scale down smoothly
         card.currentScale = clamp(
-          1 - (buriedCount * this.options.scaleStep),
+          1 - (buriedDepth * this.options.scaleStep),
           this.options.minScale,
           1
         );
@@ -164,15 +180,30 @@ export class StackedCardsSolver {
     const total = this.cards.length;
     for (let i = 0; i < total; i++) {
       const card = this.cards[i];
-      const formattedY = card.currentY.toFixed(2);
       const formattedScale = card.currentScale.toFixed(4);
 
       // 1. Direct GPU Transform composition
-      TransformComposer.set(
-        card.element,
-        'stacked-cards',
-        `translate3d(0, ${formattedY}px, 0) scale(${formattedScale})`
-      );
+      const isSticky =
+        card.element &&
+        (card.element.style?.position === 'sticky' ||
+          (typeof window !== 'undefined' &&
+            typeof window.getComputedStyle === 'function' &&
+            window.getComputedStyle(card.element)?.position === 'sticky'));
+
+      if (isSticky) {
+        TransformComposer.set(
+          card.element,
+          'stacked-cards',
+          `scale(${formattedScale})`
+        );
+      } else {
+        const formattedY = card.currentY.toFixed(2);
+        TransformComposer.set(
+          card.element,
+          'stacked-cards',
+          `translate3d(0, ${formattedY}px, 0) scale(${formattedScale})`
+        );
+      }
 
       // 2. Dynamic pointer-events gating:
       // When a card is buried underneath subsequent cards, disable pointer events

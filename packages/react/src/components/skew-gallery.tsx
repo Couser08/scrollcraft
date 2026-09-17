@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useEffect } from 'react';
-import { damp, ticker, TransformComposer } from '@scrollcraft/core';
+import { damp, clamp, ticker, TransformComposer } from '@scrollcraft/core';
 import { useScrollCraft } from '../context';
 
 export interface SkewGalleryProps {
@@ -10,7 +10,7 @@ export interface SkewGalleryProps {
   intensity?: number;
 }
 
-export const SkewGallery: React.FC<SkewGalleryProps> = ({ images, className = '', intensity = 0.05 }) => {
+export const SkewGallery: React.FC<SkewGalleryProps> = ({ images, className = '', intensity = 1.8 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const { engine, reducedMotion } = useScrollCraft();
 
@@ -30,7 +30,7 @@ export const SkewGallery: React.FC<SkewGalleryProps> = ({ images, className = ''
     
     ticker.add(taskId, 'render', (dt) => {
       const velocity = engine?.getMetrics().velocity || 0;
-      const targetSkew = velocity * intensity;
+      const targetSkew = clamp(velocity * intensity, -12, 12);
       currentSkew = damp(currentSkew, targetSkew, 8, dt);
       if (Math.abs(currentSkew) < 0.01 && Math.abs(targetSkew) < 0.01) {
         if (currentSkew !== 0) {

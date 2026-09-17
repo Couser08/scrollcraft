@@ -20,6 +20,8 @@ export const TextReveal = React.memo(
       rotateX,
       rotateY,
       slide,
+      baseOpacity = 0,
+      style,
       ...domProps
     } = props;
 
@@ -77,6 +79,7 @@ export const TextReveal = React.memo(
         rotateX,
         rotateY,
         slide,
+        baseOpacity,
       });
 
       const taskId = `text-reveal-${Math.random().toString(36).slice(2, 8)}`;
@@ -101,7 +104,7 @@ export const TextReveal = React.memo(
         solver.destroy();
         targetsRef.current = [];
       };
-    }, [engine, rangeStart, rangeEnd, blur, scale, rotateX, rotateY, slide, totalTargets]);
+    }, [engine, rangeStart, rangeEnd, blur, scale, rotateX, rotateY, slide, baseOpacity, totalTargets]);
 
     const mergedRef = composeRefs(forwardedRef, internalRef);
 
@@ -111,6 +114,11 @@ export const TextReveal = React.memo(
         data-sc-reveal="pending"
         aria-label={children}
         className={`m-0 p-0 flex flex-wrap ${className}`}
+        style={{
+          perspective: '1000px',
+          transformStyle: 'preserve-3d',
+          ...style,
+        }}
         {...domProps}
       >
         <span aria-hidden="true" style={{ display: 'contents' }}>
@@ -122,7 +130,13 @@ export const TextReveal = React.memo(
                       targetsRef.current[wordIndex] = el;
                     }}
                     className="sc-word inline-block"
-                    style={{ opacity: 0.1, display: 'inline-block' }}
+                    style={{
+                      opacity: baseOpacity,
+                      display: 'inline-block',
+                      transformOrigin: '50% 100%',
+                      transformStyle: 'preserve-3d',
+                      backfaceVisibility: 'hidden',
+                    }}
                   >
                     {word}
                   </span>
@@ -133,7 +147,11 @@ export const TextReveal = React.memo(
                 <React.Fragment key={wordIndex}>
                   <span
                     className="sc-word-group inline-block"
-                    style={{ display: 'inline-block', whiteSpace: 'nowrap' }}
+                    style={{
+                      display: 'inline-block',
+                      whiteSpace: 'nowrap',
+                      transformStyle: 'preserve-3d',
+                    }}
                   >
                     {chars.map(({ char, index }) => (
                       <span
@@ -143,9 +161,12 @@ export const TextReveal = React.memo(
                         }}
                         className="sc-char inline-block"
                         style={{
-                          opacity: 0.1,
+                          opacity: baseOpacity,
                           display: 'inline-block',
                           whiteSpace: char === ' ' ? 'pre' : 'normal',
+                          transformOrigin: '50% 100%',
+                          transformStyle: 'preserve-3d',
+                          backfaceVisibility: 'hidden',
                         }}
                       >
                         {char}

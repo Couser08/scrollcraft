@@ -26,11 +26,11 @@ import { ScrollTransformOptions } from '../types';
 import { useDualRef, captureNode } from '../utils/ref';
 
 const PRESET_PROPERTIES: Record<string, TransformProperties> = {
-  'zoom-in': { scale: [0.6, 1], opacity: [0, 1] },
-  'fade-up': { y: [60, 0], opacity: [0, 1] },
-  'scale-down': { scale: [1.4, 1], opacity: [0.5, 1] },
-  'blur-in': { blur: [16, 0], opacity: [0, 1] },
-  '3d-flip': { rotateX: [75, 0], opacity: [0, 1], scale: [0.8, 1] },
+  'zoom-in': { scale: [0.75, 1], opacity: [0.4, 1] },
+  'fade-up': { y: [50, 0], opacity: [0.4, 1] },
+  'scale-down': { scale: [1.3, 1], opacity: [0.6, 1] },
+  'blur-in': { blur: [12, 0], opacity: [0.5, 1] },
+  '3d-flip': { rotateX: [60, 0], opacity: [0.45, 1], scale: [0.85, 1] },
 };
 
 function parsePropertyValue(val: number | string): number {

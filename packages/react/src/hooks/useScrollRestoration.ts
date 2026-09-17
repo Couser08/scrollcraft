@@ -7,7 +7,7 @@
  * Strictly under 650 LOC.
  */
 
-import { useEffect, useRef, useCallback, useMemo } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import { historyStore } from '@scrollcraft/core';
 import { useScrollCraft } from '../context';
 
@@ -86,12 +86,17 @@ export function useScrollRestoration(options: ScrollRestorationOptions = {}): Sc
   const isPopStateRef = useRef<boolean>(false);
   const retryRafRef = useRef<number | null>(null);
 
+  const [savedPosState, setSavedPosState] = useState<number | null>(() => {
+    return typeof window !== 'undefined' ? historyStore.get(currentKey) : null;
+  });
+
   const savePosition = useCallback(() => {
     if (typeof window === 'undefined') return;
     const key = currentKeyRef.current;
     if (!key) return;
     const scrollY = window.scrollY || window.pageYOffset || 0;
     historyStore.save(key, scrollY);
+    setSavedPosState(scrollY);
   }, []);
 
   const resetToTop = useCallback(() => {
@@ -276,14 +281,14 @@ export function useScrollRestoration(options: ScrollRestorationOptions = {}): Sc
     };
   }, []);
 
-  const savedPosition = useMemo(() => {
-    return historyStore.get(currentKey);
+  useEffect(() => {
+    setSavedPosState(typeof window !== 'undefined' ? historyStore.get(currentKey) : null);
   }, [currentKey]);
 
   return {
     savePosition,
     restorePosition,
     resetToTop,
-    savedPosition,
+    savedPosition: savedPosState,
   };
 }
