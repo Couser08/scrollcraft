@@ -51,7 +51,12 @@ export class InertiaEngine {
     let easing = config?.easing;
 
     if (config?.preset === 'cinematic') {
-      duration = duration ?? 1.1;
+      duration = duration ?? 1.4;
+      easing = easing ?? ((t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)));
+      lerp = undefined;
+    } else if (config?.preset === 'smooth' || (!config?.preset && !config?.lerp && !config?.duration)) {
+      // Default Smooth mode: buttery luxury inertia (Lenis gold standard)
+      duration = duration ?? 1.2;
       easing = easing ?? ((t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)));
       lerp = undefined;
     } else if (config?.preset === 'snappy') {
@@ -61,7 +66,7 @@ export class InertiaEngine {
     } else {
       // Natural / custom mode
       if (!duration && lerp === undefined) {
-        lerp = 0.1;
+        lerp = 0.08;
       }
     }
 
@@ -150,12 +155,6 @@ export class InertiaEngine {
     ticker.add(this.taskId, 'driver', (dt, _el, currentTime) => {
       if (!this.lenis) return;
 
-      // 120Hz-aware exponential smoothing: adapt lerp factor to actual dt
-      if (this.config.fpsAware && this.config.lerp !== undefined && dt > 0) {
-        const adjustedLerp = 1 - Math.pow(1 - this.config.lerp, (dt / 1000) * 60);
-        (this.lenis as any).options.lerp = adjustedLerp;
-      }
-
       // Optional spring mode simulation
       if (this.config.physicsMode === 'spring' && this.springConfig) {
         const target = (this.lenis as any).targetScroll ?? this.metrics.target ?? this.metrics.scroll;
@@ -164,7 +163,7 @@ export class InertiaEngine {
           target,
           this.springVelocity,
           this.springConfig,
-          dt / 1000,
+          dt,
           this.springStepState
         );
         this.springVelocity = this.springStepState.velocity;
@@ -172,7 +171,7 @@ export class InertiaEngine {
           this.lenis.scrollTo(this.springStepState.position, { immediate: true });
         }
       } else {
-        // Use exact RAF timestamp to prevent micro-stutters
+        // Use exact RAF timestamp to drive Lenis's built-in frame-rate-independent damping
         this.lenis.raf(currentTime);
       }
     });

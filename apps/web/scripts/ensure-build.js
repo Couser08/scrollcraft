@@ -16,21 +16,20 @@ if (process.platform === 'win32') {
 
 const nextDir = path.resolve(__dirname, '..', '.next');
 
-// Clean stale build manifests to prevent Windows OneDrive EINVAL readlink errors
-try {
-  if (fs.existsSync(nextDir)) {
-    fs.rmSync(nextDir, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 });
-  }
-} catch {
-  const conflicting = [
+// Clean stale build manifests and output chunks to prevent Windows OneDrive EINVAL errors,
+// but PRESERVE .next/cache to enable instant incremental Webpack/Turbopack compilations.
+if (fs.existsSync(nextDir)) {
+  const staleItems = [
     'app-build-manifest.json',
     'build-manifest.json',
     'prerender-manifest.json',
+    'routes-manifest.json',
     'BUILD_ID',
-    path.join('server', 'app'),
-    path.join('server', 'pages'),
+    'server',
+    'static',
+    'types',
   ];
-  for (const item of conflicting) {
+  for (const item of staleItems) {
     try {
       fs.rmSync(path.join(nextDir, item), { recursive: true, force: true });
     } catch {}

@@ -18,8 +18,11 @@ if (process.platform === 'win32') {
 const nextConfig: NextConfig = {
   transpilePackages: ['@scrollcraft/core', '@scrollcraft/react'],
   experimental: {
-    optimizePackageImports: ['lucide-react']
+    optimizePackageImports: ['lucide-react', 'three', '@react-three/drei']
   },
+  compress: true,
+  poweredByHeader: false,
+  productionBrowserSourceMaps: false,
   reactStrictMode: true,
   async redirects() {
     return [

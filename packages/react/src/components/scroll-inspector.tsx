@@ -47,15 +47,11 @@ export function ScrollInspector({
   const [copied, setCopied] = useState(false);
 
   const tier: PerformanceTier = useScrollCraftTier();
-  const { getMetrics, subscribe } = useScrollCraft();
+  const { subscribe } = useScrollCraft();
 
   // Direct DOM Refs for 0-rerender updates
   const fpsRef = useRef<HTMLSpanElement>(null);
   const msRef = useRef<HTMLSpanElement>(null);
-  const velocityRef = useRef<HTMLSpanElement>(null);
-  const scrollRef = useRef<HTMLSpanElement>(null);
-  const progressRef = useRef<HTMLSpanElement>(null);
-  const progressFillRef = useRef<HTMLDivElement>(null);
   const dotRef = useRef<HTMLSpanElement>(null);
   const droppedFramesRef = useRef<HTMLSpanElement>(null);
   const studioFpsRef = useRef<HTMLSpanElement>(null);
@@ -111,9 +107,6 @@ export function ScrollInspector({
   const lastFpsVal = useRef(-1);
   const lastMsVal = useRef(-1);
   const lastDotColor = useRef('');
-  const lastScrollVal = useRef(-1);
-  const lastVelocityVal = useRef(-1);
-  const lastProgressVal = useRef(-1);
 
   const updateFrameHealthText = (el: HTMLSpanElement, recentDrops: number, health: number) => {
     if (recentDrops === 0) {
@@ -212,40 +205,12 @@ export function ScrollInspector({
         frameCount.current = 0;
       }
 
-      // Live scroll metrics: only computed and written when expanded
-      if (!collapsed) {
-        const metrics = getMetrics ? getMetrics() : null;
-        if (metrics) {
-          const roundedScroll = Math.round(metrics.scroll);
-          if (scrollRef.current && lastScrollVal.current !== roundedScroll) {
-            lastScrollVal.current = roundedScroll;
-            scrollRef.current.textContent = `${roundedScroll}px`;
-          }
-
-          const roundedVel = Math.round(metrics.velocity);
-          if (velocityRef.current && lastVelocityVal.current !== roundedVel) {
-            lastVelocityVal.current = roundedVel;
-            velocityRef.current.textContent = `${roundedVel} px/s`;
-          }
-
-          const roundedProg = Math.round(metrics.progress * 100);
-          if (progressRef.current && lastProgressVal.current !== roundedProg) {
-            lastProgressVal.current = roundedProg;
-            progressRef.current.textContent = `${roundedProg}%`;
-          }
-
-          if (progressFillRef.current) {
-            progressFillRef.current.style.width = `${(metrics.progress * 100).toFixed(1)}%`;
-          }
-        }
-
-        // Update trigger progress bars in inspector tray
-        if (showTriggers && triggers.length > 0) {
-          for (const t of triggers) {
-            const bar = triggerBarsRef.current.get(t.id);
-            if (bar) {
-              bar.style.width = `${(t.progress * 100).toFixed(0)}%`;
-            }
+      // Update trigger progress bars in inspector tray when open
+      if (!collapsed && showTriggers && triggers.length > 0) {
+        for (const t of triggers) {
+          const bar = triggerBarsRef.current.get(t.id);
+          if (bar) {
+            bar.style.width = `${(t.progress * 100).toFixed(0)}%`;
           }
         }
       }
@@ -253,24 +218,33 @@ export function ScrollInspector({
     { phase: 'render', enabled: !collapsed }
   );
 
-  const positionMap: Record<NonNullable<ScrollInspectorProps['position']>, string> = {
-    'bottom-right': 'bottom-6 right-6',
-    'bottom-left': 'bottom-6 left-6',
-    'top-right': 'top-6 right-6',
-    'top-left': 'top-6 left-6',
+  const positionStyleMap: Record<NonNullable<ScrollInspectorProps['position']>, React.CSSProperties> = {
+    'bottom-right': { bottom: '24px', right: '24px' },
+    'bottom-left': { bottom: '24px', left: '24px' },
+    'top-right': { top: '24px', right: '24px' },
+    'top-left': { top: '24px', left: '24px' },
   };
-  const positionClasses = positionMap[position] ?? positionMap['bottom-right'];
+  const positionStyle = positionStyleMap[position] ?? positionStyleMap['bottom-right'];
 
   return (
     <aside
       aria-label="ScrollCraft Performance Inspector"
-      className={`fixed ${positionClasses} z-[999999] select-none font-mono text-[11px] leading-tight`}
-      style={{ contain: 'layout paint' }}
+      className="select-none font-mono text-[11px] leading-tight"
+      style={{
+        position: 'fixed',
+        zIndex: 9999999,
+        pointerEvents: 'auto',
+        contain: 'layout paint',
+        ...positionStyle,
+      }}
     >
       {collapsed ? (
         <button
           type="button"
-          onClick={() => setCollapsed(false)}
+          onClick={(e) => {
+            e.stopPropagation();
+            setCollapsed(false);
+          }}
           className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#08080a]/90 text-zinc-300 border border-zinc-800/90 shadow-2xl backdrop-blur-md hover:border-zinc-700 hover:text-white transition-all cursor-pointer group"
           title="Expand ScrollCraft Telemetry HUD"
         >
@@ -334,7 +308,10 @@ export function ScrollInspector({
 
               <button
                 type="button"
-                onClick={() => setCollapsed(true)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setCollapsed(true);
+                }}
                 className="w-5 h-5 rounded flex items-center justify-center text-zinc-500 hover:text-white hover:bg-zinc-800 transition-colors ml-1 cursor-pointer"
                 title="Minimize Inspector"
               >
@@ -343,65 +320,36 @@ export function ScrollInspector({
             </div>
           </div>
 
-          {/* Core Metrics Grid */}
-          <div className="grid grid-cols-3 gap-2 p-3 border-b border-zinc-800/80 bg-zinc-950/40">
-            <div className="flex flex-col">
-              <span className="text-[9px] text-zinc-500 uppercase tracking-wider">FPS / Latency</span>
-              <div className="flex items-baseline gap-1 mt-0.5">
-                <span ref={fpsRef} className="font-bold text-white text-[15px]">
-                  60
-                </span>
-                <span ref={msRef} className="text-[10px] text-zinc-400">
-                  16.7ms
-                </span>
+          {/* Core Telemetry Panel */}
+          <div className="p-3 border-b border-zinc-800/80 bg-zinc-950/40 space-y-2.5">
+            <div className="flex items-center justify-between">
+              <div className="flex flex-col">
+                <span className="text-[9px] text-zinc-500 uppercase tracking-wider">Engine Performance</span>
+                <div className="flex items-baseline gap-1.5 mt-0.5">
+                  <span ref={fpsRef} className="font-bold text-white text-[17px] tracking-tight">
+                    60
+                  </span>
+                  <span className="text-[10px] text-zinc-400 font-medium">FPS</span>
+                  <span className="text-zinc-600 select-none">•</span>
+                  <span ref={msRef} className="text-[11px] text-zinc-400">
+                    16.7ms
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-1 text-emerald-400 font-bold font-mono bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-500/20 text-[10px]">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span>0 Re-renders</span>
               </div>
             </div>
 
-            <div className="flex flex-col">
-              <span className="text-[9px] text-zinc-500 uppercase tracking-wider">Velocity</span>
-              <span ref={velocityRef} className="font-semibold text-zinc-200 mt-0.5">
-                0 px/s
-              </span>
-            </div>
-
-            <div className="flex flex-col">
-              <span className="text-[9px] text-zinc-500 uppercase tracking-wider">Scroll Y</span>
-              <span ref={scrollRef} className="font-semibold text-zinc-200 mt-0.5">
-                0px
-              </span>
-            </div>
-          </div>
-
-          {/* Studio Frame Drop Ribbon */}
-          <div className="flex items-center justify-between px-3.5 py-1.5 border-b border-zinc-800/80 bg-zinc-900/40 text-[10px]">
-            <div className="flex items-center gap-1.5 text-zinc-400">
+            {/* Frame Health Status */}
+            <div className="flex items-center justify-between pt-2 border-t border-zinc-900 text-[10px]">
               <span className="text-zinc-500">Frame Health:</span>
               <span ref={droppedFramesRef} className="font-bold font-mono text-emerald-400">
                 100% Smooth (0 drops)
               </span>
             </div>
-            <div className="flex items-center gap-1 text-emerald-400 font-bold font-mono bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-500/20">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span>0 Re-renders</span>
-            </div>
-          </div>
-
-          {/* Scroll Progress Bar */}
-          <div className="px-3.5 py-2.5 border-b border-zinc-800/80 flex items-center gap-2.5">
-            <span className="text-[9px] text-zinc-500 uppercase tracking-wider w-12">Progress</span>
-            <div className="flex-1 h-1.5 bg-zinc-900 rounded-full overflow-hidden border border-zinc-800/60">
-              <div
-                ref={progressFillRef}
-                className="h-full bg-gradient-to-r from-violet-600 to-indigo-500"
-                style={{ width: '0%' }}
-              />
-            </div>
-            <span
-              ref={progressRef}
-              className="text-[10px] font-semibold text-zinc-300 w-8 text-right font-mono"
-            >
-              0%
-            </span>
           </div>
 
           {/* Studio Mode Panel */}

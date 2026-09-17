@@ -31,7 +31,7 @@ export interface TickerTask {
   dormant?: boolean;
 }
 
-export type InertiaPreset = 'cinematic' | 'snappy' | 'natural';
+export type InertiaPreset = 'cinematic' | 'snappy' | 'natural' | 'smooth';
 
 export interface InertiaConfig {
   /** Inertia preset profile. 'cinematic' = butter-smooth exponential decay; 'snappy' = high-reactivity tight tracking; 'natural' = balanced hybrid */
