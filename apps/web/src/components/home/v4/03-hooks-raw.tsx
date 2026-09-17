@@ -10,6 +10,7 @@
 
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useScrollCraft, Reveal } from '@scrollcraft/react';
+import { ticker } from '@scrollcraft/core';
 import {
   SlidersHorizontal,
   ExternalLink,
@@ -521,14 +522,35 @@ export function HooksRawSection() {
 
   const { subscribe } = useScrollCraft();
 
-  // Scroll event & RAF telemetry tracking - 0 React re-renders!
+  const sectionRef = useRef<HTMLElement>(null);
+  const isVisibleRef = useRef(false);
+
+  // IntersectionObserver to cull off-screen telemetry updates & Bezier math
   useEffect(() => {
-    let lastTime = performance.now();
-    let frameCount = 0;
+    const el = sectionRef.current;
+    if (!el || typeof IntersectionObserver === 'undefined') {
+      isVisibleRef.current = true;
+      return;
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isVisibleRef.current = entry.isIntersecting;
+      },
+      { rootMargin: '150px' }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  // Scroll event & central ticker telemetry tracking - 0 React re-renders!
+  useEffect(() => {
     let lastTimestamp = performance.now();
     let lastWaveUpdate = performance.now();
 
     const updateMetrics = (currScroll: number, currProgress: number, currVel: number, currDir: number) => {
+      // Offscreen culling: skip DOM writes and Bezier math when section is not in viewport
+      if (!isVisibleRef.current) return;
+
       const now = performance.now();
       const deltaMs = Math.max(1, now - lastTimestamp);
       lastTimestamp = now;
@@ -581,26 +603,19 @@ export function HooksRawSection() {
       updateMetrics(m.scroll || 0, m.progress || 0, m.velocity || 0, dir);
     });
 
-    // 2. Hardware FPS counter loop - accurately measures true display refresh rate (60Hz -> 60 FPS, 120Hz -> 120 FPS)
-    let rafId: number;
-    const calcFps = (time: number) => {
-      frameCount++;
-      if (time - lastTime >= 1000) {
-        const measuredFps = Math.round((frameCount * 1000) / (time - lastTime));
-        const displayFps = Math.max(30, Math.min(240, measuredFps || 60));
-        if (fpsBadgeRef.current) {
-          fpsBadgeRef.current.textContent = `${displayFps} FPS`;
-        }
-        frameCount = 0;
-        lastTime = time;
+    // 2. Hardware FPS telemetry synced with central Ticker (Zero competing RAF loops!)
+    const fpsTimer = setInterval(() => {
+      if (!isVisibleRef.current) return;
+      const { fps } = ticker.getFrameRate();
+      const displayFps = Math.max(30, Math.min(240, fps || 60));
+      if (fpsBadgeRef.current) {
+        fpsBadgeRef.current.textContent = `${displayFps} FPS`;
       }
-      rafId = requestAnimationFrame(calcFps);
-    };
-    rafId = requestAnimationFrame(calcFps);
+    }, 1000);
 
     return () => {
       unsub();
-      cancelAnimationFrame(rafId);
+      clearInterval(fpsTimer);
     };
   }, [subscribe]);
 
@@ -624,6 +639,7 @@ export function HooksRawSection() {
 
   return (
     <section
+      ref={sectionRef}
       id="hooks"
       className="relative w-full bg-[#050507] py-24 sm:py-32 px-4 sm:px-6 lg:px-8 border-t border-zinc-800/80 overflow-hidden"
     >
@@ -631,13 +647,16 @@ export function HooksRawSection() {
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-12">
           <Reveal direction="down" distance={15}>
-            <div className="flex items-center justify-center gap-2 mb-3">
+            <div className="flex flex-wrap items-center justify-center gap-2 mb-3">
               <span className="text-[11px] sm:text-xs font-mono font-bold tracking-[0.25em] uppercase text-violet-400">
                 Reactive Hooks
               </span>
               <span className="text-xs font-mono text-zinc-600">/</span>
               <span className="text-[11px] sm:text-xs font-mono font-bold tracking-[0.25em] uppercase text-violet-400">
                 Raw Data
+              </span>
+              <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-[10px] font-mono font-bold text-emerald-400">
+                v0.1.1 (LIVE)
               </span>
             </div>
           </Reveal>
@@ -680,6 +699,36 @@ export function HooksRawSection() {
               );
             })}
           </div>
+        </div>
+
+        {/* v0.2.0 Upcoming Hooks Discovery Ribbon */}
+        <div className="flex flex-wrap items-center justify-center gap-2 mb-10 text-xs font-mono">
+          <span className="text-zinc-500">Upcoming in v0.2.0 Beta:</span>
+          <Link
+            href="/docs#use-scroll-direction"
+            className="px-2.5 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20 transition-colors flex items-center gap-1.5"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+            <span>useScrollDirection()</span>
+          </Link>
+          <Link
+            href="/docs#use-scroll-timeline"
+            className="px-2.5 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20 transition-colors"
+          >
+            useScrollTimeline()
+          </Link>
+          <Link
+            href="/docs#use-scroll-transform"
+            className="px-2.5 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20 transition-colors"
+          >
+            useScrollTransform()
+          </Link>
+          <Link
+            href="/docs#use-scroll-draw"
+            className="px-2.5 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20 transition-colors"
+          >
+            useScrollDraw()
+          </Link>
         </div>
 
         {/* 2-Column Split: Code Viewer (Left) & Live Telemetry (Right) */}

@@ -6,10 +6,11 @@
  */
 
 import { ScrollDriver, DriverState } from './driver';
-import { clamp } from './math';
+import { clamp, snapToDevicePixel } from './math';
 import { Capabilities } from './feature-detection';
 import { injectNativeStyles } from './native-styles';
 import { TransformComposer } from './dom';
+import { motionStore } from './motion-preference';
 
 export interface HorizontalScrollOptions {
   /** Scroll speed multiplier (default: 1). Higher speed scrolls through horizontal track faster over less vertical distance. */
@@ -70,12 +71,12 @@ class JSHorizontalDriver implements ScrollDriver {
   }
 
   public render(): void {
-    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    if (motionStore.isReduced()) {
       TransformComposer.set(this.innerContainer, 'horizontal', 'translate3d(0, 0, 0)');
       return;
     }
     const dpr = typeof window !== 'undefined' ? (window.devicePixelRatio || 1) : 1;
-    const snappedOffset = Math.round(this.state.offset * dpr) / dpr;
+    const snappedOffset = snapToDevicePixel(this.state.offset, dpr);
     TransformComposer.set(this.innerContainer, 'horizontal', `translate3d(${snappedOffset.toFixed(2)}px, 0, 0)`);
   }
 

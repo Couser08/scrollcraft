@@ -17,7 +17,15 @@ import React, {
   useState,
   useSyncExternalStore,
 } from 'react';
-import { InertiaEngine, ScrollMetrics, tierStore, PerformanceTier, GlobalResizeManager } from '@scrollcraft/core';
+import {
+  InertiaEngine,
+  ScrollMetrics,
+  tierStore,
+  PerformanceTier,
+  GlobalResizeManager,
+  motionStore,
+  historyStore,
+} from '@scrollcraft/core';
 import { ScrollContextValue, ScrollProviderProps } from './types';
 
 // Lazily instantiate inspector only if debug prop is enabled in ScrollProvider
@@ -61,9 +69,16 @@ export const ScrollProvider: React.FC<ScrollProviderProps> = ({
   autoResetOnRouteChange = false,
   autoRecalc = true,
   respectReducedMotion = true,
+  motionOverride,
+  restoreScroll = false,
 }) => {
+  if (motionOverride && motionStore.getMode() !== motionOverride) {
+    motionStore.setOverride(motionOverride);
+  }
   const [isReady, setIsReady] = useState(false);
-  const [reducedMotion, setReducedMotion] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(() =>
+    respectReducedMotion ? motionStore.isReduced() : false
+  );
   const engineRef = useRef<InertiaEngine | null>(null);
 
   // Serialize smooth prop to prevent referential-inequality re-init loops
@@ -81,15 +96,17 @@ export const ScrollProvider: React.FC<ScrollProviderProps> = ({
     let isMounted = true;
     if (typeof window === 'undefined') return;
 
-    // Detect user OS reduced motion preferences
-    const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const isMotionReduced = motionQuery.matches && respectReducedMotion;
+    if (motionOverride) {
+      motionStore.setOverride(motionOverride);
+    }
+    const isMotionReduced = respectReducedMotion ? motionStore.isReduced() : false;
     setReducedMotion(isMotionReduced);
 
-    const onMotionChange = (e: MediaQueryListEvent) => {
-      setReducedMotion(e.matches && respectReducedMotion);
-    };
-    motionQuery.addEventListener('change', onMotionChange);
+    const unsubMotion = motionStore.subscribe((reduced) => {
+      if (isMounted) {
+        setReducedMotion(respectReducedMotion ? reduced : false);
+      }
+    });
 
     const activeSmooth = smoothPropRef.current;
     // Safely re-instantiate engine if cleared by React StrictMode cleanup pass
@@ -142,6 +159,35 @@ export const ScrollProvider: React.FC<ScrollProviderProps> = ({
       };
     }
 
+    // Handle history scroll restoration if enabled
+    let cleanupRestore: (() => void) | null = null;
+    if (restoreScroll && typeof window !== 'undefined') {
+      const handlePopState = () => {
+        const key = `${window.location.pathname}${window.location.search}`;
+        const saved = historyStore.get(key);
+        if (saved !== null) {
+          engine?.scrollTo(saved, { immediate: true });
+          window.scrollTo(0, saved);
+        }
+      };
+
+      const saveCurrent = () => {
+        const key = `${window.location.pathname}${window.location.search}`;
+        historyStore.save(key, window.scrollY || window.pageYOffset || 0);
+      };
+
+      window.addEventListener('popstate', handlePopState);
+      window.addEventListener('pagehide', saveCurrent);
+      window.addEventListener('beforeunload', saveCurrent);
+
+      cleanupRestore = () => {
+        saveCurrent();
+        window.removeEventListener('popstate', handlePopState);
+        window.removeEventListener('pagehide', saveCurrent);
+        window.removeEventListener('beforeunload', saveCurrent);
+      };
+    }
+
     // Window resize handling (debounced via requestAnimationFrame, no body ResizeObserver loop)
     let resizeRafId: number | null = null;
     const handleResize = () => {
@@ -188,8 +234,9 @@ export const ScrollProvider: React.FC<ScrollProviderProps> = ({
     return () => {
       isMounted = false;
       unsubTier();
-      motionQuery.removeEventListener('change', onMotionChange);
+      unsubMotion();
       cleanupRouteChange?.();
+      cleanupRestore?.();
       if (autoRecalc) {
         window.removeEventListener('resize', handleResize);
         if (resizeRafId !== null) cancelAnimationFrame(resizeRafId);
@@ -198,7 +245,7 @@ export const ScrollProvider: React.FC<ScrollProviderProps> = ({
       engine?.destroy();
       engineRef.current = null;
     };
-  }, [smoothConfigKey, autoResetOnRouteChange, autoRecalc, respectReducedMotion]);
+  }, [smoothConfigKey, autoResetOnRouteChange, autoRecalc, respectReducedMotion, motionOverride, restoreScroll]);
 
   const scrollTo = useCallback(
     (

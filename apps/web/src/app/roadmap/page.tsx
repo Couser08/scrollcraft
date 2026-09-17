@@ -117,9 +117,15 @@ export default function RoadmapPage() {
                   <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)] animate-pulse" />
                   CURRENT MILESTONE
                 </span>
-                <span className="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold">
-                  v0.1.1 Beta
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/30 text-emerald-300 border border-emerald-400/50 font-bold flex items-center gap-1.5 shadow-[0_0_12px_rgba(16,185,129,0.3)]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                    LIVE
+                  </span>
+                  <span className="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold">
+                    v0.1.1 Beta
+                  </span>
+                </div>
               </div>
 
               <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3 font-sans">
@@ -151,11 +157,12 @@ export default function RoadmapPage() {
             </div>
 
             <div className="pt-6 border-t border-emerald-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div className="font-mono text-xs text-zinc-400">
-                <span className="text-zinc-500">$</span> pnpm add @scrollcraft/react@beta
+              <div className="font-mono text-xs text-zinc-300 flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-lg border border-emerald-500/30">
+                <span className="text-emerald-500 select-none">$</span>
+                <code className="text-emerald-300 select-all font-semibold">npm install @scrollcraft/core@0.1.1</code>
               </div>
               <span className="text-[11px] font-mono text-emerald-400 bg-emerald-950/40 px-3 py-1 rounded border border-emerald-500/30 font-semibold">
-                Soak Period Active
+                Live on npm • Soak Period Active
               </span>
             </div>
           </div>

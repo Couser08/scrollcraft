@@ -159,21 +159,36 @@ describe('Level 1: Core Solvers Hardening & Zero-Jank Suite', () => {
   // STEP 3: TICKER PROFILING & BENCHMARK CONTAMINATION GUARD
   // ══════════════════════════════════════════════════════════════════
   describe('Step 3: Ticker Tracing & Benchmark Contamination Guard', () => {
-    it('bypasses performance.mark and measure when benchmarkingMode is true', () => {
+    it('bypasses performance.mark and measure when benchmarkingMode is true or profiling is disabled', () => {
       const markSpy = vi.spyOn(performance, 'mark');
       const measureSpy = vi.spyOn(performance, 'measure');
 
-      ticker.benchmarkingMode = true;
+      // 1. By default, profilingEnabled is false (zero overhead)
       const taskId = `bench-test-${Math.random()}`;
       ticker.add(taskId, 'update', () => {});
-
-      // Trigger a tick
       (ticker as any).runPhase('update', (ticker as any).updateTasks, (ticker as any).updateTasksArray, 0.016, 100);
 
       expect(markSpy).not.toHaveBeenCalled();
       expect(measureSpy).not.toHaveBeenCalled();
 
+      // 2. When profilingEnabled is true but benchmarkingMode is true, still bypassed
+      ticker.profilingEnabled = true;
+      ticker.benchmarkingMode = true;
+      (ticker as any).runPhase('update', (ticker as any).updateTasks, (ticker as any).updateTasksArray, 0.016, 100);
+
+      expect(markSpy).not.toHaveBeenCalled();
+      expect(measureSpy).not.toHaveBeenCalled();
+
+      // 3. When profilingEnabled is true and benchmarkingMode is false, marks and measures are called
+      ticker.benchmarkingMode = false;
+      (ticker as any).runPhase('update', (ticker as any).updateTasks, (ticker as any).updateTasksArray, 0.016, 100);
+
+      expect(markSpy).toHaveBeenCalledWith('sc-update-start');
+      expect(markSpy).toHaveBeenCalledWith('sc-update-end');
+      expect(measureSpy).toHaveBeenCalledWith('ScrollCraft:update', 'sc-update-start', 'sc-update-end');
+
       ticker.remove(taskId);
+      ticker.profilingEnabled = false;
       ticker.benchmarkingMode = false;
     });
 

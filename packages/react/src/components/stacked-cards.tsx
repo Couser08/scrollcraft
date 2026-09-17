@@ -1,35 +1,114 @@
 'use client';
 
-import React from 'react';
-import { Pin, PinContainer } from '../primitives/pin';
+/**
+ * 120 FPS High-Performance Stacked Cards Primitive
+ *
+ * Architectural Driver Classification:
+ * STRICTLY JS/TICKER-DRIVEN SOLVER.
+ * Dynamic sibling z-index depth scaling, variable individual card offsetHeight
+ * measurements, and dynamic runtime pointer-events gating cannot be expressed in
+ * static CSS scroll-driven keyframes (animation-timeline).
+ *
+ * Strictly under 650 LOC.
+ */
 
-export interface StackedCardsProps {
-  cards: React.ReactNode[];
-  className?: string;
-}
+import React, { forwardRef, useRef, useEffect } from 'react';
+import { StackedCardsSolver, ticker, GlobalResizeManager } from '@scrollcraft/core';
+import { useScrollCraft } from '../context';
+import { composeRefs } from '../slot';
+import { StackedCardsProps } from '../types';
 
-export const StackedCards: React.FC<StackedCardsProps> = ({ cards, className = '' }) => {
-  return (
-    <div className={`relative w-full ${className}`}>
-      <PinContainer height={`${cards.length * 100}vh`}>
-        {cards.map((card, index) => {
-          // Adjust top to cascade stack
-          return (
-            <Pin key={index} top={index * 40 + 100}>
-              <div 
-                className="w-full origin-top transition-transform duration-300"
-                style={{ 
-                  zIndex: index, 
-                  // Add subtle scaling based on depth
-                  transform: `scale(${Math.max(0.6, 1 - (cards.length - 1 - index) * 0.05)})`
-                }}
-              >
-                {card}
-              </div>
-            </Pin>
-          );
-        })}
-      </PinContainer>
-    </div>
-  );
-};
+export type { StackedCardsProps };
+
+export const StackedCards = React.memo(
+  forwardRef<HTMLDivElement, StackedCardsProps>((props, forwardedRef) => {
+    const {
+      cards,
+      className = '',
+      offset = 40,
+      top = 100,
+      scaleStep = 0.05,
+      minScale = 0.8,
+      cardDistance = 400,
+      height,
+      style,
+      ...domProps
+    } = props;
+
+    const internalRef = useRef<HTMLDivElement>(null);
+    const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+    const { engine } = useScrollCraft();
+
+    const resolvedHeight =
+      height !== undefined
+        ? typeof height === 'number'
+          ? `${height}px`
+          : height
+        : `${Math.max(cards.length * cardDistance + 600, 1000)}px`;
+
+    useEffect(() => {
+      const container = internalRef.current;
+      const cardElements = cardRefs.current.filter(Boolean) as HTMLElement[];
+
+      if (!container || cardElements.length === 0) return;
+
+      const solver = new StackedCardsSolver(container, cardElements, {
+        offset,
+        top,
+        scaleStep,
+        minScale,
+        cardDistance,
+      });
+
+      const taskId = `stacked-cards-${Math.random().toString(36).slice(2, 8)}`;
+
+      const measure = () => solver.measure();
+      const unobserve = GlobalResizeManager.observe(container, measure);
+
+      ticker.add(taskId, 'update', () => {
+        const scrollY = engine?.getMetrics().scroll ?? (window.scrollY || window.pageYOffset);
+        solver.update(scrollY);
+      });
+
+      ticker.add(taskId, 'render', () => {
+        solver.render();
+      });
+
+      return () => {
+        unobserve();
+        ticker.remove(taskId);
+        solver.destroy();
+        cardRefs.current = [];
+      };
+    }, [cards.length, offset, top, scaleStep, minScale, cardDistance, engine]);
+
+    const mergedRef = composeRefs(forwardedRef, internalRef);
+
+    return (
+      <div
+        ref={mergedRef}
+        className={`relative w-full ${className}`}
+        style={{ minHeight: resolvedHeight, ...style }}
+        {...domProps}
+      >
+        {cards.map((card, index) => (
+          <div
+            key={index}
+            ref={(el) => {
+              cardRefs.current[index] = el;
+            }}
+            className="w-full origin-top"
+            style={{
+              position: 'relative',
+              top: `${top + index * offset}px`,
+            }}
+          >
+            {card}
+          </div>
+        ))}
+      </div>
+    );
+  })
+);
+
+StackedCards.displayName = 'StackedCards';

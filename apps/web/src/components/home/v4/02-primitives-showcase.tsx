@@ -10,7 +10,7 @@
  * - Tab-wise interactive primitive execution in live preview
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import {
   Layers,
@@ -223,16 +223,26 @@ export function PrimitivesShowcase() {
   const [activeDevice, setActiveDevice] = useState<DeviceKey>('desktop');
   const [copied, setCopied] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const [scrollVelocity, setScrollVelocity] = useState(0);
+  // Direct DOM refs for 0 React re-renders during scroll
+  const progressPctRef = useRef<HTMLSpanElement>(null);
+  const progressValRef = useRef<HTMLSpanElement>(null);
+  const velocityValRef = useRef<HTMLSpanElement>(null);
 
   const { subscribe } = useScrollCraft();
 
   useEffect(() => {
     if (activePrimitive !== 'progress') return;
     const unsub = subscribe((metrics) => {
-      setScrollProgress(metrics.progress || 0);
-      setScrollVelocity(metrics.velocity || 0);
+      const p = metrics.progress || 0;
+      if (progressPctRef.current) {
+        progressPctRef.current.textContent = `${Math.round(p * 100)}%`;
+      }
+      if (progressValRef.current) {
+        progressValRef.current.textContent = p.toFixed(3);
+      }
+      if (velocityValRef.current) {
+        velocityValRef.current.textContent = `${Math.abs(metrics.velocity || 0).toFixed(1)} px/f`;
+      }
     });
     return () => unsub();
   }, [subscribe, activePrimitive]);
@@ -281,8 +291,8 @@ export function PrimitivesShowcase() {
           <div className="md:col-span-6 flex flex-col items-center text-center">
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0d0f14] border border-zinc-800 text-[11px] font-mono tracking-[0.25em] text-zinc-400 uppercase mb-4 shadow-sm">
-              <span className="w-1.5 h-1.5 rounded-full bg-violet-500 shadow-[0_0_8px_rgba(139,92,246,0.8)]" />
-              <span>CORE PRIMITIVES &bull; BETA</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)] animate-pulse" />
+              <span>CORE PRIMITIVES &bull; BETA v0.1.1 (LIVE)</span>
             </div>
 
             {/* Dual-Tone Headline */}
@@ -353,6 +363,20 @@ export function PrimitivesShowcase() {
             </kbd>
           </div>
 
+        </div>
+
+        {/* v0.2.0 Coming Soon Teaser Ribbon */}
+        <div className="w-full mb-6 p-3 rounded-xl bg-cyan-950/20 border border-cyan-500/30 flex flex-wrap items-center justify-between gap-3 text-xs font-mono">
+          <div className="flex flex-wrap items-center gap-2 text-cyan-300">
+            <span className="px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 font-bold uppercase text-[10px]">
+              v0.2.0 Coming Soon
+            </span>
+            <span>New Primitives: &lt;StackedCards /&gt;, &lt;TextReveal /&gt;, &lt;ScrollTransform /&gt;, &lt;ScrollDraw /&gt;, &lt;ScrollInspector /&gt;</span>
+          </div>
+          <a href="/docs#stacked-cards" className="text-cyan-400 hover:text-cyan-300 transition-colors flex items-center gap-1 font-semibold">
+            <span>Explore Docs</span>
+            <span>&rarr;</span>
+          </a>
         </div>
 
         {/* 2-Column Split Cards: Code Left vs Live Preview Right */}
@@ -668,7 +692,7 @@ export function PrimitivesShowcase() {
                     <div className="w-full max-w-sm space-y-2">
                       <div className="flex justify-between text-xs font-mono text-zinc-400">
                         <span>Normalized Scroll Track</span>
-                        <span className="text-violet-400 font-bold">{Math.round(scrollProgress * 100)}%</span>
+                        <span ref={progressPctRef} className="text-violet-400 font-bold">0%</span>
                       </div>
                       {/* Real <ScrollProgress> Primitive from @scrollcraft/react */}
                       <div className="w-full h-3 rounded-full bg-zinc-900 border border-zinc-800 overflow-hidden">
@@ -678,15 +702,15 @@ export function PrimitivesShowcase() {
                       </div>
                     </div>
 
-                    {/* Real-time Subscribed Metrics from useScrollCraft() */}
+                    {/* Real-time Subscribed Metrics from useScrollCraft() - Zero React re-renders */}
                     <div className="grid grid-cols-2 gap-3 w-full max-w-sm text-center font-mono text-xs">
                       <div className="p-2.5 rounded-lg bg-zinc-900 border border-zinc-800">
                         <span className="text-[10px] text-zinc-500 block">scaleX</span>
-                        <span className="text-violet-400 font-bold">{scrollProgress.toFixed(3)}</span>
+                        <span ref={progressValRef} className="text-violet-400 font-bold">0.000</span>
                       </div>
                       <div className="p-2.5 rounded-lg bg-zinc-900 border border-zinc-800">
                         <span className="text-[10px] text-zinc-500 block">Velocity</span>
-                        <span className="text-emerald-400 font-bold">{Math.abs(scrollVelocity || 0).toFixed(1)} px/f</span>
+                        <span ref={velocityValRef} className="text-emerald-400 font-bold">0.0 px/f</span>
                       </div>
                     </div>
                   </div>

@@ -51,10 +51,25 @@ export class Ticker {
    */
   public benchmarkingMode: boolean = false;
 
+  /**
+   * Opt-in Diagnostic Profiling:
+   * By default false to eliminate catastrophic User Timing buffer floods and GC pauses.
+   */
+  public profilingEnabled: boolean = false;
+
+  public setProfiling(enabled: boolean): void {
+    this.profilingEnabled = enabled;
+  }
+
   // Frame drop ring buffer (last 60 frames)
   private droppedFrames: number = 0;
   private droppedFramesHistory: number[] = new Array(60).fill(0);
   private droppedFramesIndex: number = 0;
+
+  // Adaptive target refresh rate calibration (60Hz / 90Hz / 120Hz / 144Hz)
+  private detectedTargetInterval: number = 0.01667;
+  private minObservedDelta: number = 0.01667;
+  private calibrationFrames: number = 0;
 
   private constructor() {}
 
@@ -192,9 +207,9 @@ export class Ticker {
     currentTime: number
   ): void {
     const shouldProfile =
+      this.profilingEnabled &&
       !this.benchmarkingMode &&
-      typeof process !== 'undefined' &&
-      process.env?.NODE_ENV !== 'production' &&
+      (tasks.length > 0 || map.size > 0) &&
       typeof performance !== 'undefined' &&
       typeof performance.mark === 'function';
 
@@ -225,6 +240,10 @@ export class Ticker {
       performance.mark(`sc-${phase}-end`);
       try {
         performance.measure(`ScrollCraft:${phase}`, `sc-${phase}-start`, `sc-${phase}-end`);
+        if (typeof performance.clearMarks === 'function') {
+          performance.clearMarks(`sc-${phase}-start`);
+          performance.clearMarks(`sc-${phase}-end`);
+        }
       } catch {
         // Safe no-op
       }
@@ -279,7 +298,7 @@ export class Ticker {
   };
 
   private resetFrameHistory(): void {
-    this.frameHistory.fill(0.016);
+    this.frameHistory.fill(this.detectedTargetInterval);
     this.frameHistoryIndex = 0;
     this.sampledFrameCount = 0;
     this.droppedFramesHistory.fill(0);
@@ -287,12 +306,48 @@ export class Ticker {
   }
 
   private recordFrameDelta(rawDelta: number, currentTime: number): void {
+    // 1. Filter out idle sleep / tab-switch / system wake spikes (> 100ms)
+    // These are time discontinuities from dormancy, NOT animation frame drops.
+    if (rawDelta > 0.1) {
+      return;
+    }
+
+    // 2. Calibrate display refresh rate dynamically from healthy VSync frames
+    // In modern displays: 120Hz (~8.33ms), 144Hz (~6.94ms), 60Hz (~16.67ms), 50Hz (~20ms)
+    if (rawDelta >= 0.003 && rawDelta <= 0.035) {
+      if (rawDelta < this.minObservedDelta) {
+        this.minObservedDelta = rawDelta;
+      }
+      this.calibrationFrames++;
+      if (this.calibrationFrames >= 30) {
+        if (this.minObservedDelta <= 0.0095) {
+          // 120Hz - 165Hz high-refresh display (target ~8.33ms)
+          this.detectedTargetInterval = 0.00833;
+        } else if (this.minObservedDelta <= 0.0125) {
+          // 90Hz display (target ~11.11ms)
+          this.detectedTargetInterval = 0.01111;
+        } else if (this.minObservedDelta <= 0.0185) {
+          // Standard 60Hz display (target ~16.67ms)
+          this.detectedTargetInterval = 0.01667;
+        } else {
+          // 48Hz - 50Hz display or low-power mode (target ~20.0ms)
+          this.detectedTargetInterval = 0.02000;
+        }
+        this.minObservedDelta = this.detectedTargetInterval;
+        this.calibrationFrames = 0;
+      }
+    }
+
     this.frameHistory[this.frameHistoryIndex] = rawDelta;
     this.frameHistoryIndex = (this.frameHistoryIndex + 1) % 60;
     this.sampledFrameCount++;
 
-    // Frame dropped if delta exceeded 21.7ms (16.7ms + 5ms slack)
-    const isDrop = rawDelta > 0.0217;
+    // 3. Adaptive Frame Drop Rule:
+    // A frame is dropped only when delta exceeds 1.45x target refresh interval.
+    // e.g. for 60Hz: 16.67ms * 1.45 = 24.2ms (prevents false drops at 45-50 FPS)
+    // e.g. for 120Hz: 8.33ms * 1.45 = 12.1ms (catches genuine missed 120Hz VSyncs)
+    const dropThreshold = this.detectedTargetInterval * 1.45;
+    const isDrop = rawDelta > dropThreshold;
     this.droppedFramesHistory[this.droppedFramesIndex] = isDrop ? 1 : 0;
     this.droppedFramesIndex = (this.droppedFramesIndex + 1) % 60;
     if (isDrop) this.droppedFrames++;
@@ -349,14 +404,17 @@ export class Ticker {
   }
 
   /**
-   * Returns total lifetime dropped frames and recent (last 60 frames) dropped frames.
+   * Returns total lifetime dropped frames, recent (last 60 frames) dropped frames,
+   * overall frame health percentage, and detected target FPS.
    */
-  public getDroppedFrames(): { total: number; recent: number } {
+  public getDroppedFrames(): { total: number; recent: number; health: number; targetFps: number } {
     let recent = 0;
     for (let i = 0; i < 60; i++) {
       recent += this.droppedFramesHistory[i];
     }
-    return { total: this.droppedFrames, recent };
+    const health = Math.max(0, Math.min(100, Math.round(((60 - recent) / 60) * 100)));
+    const targetFps = this.detectedTargetInterval > 0 ? Math.round(1 / this.detectedTargetInterval) : 60;
+    return { total: this.droppedFrames, recent, health, targetFps };
   }
 
   public stop(): void {

@@ -21,7 +21,16 @@ export const Pin = React.memo(
       trackState,
       disableTransform,
       onProgress,
+      pinSpacing,
+      onEnter,
+      onLeave,
+      onEnterBack,
+      onLeaveBack,
+      progressValue,
+      height,
       children,
+      style,
+      className,
       ...domProps
     } = props;
 
@@ -34,23 +43,42 @@ export const Pin = React.memo(
       trackState,
       disableTransform,
       onProgress,
+      pinSpacing,
+      onEnter,
+      onLeave,
+      onEnterBack,
+      onLeaveBack,
+      progressValue,
     });
 
     const mergedRef = composeRefs(forwardedRef, internalRef);
 
-    if (asChild) {
-      return (
-        <Slot ref={mergedRef} {...domProps}>
-          {children}
-        </Slot>
-      );
-    }
+    const combinedStyle: React.CSSProperties = {
+      position: 'sticky',
+      top: typeof top === 'number' ? `${top}px` : top,
+      ...style,
+    };
 
-    return (
-      <div ref={mergedRef as React.Ref<HTMLDivElement>} {...domProps}>
+    const pinnedNode = asChild ? (
+      <Slot ref={mergedRef} style={combinedStyle} className={className} {...domProps}>
+        {children}
+      </Slot>
+    ) : (
+      <div ref={mergedRef as React.Ref<HTMLDivElement>} style={combinedStyle} className={className} {...domProps}>
         {children}
       </div>
     );
+
+    if (height !== undefined) {
+      const resolvedHeight = typeof height === 'number' ? `${height}px` : height;
+      return (
+        <div style={{ position: 'relative', minHeight: resolvedHeight }}>
+          {pinnedNode}
+        </div>
+      );
+    }
+
+    return pinnedNode;
   })
 );
 

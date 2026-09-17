@@ -18,10 +18,10 @@ interface DocGettingStartedProps {
 }
 
 const PM_COMMANDS = {
-  pnpm: 'pnpm add @scrollcraft/react@beta',
-  npm: 'npm i @scrollcraft/react@beta',
-  yarn: 'yarn add @scrollcraft/react@beta',
-  bun: 'bun add @scrollcraft/react@beta',
+  pnpm: 'pnpm add @scrollcraft/core@0.1.1 @scrollcraft/react@0.1.1',
+  npm: 'npm install @scrollcraft/core@0.1.1 @scrollcraft/react@0.1.1',
+  yarn: 'yarn add @scrollcraft/core@0.1.1 @scrollcraft/react@0.1.1',
+  bun: 'bun add @scrollcraft/core@0.1.1 @scrollcraft/react@0.1.1',
 };
 
 const NEXT_LAYOUT_SETUP = `// app/layout.tsx
@@ -214,6 +214,22 @@ export const DocGettingStarted: React.FC<DocGettingStartedProps> = ({ sectionId 
           <span>Peer Requirements: React 18+ or 19+</span>
           <span>&bull;</span>
           <span>Next.js 14+ or 15+ (App Router)</span>
+        </div>
+
+        {/* Release Status Banner */}
+        <div className="rounded-xl bg-gradient-to-r from-violet-950/30 via-zinc-900/50 to-cyan-950/30 border border-violet-500/20 p-4 space-y-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="flex h-2 w-2 relative">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+            </span>
+            <span className="text-xs font-mono font-bold text-emerald-400">Current Release: v0.1.1 Beta (LIVE)</span>
+            <span className="text-zinc-600 font-mono text-xs">|</span>
+            <span className="text-xs font-mono font-bold text-cyan-400">v0.2.0 Beta (Coming in 1–2 weeks)</span>
+          </div>
+          <p className="text-xs text-zinc-400 font-sans leading-relaxed">
+            Install the current public release with <code className="text-zinc-200 font-mono">npm install @scrollcraft/core@0.1.1</code>. The upcoming v0.2.0 milestone introduces the Universal Dual API, 5 new primitives, 4 new hooks, and the zero-overhead DevTools Inspector Studio.
+          </p>
         </div>
       </section>
 

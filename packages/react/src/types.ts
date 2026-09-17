@@ -13,6 +13,10 @@ import type {
   ScrollValue,
   TransformProperties,
   PropertyTimeline,
+  SequenceOptions,
+  StackedCardsOptions,
+  TextRevealOptions,
+  MotionMode,
 } from '@scrollcraft/core';
 
 export type {
@@ -24,7 +28,16 @@ export type {
   ScrollValue,
   TransformProperties,
   PropertyTimeline,
+  SequenceOptions,
+  StackedCardsOptions,
+  TextRevealOptions,
+  MotionMode,
 };
+
+export type {
+  ScrollRestorationOptions,
+  ScrollRestorationReturn,
+} from './hooks/useScrollRestoration';
 
 export interface DebugOptions {
   /** Screen position of the inspector HUD. Default: 'bottom-right' */
@@ -33,6 +46,19 @@ export interface DebugOptions {
   collapsed?: boolean;
   /** Automatically enable visual markers globally on mount. Default: false */
   markers?: boolean;
+  /** Enable Inspector Studio mode with Frame Drop timeline & spatial trigger diagnostics. Default: false */
+  studio?: boolean;
+}
+
+export interface ScrollInspectorProps {
+  /** Initial placement on screen. Default: 'bottom-right' */
+  position?: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
+  /** Start initially collapsed. Default: false */
+  defaultCollapsed?: boolean;
+  /** Whether to automatically enable visual markers globally on mount. Default: false */
+  markers?: boolean;
+  /** Enable Inspector Studio mode with Frame Drop timeline & spatial trigger diagnostics. Default: false */
+  studio?: boolean;
 }
 
 export interface ScrollProviderProps {
@@ -60,6 +86,17 @@ export interface ScrollProviderProps {
    * Default: true
    */
   respectReducedMotion?: boolean;
+  /**
+   * Manual override for user motion preference ('system', 'reduce', or 'no-preference').
+   * Default: 'system'
+   */
+  motionOverride?: MotionMode;
+  /**
+   * Automatically restore scroll positions on browser history navigation (popstate)
+   * backed by sessionStorage LRU store.
+   * Default: false
+   */
+  restoreScroll?: boolean;
 }
 
 export type ScrollCraftProviderProps = ScrollProviderProps;
@@ -185,6 +222,8 @@ export interface PinOptions {
 
 export interface PinProps extends Omit<React.HTMLAttributes<HTMLElement>, 'onProgress'>, PinOptions {
   asChild?: boolean;
+  /** Explicit track height to auto-wrap pinned child without requiring <PinContainer>. */
+  height?: string | number;
   children?: React.ReactNode;
 }
 
@@ -291,3 +330,27 @@ export interface ScrollElementProps extends React.HTMLAttributes<HTMLElement> {
   transform?: ElementTransform;
   children?: React.ReactNode;
 }
+
+export interface TextRevealProps extends React.HTMLAttributes<HTMLParagraphElement>, TextRevealOptions {
+  /** The text content to split and reveal */
+  children: string;
+  className?: string;
+  /** Granularity of text splitting: 'chars' (default) or 'words' */
+  by?: 'chars' | 'words';
+}
+
+export interface StackedCardsProps extends React.HTMLAttributes<HTMLDivElement>, StackedCardsOptions {
+  cards: React.ReactNode[];
+  className?: string;
+  /** Optional overall track height */
+  height?: string | number;
+}
+
+export interface ScrollSequenceProps extends React.HTMLAttributes<HTMLDivElement>, SequenceOptions {
+  className?: string;
+  /** Total scroll distance for scrub (e.g. '300vh') */
+  height?: string | number;
+  /** Optional poster image */
+  poster?: string;
+}
+

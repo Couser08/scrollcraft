@@ -13,6 +13,7 @@
 import React from 'react';
 import { CodeViewer } from '@/components/ui/code-viewer';
 import { Activity } from 'lucide-react';
+import { HookPreview } from '../interactive/hook-preview';
 
 interface DocHooksProps {
   hookId: string;
@@ -21,7 +22,7 @@ interface DocHooksProps {
 interface HookReference {
   name: string;
   signature: string;
-  status: 'Beta' | 'Alpha';
+  status: 'Beta' | 'Alpha' | 'v0.2.0 (Coming Soon)';
   code: string;
   whatItDoes: string;
   capabilities: { param: string; type: string; desc: string }[];
@@ -197,10 +198,158 @@ export function MagneticButton() {
       { param: 'springConfig', type: 'SpringConfig', desc: 'Optional stiffness, damping, and mass customization.' },
     ],
   },
+
+  'use-scroll-direction': {
+    name: 'useScrollDirection',
+    signature: 'useScrollDirection(options?: ScrollDirectionOptions)',
+    status: 'v0.2.0 (Coming Soon)',
+    code: `import { useScrollDirection } from '@scrollcraft/react';
+
+export function SmartNavbar() {
+  // Hysteresis-gated direction detection with iOS rubber-band guard
+  const { direction, isDown, isUp } = useScrollDirection({
+    threshold: 10,
+    guardTop: true, // prevents spurious toggles when scrollY <= 0
+  });
+
+  return (
+    <nav className={\`fixed top-0 inset-x-0 transition-transform duration-300 \${
+      isDown ? '-translate-y-full' : 'translate-y-0'
+    }\`}>
+      <span className="font-mono">Scroll: {direction ?? 'idle'}</span>
+    </nav>
+  );
+}`,
+    whatItDoes: 'Hysteresis-gated scroll direction hook with iOS rubber-band guard and direct DOM auto-hide navbar mode.',
+    capabilities: [
+      { param: 'direction', type: "'up' | 'down' | null", desc: 'Active scroll direction vector.' },
+      { param: 'isDown', type: 'boolean', desc: 'True when scrolling downwards past the hysteresis threshold.' },
+      { param: 'isUp', type: 'boolean', desc: 'True when scrolling upwards past the hysteresis threshold.' },
+      { param: 'threshold', type: 'number', desc: 'Minimum scroll delta in pixels before triggering direction switch (default: 8).' },
+      { param: 'guardTop', type: 'boolean', desc: 'Suppresses direction changes when scrollY <= 0 to avoid iOS rubber-band flips.' },
+      { param: 'targetRef', type: 'RefObject<HTMLElement>', desc: 'Optional ref for zero-rerender direct CSS transform toggling.' },
+    ],
+  },
+
+  'use-scroll-timeline': {
+    name: 'useScrollTimeline',
+    signature: 'useScrollTimeline<T>(targetRefOrOptions, keyframes?, options?)',
+    status: 'v0.2.0 (Coming Soon)',
+    code: `import { useScrollTimeline } from '@scrollcraft/react';
+
+export function KeyframeSequencer() {
+  // Universal Dual API: Call headlessly to receive element ref
+  const ref = useScrollTimeline<HTMLDivElement>({
+    keyframes: [
+      { offset: 0.0, opacity: 0, scale: 0.8, rotate: -10 },
+      { offset: 0.5, opacity: 1, scale: 1.0, rotate: 0 },
+      { offset: 1.0, opacity: 0.2, scale: 1.2, rotate: 10 },
+    ],
+    start: 'top 80%',
+    end: 'bottom 20%',
+  });
+
+  return <div ref={ref} className="box">Scroll Sequencer</div>;
+}`,
+    whatItDoes: 'Sequences multi-stage keyframe animations directly driven by scroll progress with zero React re-renders.',
+    capabilities: [
+      { param: 'keyframes', type: 'ScrollKeyframe[]', desc: 'Normalized keyframes array (offset: 0.0 to 1.0) with transform and opacity properties.' },
+      { param: 'start', type: 'string', desc: 'Viewport scroll trigger boundary start point (default: "top bottom").' },
+      { param: 'end', type: 'string', desc: 'Viewport scroll trigger boundary finish point (default: "bottom top").' },
+      { param: 'smooth', type: 'number', desc: 'Optional spring inertia dampening factor for continuous keyframe lerp.' },
+      { param: 'respectReducedMotion', type: 'boolean', desc: 'Snaps to final keyframe state if OS prefers-reduced-motion is active.' },
+    ],
+  },
+
+  'use-scroll-transform': {
+    name: 'useScrollTransform',
+    signature: 'useScrollTransform<T>(targetRefOrOptions, options?)',
+    status: 'v0.2.0 (Coming Soon)',
+    code: `import { useScrollTransform } from '@scrollcraft/react';
+
+export function InterpolatedSection() {
+  // Universal Dual API: Headless ref assignment with direct GPU composite writes
+  const ref = useScrollTransform<HTMLDivElement>({
+    input: [0, 1],
+    output: {
+      scale: [0.9, 1.1],
+      opacity: [0.3, 1],
+      rotateY: [-15, 0],
+    },
+    clamp: true,
+  });
+
+  return <div ref={ref}>Composite Morph</div>;
+}`,
+    whatItDoes: 'Headless hook interpolating style attributes (scale, opacity, rotateX/Y, blur) based on container scroll.',
+    capabilities: [
+      { param: 'input', type: '[number, number]', desc: 'Input scroll progression bounds (typically [0, 1]).' },
+      { param: 'output', type: 'TransformOutputMap', desc: 'Target style maps including scale, opacity, rotate, blur, and RGBA tuples.' },
+      { param: 'clamp', type: 'boolean', desc: 'Guards output from extrapolating past designated ranges (default: true).' },
+      { param: 'easing', type: '(t: number) => number', desc: 'Custom timing function curve (e.g. cubicBezier, easeInOut).' },
+    ],
+  },
+
+  'use-scroll-draw': {
+    name: 'useScrollDraw',
+    signature: 'useScrollDraw<T extends SVGGeometryElement>(targetRefOrOptions, options?)',
+    status: 'v0.2.0 (Coming Soon)',
+    code: `import { useScrollDraw } from '@scrollcraft/react';
+
+export function AnimatedLogo() {
+  const pathRef = useScrollDraw<SVGPathElement>({
+    start: 'top 80%',
+    end: 'center center',
+    direction: 'forward',
+  });
+
+  return (
+    <svg viewBox="0 0 200 200">
+      <path ref={pathRef} d="M 20 100 L 100 20 L 180 100 Z" stroke="#38bdf8" fill="none" strokeWidth="4" />
+    </svg>
+  );
+}`,
+    whatItDoes: 'Measures total length of any SVG geometry element and syncs strokeDashoffset to scroll ticker.',
+    capabilities: [
+      { param: 'targetRef', type: 'RefObject<SVGGeometryElement>', desc: 'Target SVG geometry element (path, rect, circle, polyline, line).' },
+      { param: 'start', type: 'string', desc: 'Trigger point initiating stroke drawing (default: "top 80%").' },
+      { param: 'end', type: 'string', desc: 'Trigger point concluding complete stroke drawing (default: "center center").' },
+      { param: 'direction', type: "'forward' | 'reverse'", desc: 'Drawing direction vector (default: "forward").' },
+      { param: 'dashArray', type: 'string | number', desc: 'Custom dash segment sizing; defaults to measured total path length.' },
+    ],
+  },
+
+  'use-scroll-restoration': {
+    name: 'useScrollRestoration',
+    signature: 'useScrollRestoration(options?: ScrollRestorationOptions)',
+    status: 'v0.2.0 (Coming Soon)',
+    code: `import { useScrollRestoration } from '@scrollcraft/react';
+
+export function NavigationProvider({ children }: { children: React.ReactNode }) {
+  // Eliminates Next.js App Router scroll jumps on route transitions
+  useScrollRestoration({
+    restoreOnBack: true,
+    resetOnPush: true,
+    killInertiaOnNavigate: true,
+    maxRetries: 5,
+  });
+
+  return <>{children}</>;
+}`,
+    whatItDoes: 'Prevents Next.js App Router scroll-jumps on route change, kills inertia momentum, and restores scroll position from LRU sessionStorage.',
+    capabilities: [
+      { param: 'restoreOnBack', type: 'boolean', desc: 'Restore exact scroll offset on popstate/history back navigation (default: true).' },
+      { param: 'resetOnPush', type: 'boolean', desc: 'Reset scroll position to top (0) on forward page push navigation (default: true).' },
+      { param: 'killInertiaOnNavigate', type: 'boolean', desc: 'Immediately cancels lingering momentum from prior page upon route boundary transition (default: true).' },
+      { param: 'maxRetries', type: 'number', desc: 'Number of frame retry checks for slow RSC streaming hydration before settling (default: 5).' },
+      { param: 'storageKey', type: 'string', desc: 'Custom sessionStorage LRU cache key namespace (default: "__scrollcraft_restore__").' },
+    ],
+  },
 };
 
 export const DocHooks: React.FC<DocHooksProps> = ({ hookId }) => {
   const hook = HOOKS_DATA[hookId] || HOOKS_DATA['use-scroll-progress'];
+  const isComingSoon = hook.status.includes('Coming Soon');
 
   return (
     <div className="space-y-10 not-prose">
@@ -211,7 +360,11 @@ export const DocHooks: React.FC<DocHooksProps> = ({ hookId }) => {
             <h1 className="text-3xl font-extrabold text-white tracking-tight font-mono">
               {hook.name}()
             </h1>
-            <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-amber-500/15 text-amber-400 border border-amber-500/30">
+            <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase ${
+              isComingSoon
+                ? 'bg-cyan-500/15 text-cyan-400 border border-cyan-500/30'
+                : 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
+            }`}>
               {hook.status}
             </span>
           </div>
@@ -219,6 +372,11 @@ export const DocHooks: React.FC<DocHooksProps> = ({ hookId }) => {
             <strong className="text-white">What it does:</strong> {hook.whatItDoes}
           </p>
         </div>
+      </div>
+
+      {/* Interactive Runtime Simulator */}
+      <div id="demo" className="space-y-3 scroll-mt-24">
+        <HookPreview hookId={hookId} />
       </div>
 
       {/* Minimal 5-10 Line Syntax Highlighted Code Snippet */}
@@ -260,9 +418,11 @@ export const DocHooks: React.FC<DocHooksProps> = ({ hookId }) => {
 
       {/* Status Signal */}
       <div className="p-4 rounded-xl bg-zinc-900/60 border border-zinc-800 text-xs font-mono text-zinc-400 flex items-center justify-between">
-        <span>Status: <strong className="text-amber-400 uppercase">{hook.status}</strong></span>
+        <span>Status: <strong className={isComingSoon ? "text-cyan-400 uppercase" : "text-amber-400 uppercase"}>{hook.status}</strong></span>
         <span className="text-[11px] text-zinc-500 font-sans">
-          Headless reactive hook &bull; Direct ref mutation without state churn
+          {isComingSoon
+            ? 'Scheduled for ScrollCraft v0.2.0 Beta (1–2 weeks) • Universal Dual API support'
+            : 'Headless reactive hook • Direct ref mutation without state churn'}
         </span>
       </div>
     </div>

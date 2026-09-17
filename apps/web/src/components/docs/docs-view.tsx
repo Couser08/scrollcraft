@@ -67,66 +67,6 @@ const TOC_MAPPING: Record<string, TocItem[]> = {
   setup: [
     { id: 'provider-setup', title: 'Root Layout Integration' },
   ],
-  parallax: [
-    { id: 'syntax', title: 'Syntax & Production Code' },
-    { id: 'capabilities', title: 'Capabilities & Props' },
-  ],
-  reveal: [
-    { id: 'syntax', title: 'Syntax & Production Code' },
-    { id: 'capabilities', title: 'Capabilities & Props' },
-  ],
-  pin: [
-    { id: 'syntax', title: 'Syntax & Production Code' },
-    { id: 'capabilities', title: 'Capabilities & Props' },
-  ],
-  'scroll-progress': [
-    { id: 'syntax', title: 'Syntax & Production Code' },
-    { id: 'capabilities', title: 'Capabilities & Props' },
-  ],
-  'velocity-marquee': [
-    { id: 'syntax', title: 'Syntax & Production Code' },
-    { id: 'capabilities', title: 'Capabilities & Props' },
-  ],
-  'horizontal-scroll': [
-    { id: 'syntax', title: 'Syntax & Production Code' },
-    { id: 'capabilities', title: 'Capabilities & Props' },
-  ],
-  'scroll-sequence': [
-    { id: 'syntax', title: 'Syntax & Production Code' },
-    { id: 'capabilities', title: 'Capabilities & Props' },
-  ],
-  'use-scroll-progress': [
-    { id: 'syntax', title: 'Syntax & Signature' },
-    { id: 'capabilities', title: 'Return Values & Options' },
-  ],
-  'use-parallax': [
-    { id: 'syntax', title: 'Syntax & Signature' },
-    { id: 'capabilities', title: 'Parameters & Return Values' },
-  ],
-  'use-reveal': [
-    { id: 'syntax', title: 'Syntax & Signature' },
-    { id: 'capabilities', title: 'Parameters & Return Values' },
-  ],
-  'use-pin': [
-    { id: 'syntax', title: 'Syntax & Signature' },
-    { id: 'capabilities', title: 'Parameters & Return Values' },
-  ],
-  'use-scrollcraft': [
-    { id: 'syntax', title: 'Syntax & Signature' },
-    { id: 'capabilities', title: 'Parameters & Return Values' },
-  ],
-  'use-scroll-state': [
-    { id: 'syntax', title: 'Syntax & Signature' },
-    { id: 'capabilities', title: 'Parameters & Return Values' },
-  ],
-  'use-magnetic': [
-    { id: 'syntax', title: 'Syntax & Signature' },
-    { id: 'capabilities', title: 'Parameters & Return Values' },
-  ],
-  'use-scroll-3d': [
-    { id: 'syntax', title: 'Syntax & Signature' },
-    { id: 'capabilities', title: 'Parameters & Return Values' },
-  ],
   'three-phase-ticker': [
     { id: 'ticker-execution', title: 'Execution Pipeline' },
     { id: 'ticker-api', title: 'Ticker API Reference' },
@@ -150,7 +90,30 @@ export function DocsView() {
   const [activeHeadingId, setActiveHeadingId] = useState<string>('');
   const sidebarContainerRef = useRef<HTMLDivElement>(null);
 
-  const tocItems = useMemo(() => TOC_MAPPING[activeSection] || [], [activeSection]);
+  const tocItems = useMemo(() => {
+    if (TOC_MAPPING[activeSection]) return TOC_MAPPING[activeSection];
+    const cat = DOCS_CATEGORIES.find((c) => c.items.some((i) => i.id === activeSection));
+    if (cat?.id === 'primitives') {
+      return [
+        { id: 'demo', title: 'Live Demonstration' },
+        { id: 'syntax', title: 'Syntax & Production Code' },
+        { id: 'capabilities', title: 'Capabilities & Props' },
+      ];
+    }
+    if (cat?.id === 'hooks') {
+      return [
+        { id: 'demo', title: 'Runtime Simulator' },
+        { id: 'syntax', title: 'Syntax & Signature' },
+        { id: 'capabilities', title: 'Capabilities & Return Values' },
+      ];
+    }
+    if (cat?.id === 'recipes') {
+      return [
+        { id: 'recipe-code', title: 'Recipe Implementation' },
+      ];
+    }
+    return [];
+  }, [activeSection]);
 
   const flatSections = useMemo(() => {
     return DOCS_CATEGORIES.flatMap((cat) =>
@@ -224,6 +187,15 @@ export function DocsView() {
         marquee: 'velocity-marquee',
         horizontal: 'horizontal-scroll',
         sequence: 'scroll-sequence',
+        stacked: 'stacked-cards',
+        cards: 'stacked-cards',
+        text: 'text-reveal',
+        transform: 'scroll-transform',
+        draw: 'scroll-draw',
+        inspector: 'scroll-inspector',
+        direction: 'use-scroll-direction',
+        timeline: 'use-scroll-timeline',
+        restoration: 'use-scroll-restoration',
       };
 
       const targetId = aliasMap[rawHash] || rawHash;
@@ -264,46 +236,22 @@ export function DocsView() {
     if (['introduction', 'installation', 'setup'].includes(activeSection)) {
       return <DocGettingStarted sectionId={activeSection} />;
     }
-    if (
-      [
-        'parallax',
-        'reveal',
-        'pin',
-        'scroll-progress',
-        'velocity-marquee',
-        'horizontal-scroll',
-        'scroll-sequence',
-      ].includes(activeSection)
-    ) {
-      return <DocPrimitives primitiveId={activeSection} />;
-    }
-    if (
-      [
-        'use-scroll-progress',
-        'use-scroll-state',
-        'use-scrollcraft',
-        'use-parallax',
-        'use-reveal',
-        'use-pin',
-        'use-magnetic',
-      ].includes(activeSection)
-    ) {
-      return <DocHooks hookId={activeSection} />;
-    }
-    if (['r3f-overview', 'r3f-three-tier', 'use-scroll-3d', 'r3f-recipes'].includes(activeSection)) {
-      return <DocR3F sectionId={activeSection} />;
-    }
-    if (['three-phase-ticker', 'reduced-motion', 'benchmark'].includes(activeSection)) {
-      return <DocArchitecture sectionId={activeSection} />;
-    }
-    if (
-      [
-        'recipe-sticky-narrative',
-        'recipe-horizontal-scroll',
-        'recipe-3d-scroll',
-      ].includes(activeSection)
-    ) {
-      return <DocRecipes recipeId={activeSection} />;
+    const cat = DOCS_CATEGORIES.find((c) => c.items.some((i) => i.id === activeSection));
+    if (cat) {
+      switch (cat.id) {
+        case 'getting-started':
+          return <DocGettingStarted sectionId={activeSection} />;
+        case 'primitives':
+          return <DocPrimitives primitiveId={activeSection} />;
+        case 'hooks':
+          return <DocHooks hookId={activeSection} />;
+        case 'r3f':
+          return <DocR3F sectionId={activeSection} />;
+        case 'architecture':
+          return <DocArchitecture sectionId={activeSection} />;
+        case 'recipes':
+          return <DocRecipes recipeId={activeSection} />;
+      }
     }
     return <DocGettingStarted sectionId="introduction" />;
   };

@@ -255,3 +255,124 @@ export function colorDeltaExceeds(c1: ColorRgba, c2: ColorRgba, epsilon: number 
     Math.abs(c1[3] - c2[3]) > epsilon
   );
 }
+
+/**
+ * Converts a reference 60Hz lerp coefficient (0.01 to 0.99) to continuous exponential decay constant lambda.
+ */
+export function lerpToLambda(lerp60: number): number {
+  const safeLerp = clamp(Number.isFinite(lerp60) ? lerp60 : 0.1, 0.001, 0.999);
+  return -60 * Math.log(1 - safeLerp);
+}
+
+/**
+ * Converts continuous exponential decay constant lambda to reference 60Hz lerp coefficient.
+ */
+export function lambdaToLerpFactor(lambda: number): number {
+  const safeLambda = Math.max(0, Number.isFinite(lambda) ? lambda : 0);
+  return 1 - Math.exp(-safeLambda / 60);
+}
+
+/**
+ * Framerate-independent 120Hz-aware exponential smoothing.
+ * Converts reference 60Hz lerp factor into an exact delta-time adjusted factor:
+ * alpha(dt) = 1 - (1 - lerp60)^(60 * dt)
+ * Guarantees that 60Hz, 120Hz, and 240Hz monitors experience identical wall-clock physics decay.
+ */
+export function exponentialLerp(current: number, target: number, lerp60: number, dt: number): number {
+  if (!Number.isFinite(current)) return Number.isFinite(target) ? target : 0;
+  if (!Number.isFinite(target)) return current;
+  const safeLerp = clamp(Number.isFinite(lerp60) ? lerp60 : 0.1, 0.0001, 0.9999);
+  const safeDt = Math.max(0, Math.min(Number.isFinite(dt) ? dt : 0.016, 0.1));
+  const factor = 1 - Math.pow(1 - safeLerp, safeDt * 60);
+  return lerp(current, target, factor);
+}
+
+export interface VelocitySnapOptions {
+  /** Velocity threshold (px/s) above which snap is released to let inertia glide freely. Default: 150 */
+  releaseThreshold?: number;
+  /** Kinetic time horizon in seconds for projecting natural stopping position. Default: 0.2 */
+  inertiaHorizon?: number;
+  /** Minimum scroll bound. Default: 0 */
+  minBound?: number;
+  /** Maximum scroll bound. Default: Infinity */
+  maxBound?: number;
+}
+
+/**
+ * Velocity-aware kinetic projection snap solver.
+ * If moving fast (|velocity| > releaseThreshold), snap is released (returns null).
+ * When settling, directionally projects the stopping position and snaps to the nearest anchor.
+ */
+export function calculateVelocitySnapTarget(
+  current: number,
+  velocity: number,
+  snapPoints: number[],
+  options?: VelocitySnapOptions
+): number | null {
+  if (!snapPoints || snapPoints.length === 0) return null;
+  const releaseThreshold = options?.releaseThreshold ?? 150;
+  const inertiaHorizon = options?.inertiaHorizon ?? 0.2;
+  const minBound = options?.minBound ?? 0;
+  const maxBound = options?.maxBound ?? Infinity;
+
+  // Active fling: release snap lock so momentum is never fought or trapped
+  if (Math.abs(velocity) > releaseThreshold) {
+    return null;
+  }
+
+  // Kinetic projection: calculate where inertia naturally lands
+  const projected = clamp(current + velocity * inertiaHorizon, minBound, maxBound);
+
+  // Directional filtering
+  let candidates = snapPoints;
+  if (velocity > 15) {
+    // Scrolling forward: prefer points ahead of current position
+    const forward = snapPoints.filter((p) => p >= current - 1);
+    if (forward.length > 0) candidates = forward;
+  } else if (velocity < -15) {
+    // Scrolling backward: prefer points behind current position
+    const backward = snapPoints.filter((p) => p <= current + 1);
+    if (backward.length > 0) candidates = backward;
+  }
+
+  // Find closest candidate to projected landing position
+  let closest = candidates[0];
+  let minDiff = Math.abs(projected - closest);
+  for (let i = 1; i < candidates.length; i++) {
+    const diff = Math.abs(projected - candidates[i]);
+    if (diff < minDiff) {
+      minDiff = diff;
+      closest = candidates[i];
+    }
+  }
+
+  return closest;
+}
+
+/**
+ * Aligns floating-point coordinate to physical device pixel grid.
+ * DPR=1: rounds to integer (e.g. 10.4 -> 10.0)
+ * DPR=2 (Retina): rounds to 0.5px (e.g. 10.4 -> 10.5)
+ * DPR=3 (OLED/Phone): rounds to 0.333px
+ * Prevents text raster blurring, edge shimmering, and unnecessary DOM string churn.
+ */
+export function snapToDevicePixel(value: number, dpr?: number): number {
+  if (!Number.isFinite(value)) return 0;
+  const safeDpr =
+    typeof dpr === 'number' && Number.isFinite(dpr) && dpr > 0
+      ? dpr
+      : typeof window !== 'undefined' && window.devicePixelRatio
+        ? window.devicePixelRatio
+        : 1;
+  return Math.round(value * safeDpr) / safeDpr;
+}
+
+/**
+ * Returns clean CSS pixel string (integer px if whole, or fixed 2 decimal places for sub-pixel fractions)
+ * to minimize DOM attribute diffing and retain backward compatibility.
+ */
+export function formatDevicePixel(value: number, dpr?: number): string {
+  const snapped = snapToDevicePixel(value, dpr);
+  return Number.isInteger(snapped) ? `${snapped}px` : `${snapped.toFixed(2)}px`;
+}
+

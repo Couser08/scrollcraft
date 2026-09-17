@@ -6,6 +6,7 @@
 
 import { ElementTransform } from './types';
 import { tierStore } from './feature-detection';
+import { snapToDevicePixel } from './math';
 
 const transformCache = new WeakMap<HTMLElement, ElementTransform>();
 const composedTransforms = new WeakMap<HTMLElement, { base: string; parts: Map<string, string>; lastComposed: string }>();
@@ -73,9 +74,9 @@ export class TransformWriter {
    * Applies 3D hardware-accelerated transform to an HTMLElement
    */
   public static applyTransform(element: HTMLElement, transform: ElementTransform): void {
-    const x = transform.x ?? 0;
-    const y = transform.y ?? 0;
-    const z = transform.z ?? 0;
+    const x = transform.x !== undefined ? snapToDevicePixel(transform.x) : 0;
+    const y = transform.y !== undefined ? snapToDevicePixel(transform.y) : 0;
+    const z = transform.z !== undefined ? snapToDevicePixel(transform.z) : 0;
     const scaleX = transform.scaleX ?? transform.scale ?? 1;
     const scaleY = transform.scaleY ?? transform.scale ?? 1;
     const rotateX = transform.rotateX ?? 0;

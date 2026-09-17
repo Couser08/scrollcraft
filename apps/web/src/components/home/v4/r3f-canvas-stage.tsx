@@ -116,6 +116,7 @@ export default function R3FCanvasStage({ scrollRef, autoRotate, isVisible = true
   return (
     <Canvas
       camera={{ position: [0, 0, 6.8], fov: 45 }}
+      dpr={[1, 1.5]}
       className="w-full h-full"
       frameloop={isVisible ? 'always' : 'never'}
       gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}

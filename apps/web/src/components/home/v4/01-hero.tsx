@@ -18,8 +18,9 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Parallax, Reveal, useScrollCraft, ScrollMetrics } from '@scrollcraft/react';
-import { Zap, Box, Leaf, Eye, Lock, Disc3 } from 'lucide-react';
+import { Zap, Box, Leaf, Eye, Lock, Disc3, Layers } from 'lucide-react';
 
 interface PrimitivePill {
   id: string;
@@ -83,6 +84,13 @@ export function HeroSection() {
       codeSnippet: '<ScrollProgress className="h-1 bg-violet-500" />',
       icon: <Disc3 className="w-3.5 h-3.5 shrink-0" />,
     },
+    {
+      id: 'stacked-cards',
+      name: 'StackedCards',
+      tagline: 'Kinetic 3D card deck (v0.2.0 Soon)',
+      codeSnippet: '<StackedCards items={cards} fadeBuried={true} />',
+      icon: <Layers className="w-3.5 h-3.5 shrink-0" />,
+    },
   ];
 
   const currentPrim = primitives.find((p) => p.id === activePrimitive) || primitives[0];
@@ -111,12 +119,18 @@ export function HeroSection() {
           <div className="lg:col-span-7 flex flex-col justify-center">
             
             {/* Overline Badge */}
-            <div className="flex items-center gap-2.5 mb-6 text-xs font-mono tracking-[0.25em] text-zinc-400 uppercase select-none">
-              <span className="text-zinc-400 font-semibold">CORE PRIMITIVES</span>
-              <span className="w-2 h-2 rounded-full bg-violet-500 shadow-[0_0_10px_rgba(139,92,246,0.9)] animate-pulse" />
-              <span className="px-2 py-0.5 rounded-full bg-violet-500/15 text-violet-300 border border-violet-500/30 text-[10px] font-bold tracking-wider">
-                BETA
-              </span>
+            <div className="flex flex-wrap items-center gap-2.5 mb-6 text-xs font-mono select-none">
+              <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[11px] font-bold tracking-wide">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)] animate-pulse" />
+                <span>v0.1.1 BETA (LIVE)</span>
+              </div>
+              <Link
+                href="/roadmap"
+                className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-[11px] font-bold tracking-wide hover:bg-cyan-500/20 transition-colors"
+              >
+                <span>v0.2.0 Coming Soon</span>
+                <span className="text-[10px] text-cyan-400">&rarr;</span>
+              </Link>
             </div>
 
             {/* Main Dual-Tone Headline with Reveal */}

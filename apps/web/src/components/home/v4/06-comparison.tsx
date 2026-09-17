@@ -80,9 +80,17 @@ export function ComparisonSection() {
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <Reveal direction="down" distance={15}>
-            <span className="text-[11px] sm:text-xs font-mono font-bold uppercase tracking-[0.25em] text-violet-400 mb-3 block">
-              Core Architecture &amp; Invariants
-            </span>
+            <div className="flex flex-wrap items-center justify-center gap-2 mb-3">
+              <span className="text-[11px] sm:text-xs font-mono font-bold uppercase tracking-[0.25em] text-violet-400">
+                Core Architecture &amp; Invariants
+              </span>
+              <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-[10px] font-mono font-bold text-emerald-400">
+                v0.1.1 (LIVE)
+              </span>
+              <span className="px-2 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-[10px] font-mono font-bold text-cyan-300">
+                v0.2.0 Coming Soon
+              </span>
+            </div>
           </Reveal>
           <Reveal direction="up" distance={20} delay={0.1}>
             <h2 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white leading-tight mb-4">

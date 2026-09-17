@@ -1,4 +1,4 @@
-import { clamp, damp } from './math';
+import { clamp, damp, calculateVelocitySnapTarget, snapToDevicePixel } from './math';
 import { TimelineSolver, PropertyTimeline, KeyframeSegment } from './timeline';
 import { TransformComposer } from './dom';
 import { triggerRegistry } from './markers';
@@ -167,16 +167,22 @@ export class TransformSolver {
     
     this.targetProgress = rawProgress;
     
-    // Snapping logic
+    // Velocity-aware kinetic snap release
     if (this.options.snap && this.options.onSnap) {
-      if (Math.abs(velocity) < 10) {
-        if (!this.snapTimeout && rawProgress > 0 && rawProgress < 1) {
+      const snapPoints = [this.startY, this.endY];
+      const targetScroll = calculateVelocitySnapTarget(scrollY, velocity, snapPoints, {
+        releaseThreshold: 120,
+        inertiaHorizon: 0.2,
+        minBound: this.startY,
+        maxBound: this.endY,
+      });
+
+      if (targetScroll !== null && rawProgress > 0 && rawProgress < 1) {
+        if (!this.snapTimeout) {
           this.snapTimeout = window.setTimeout(() => {
-            const nearestProgress = rawProgress > 0.5 ? 1 : 0;
-            const targetScroll = this.startY + nearestProgress * (this.endY - this.startY);
             this.options.onSnap!(targetScroll);
             this.snapTimeout = null;
-          }, 150);
+          }, 100);
         }
       } else if (this.snapTimeout) {
         window.clearTimeout(this.snapTimeout);
@@ -231,7 +237,10 @@ export class TransformSolver {
     let transformStr = '';
     
     if (v.x !== undefined || v.y !== undefined || v.z !== undefined) {
-      transformStr += `translate3d(${v.x || 0}px, ${v.y || 0}px, ${v.z || 0}px) `;
+      const sx = snapToDevicePixel(v.x || 0);
+      const sy = snapToDevicePixel(v.y || 0);
+      const sz = snapToDevicePixel(v.z || 0);
+      transformStr += `translate3d(${sx}px, ${sy}px, ${sz}px) `;
     }
     if (v.scale !== undefined) transformStr += `scale(${v.scale}) `;
     if (v.scaleX !== undefined) transformStr += `scaleX(${v.scaleX}) `;

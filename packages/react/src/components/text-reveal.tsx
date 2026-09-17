@@ -1,70 +1,164 @@
 'use client';
 
-import React, { useRef, useEffect } from 'react';
+import React, { forwardRef, useRef, useEffect, useMemo } from 'react';
 import { GlobalResizeManager, TextRevealSolver, ticker } from '@scrollcraft/core';
 import { useScrollCraft } from '../context';
+import { composeRefs } from '../slot';
+import { TextRevealProps } from '../types';
 
-export interface TextRevealProps {
-  /** The text content to be split into letters */
-  children: string;
-  className?: string;
-  /** Optional range to map the start/end progress of the reveal */
-  range?: [number, number];
-}
+export type { TextRevealProps };
 
-export const TextReveal: React.FC<TextRevealProps> = ({ 
-  children, 
-  className = '',
-  range
-}) => {
-  const [rangeStart = 0, rangeEnd = 1] = range ?? [];
-  const containerRef = useRef<HTMLParagraphElement>(null);
-  const charsRef = useRef<(HTMLSpanElement | null)[]>([]);
-  const { engine } = useScrollCraft();
+export const TextReveal = React.memo(
+  forwardRef<HTMLParagraphElement, TextRevealProps>((props, forwardedRef) => {
+    const {
+      children,
+      className = '',
+      by = 'chars',
+      range,
+      blur,
+      scale,
+      rotateX,
+      rotateY,
+      slide,
+      ...domProps
+    } = props;
 
-  useEffect(() => {
-    const container = containerRef.current;
-    // Filter out null refs
-    const chars = charsRef.current.filter(Boolean) as HTMLElement[];
-    
-    if (!container || chars.length === 0) return;
+    const [rangeStart = 0, rangeEnd = 1] = range ?? [];
+    const internalRef = useRef<HTMLParagraphElement>(null);
+    const targetsRef = useRef<(HTMLSpanElement | null)[]>([]);
+    const { engine } = useScrollCraft();
 
-    const solver = new TextRevealSolver(container, chars, { range: [rangeStart, rangeEnd] });
-    const taskId = `text-reveal-${Math.random().toString(36).slice(2, 8)}`;
+    // Split words and characters with memoization
+    const { wordGroups, totalTargets } = useMemo(() => {
+      const words = children.split(' ');
+      if (by === 'words') {
+        return {
+          wordGroups: words.map((word, index) => ({
+            word,
+            chars: [] as Array<{ char: string; index: number }>,
+            wordIndex: index,
+          })),
+          totalTargets: words.length,
+        };
+      }
 
-    const measure = () => solver.measure();
-    const unobserve = GlobalResizeManager.observe(container, measure);
-    ticker.add(`${taskId}-update`, 'update', () => {
-      // Fallback to window native scroll if engine is still hydrating
-      const scrollY = engine?.getMetrics().scroll ?? (window.scrollY || window.pageYOffset);
-      const wh = window.innerHeight;
-      solver.update(scrollY, wh);
-    });
-    ticker.add(`${taskId}-render`, 'render', () => solver.render());
+      let charCounter = 0;
+      const groups = words.map((word, wIdx) => {
+        const chars = word.split('').map((char) => ({
+          char,
+          index: charCounter++,
+        }));
+        return {
+          word,
+          chars,
+          wordIndex: wIdx,
+        };
+      });
 
-    return () => {
-      unobserve();
-      ticker.remove(`${taskId}-update`);
-      ticker.remove(`${taskId}-render`);
-      solver.destroy();
-    };
-  }, [engine, rangeStart, rangeEnd]);
+      return {
+        wordGroups: groups,
+        totalTargets: charCounter,
+      };
+    }, [children, by]);
 
-  // Splitting purely by letters as per current requirement
-  const letters = children.split('');
+    useEffect(() => {
+      const container = internalRef.current;
+      const targets = targetsRef.current.filter(Boolean) as HTMLElement[];
 
-  return (
-    <p ref={containerRef} className={`m-0 p-0 flex flex-wrap ${className}`}>
-      {letters.map((char, index) => (
-        <span 
-          key={index}
-          ref={(el) => { charsRef.current[index] = el; }}
-          className="char"
-          style={{ opacity: 0.1, whiteSpace: char === ' ' ? 'pre' : 'normal' }}
-        >
-          {char}
+      if (!container || targets.length === 0) return;
+
+      // Hydration takeover: Cancel CSS keyframe fallback race condition immediately
+      container.classList.remove('sc-reveal-css-fallback');
+
+      const solver = new TextRevealSolver(container, targets, {
+        range: [rangeStart, rangeEnd],
+        blur,
+        scale,
+        rotateX,
+        rotateY,
+        slide,
+      });
+
+      const taskId = `text-reveal-${Math.random().toString(36).slice(2, 8)}`;
+
+      const measure = () => solver.measure();
+      const unobserve = GlobalResizeManager.observe(container, measure);
+
+      ticker.add(`${taskId}-update`, 'update', () => {
+        const scrollY = engine?.getMetrics().scroll ?? (window.scrollY || window.pageYOffset);
+        const wh = window.innerHeight;
+        solver.update(scrollY, wh);
+      });
+
+      ticker.add(`${taskId}-render`, 'render', () => {
+        solver.render();
+      });
+
+      return () => {
+        unobserve();
+        ticker.remove(`${taskId}-update`);
+        ticker.remove(`${taskId}-render`);
+        solver.destroy();
+        targetsRef.current = [];
+      };
+    }, [engine, rangeStart, rangeEnd, blur, scale, rotateX, rotateY, slide, totalTargets]);
+
+    const mergedRef = composeRefs(forwardedRef, internalRef);
+
+    return (
+      <p
+        ref={mergedRef}
+        data-sc-reveal="pending"
+        aria-label={children}
+        className={`m-0 p-0 flex flex-wrap ${className}`}
+        {...domProps}
+      >
+        <span aria-hidden="true" style={{ display: 'contents' }}>
+          {by === 'words'
+            ? wordGroups.map(({ word, wordIndex }, i) => (
+                <React.Fragment key={wordIndex}>
+                  <span
+                    ref={(el) => {
+                      targetsRef.current[wordIndex] = el;
+                    }}
+                    className="sc-word inline-block"
+                    style={{ opacity: 0.1, display: 'inline-block' }}
+                  >
+                    {word}
+                  </span>
+                  {i < wordGroups.length - 1 && ' '}
+                </React.Fragment>
+              ))
+            : wordGroups.map(({ chars, wordIndex }, i) => (
+                <React.Fragment key={wordIndex}>
+                  <span
+                    className="sc-word-group inline-block"
+                    style={{ display: 'inline-block', whiteSpace: 'nowrap' }}
+                  >
+                    {chars.map(({ char, index }) => (
+                      <span
+                        key={index}
+                        ref={(el) => {
+                          targetsRef.current[index] = el;
+                        }}
+                        className="sc-char inline-block"
+                        style={{
+                          opacity: 0.1,
+                          display: 'inline-block',
+                          whiteSpace: char === ' ' ? 'pre' : 'normal',
+                        }}
+                      >
+                        {char}
+                      </span>
+                    ))}
+                  </span>
+                  {i < wordGroups.length - 1 && ' '}
+                </React.Fragment>
+              ))}
         </span>
-      ))}
-    </p>
-  );
-};
+      </p>
+    );
+  })
+);
+
+TextReveal.displayName = 'TextReveal';

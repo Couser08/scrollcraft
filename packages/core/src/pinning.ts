@@ -4,7 +4,7 @@
  * Strictly under 650 LOC.
  */
 
-import { clamp } from './math';
+import { clamp, formatDevicePixel } from './math';
 import { TransformComposer } from './dom';
 
 export const DEFAULT_PIN_DURATION = 800;
@@ -102,7 +102,8 @@ export class PinSolver {
     this.lastRenderedOffsetY = this.state.pinOffsetY;
 
     if (this.state.pinOffsetY > 0) {
-      TransformComposer.set(this.element, 'pin', `translate3d(0px, ${this.state.pinOffsetY}px, 0px)`);
+      const formatted = formatDevicePixel(this.state.pinOffsetY);
+      TransformComposer.set(this.element, 'pin', `translate3d(0px, ${formatted}, 0px)`);
     } else {
       TransformComposer.clear(this.element, 'pin');
     }

@@ -104,12 +104,15 @@ export function EngineArchitectureSection() {
                   <Box className="w-5 h-5" />
                 </div>
                 <div>
-                  <div className="flex items-center gap-2.5">
+                  <div className="flex flex-wrap items-center gap-2">
                     <span className="font-mono text-sm sm:text-base font-bold text-white">
                       @scrollcraft/core
                     </span>
-                    <span className="px-2 py-0.5 rounded bg-zinc-900 border border-zinc-800 text-[10px] font-mono text-zinc-400">
-                      v0.1.1-beta
+                    <span className="px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30 text-[10px] font-mono font-bold text-emerald-400">
+                      v0.1.1 (LIVE)
+                    </span>
+                    <span className="px-2 py-0.5 rounded bg-cyan-500/10 border border-cyan-500/30 text-[10px] font-mono font-bold text-cyan-300">
+                      v0.2.0 Coming Soon
                     </span>
                   </div>
                   <p className="text-xs text-zinc-400 mt-0.5">
@@ -119,9 +122,11 @@ export function EngineArchitectureSection() {
               </div>
 
               {/* Bundle Size Pill */}
-              <div className="self-start sm:self-auto inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-violet-500/30 bg-violet-500/10 text-violet-300 font-mono text-xs shadow-xs">
-                <Code className="w-3.5 h-3.5" />
-                <span>&lt; 5 KB (tree-shaken)</span>
+              <div className="self-start sm:self-auto flex items-center gap-2">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-violet-500/30 bg-violet-500/10 text-violet-300 font-mono text-xs shadow-xs">
+                  <Code className="w-3.5 h-3.5" />
+                  <span>&lt; 5 KB (tree-shaken)</span>
+                </div>
               </div>
             </div>
 

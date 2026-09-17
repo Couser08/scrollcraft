@@ -1,17 +1,52 @@
 'use client';
 
+/**
+ * <ScrollTransform> Declarative Primitive
+ * Supports asChild composition with bespoke Slot and direct GPU TransformComposer writes.
+ * Supports built-in animation presets ('zoom-in', 'fade-up', 'scale-down', 'blur-in', '3d-flip').
+ * Strictly under 650 LOC.
+ */
+
 import React from 'react';
 import { Slot, composeRefs } from '../slot';
 import { useScrollTransform } from '../hooks/useScrollTransform';
-import { TransformSolverOptions } from '@scrollcraft/core';
+import { ScrollTransformOptions } from '../types';
 
-export interface ScrollTransformProps extends React.HTMLAttributes<HTMLDivElement>, Omit<TransformSolverOptions, 'onSnap'> {
+export interface ScrollTransformProps extends React.HTMLAttributes<HTMLDivElement>, ScrollTransformOptions {
   asChild?: boolean;
 }
 
 export const ScrollTransform = React.forwardRef<HTMLDivElement, ScrollTransformProps>(
-  ({ asChild, id, markers, start, end, properties, scrub, snap, children, ...props }, forwardedRef) => {
-    const internalRef = useScrollTransform<HTMLDivElement>({ id, markers, start, end, properties, scrub, snap });
+  (
+    {
+      asChild,
+      id,
+      markers,
+      start,
+      end,
+      properties,
+      scrub,
+      snap,
+      onSnap,
+      preset,
+      respectReducedMotion,
+      children,
+      ...props
+    },
+    forwardedRef
+  ) => {
+    const internalRef = useScrollTransform<HTMLDivElement>({
+      id,
+      markers,
+      start,
+      end,
+      properties,
+      scrub,
+      snap,
+      onSnap,
+      preset,
+      respectReducedMotion,
+    });
     const mergedRef = composeRefs(forwardedRef, internalRef);
 
     if (asChild) {
@@ -23,7 +58,7 @@ export const ScrollTransform = React.forwardRef<HTMLDivElement, ScrollTransformP
     }
 
     return (
-      <div ref={mergedRef as React.Ref<HTMLDivElement>} {...props}>
+      <div ref={mergedRef} {...props}>
         {children}
       </div>
     );

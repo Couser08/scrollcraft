@@ -10,6 +10,7 @@ import { ScrollDriver, DriverState } from './driver';
 import { Capabilities } from './feature-detection';
 import { injectNativeStyles } from './native-styles';
 import { TransformComposer, smartCompositor } from './dom';
+import { motionStore } from './motion-preference';
 
 export interface ParallaxOptions {
   speed?: number;
@@ -101,6 +102,10 @@ class JSParallaxDriver implements ScrollDriver {
 
   public update(scrollOffset: number): ParallaxState {
     if (!this.isVisible) return this.state;
+    if (motionStore.isReduced()) {
+      this.state.offset = 0;
+      return this.state;
+    }
     if (this.viewportSize === 0 || (this.elementHeight === 0 && this.elementWidth === 0)) {
       this.measure();
     }
@@ -137,6 +142,13 @@ class JSParallaxDriver implements ScrollDriver {
 
   public render(): void {
     if (!this.isVisible) return;
+    if (motionStore.isReduced()) {
+      if (this.lastRenderedOffset !== 0) {
+        this.lastRenderedOffset = 0;
+        TransformComposer.clear(this.element, 'parallax');
+      }
+      return;
+    }
     if (this.lastRenderedOffset === this.state.offset) return;
     this.lastRenderedOffset = this.state.offset;
 

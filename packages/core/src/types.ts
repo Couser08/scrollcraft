@@ -48,12 +48,22 @@ export interface InertiaConfig {
   syncTouch?: boolean;
   /** Auto-resize on window resize. Default: true */
   autoResize?: boolean;
-  /** Mouse wheel sensitivity multiplier. Default: 1 */
-  wheelMultiplier?: number;
+  /** Mouse wheel sensitivity multiplier. Can be a number or 'auto' for OS/hardware auto-tuning. Default: 'auto' */
+  wheelMultiplier?: number | 'auto';
   /** Touch sensitivity multiplier. Default: 1 */
   touchMultiplier?: number;
   /** Allow momentum overscroll at page bounds. Default: true */
   overscroll?: boolean;
+  /** Respect OS prefers-reduced-motion media query by disabling smooth scroll. Default: true */
+  respectReducedMotion?: boolean;
+  /** Physics simulation mode: 'lerp' (exponential decay) or 'spring' (damped harmonic oscillator). Default: 'lerp' */
+  physicsMode?: 'lerp' | 'spring';
+  /** Spring configuration used when physicsMode is 'spring' */
+  spring?: SpringConfig;
+  /** Enable 120Hz-aware exponential smoothing to equalize decay rate across 60Hz/120Hz/240Hz. Default: true */
+  fpsAware?: boolean;
+  /** Align scroll offsets to physical device pixel grid to eliminate raster blurring and jitter. Default: true */
+  subpixelSnap?: boolean;
 }
 
 export interface ScrollMetrics {

@@ -42,3 +42,4 @@ export * from './hooks/useScrollTimeline';
 export * from './hooks/useScrollDirection';
 export * from './hooks/useTicker';
 export * from './hooks/useRenderTracker';
+export * from './hooks/useScrollRestoration';

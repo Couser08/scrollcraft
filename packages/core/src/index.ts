@@ -26,3 +26,6 @@ export * from './draw-solver';
 export * from './visibility';
 export * from './markers';
 export * from './stacked-cards-solver';
+export * from './motion-preference';
+export * from './input-normalizer';
+export * from './history-restore';

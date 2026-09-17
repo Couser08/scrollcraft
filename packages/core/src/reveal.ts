@@ -5,6 +5,7 @@
  */
 
 import { TransformComposer } from './dom';
+import { motionStore } from './motion-preference';
 
 export interface RevealOptions {
   direction?: 'up' | 'down' | 'left' | 'right' | 'none';
@@ -160,6 +161,15 @@ export class GlobalRevealObserver {
   public observe(element: HTMLElement, options: RevealOptions): void {
     if (!element || typeof window === 'undefined') return;
 
+    if (motionStore.isReduced()) {
+      element.style.opacity = '1';
+      element.style.transition = 'none';
+      element.style.filter = '';
+      TransformComposer.set(element, 'reveal', 'none');
+      options.onReveal?.();
+      return;
+    }
+
     const fullOptions: RevealOptions = {
       direction: options.direction ?? 'up',
       distance: options.distance ?? 32,
@@ -201,7 +211,7 @@ export class GlobalRevealObserver {
     this.entries.set(element, entry);
 
     // Reduced motion handling: reveal immediately without translation if reduced-motion preferred
-    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    if (motionStore.isReduced()) {
       entry.hasRevealed = true;
       element.style.opacity = '1';
       element.style.transition = 'none';
@@ -276,3 +286,4 @@ export class GlobalRevealObserver {
 }
 
 export const revealObserver = /* @__PURE__ */ GlobalRevealObserver.get();
+export { GlobalRevealObserver as RevealSolver };

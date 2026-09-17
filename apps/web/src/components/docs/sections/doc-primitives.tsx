@@ -13,6 +13,7 @@
 import React from 'react';
 import { CodeViewer } from '@/components/ui/code-viewer';
 import { Zap } from 'lucide-react';
+import { PrimitivePreview } from '../interactive/primitive-preview';
 
 interface DocPrimitivesProps {
   primitiveId: string;
@@ -21,7 +22,7 @@ interface DocPrimitivesProps {
 interface PrimitiveReference {
   name: string;
   tag: string;
-  status: 'Beta' | 'Alpha';
+  status: 'Beta' | 'Alpha' | 'v0.2.0 (Coming Soon)';
   code: string;
   whatItDoes: string;
   capabilities: { prop: string; type: string; desc: string; defaultValue?: string }[];
@@ -276,10 +277,178 @@ export function Product360Canvas({ frames }: { frames: string[] }) {
       { prop: 'speed', type: 'number', defaultValue: '1.5', desc: 'Scrubbing sensitivity multiplier across image frames.' },
     ],
   },
+
+  'stacked-cards': {
+    name: 'StackedCards',
+    tag: '<StackedCards />',
+    status: 'v0.2.0 (Coming Soon)',
+    code: `import { StackedCards } from '@scrollcraft/react';
+
+const CARDS = [
+  { id: '1', title: 'Zero Layout Shift', desc: 'Pre-computed geometric bounds.' },
+  { id: '2', title: 'Depth Gating', desc: 'Buried cards automatically set pointer-events: none.' },
+  { id: '3', title: 'Hardware Stacking', desc: 'Direct GPU composite scale and translateY.' },
+];
+
+export function CardDeckSection() {
+  return (
+    <StackedCards
+      items={CARDS}
+      stackOffset={28}
+      scaleStep={0.04}
+      fadeBuried={true}
+      pinBudget="250vh"
+      renderCard={(item) => (
+        <div className="p-8 rounded-2xl bg-zinc-900 border border-zinc-800 shadow-2xl">
+          <h3 className="text-2xl font-bold text-white">{item.title}</h3>
+          <p className="text-zinc-400 mt-2">{item.desc}</p>
+        </div>
+      )}
+    />
+  );
+}`,
+    whatItDoes: 'Kinetic 3D stacking card deck with automated variable height measurement and depth-gated pointer events.',
+    capabilities: [
+      { prop: 'items', type: 'T[]', defaultValue: 'required', desc: 'Array of data items mapped into stacked card layers.' },
+      { prop: 'renderCard', type: '(item: T, index: number) => ReactNode', defaultValue: 'required', desc: 'Render prop producing individual card JSX.' },
+      { prop: 'stackOffset', type: 'number', defaultValue: '24', desc: 'Vertical peek offset per stacked card in pixels.' },
+      { prop: 'scaleStep', type: 'number', defaultValue: '0.04', desc: 'Scale reduction factor per depth layer (e.g. 0.04 = 0.96, 0.92, 0.88).' },
+      { prop: 'fadeBuried', type: 'boolean', defaultValue: 'true', desc: 'Fades and disables pointer events on obscured cards behind active layer.' },
+      { prop: 'pinBudget', type: 'string', defaultValue: "'200vh'", desc: 'Scroll travel height budget allocated for full deck scrub.' },
+    ],
+  },
+
+  'text-reveal': {
+    name: 'TextReveal',
+    tag: '<TextReveal />',
+    status: 'v0.2.0 (Coming Soon)',
+    code: `import { TextReveal } from '@scrollcraft/react';
+
+export function HeadlineReveal() {
+  return (
+    <TextReveal
+      by="word"
+      stagger={0.04}
+      scrub={true}
+      start="top 80%"
+      end="top 25%"
+      className="text-5xl font-extrabold text-white tracking-tight leading-tight"
+    >
+      Engineered for extreme frame fidelity and zero layout recalculations.
+    </TextReveal>
+  );
+}`,
+    whatItDoes: 'Split-text scroll reveal (by character, word, or line) with SSR-safe CSS fallback and zero layout shift.',
+    capabilities: [
+      { prop: 'children', type: 'string', defaultValue: 'required', desc: 'Text content to tokenize into animated DOM spans.' },
+      { prop: 'by', type: "'character' | 'word' | 'line'", defaultValue: "'word'", desc: 'Token segmentation granularity.' },
+      { prop: 'stagger', type: 'number', defaultValue: '0.03', desc: 'Delay increment between successive tokens in seconds.' },
+      { prop: 'scrub', type: 'boolean', defaultValue: 'true', desc: 'Directly drives token opacity and Y offset from scroll progress.' },
+      { prop: 'nowrap', type: 'boolean', defaultValue: 'true', desc: 'Wraps character tokens in inline-block words to prevent mid-word linebreaks.' },
+      { prop: 'fallbackTimeout', type: 'number', defaultValue: '1200', desc: 'Timeout in ms before activating CSS animation if JS execution is delayed.' },
+    ],
+  },
+
+  'scroll-transform': {
+    name: 'ScrollTransform',
+    tag: '<ScrollTransform />',
+    status: 'v0.2.0 (Coming Soon)',
+    code: `import { ScrollTransform } from '@scrollcraft/react';
+
+export function DynamicMorphHero() {
+  return (
+    <ScrollTransform
+      preset="3d-flip"
+      start="top center"
+      end="bottom top"
+      asChild
+    >
+      <div className="p-10 rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-900 text-white">
+        <h2 className="text-4xl font-black">Multi-Axis GPU Morph</h2>
+      </div>
+    </ScrollTransform>
+  );
+}`,
+    whatItDoes: 'Direct GPU multi-property compositor interpolator (opacity, scale, rotate, 3D tilt, blur, RGBA color).',
+    capabilities: [
+      { prop: 'preset', type: "'zoom-in' | 'fade-up' | 'scale-down' | 'blur-in' | '3d-flip'", defaultValue: 'undefined', desc: 'High-performance preset transform curves.' },
+      { prop: 'keyframes', type: 'Record<number, KeyframeProps>', defaultValue: 'undefined', desc: 'Custom normalized keyframes (0.0 to 1.0) for composite injection.' },
+      { prop: 'start', type: 'string', defaultValue: "'top bottom'", desc: 'Viewport scroll trigger boundary start point.' },
+      { prop: 'end', type: 'string', defaultValue: "'bottom top'", desc: 'Viewport scroll trigger boundary finish point.' },
+      { prop: 'clamp', type: 'boolean', defaultValue: 'true', desc: 'Guards against extrapolating transforms beyond boundary range.' },
+      { prop: 'asChild', type: 'boolean', defaultValue: 'false', desc: 'Directly injects style mutations into first child without extra wrapper.' },
+    ],
+  },
+
+  'scroll-draw': {
+    name: 'ScrollDraw',
+    tag: '<ScrollDraw />',
+    status: 'v0.2.0 (Coming Soon)',
+    code: `import { ScrollDraw } from '@scrollcraft/react';
+
+export function VectorPathScrub() {
+  return (
+    <svg viewBox="0 0 1000 300" className="w-full h-auto">
+      <ScrollDraw start="top 75%" end="center center" direction="forward">
+        <path
+          d="M 50 150 C 250 50, 450 250, 650 150 S 950 250, 950 150"
+          fill="none"
+          stroke="#8b5cf6"
+          strokeWidth="4"
+          strokeLinecap="round"
+        />
+      </ScrollDraw>
+    </svg>
+  );
+}`,
+    whatItDoes: 'Universal SVG geometry line-drawing scrubber supporting path, line, polyline, polygon, rect, and circle.',
+    capabilities: [
+      { prop: 'start', type: 'string', defaultValue: "'top 80%'", desc: 'Scroll offset triggering path drawing initiation.' },
+      { prop: 'end', type: 'string', defaultValue: "'center center'", desc: 'Scroll offset where stroke finishes complete draw.' },
+      { prop: 'direction', type: "'forward' | 'reverse'", defaultValue: "'forward'", desc: 'Stroke drawing progression vector.' },
+      { prop: 'dashArray', type: 'string | number', defaultValue: 'totalLength', desc: 'Stroke dash pattern segment length.' },
+      { prop: 'scrub', type: 'boolean', defaultValue: 'true', desc: 'Pins stroke offset directly to hardware scroll frame position.' },
+    ],
+  },
+
+  'scroll-inspector': {
+    name: 'ScrollInspector',
+    tag: '<ScrollInspector />',
+    status: 'v0.2.0 (Coming Soon)',
+    code: `import { ScrollInspector } from '@scrollcraft/react';
+
+export function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body>
+        {children}
+        {/* Development Studio: Frame drop ribbon, live spring tuner, trigger markers */}
+        {process.env.NODE_ENV === 'development' && (
+          <ScrollInspector
+            position="bottom-right"
+            showFPS={true}
+            showTriggers={true}
+            exportProps={true}
+          />
+        )}
+      </body>
+    </html>
+  );
+}`,
+    whatItDoes: 'ScrollCraft DevTools studio: frame-drop ribbon, live physics spring tuner, and spatial 3D trigger visualizer.',
+    capabilities: [
+      { prop: 'enabled', type: 'boolean', defaultValue: 'true', desc: 'Enables or disables HUD overlay (automatically stripped in production).' },
+      { prop: 'position', type: "'bottom-right' | 'bottom-left' | 'top-right'", defaultValue: "'bottom-right'", desc: 'Viewport screen anchor position for the HUD window.' },
+      { prop: 'showFPS', type: 'boolean', defaultValue: 'true', desc: 'Hardware 120Hz/60Hz frame delivery ribbon and dropped frame counter.' },
+      { prop: 'showTriggers', type: 'boolean', defaultValue: 'true', desc: 'Projects visual trigger boundary planes and marker lines over page content.' },
+      { prop: 'exportProps', type: 'boolean', defaultValue: 'true', desc: 'Allows one-click export of in-browser tweaked spring physics to JSX.' },
+    ],
+  },
 };
 
 export const DocPrimitives: React.FC<DocPrimitivesProps> = ({ primitiveId }) => {
   const primitive = PRIMITIVES_DATA[primitiveId] || PRIMITIVES_DATA.parallax;
+  const isComingSoon = primitive.status.includes('Coming Soon');
 
   return (
     <div className="space-y-10 not-prose">
@@ -290,7 +459,11 @@ export const DocPrimitives: React.FC<DocPrimitivesProps> = ({ primitiveId }) => 
             <h1 className="text-3xl font-extrabold text-white tracking-tight font-mono">
               {primitive.tag}
             </h1>
-            <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-amber-500/15 text-amber-400 border border-amber-500/30">
+            <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase ${
+              isComingSoon
+                ? 'bg-cyan-500/15 text-cyan-400 border border-cyan-500/30'
+                : 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
+            }`}>
               {primitive.status}
             </span>
           </div>
@@ -298,6 +471,11 @@ export const DocPrimitives: React.FC<DocPrimitivesProps> = ({ primitiveId }) => 
             <strong className="text-white">What it does:</strong> {primitive.whatItDoes}
           </p>
         </div>
+      </div>
+
+      {/* Interactive Live Demonstration */}
+      <div id="demo" className="space-y-3 scroll-mt-24">
+        <PrimitivePreview primitiveId={primitiveId} />
       </div>
 
       {/* Production Sample Code */}
@@ -341,9 +519,11 @@ export const DocPrimitives: React.FC<DocPrimitivesProps> = ({ primitiveId }) => 
 
       {/* Status Signal */}
       <div className="p-4 rounded-xl bg-zinc-900/60 border border-zinc-800 text-xs font-mono text-zinc-400 flex items-center justify-between">
-        <span>Status: <strong className="text-amber-400 uppercase">{primitive.status}</strong></span>
+        <span>Status: <strong className={isComingSoon ? "text-cyan-400 uppercase" : "text-amber-400 uppercase"}>{primitive.status}</strong></span>
         <span className="text-[11px] text-zinc-500 font-sans">
-          API surface may shift before 1.0 &bull; Direct GPU compositor writes
+          {isComingSoon
+            ? 'Scheduled for ScrollCraft v0.2.0 Beta (1–2 weeks) • Zero-rerender DOM pipeline'
+            : 'API surface may shift before 1.0 • Direct GPU compositor writes'}
         </span>
       </div>
     </div>

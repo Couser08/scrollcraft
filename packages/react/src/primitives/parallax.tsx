@@ -3,6 +3,7 @@
 /**
  * <Parallax> Declarative Primitive
  * Supports asChild composition with bespoke Slot and direct GPU translate3d.
+ * Features hero zero-anchor (origin="auto"), bleed clipping, multi-axis rotate/scale.
  * Strictly under 650 LOC.
  */
 
@@ -19,6 +20,10 @@ export const Parallax = React.memo(
       direction = 'vertical',
       min,
       max,
+      origin,
+      bleed,
+      scale,
+      rotate,
       respectReducedMotion = true,
       driver = 'auto',
       children,
@@ -32,6 +37,10 @@ export const Parallax = React.memo(
       direction,
       min,
       max,
+      origin,
+      bleed,
+      scale,
+      rotate,
       respectReducedMotion,
       driver,
     });
