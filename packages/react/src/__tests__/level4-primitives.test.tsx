@@ -22,12 +22,16 @@ import {
   Parallax,
   ScrollTransform,
   ScrollDraw,
+  ScrollProgress,
+  Magnetic,
   ScrollInspector,
 } from '../index';
 import { ticker, markerManager, StackedCardsSolver, TextRevealSolver, SequenceSolver } from '@scrollcraft/core';
 import * as useParallaxModule from '../hooks/useParallax';
 import * as useScrollTransformModule from '../hooks/useScrollTransform';
 import * as useScrollDrawModule from '../hooks/useScrollDraw';
+import * as useScrollProgressModule from '../hooks/useScrollProgress';
+import * as useMagneticModule from '../hooks/useMagnetic';
 
 describe('Level 4: Declarative Primitives, Components & Studio Hardening Suite', () => {
   const originalWindow = globalThis.window;
@@ -230,6 +234,21 @@ describe('Level 4: Declarative Primitives, Components & Studio Hardening Suite',
       expect(forwardedRef).not.toBeNull();
       expect(forwardedRef).toHaveProperty('current');
     });
+
+    it('supports asChild composition for custom semantic headings without forcing <p>', () => {
+      const html = renderToString(
+        <TextReveal asChild by="words" className="custom-heading">
+          <h1 className="hero-title">Custom Headline</h1>
+        </TextReveal>
+      );
+
+      expect(html).toContain('<h1');
+      expect(html).not.toContain('<p');
+      expect(html).toContain('class="m-0 p-0 flex flex-wrap custom-heading hero-title"');
+      expect(html).toContain('aria-label="Custom Headline"');
+      expect(html).toContain('data-sc-reveal="pending"');
+      expect(html).toContain('>Custom</span>');
+    });
   });
 
   // ══════════════════════════════════════════════════════════════════
@@ -333,6 +352,26 @@ describe('Level 4: Declarative Primitives, Components & Studio Hardening Suite',
       solver.destroy();
       expect(card0.style.zIndex).toBe('');
     });
+
+    it('supports asChild composition for custom runway container tag (e.g. <section>)', () => {
+      const cards = [
+        <div key="1" className="card-item">Card 1</div>,
+        <div key="2" className="card-item">Card 2</div>,
+      ];
+
+      const html = renderToString(
+        <StackedCards asChild cards={cards} top={50} offset={20} cardDistance={400} className="custom-runway">
+          <section id="cards-section" />
+        </StackedCards>
+      );
+
+      expect(html).toContain('<section');
+      expect(html).not.toContain('<div id="cards-section"');
+      expect(html).toContain('id="cards-section"');
+      expect(html).toContain('class="relative w-full custom-runway"');
+      expect(html).toContain('Card 1');
+      expect(html).toContain('Card 2');
+    });
   });
 
   // ══════════════════════════════════════════════════════════════════
@@ -422,6 +461,39 @@ describe('Level 4: Declarative Primitives, Components & Studio Hardening Suite',
         expect.objectContaining({
           dashArray: '4 4',
           direction: 'forward',
+        })
+      );
+    });
+
+    it('<ScrollProgress> forwards reactive option and orientation', () => {
+      const useScrollProgressSpy = vi.spyOn(useScrollProgressModule, 'useScrollProgress');
+
+      renderToString(
+        <ScrollProgress reactive={true} orientation="vertical" />
+      );
+
+      expect(useScrollProgressSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          reactive: true,
+          orientation: 'vertical',
+        })
+      );
+    });
+
+    it('<Magnetic> forwards respectReducedMotion option', () => {
+      const useMagneticSpy = vi.spyOn(useMagneticModule, 'useMagnetic');
+
+      renderToString(
+        <Magnetic respectReducedMotion={false} strength={0.4}>
+          <button>Magnetic Button</button>
+        </Magnetic>
+      );
+
+      expect(useMagneticSpy).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          respectReducedMotion: false,
+          strength: 0.4,
         })
       );
     });

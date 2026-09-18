@@ -15,7 +15,7 @@
  * Strictly under 650 LOC.
  */
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { revealObserver } from '@scrollcraft/core';
 import { useScrollCraft } from '../context';
 import { RevealOptions } from '../types';
@@ -36,6 +36,11 @@ export function useReveal<T extends HTMLElement = HTMLDivElement>(
   const { respectReducedMotion = true } = options;
   const { reducedMotion } = useScrollCraft();
 
+  // Stable callbacks ref to prevent inline callbacks from tearing down observer on every render
+  const callbacksRef = useRef({ onReveal: options.onReveal, onReset: options.onReset });
+  callbacksRef.current.onReveal = options.onReveal;
+  callbacksRef.current.onReset = options.onReset;
+
   useEffect(() => {
     const node = captureNode(ref);
     if (!node || typeof window === 'undefined') return;
@@ -44,7 +49,7 @@ export function useReveal<T extends HTMLElement = HTMLDivElement>(
       node.style.opacity = '1';
       node.style.transform = 'none';
       if (options.blur) node.style.filter = 'none';
-      options.onReveal?.();
+      callbacksRef.current.onReveal?.();
       return;
     }
 
@@ -58,6 +63,8 @@ export function useReveal<T extends HTMLElement = HTMLDivElement>(
     const resolvedOptions = {
       ...options,
       delay: computedDelay,
+      onReveal: () => callbacksRef.current.onReveal?.(),
+      onReset: () => callbacksRef.current.onReset?.(),
     };
 
     revealObserver.observe(node, resolvedOptions);
@@ -78,8 +85,6 @@ export function useReveal<T extends HTMLElement = HTMLDivElement>(
     options.rotateY,
     options.index,
     options.stagger,
-    options.onReveal,
-    options.onReset,
     reducedMotion,
     respectReducedMotion,
     ref,

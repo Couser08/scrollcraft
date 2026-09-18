@@ -17,6 +17,7 @@ import {
   useScrollCraft,
   useScrollCraftTier,
 } from '@scrollcraft/react';
+import { ticker } from '@scrollcraft/core';
 import { ShieldCheck, Bookmark, ArrowUp, MapPin, Sparkles } from 'lucide-react';
 
 // ==========================================
@@ -384,19 +385,16 @@ export function HighPrecisionTickerDemoStage({ knobs }: { knobs: Record<string, 
   void knobs;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fpsRef = useRef<HTMLSpanElement>(null);
-  const frameCountRef = useRef(0);
   const lastTimeRef = useRef(typeof performance !== 'undefined' ? performance.now() : 0);
 
   useTicker((_dt, _elapsed, current) => {
-    frameCountRef.current++;
     const now = current;
-    if (now - lastTimeRef.current >= 400) {
-      const delta = now - lastTimeRef.current;
-      if (delta > 0 && fpsRef.current) {
-        const measuredFps = Math.round((frameCountRef.current * 1000) / delta);
-        fpsRef.current.textContent = `${measuredFps} FPS`;
+    if (now - lastTimeRef.current >= 250) {
+      if (fpsRef.current) {
+        const { fps, isIdle, targetFps } = ticker.getFrameRate();
+        const displayFps = isIdle ? targetFps : fps;
+        fpsRef.current.textContent = isIdle ? `${displayFps} FPS (idle)` : `${displayFps} FPS`;
       }
-      frameCountRef.current = 0;
       lastTimeRef.current = now;
     }
 

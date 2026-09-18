@@ -9,6 +9,8 @@ export interface HorizontalScrollProps extends React.HTMLAttributes<HTMLDivEleme
   className?: string;
   innerClassName?: string;
   stickyClassName?: string;
+  /** Total vertical scroll runway height (e.g. '300vh' or 3000). Default: 250vh-350vh based on speed */
+  height?: string | number;
 }
 
 export const HorizontalScroll: React.FC<HorizontalScrollProps> = ({
@@ -18,6 +20,7 @@ export const HorizontalScroll: React.FC<HorizontalScrollProps> = ({
   stickyClassName = 'sticky top-0 h-screen w-full overflow-hidden flex items-center',
   speed,
   driver,
+  height,
   style,
   ...domProps
 }) => {
@@ -60,14 +63,20 @@ export const HorizontalScroll: React.FC<HorizontalScrollProps> = ({
     };
   }, [speed, driver, engine]);
 
+  const resolvedHeight =
+    height !== undefined
+      ? typeof height === 'number'
+        ? `${height}px`
+        : height
+      : style?.height ?? `${Math.max(250, (speed ?? 1.5) * 150)}vh`;
+
   return (
     <div 
       ref={containerRef} 
       className={`relative w-full ${className}`}
-      // Multiply height by speed to create scrollable space. Assuming speed is multiplier of 100vh.
       style={{
         ...style,
-        height: `${(speed ?? 2) * 100}vh`,
+        height: resolvedHeight,
       }}
       {...domProps}
     >

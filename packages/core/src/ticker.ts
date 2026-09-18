@@ -43,6 +43,8 @@ export class Ticker {
   private frameHistoryIndex: number = 0;
   private sampledFrameCount: number = 0;
   private lastStepTime: number = 0;
+  private justWokeUp: boolean = true;
+  private emaDelta: number = 0;
 
   /**
    * Benchmark Contamination Guard:
@@ -267,6 +269,7 @@ export class Ticker {
 
     if (this.isRunning) return;
     this.isRunning = true;
+    this.justWokeUp = true;
     this.lastTime = performance.now();
     if (typeof requestAnimationFrame !== 'undefined') {
       this.rafId = requestAnimationFrame(this.tick);
@@ -306,17 +309,15 @@ export class Ticker {
   }
 
   private recordFrameDelta(rawDelta: number, currentTime: number): void {
-    // 1. Filter out idle sleep / tab-switch / system wake spikes (> 100ms)
-    // These are time discontinuities from dormancy, NOT animation frame drops.
-    if (rawDelta > 0.1) {
-      return;
-    }
+    // 1. In-flight jank detection: clamp extreme spikes to 0.5s (500ms)
+    // Real hitches (>100ms) while running are preserved and penalized accurately.
+    const effectiveDelta = Math.min(Math.max(rawDelta, 0.001), 0.5);
 
     // 2. Calibrate display refresh rate dynamically from healthy VSync frames
     // In modern displays: 120Hz (~8.33ms), 144Hz (~6.94ms), 60Hz (~16.67ms), 50Hz (~20ms)
-    if (rawDelta >= 0.003 && rawDelta <= 0.035) {
-      if (rawDelta < this.minObservedDelta) {
-        this.minObservedDelta = rawDelta;
+    if (effectiveDelta >= 0.003 && effectiveDelta <= 0.035) {
+      if (effectiveDelta < this.minObservedDelta) {
+        this.minObservedDelta = effectiveDelta;
       }
       this.calibrationFrames++;
       if (this.calibrationFrames >= 30) {
@@ -338,19 +339,25 @@ export class Ticker {
       }
     }
 
-    this.frameHistory[this.frameHistoryIndex] = rawDelta;
+    this.frameHistory[this.frameHistoryIndex] = effectiveDelta;
     this.frameHistoryIndex = (this.frameHistoryIndex + 1) % 60;
     this.sampledFrameCount++;
 
+    // Responsive Exponential Moving Average (alpha = 0.25)
+    if (this.emaDelta <= 0) {
+      this.emaDelta = effectiveDelta;
+    } else {
+      this.emaDelta = this.emaDelta * 0.75 + effectiveDelta * 0.25;
+    }
+
     // 3. Adaptive Frame Drop Rule:
-    // A frame is dropped only when delta exceeds 1.45x target refresh interval.
-    // e.g. for 60Hz: 16.67ms * 1.45 = 24.2ms (prevents false drops at 45-50 FPS)
-    // e.g. for 120Hz: 8.33ms * 1.45 = 12.1ms (catches genuine missed 120Hz VSyncs)
+    // A frame is dropped when delta exceeds 1.45x target refresh interval.
     const dropThreshold = this.detectedTargetInterval * 1.45;
-    const isDrop = rawDelta > dropThreshold;
+    const isDrop = effectiveDelta > dropThreshold;
+    const missedFrames = isDrop ? Math.max(1, Math.round(effectiveDelta / this.detectedTargetInterval) - 1) : 0;
     this.droppedFramesHistory[this.droppedFramesIndex] = isDrop ? 1 : 0;
     this.droppedFramesIndex = (this.droppedFramesIndex + 1) % 60;
-    if (isDrop) this.droppedFrames++;
+    if (isDrop) this.droppedFrames += missedFrames;
 
     if (this.sampledFrameCount >= 60) {
       let slowFrames = 0;
@@ -388,19 +395,23 @@ export class Ticker {
    * Returns current rolling frame rate and frame time in milliseconds.
    * Single source of truth for HUDs, DevTools, and performance telemetry.
    */
-  public getFrameRate(): { fps: number; frameMs: number } {
-    const count = Math.min(this.sampledFrameCount, 60);
-    if (count === 0) {
-      return { fps: 60, frameMs: 16.7 };
+  public getFrameRate(): { fps: number; frameMs: number; isIdle: boolean; targetFps: number } {
+    const targetFps = this.detectedTargetInterval > 0 ? Math.round(1 / this.detectedTargetInterval) : 60;
+    const isIdle = !this.isRunning || this.sampledFrameCount === 0;
+
+    if (isIdle) {
+      return {
+        fps: targetFps,
+        frameMs: Math.round(this.detectedTargetInterval * 1000 * 10) / 10,
+        isIdle: true,
+        targetFps,
+      };
     }
-    let sum = 0;
-    for (let i = 0; i < count; i++) {
-      sum += this.frameHistory[i];
-    }
-    const avgDelta = sum / count;
-    const frameMs = Math.round(avgDelta * 1000 * 10) / 10;
-    const fps = avgDelta > 0 ? Math.min(Math.round(1 / avgDelta), 360) : 60;
-    return { fps, frameMs };
+
+    const effDelta = this.emaDelta > 0 ? this.emaDelta : this.detectedTargetInterval;
+    const frameMs = Math.round(effDelta * 1000 * 10) / 10;
+    const fps = effDelta > 0 ? Math.min(Math.round(1 / effDelta), 360) : targetFps;
+    return { fps, frameMs, isIdle: false, targetFps };
   }
 
   /**
@@ -420,6 +431,7 @@ export class Ticker {
   public stop(): void {
     if (!this.isRunning) return;
     this.isRunning = false;
+    this.emaDelta = 0;
     if (this.rafId !== null) {
       if (typeof cancelAnimationFrame !== 'undefined') {
         cancelAnimationFrame(this.rafId);
@@ -431,10 +443,17 @@ export class Ticker {
   private tick = (currentTime: number): void => {
     if (!this.isRunning) return;
 
-    // Delta time in seconds, clamped between 1ms and 33ms
     const rawDelta = (currentTime - this.lastTime) / 1000;
-    const dt = Math.min(Math.max(rawDelta, MIN_DELTA_TIME), MAX_DELTA_TIME);
     this.lastTime = currentTime;
+
+    if (this.justWokeUp) {
+      this.justWokeUp = false;
+    } else {
+      this.recordFrameDelta(rawDelta, currentTime);
+    }
+
+    // Delta time in seconds, clamped between 1ms and 33ms for physics integration
+    const dt = Math.min(Math.max(rawDelta, MIN_DELTA_TIME), MAX_DELTA_TIME);
     this.elapsedTime += dt;
 
     // Phase 1: Read/Measure (Layout reads isolated)
@@ -446,7 +465,6 @@ export class Ticker {
     this.runPhase('driver', this.driverTasks, this.driverTasksArray, dt, currentTime);
 
     // Phase 3: Math/Physics Calculations (Solvers read fresh scroll metrics)
-    this.recordFrameDelta(rawDelta, currentTime);
     if (this.taskArraysDirty) this.syncTaskArrays();
     this.runPhase('update', this.updateTasks, this.updateTasksArray, dt, currentTime);
 

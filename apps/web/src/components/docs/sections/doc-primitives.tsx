@@ -13,7 +13,6 @@
 import React from 'react';
 import { CodeViewer } from '@/components/ui/code-viewer';
 import { Zap } from 'lucide-react';
-import { PrimitivePreview } from '../interactive/primitive-preview';
 
 interface DocPrimitivesProps {
   primitiveId: string;
@@ -471,11 +470,6 @@ export const DocPrimitives: React.FC<DocPrimitivesProps> = ({ primitiveId }) => 
             <strong className="text-white">What it does:</strong> {primitive.whatItDoes}
           </p>
         </div>
-      </div>
-
-      {/* Interactive Live Demonstration */}
-      <div id="demo" className="space-y-3 scroll-mt-24">
-        <PrimitivePreview primitiveId={primitiveId} />
       </div>
 
       {/* Production Sample Code */}

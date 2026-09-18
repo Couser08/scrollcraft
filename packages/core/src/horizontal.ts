@@ -52,8 +52,12 @@ class JSHorizontalDriver implements ScrollDriver {
     const speed = Math.max(0.001, this.options.speed || 1);
     this.effectiveScrollDistance = Math.max(1, this.maxScrollDistance / speed);
     
-    // Width of the inner content that will slide left
-    this.trackWidth = Math.max(0, this.innerContainer.scrollWidth - window.innerWidth);
+    // Width of the inner content that will slide left, bounded by the visible viewport container width
+    const viewportWidth =
+      this.innerContainer.parentElement?.clientWidth ||
+      this.element.clientWidth ||
+      (typeof window !== 'undefined' ? window.innerWidth : 0);
+    this.trackWidth = Math.max(0, this.innerContainer.scrollWidth - viewportWidth);
   }
 
   public update(scrollY: number): HorizontalState {
@@ -144,7 +148,11 @@ class NativeHorizontalDriver implements ScrollDriver {
     const scrollTop = window.scrollY || window.pageYOffset;
     
     this.elementTop = rect.top + scrollTop;
-    this.trackWidth = Math.max(0, this.innerContainer.scrollWidth - window.innerWidth);
+    const viewportWidth =
+      this.innerContainer.parentElement?.clientWidth ||
+      this.element.clientWidth ||
+      (typeof window !== 'undefined' ? window.innerWidth : 0);
+    this.trackWidth = Math.max(0, this.innerContainer.scrollWidth - viewportWidth);
     
     const speed = Math.max(0.001, this.options.speed || 1);
     this.maxScrollDistance = Math.max(1, rect.height - window.innerHeight);

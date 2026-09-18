@@ -106,7 +106,10 @@ export function HeroSection() {
       {/* Ambient Electric Violet Glow Behind 3D Mountain & Code Visual */}
       <div
         aria-hidden="true"
-        className="absolute top-1/3 right-10 w-[520px] h-[520px] rounded-full bg-violet-600/15 blur-[140px] pointer-events-none -z-0"
+        className="absolute top-1/3 right-10 w-[520px] h-[520px] rounded-full pointer-events-none -z-0"
+        style={{
+          background: 'radial-gradient(circle, rgba(124, 58, 237, 0.12) 0%, transparent 70%)',
+        }}
       />
 
       {/* Top Section Layout Container */}
@@ -277,7 +280,7 @@ export function HeroSection() {
                   />
 
                   {/* Layer 2: Floating Reactive HUD Card connected to Active Primitive Pill */}
-                  <div className="absolute -bottom-4 left-4 right-4 sm:left-6 sm:right-6 bg-[#0c0d12]/90 backdrop-blur-xl border border-violet-500/30 rounded-xl p-4 shadow-[0_12px_40px_rgba(0,0,0,0.8)] transition-all duration-300">
+                  <div className="absolute -bottom-4 left-4 right-4 sm:left-6 sm:right-6 bg-[#0c0d12] border border-violet-500/30 rounded-xl p-4 shadow-[0_12px_40px_rgba(0,0,0,0.8)] transition-all duration-300">
                     <div className="flex items-center justify-between pb-2 mb-2 border-b border-white/[0.08]">
                       <div className="flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-violet-500 shadow-[0_0_8px_rgba(139,92,246,0.9)]" />

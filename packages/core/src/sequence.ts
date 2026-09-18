@@ -146,8 +146,11 @@ export class SequenceSolver {
 
     // Adjust canvas resolution for high-DPI displays (strictly capped to save mobile GPU VRAM)
     const dpr = Math.min(window.devicePixelRatio || 1, this.options.maxDpr);
-    this.canvas.width = rect.width * dpr;
-    this.canvas.height = rect.height * dpr;
+    const canvasRect = typeof this.canvas.getBoundingClientRect === 'function' ? this.canvas.getBoundingClientRect() : null;
+    const canvasWidth = this.canvas.clientWidth || canvasRect?.width || rect.width;
+    const canvasHeight = this.canvas.clientHeight || canvasRect?.height || (this.windowHeight > 0 ? this.windowHeight : rect.height);
+    this.canvas.width = canvasWidth * dpr;
+    this.canvas.height = canvasHeight * dpr;
     const ctx = this.canvas.getContext('2d');
     if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }

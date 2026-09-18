@@ -65,7 +65,10 @@ export default function App() {
       {/* Background Ambience Radial Glow */}
       <div
         aria-hidden="true"
-        className="absolute top-1/2 left-1/3 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[380px] rounded-full bg-violet-600/15 blur-[140px] pointer-events-none"
+        className="absolute top-1/2 left-1/3 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[380px] rounded-full pointer-events-none"
+        style={{
+          background: 'radial-gradient(circle, rgba(124, 58, 237, 0.12) 0%, transparent 70%)',
+        }}
       />
 
       {/* Far Right Floating Watermark */}
@@ -190,16 +193,16 @@ export default function App() {
 
           {/* Right Column: Professional Developer Quickstart & Runtime Console */}
           <div className="lg:col-span-5 flex items-center justify-center relative w-full">
-            <Reveal direction="up" distance={25} delay={0.15} className="w-full flex justify-center">
+            <div className="w-full flex justify-center">
               <div className="relative w-full max-w-[480px]">
                 {/* Subtle Ambient Backing Glow */}
                 <div
                   aria-hidden="true"
-                  className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-violet-600/20 via-purple-500/15 to-indigo-600/20 blur-xl opacity-75"
+                  className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-violet-600/10 via-purple-500/10 to-indigo-600/10 opacity-75 pointer-events-none"
                 />
 
                 {/* Main Console Box - Rigid Layout with ZERO Shift */}
-                <div className="relative w-full h-[360px] min-h-[360px] max-h-[360px] rounded-2xl border border-zinc-800/90 bg-[#090a0f]/95 shadow-2xl backdrop-blur-xl overflow-hidden flex flex-col justify-between">
+                <div className="relative w-full h-[360px] min-h-[360px] max-h-[360px] rounded-2xl border border-zinc-800/90 bg-[#090a0f] shadow-2xl overflow-hidden flex flex-col justify-between">
                   {/* Console Header Bar - Fixed 48px */}
                   <div className="flex items-center justify-between px-4 h-12 min-h-[48px] max-h-[48px] border-b border-zinc-800/80 bg-zinc-950/70 shrink-0">
                     {/* Window Controls */}
@@ -402,7 +405,7 @@ export default function App() {
                   </div>
                 </div>
               </div>
-            </Reveal>
+            </div>
           </div>
         </div>
       </div>

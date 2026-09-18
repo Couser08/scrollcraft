@@ -331,19 +331,25 @@ export interface ScrollElementProps extends React.HTMLAttributes<HTMLElement> {
   children?: React.ReactNode;
 }
 
-export interface TextRevealProps extends React.HTMLAttributes<HTMLParagraphElement>, TextRevealOptions {
-  /** The text content to split and reveal */
-  children: string;
+export interface TextRevealProps extends Omit<React.HTMLAttributes<HTMLElement>, 'children'>, TextRevealOptions {
+  /** The text content to split and reveal, or child element when asChild is true */
+  children: string | React.ReactElement;
   className?: string;
   /** Granularity of text splitting: 'chars' (default) or 'words' */
   by?: 'chars' | 'words';
+  /** Polymorphic slot composition: replace <p> with custom element (e.g. <h1>) */
+  asChild?: boolean;
 }
 
 export interface StackedCardsProps extends React.HTMLAttributes<HTMLDivElement>, StackedCardsOptions {
-  cards: React.ReactNode[];
+  /** Array of card elements or nodes (alternative to direct children) */
+  cards?: React.ReactNode[];
+  children?: React.ReactNode;
   className?: string;
   /** Optional overall track height */
   height?: string | number;
+  /** Polymorphic slot composition: replace outer runway <div> with custom element */
+  asChild?: boolean;
 }
 
 export interface ScrollSequenceProps extends React.HTMLAttributes<HTMLDivElement>, SequenceOptions {
@@ -352,5 +358,7 @@ export interface ScrollSequenceProps extends React.HTMLAttributes<HTMLDivElement
   height?: string | number;
   /** Optional poster image */
   poster?: string;
+  /** Optional overlays or elements rendered inside the pinned sticky presentation container */
+  children?: React.ReactNode;
 }
 

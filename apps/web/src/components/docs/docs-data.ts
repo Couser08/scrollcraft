@@ -3,7 +3,13 @@
  * Strictly under 650 LOC.
  */
 
-import { PropRow } from './docs-table';
+export interface PropRow {
+  name: string;
+  type: string;
+  defaultValue?: string;
+  required?: boolean;
+  description: string;
+}
 
 export interface DocSection {
   id: string;

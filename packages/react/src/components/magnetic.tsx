@@ -11,9 +11,9 @@ export interface MagneticProps extends React.HTMLAttributes<HTMLElement>, Magnet
 }
 
 export const Magnetic = React.forwardRef<HTMLElement, MagneticProps>(
-  ({ children, asChild, strength, radius, stiffness, damping, scale, innerTargetRef, innerStrength, ...props }, forwardedRef) => {
+  ({ children, asChild, strength, radius, stiffness, damping, scale, innerTargetRef, innerStrength, respectReducedMotion, ...props }, forwardedRef) => {
     const internalRef = useRef<HTMLElement | null>(null);
-    useMagnetic(internalRef, { strength, radius, stiffness, damping, scale, innerTargetRef, innerStrength });
+    useMagnetic(internalRef, { strength, radius, stiffness, damping, scale, innerTargetRef, innerStrength, respectReducedMotion });
     
     const Comp = asChild ? Slot : 'div';
     const mergedRef = composeRefs(forwardedRef, internalRef);

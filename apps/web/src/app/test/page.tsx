@@ -133,7 +133,7 @@ export default function TestLabHubPage() {
 
       {/* Controls Bar: Category Filter & Search */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 mb-12 w-full">
-        <div className="p-4 rounded-2xl border border-zinc-800 bg-[#09090d]/80 backdrop-blur-xl flex flex-col md:flex-row items-center justify-between gap-4 shadow-xl">
+        <div className="p-4 rounded-2xl border border-zinc-800 bg-[#09090d] flex flex-col md:flex-row items-center justify-between gap-4 shadow-xl">
           {/* Category Tabs */}
           <div className="flex flex-wrap items-center gap-2">
             {[

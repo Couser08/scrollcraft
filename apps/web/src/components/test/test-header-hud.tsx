@@ -7,6 +7,7 @@ import {
   useTicker,
   useRenderTracker,
 } from '@scrollcraft/react';
+import { ticker } from '@scrollcraft/core';
 import { Activity, Zap, Cpu, Compass, RotateCcw } from 'lucide-react';
 
 interface TestHeaderHUDProps {
@@ -40,50 +41,57 @@ export const TestHeaderHUD: React.FC<TestHeaderHUDProps> = ({
   const directionRef = useRef<HTMLSpanElement>(null);
   const auditRef = useRef<HTMLSpanElement>(null);
 
-  // FPS measurement inside centralized ticker (phase 'measure')
-  const frameCountRef = useRef(0);
-  const lastFpsTimeRef = useRef(typeof performance !== 'undefined' ? performance.now() : 0);
+  // FPS measurement synced with central Ticker telemetry (phase 'measure')
+  const lastFpsTimeRef = useRef(0);
 
   useTicker((_dt, _elapsed, current) => {
-    frameCountRef.current++;
-    const delta = current - lastFpsTimeRef.current;
-    if (delta >= 300) {
-      if (fpsRef.current) {
-        const measuredFps = Math.min(144, Math.max(15, Math.round((frameCountRef.current * 1000) / delta)));
-        fpsRef.current.textContent = `${measuredFps}`;
-        fpsRef.current.className = `font-bold ${
-          measuredFps >= 55 ? 'text-emerald-400' : measuredFps >= 30 ? 'text-amber-400' : 'text-rose-400'
-        }`;
-      }
-      frameCountRef.current = 0;
+    if (current - lastFpsTimeRef.current >= 250) {
       lastFpsTimeRef.current = current;
+      if (fpsRef.current) {
+        const { fps, isIdle, targetFps } = ticker.getFrameRate();
+        const displayFps = isIdle ? targetFps : fps;
+        fpsRef.current.textContent = isIdle ? `${displayFps} (idle)` : `${displayFps}`;
+        fpsRef.current.style.color = isIdle || displayFps >= 50 ? '#34d399' : displayFps >= 30 ? '#fbbf24' : '#fb7185';
+      }
     }
   }, 'measure');
 
   // Imperative scroll subscription: Direct DOM text writes without React state updates!
   useEffect(() => {
     let lastUpdate = 0;
+    let lastScroll = -1;
+    let lastProgress = -1;
+    let lastDirection: boolean | null = null;
+
     const unsub = subscribe((metrics) => {
       const now = performance.now();
       // Throttle DOM text writes to ~40 FPS to avoid layout thrash while remaining buttery smooth
       if (now - lastUpdate < 25) return;
       lastUpdate = now;
 
-      if (scrollRef.current) {
-        scrollRef.current.textContent = `${Math.round(metrics.scroll)}px`;
+      const roundedScroll = Math.round(metrics.scroll);
+      if (scrollRef.current && roundedScroll !== lastScroll) {
+        lastScroll = roundedScroll;
+        scrollRef.current.textContent = `${roundedScroll}px`;
       }
-      if (progressRef.current) {
-        const pct = Math.min(100, Math.max(0, Math.round(metrics.progress * 100)));
+
+      const pct = Math.min(100, Math.max(0, Math.round(metrics.progress * 100)));
+      if (progressRef.current && pct !== lastProgress) {
+        lastProgress = pct;
         progressRef.current.textContent = `(${pct}%)`;
       }
+
       if (velocityRef.current) {
         velocityRef.current.textContent = Math.abs(metrics.velocity).toFixed(2);
       }
-      if (directionRef.current) {
-        const isDown = metrics.direction >= 0;
+
+      const isDown = metrics.direction >= 0;
+      if (directionRef.current && isDown !== lastDirection) {
+        lastDirection = isDown;
         directionRef.current.textContent = isDown ? '↓ DOWN' : '↑ UP';
-        directionRef.current.className = isDown ? 'text-emerald-400 font-bold' : 'text-sky-400 font-bold';
+        directionRef.current.style.color = isDown ? '#34d399' : '#38bdf8';
       }
+
       if (auditRef.current) {
         auditRef.current.textContent = `${audit.rendersWhileScrolling}`;
       }

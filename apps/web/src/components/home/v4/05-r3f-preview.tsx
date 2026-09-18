@@ -11,7 +11,7 @@
 
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import dynamic from 'next/dynamic';
-import { Reveal, useScrollCraft } from '@scrollcraft/react';
+import { Reveal, useScrollCraft, useScrollCraftTier } from '@scrollcraft/react';
 import {
   Box,
   Zap,
@@ -166,6 +166,7 @@ export function R3FPreviewSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const scrollRef = useRef({ progress: 0, velocity: 0 });
 
+  const tier = useScrollCraftTier();
   const { subscribe } = useScrollCraft();
 
   // IntersectionObserver to pause Three.js frameloop offscreen
@@ -393,11 +394,28 @@ export function R3FPreviewSection() {
 
             {/* 3D WebGL Canvas Viewport */}
             <div className="relative w-full h-[360px] sm:h-[390px] rounded-xl overflow-hidden flex items-center justify-center">
-              <R3FCanvasStage
-                scrollRef={scrollRef}
-                autoRotate={autoRotate}
-                isVisible={isVisible}
-              />
+              {tier === 'low' ? (
+                <div className="w-full h-full flex flex-col items-center justify-center bg-[#070709] p-6 text-center">
+                  <div className="relative w-24 h-24 mb-4 flex items-center justify-center">
+                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-tr from-[#ff4d6d]/20 to-purple-600/20 border border-[#ff4d6d]/40 rotate-12 transform-gpu" />
+                    <div className="relative w-16 h-16 rounded-xl bg-gradient-to-br from-[#ff4d6d] to-[#d90429] shadow-[0_0_25px_rgba(255,77,109,0.5)] flex items-center justify-center">
+                      <Box className="w-8 h-8 text-white" />
+                    </div>
+                  </div>
+                  <span className="text-xs font-mono text-zinc-300 font-semibold mb-1">
+                    WebGL Optimized (Power Saver)
+                  </span>
+                  <span className="text-[11px] text-zinc-500 max-w-xs leading-normal">
+                    WebGL context suspended to guarantee locked 60 FPS on low-power hardware.
+                  </span>
+                </div>
+              ) : (
+                <R3FCanvasStage
+                  scrollRef={scrollRef}
+                  autoRotate={autoRotate}
+                  isVisible={isVisible}
+                />
+              )}
 
               {/* Bottom-left overlay inside canvas */}
               <div className="absolute bottom-4 left-4 z-10 font-mono text-[10px] tracking-[0.2em] text-zinc-500 uppercase select-none pointer-events-none flex flex-col gap-0.5 leading-tight">

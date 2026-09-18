@@ -127,7 +127,7 @@ export function ParallaxHeroScene() {
     shortDescription: 'Optical viewport reveals with direction, 3D tilt, optical blur, and stagger.',
     fullDescription:
       '<Reveal> triggers smooth entrance animations when elements enter the viewport. Features 4 directions (up, down, left, right), distance, duration, delay, optical blur filtering, 3D rotateX perspective, and batch-optimized IntersectionObserver handling.',
-    tags: ['Entrance Animation', '3D Tilt', 'Optical Blur', 'IntersectionObserver', 'Stagger'],
+    tags: ['Entrance Animation', '3D Tilt', 'Optical Blur', 'IntersectionObserver', 'Stagger', 'asChild'],
     driver: 'CSS Animation-Timeline (Compositor)',
     runwayHeight: '180vh',
     features: [
@@ -136,16 +136,20 @@ export function ParallaxHeroScene() {
       '3D rotateX and scale presets for modern spatial feel',
       'Custom distance, duration, delay, and easing curve',
       'Batch-optimized IntersectionObserver without scroll lag',
+      'Polymorphic asChild slot composition without wrapper markup',
     ],
     gotchas: [
       'Set once={false} if you want the reveal animation to reset and replay when scrolling backward.',
       'Ensure the threshold value (0.0 to 1.0) matches the height of the element to avoid premature reveals.',
     ],
     props: [
+      { name: 'asChild', type: 'boolean', default: 'false', description: 'Merges reveal transitions and ref directly onto child element via polymorphic Slot.' },
       { name: 'direction', type: "'up' | 'down' | 'left' | 'right' | 'none'", default: "'up'", description: 'Direction from which the element transitions.' },
       { name: 'distance', type: 'number', default: '40', description: 'Pixel distance of the entrance slide.' },
       { name: 'duration', type: 'number', default: '0.6', description: 'Animation duration in seconds.' },
-      { name: 'delay', type: 'number', default: '0', description: 'Transition delay in seconds.' },
+      { name: 'delay', type: 'number', default: '0', description: 'Base transition delay in seconds.' },
+      { name: 'index', type: 'number', default: 'undefined', description: 'Zero-based sibling index for automatic staggered entrance sequencing.' },
+      { name: 'stagger', type: 'number', default: '0.05', description: 'Incremental delay in seconds applied per sibling index (delay + index * stagger).' },
       { name: 'blur', type: 'number', default: '0', description: 'Optical blur in pixels transitioning to 0.' },
       { name: 'scale', type: 'number', default: '1', description: 'Initial scale transitioning to 1.' },
       { name: 'rotateX', type: 'number', default: '0', description: 'Initial 3D X-axis tilt in degrees.' },
@@ -175,10 +179,11 @@ export function StaggeredFeatureMatrix() {
       {items.map((item, idx) => (
         <Reveal
           key={idx}
+          index={idx}
+          stagger={0.12}
           direction="up"
           distance={48}
           duration={0.7}
-          delay={idx * 0.12}
           blur={8}
           scale={0.92}
           rotateX={12}
@@ -303,7 +308,7 @@ export function PinMilestoneDemo() {
     shortDescription: 'Hardware-accelerated progress tracking with element target offsets and gradient bars.',
     fullDescription:
       '<ScrollProgress> creates smooth progress tracks synchronized to global page scroll or specific target DOM elements using custom offset triggers (e.g. `["top bottom", "bottom top"]`). Direct GPU scaleX writes guarantee 0 Virtual DOM re-renders.',
-    tags: ['Progress Bar', 'GPU ScaleX', 'Target Offset', 'Zero Re-renders', 'Gradient'],
+    tags: ['Progress Bar', 'GPU ScaleX', 'Target Offset', 'Zero Re-renders', 'Gradient', 'asChild'],
     driver: 'CSS Animation-Timeline (Compositor)',
     runwayHeight: '200vh',
     features: [
@@ -312,14 +317,17 @@ export function PinMilestoneDemo() {
       'Horizontal or vertical progress track orientation',
       'Configurable gradient colors, height, and glow effects',
       'Smooth interpolation with optional inertia damping',
+      'Polymorphic asChild composition for custom progress bars',
     ],
     gotchas: [
       'When binding to a target ref, ensure the ref is attached to an element with measurable layout geometry in the DOM.',
     ],
     props: [
+      { name: 'asChild', type: 'boolean', default: 'false', description: 'Merges progress scaleX transform and ref directly onto custom child element.' },
       { name: 'target', type: 'React.RefObject<HTMLElement | null>', default: 'undefined', description: 'Optional target element to measure progress against instead of window scroll.' },
       { name: 'offset', type: '[string, string]', default: "['top bottom', 'bottom top']", description: 'Viewport trigger alignment pair.' },
       { name: 'orientation', type: "'horizontal' | 'vertical'", default: "'horizontal'", description: 'Orientation of the progress indicator.' },
+      { name: 'reactive', type: 'boolean', default: 'false', description: 'Whether progress triggers React state updates for re-rendering numeric indicators.' },
       { name: 'className', type: 'string', default: "''", description: 'Custom CSS classes for indicator styling.' },
     ],
     knobs: [
@@ -372,7 +380,7 @@ export function ScopedProgressDemo() {
     shortDescription: 'Scrubbed GPU transforms with presets (zoom-in, 3d-flip, blur-in) and snap points.',
     fullDescription:
       '<ScrollTransform> maps scroll progress directly to 3D matrix properties (rotateX, rotateY, scale, translate3d, blur, opacity). Features built-in animation presets, snap point magnetics, and direct TransformComposer execution.',
-    tags: ['3D Matrix', 'Scrubbed Motion', 'Presets', 'Snap Points', 'Compositor'],
+    tags: ['3D Matrix', 'Scrubbed Motion', 'Presets', 'Snap Points', 'Compositor', 'asChild'],
     driver: 'Ticker Phase 3 (Compositor)',
     runwayHeight: '220vh',
     features: [
@@ -386,6 +394,7 @@ export function ScopedProgressDemo() {
       'When using custom property tuples (e.g. y: [100, 0]), ensure numeric bounds are properly scaled for your target viewport size.',
     ],
     props: [
+      { name: 'asChild', type: 'boolean', default: 'false', description: 'Applies transform matrix and ref directly to custom child element via Slot.' },
       { name: 'preset', type: "'zoom-in' | 'fade-up' | 'scale-down' | 'blur-in' | '3d-flip'", default: 'undefined', description: 'Built-in transform preset.' },
       { name: 'properties', type: 'Record<string, [number, number]>', default: 'undefined', description: 'Custom transform property keyframe mapping (e.g. { scale: [0.8, 1.2] }).' },
       { name: 'scrub', type: 'boolean | number', default: 'true', description: 'Scrubbing smoothing factor or boolean toggle.' },
@@ -526,7 +535,7 @@ export function SVGDrawEmblemDemo() {
     shortDescription: '120 FPS deck stacking solver with dynamic scale steps, z-index depth, and pointer gating.',
     fullDescription:
       '<StackedCards> calculates stacking deck physics on the fly. As cards scroll into view, they latch to the sticky threshold, stacking with subtle scaleStep reduction, z-index depth sorting, and pointer-events gating for interaction precision.',
-    tags: ['Deck Solver', '120 FPS', 'Z-Index Depth', 'Pointer Gating', 'Zero Re-renders'],
+    tags: ['Deck Solver', '120 FPS', 'Z-Index Depth', 'Pointer Gating', 'Zero Re-renders', 'asChild'],
     driver: 'JS Physics Solver',
     runwayHeight: '260vh',
     features: [
@@ -535,18 +544,22 @@ export function SVGDrawEmblemDemo() {
       'Runtime pointer-events gating preventing background click interception',
       'Custom scaleStep and minScale for cinematic depth',
       'Configurable cardDistance and top pinning offset',
+      'Polymorphic asChild composition for custom container tags',
     ],
     gotchas: [
       'The parent must have adequate scroll height (default: cards.length * cardDistance + 600px).',
       'Do not apply CSS transitions to transform on the card container, as the ticker handles 120 FPS rendering directly.',
     ],
     props: [
-      { name: 'cards', type: 'React.ReactNode[]', default: '[]', description: 'Array of React card nodes to stack sequentially.' },
+      { name: 'cards', type: 'React.ReactNode[]', default: '[]', description: 'Array of React card nodes to stack sequentially (or pass directly as children).' },
+      { name: 'children', type: 'React.ReactNode', default: 'undefined', description: 'Direct child card elements to stack without requiring the cards prop array.' },
+      { name: 'asChild', type: 'boolean', default: 'false', description: 'Renders custom container element (e.g. <section>) instead of default <div>.' },
       { name: 'offset', type: 'number', default: '40', description: 'Vertical offset between stacked cards in pixels.' },
       { name: 'top', type: 'number', default: '100', description: 'Top pinning threshold in pixels.' },
       { name: 'scaleStep', type: 'number', default: '0.05', description: 'Scale reduction factor per stacked card.' },
       { name: 'minScale', type: 'number', default: '0.8', description: 'Minimum scale clamp for deepest stacked card.' },
       { name: 'cardDistance', type: 'number', default: '400', description: 'Scroll distance per card transition.' },
+      { name: 'height', type: 'string | number', default: 'undefined', description: 'Custom runway height override (defaults to cards.length * (cardDistance + 350) + 800px).' },
     ],
     knobs: [
       { id: 'offset', label: 'Stack Offset (px)', type: 'number', default: 36, min: 10, max: 80, step: 2 },
@@ -557,37 +570,42 @@ export function SVGDrawEmblemDemo() {
 import { StackedCards } from '@scrollcraft/react';
 
 export function StackedCardsShowcase() {
-  const cards = [
-    <div key={1} className="w-full max-w-xl mx-auto h-64 rounded-3xl border border-violet-500/30 bg-gradient-to-br from-violet-950/80 to-zinc-900 p-8 shadow-2xl backdrop-blur-2xl">
-      <span className="text-xs font-mono text-violet-400">CARD 01</span>
-      <h3 className="text-2xl font-bold text-white mt-2">Zero-Rerender Engine</h3>
-      <p className="text-sm text-zinc-400 mt-2">Direct DOM matrix calculations avoid Virtual DOM thrashing.</p>
-    </div>,
-    <div key={2} className="w-full max-w-xl mx-auto h-64 rounded-3xl border border-sky-500/30 bg-gradient-to-br from-sky-950/80 to-zinc-900 p-8 shadow-2xl backdrop-blur-2xl">
-      <span className="text-xs font-mono text-sky-400">CARD 02</span>
-      <h3 className="text-2xl font-bold text-white mt-2">GSAP Parity Solvers</h3>
-      <p className="text-sm text-zinc-400 mt-2">Pinning, velocity marquees, and horizontal panning built-in.</p>
-    </div>,
-    <div key={3} className="w-full max-w-xl mx-auto h-64 rounded-3xl border border-emerald-500/30 bg-gradient-to-br from-emerald-950/80 to-zinc-900 p-8 shadow-2xl backdrop-blur-2xl">
-      <span className="text-xs font-mono text-emerald-400">CARD 03</span>
-      <h3 className="text-2xl font-bold text-white mt-2">Next.js App Router Native</h3>
-      <p className="text-sm text-zinc-400 mt-2">Survives React 19 RSC streaming and route hydration without jumps.</p>
-    </div>,
-  ];
-
   return (
     <div className="w-full py-12">
-      <StackedCards cards={cards} offset={40} top={110} scaleStep={0.05} minScale={0.85} cardDistance={400} />
+      <StackedCards offset={40} top={110} scaleStep={0.05} minScale={0.85} cardDistance={400}>
+        <div className="w-full max-w-xl mx-auto h-64 rounded-3xl border border-violet-500/30 glass-card p-8 shadow-2xl">
+          <span className="text-xs font-mono text-violet-400">CARD 01</span>
+          <h3 className="text-2xl font-bold text-white mt-2">Zero-Rerender Engine</h3>
+          <p className="text-sm text-zinc-300 mt-2">Direct DOM matrix calculations avoid Virtual DOM thrashing.</p>
+        </div>
+        <div className="w-full max-w-xl mx-auto h-64 rounded-3xl border border-sky-500/30 glass-card p-8 shadow-2xl">
+          <span className="text-xs font-mono text-sky-400">CARD 02</span>
+          <h3 className="text-2xl font-bold text-white mt-2">GSAP Parity Solvers</h3>
+          <p className="text-sm text-zinc-300 mt-2">Pinning, velocity marquees, and horizontal panning built-in.</p>
+        </div>
+        <div className="w-full max-w-xl mx-auto h-64 rounded-3xl border border-emerald-500/30 glass-card p-8 shadow-2xl">
+          <span className="text-xs font-mono text-emerald-400">CARD 03</span>
+          <h3 className="text-2xl font-bold text-white mt-2">Next.js App Router Native</h3>
+          <p className="text-sm text-zinc-300 mt-2">Survives React 19 RSC streaming and route hydration without jumps.</p>
+        </div>
+      </StackedCards>
     </div>
   );
 }`,
     usageCode: `import { StackedCards } from '@scrollcraft/react';
 
+// Option A: Direct JSX children
+<StackedCards offset={40} top={100} scaleStep={0.05}>
+  <div className="card">Card 1</div>
+  <div className="card">Card 2</div>
+  <div className="card">Card 3</div>
+</StackedCards>
+
+// Option B: cards prop array
 <StackedCards
   cards={[<Card1 />, <Card2 />, <Card3 />]}
   offset={40}
   top={100}
-  scaleStep={0.05}
 />`,
   },
 
@@ -672,8 +690,8 @@ export function VelocityTickerStage() {
     runwayHeight: '260vh',
     features: [
       'Vertical to horizontal translation mapping',
-      'Dynamic track measurement via GlobalResizeManager',
-      'Configurable speed multiplier establishing scroll runway height',
+      'Dynamic container width measurement (parentElement.clientWidth) ensuring the final slide is never cut off in constrained containers',
+      'Configurable speed multiplier or explicit height runway (e.g. height="350vh")',
       'Direct GPU translation writes via SmartCompositor',
       'Safe unmount and resize teardown',
     ],
@@ -682,6 +700,7 @@ export function VelocityTickerStage() {
     ],
     props: [
       { name: 'speed', type: 'number', default: '2', description: 'Scroll height multiplier (speed * 100vh = total scroll runway).' },
+      { name: 'height', type: 'string | number', default: 'undefined', description: 'Explicit scroll runway height override (e.g. "350vh" or 3200).' },
       { name: 'stickyClassName', type: 'string', default: "'sticky top-0 h-screen w-full overflow-hidden flex items-center'", description: 'CSS classes for the sticky viewport layer.' },
       { name: 'innerClassName', type: 'string', default: "''", description: 'CSS classes for the moving horizontal track.' },
     ],
@@ -700,12 +719,12 @@ export function PanoramicHorizontalShowcase() {
   ];
 
   return (
-    <HorizontalScroll speed={2.5} className="w-full">
+    <HorizontalScroll speed={2.5} height="350vh" className="w-full">
       <div className="flex gap-8 px-12">
         {slides.map((slide, idx) => (
           <div
             key={idx}
-            className={\`w-[420px] h-[360px] flex-shrink-0 rounded-3xl border border-zinc-800 bg-gradient-to-br \${slide.color} to-zinc-900 p-8 flex flex-col justify-between shadow-2xl\`}
+            className={\`w-[420px] h-[360px] flex-shrink-0 rounded-3xl border border-zinc-800 bg-gradient-to-br \${slide.color} to-zinc-900 p-8 flex flex-col justify-between shadow-2xl glass-card\`}
           >
             <span className="text-xs font-mono text-zinc-400">SLIDE 0{idx + 1}</span>
             <div>
@@ -721,7 +740,7 @@ export function PanoramicHorizontalShowcase() {
 }`,
     usageCode: `import { HorizontalScroll } from '@scrollcraft/react';
 
-<HorizontalScroll speed={2.5}>
+<HorizontalScroll speed={2.5} height="350vh">
   <div className="flex gap-8">
     <div className="slide">Slide 1</div>
     <div className="slide">Slide 2</div>
@@ -739,16 +758,18 @@ export function PanoramicHorizontalShowcase() {
       '<ScrollSequence> renders high-framerate image sequences directly into an HTML5 2D canvas synced to scroll progress. Features LRU frame memory caching, device pixel ratio scaling (maxDpr), poster image fallback, and zero garbage collection thrashing.',
     tags: ['Canvas 2D', 'LRU Cache', 'Frame Sequence', 'Zero GC Thrash', 'High Framerate'],
     driver: 'Ticker Phase 4 (Canvas 2D / LRU)',
-    runwayHeight: '240vh',
+    runwayHeight: '400vh',
     features: [
       'HTML5 Canvas 2D frame drawing with sub-pixel rendering',
-      'Built-in LRU frame caching preventing memory bloat',
+      'Built-in sliding LRU frame caching preventing mobile Safari VRAM Jetsam crashes',
       'Configurable maxDpr preventing GPU memory spikes on Retina screens',
       'Immediate poster preview fallback while frames buffer',
+      'Built-in children overlay pinning inside sticky presentation viewport',
       'Full window resize recalculation',
     ],
     gotchas: [
-      'Ensure image frame paths are pre-cached or served with appropriate cache-control headers for instantaneous scrubbing.',
+      'Serve static frame images with immutable caching in next.config.js: async headers() { return [{ source: "/sequence/:path*", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] }]; }',
+      'Preload the first 10-15 sequence frames in <head> to eliminate initial blank frame hitching: <link rel="preload" as="image" href="/sequence/chrono-watch/frame-001.webp" />',
     ],
     props: [
       { name: 'frames', type: 'string[]', default: '[]', description: 'Array of image frame URLs in playback sequence order.' },
@@ -756,39 +777,76 @@ export function PanoramicHorizontalShowcase() {
       { name: 'maxDpr', type: 'number', default: '2', description: 'Maximum device pixel ratio clamp.' },
       { name: 'poster', type: 'string', default: 'undefined', description: 'Immediate fallback image rendered before frames load.' },
       { name: 'height', type: 'string | number', default: "'300vh'", description: 'Total scroll runway height for sequence scrubbing.' },
+      { name: 'children', type: 'React.ReactNode', default: 'undefined', description: 'Optional overlays or elements rendered inside the pinned sticky presentation container.' },
     ],
     knobs: [
+      { id: 'speed', label: 'Speed', type: 'number', default: 1, min: 0.5, max: 2.5, step: 0.25 },
       { id: 'maxDpr', label: 'Max DPR', type: 'number', default: 2, min: 1, max: 3, step: 0.5 },
     ],
     code: `import React from 'react';
 import { ScrollSequence } from '@scrollcraft/react';
 
-export function CanvasSequenceShowcase() {
-  const frames = Array.from({ length: 40 }, (_, i) => {
-    const hue = Math.round((i / 40) * 360);
-    const svg = \`<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400"><rect width="100%" height="100%" fill="#09090b"/><circle cx="300" cy="200" r="\${40 + i * 2.5}" fill="none" stroke="hsl(\${hue}, 80%, 60%)" stroke-width="6"/><text x="300" y="205" text-anchor="middle" fill="#ffffff" font-family="monospace" font-size="20">FRAME \${i + 1} / 40</text></svg>\`;
-    return \`data:image/svg+xml;utf8,\${encodeURIComponent(svg)}\`;
-  });
+export function ProductRevealSequence() {
+  const FRAME_COUNT = 90;
+  const frames = Array.from({ length: FRAME_COUNT }, (_, i) =>
+    \`/sequence/chrono-watch/frame-\${String(i + 1).padStart(3, '0')}.webp\`
+  );
 
   return (
-    <div className="w-full">
+    <div className="relative w-full bg-black">
       <ScrollSequence
         frames={frames}
-        height="220vh"
+        speed={1}
         maxDpr={2}
-        className="w-full h-screen sticky top-0 flex items-center justify-center bg-black/40"
-      />
+        poster="/sequence/chrono-watch/poster.webp"
+        height="400vh"
+        className="w-full"
+      >
+        {/* Pinned Hero overlay */}
+        <div className="pointer-events-none absolute inset-x-0 top-12 text-center px-4">
+          <span className="text-xs uppercase tracking-widest text-zinc-400 font-mono">
+            Chrono · Automatic
+          </span>
+          <h1 className="mt-2 text-4xl sm:text-6xl font-light tracking-tight text-white">
+            Engineered Precision.
+          </h1>
+          <p className="mt-2 max-w-sm mx-auto text-xs text-zinc-400">
+            Scroll to explore the 360° internal mechanics and high-frequency escapement.
+          </p>
+        </div>
+
+        {/* Bottom specs overlay */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-12 flex justify-around text-center max-w-3xl mx-auto px-6">
+          <div>
+            <div className="text-xl font-bold text-white">36,000</div>
+            <div className="text-xs text-zinc-500">VPH BEAT RATE</div>
+          </div>
+          <div>
+            <div className="text-xl font-bold text-white">68 HRS</div>
+            <div className="text-xs text-zinc-500">POWER RESERVE</div>
+          </div>
+          <div>
+            <div className="text-xl font-bold text-white">300 M</div>
+            <div className="text-xs text-zinc-500">WATER RESISTANCE</div>
+          </div>
+        </div>
+      </ScrollSequence>
     </div>
   );
 }`,
     usageCode: `import { ScrollSequence } from '@scrollcraft/react';
 
 <ScrollSequence
-  frames={frameUrls}
-  height="250vh"
+  frames={Array.from({ length: 90 }, (_, i) => \`/sequence/chrono-watch/frame-\${String(i + 1).padStart(3, '0')}.webp\`)}
+  speed={1}
   maxDpr={2}
-  poster="/poster.jpg"
-/>`,
+  poster="/sequence/chrono-watch/poster.webp"
+  height="400vh"
+>
+  <div className="pointer-events-none absolute inset-x-0 top-12 text-center">
+    <h1 className="text-4xl font-bold text-white">Chrono · Automatic</h1>
+  </div>
+</ScrollSequence>`,
   },
 
   {
@@ -799,21 +857,26 @@ export function CanvasSequenceShowcase() {
     shortDescription: 'Word and character kinetic split with optical blur, 3D tilt, and range triggers.',
     fullDescription:
       '<TextReveal> splits editorial text by words or characters and progressively illuminates them as the element scrolls through a customizable viewport range (e.g. \`[0.15, 0.85]\`). Features optical blur, 3D rotateX tilt, and kinetic scaling.',
-    tags: ['Typography', 'Kinetic Split', 'Optical Blur', 'Range Scrubbing', '3D Tilt'],
+    tags: ['Typography', 'Kinetic Split', 'Optical Blur', 'Range Scrubbing', '3D Tilt', 'asChild'],
     driver: 'Ticker Phase 3 (Compositor)',
     runwayHeight: '180vh',
     features: [
       'Split by words (by="words") or characters (by="chars")',
       'Optical blur de-focusing as letters activate',
-      'Configurable trigger range (e.g. range={[0.2, 0.8]})',
+      'Autonomous sticky container detection and runway tracking',
+      'Natural ergonomic reading viewport zone ([0.80, 0.25]) preventing premature bottom/taskbar reveals',
+      'Soft kinetic overlap (overlap: 0.25) ensuring continuous editorial reading flow',
       '3D rotateX and scale kinetic entrance',
       'Direct DOM span updates with zero Virtual DOM re-renders',
+      'Polymorphic asChild composition for semantic headings (<h1>, <h2>, etc.)',
     ],
     gotchas: [
+      'In normal document flow, TextReveal illuminates as lines reach the natural reading viewport band (80% down to 25% from top). When inside sticky containers (sticky top-*), it automatically tracks the pinned parent runway without manual offset adjustments.',
       'Provide plain text as the direct child string so the split algorithm can calculate exact word and character indices.',
     ],
     props: [
-      { name: 'children', type: 'string', default: "''", description: 'Text content to split and reveal kinetically.' },
+      { name: 'children', type: 'React.ReactNode', default: "''", description: 'Text content (or child element when asChild is active) to split and reveal kinetically.' },
+      { name: 'asChild', type: 'boolean', default: 'false', description: 'Renders custom heading element (e.g. <h1>) instead of default <p> without extra wrapper.' },
       { name: 'by', type: "'chars' | 'words'", default: "'chars'", description: 'Splitting granularity.' },
       { name: 'range', type: '[number, number]', default: '[0, 1]', description: 'Normalized viewport entry and exit range [start, end].' },
       { name: 'blur', type: 'number', default: '8', description: 'Initial optical blur in pixels.' },
@@ -865,7 +928,7 @@ export function KineticTypographyDemo() {
     shortDescription: 'Spring physics cursor attraction with inner icon multi-layer parallax.',
     fullDescription:
       '<Magnetic> creates fluid magnetic attraction toward the cursor within a defined radius. Features spring physics with configurable stiffness and damping, scaling on hover, and an innerTargetRef for dual-layer parallax motion.',
-    tags: ['Spring Physics', 'Cursor Magnetism', 'Dual-Layer Parallax', 'Zero Re-renders', 'Interactive'],
+    tags: ['Spring Physics', 'Cursor Magnetism', 'Dual-Layer Parallax', 'Zero Re-renders', 'Interactive', 'asChild'],
     driver: 'JS Physics Solver',
     runwayHeight: '120vh',
     features: [
@@ -879,6 +942,7 @@ export function KineticTypographyDemo() {
       'For best effect, keep the button within reasonable bounding box bounds so cursor exit releases cleanly without slingshot overshoot.',
     ],
     props: [
+      { name: 'asChild', type: 'boolean', default: 'false', description: 'Merges magnetic physics spring handlers and ref onto child element.' },
       { name: 'strength', type: 'number', default: '0.3', description: 'Magnetic attraction strength multiplier.' },
       { name: 'radius', type: 'number', default: '150', description: 'Detection radius in pixels from element center.' },
       { name: 'stiffness', type: 'number', default: '150', description: 'Spring stiffness.' },
@@ -886,6 +950,7 @@ export function KineticTypographyDemo() {
       { name: 'scale', type: 'number', default: '1.05', description: 'Scale factor on cursor hover.' },
       { name: 'innerTargetRef', type: 'React.RefObject<HTMLElement | null>', default: 'undefined', description: 'Target for multi-layer inner icon attraction.' },
       { name: 'innerStrength', type: 'number', default: '0.6', description: 'Inner element attraction strength multiplier.' },
+      { name: 'respectReducedMotion', type: 'boolean', default: 'true', description: 'Whether magnetic attraction automatically disables when prefers-reduced-motion is active.' },
     ],
     knobs: [
       { id: 'strength', label: 'Attraction Strength', type: 'number', default: 0.35, min: 0.1, max: 0.8, step: 0.05 },

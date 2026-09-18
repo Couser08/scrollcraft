@@ -126,17 +126,18 @@ export function ScrollInspector({
 
   // Sync HUD & Collapsed Badge readouts immediately whenever collapsed state toggles
   useEffect(() => {
-    const { fps, frameMs } = ticker.getFrameRate();
-    lastFpsVal.current = fps;
+    const { fps, frameMs, isIdle, targetFps } = ticker.getFrameRate();
+    const displayFps = isIdle ? targetFps : fps;
+    lastFpsVal.current = displayFps;
     lastMsVal.current = frameMs;
-    const color = fps >= 50 ? '#22c55e' : fps >= 30 ? '#eab308' : '#ef4444';
+    const color = isIdle ? '#22c55e' : fps >= 50 ? '#22c55e' : fps >= 30 ? '#eab308' : '#ef4444';
     lastDotColor.current = color;
 
     if (fpsRef.current) {
-      fpsRef.current.textContent = `${fps}`;
+      fpsRef.current.textContent = `${displayFps}`;
     }
     if (msRef.current) {
-      msRef.current.textContent = `${frameMs.toFixed(1)}ms`;
+      msRef.current.textContent = isIdle ? 'idle' : `${frameMs.toFixed(1)}ms`;
     }
     if (dotRef.current) {
       dotRef.current.style.backgroundColor = color;
@@ -154,15 +155,16 @@ export function ScrollInspector({
     if (!collapsed) return;
     const unsub = subscribe(() => {
       const now = performance.now();
-      if (now - lastCollapsedUpdateTime.current < 150) return;
+      if (now - lastCollapsedUpdateTime.current < 250) return;
       lastCollapsedUpdateTime.current = now;
 
-      const { fps } = ticker.getFrameRate();
-      if (fpsRef.current && lastFpsVal.current !== fps) {
-        lastFpsVal.current = fps;
-        fpsRef.current.textContent = `${fps}`;
+      const { fps, isIdle, targetFps } = ticker.getFrameRate();
+      const displayFps = isIdle ? targetFps : fps;
+      if (fpsRef.current && lastFpsVal.current !== displayFps) {
+        lastFpsVal.current = displayFps;
+        fpsRef.current.textContent = `${displayFps}`;
       }
-      const color = fps >= 50 ? '#22c55e' : fps >= 30 ? '#eab308' : '#ef4444';
+      const color = isIdle ? '#22c55e' : fps >= 50 ? '#22c55e' : fps >= 30 ? '#eab308' : '#ef4444';
       if (dotRef.current && lastDotColor.current !== color) {
         lastDotColor.current = color;
         dotRef.current.style.backgroundColor = color;
@@ -176,26 +178,27 @@ export function ScrollInspector({
     (_dt, _elapsed, currentTime) => {
       frameCount.current++;
 
-      // Update FPS readout every ~200ms to eliminate visual jitter & redundant mutations
-      if (currentTime - lastUpdateTime.current >= 200) {
-        const { fps, frameMs } = ticker.getFrameRate();
+      // Update FPS readout every ~250ms (4Hz) to eliminate visual jitter & redundant mutations
+      if (currentTime - lastUpdateTime.current >= 250) {
+        const { fps, frameMs, isIdle, targetFps } = ticker.getFrameRate();
+        const displayFps = isIdle ? targetFps : fps;
         const { recent: recentDrops, health } = ticker.getDroppedFrames();
 
-        if (fpsRef.current && lastFpsVal.current !== fps) {
-          lastFpsVal.current = fps;
-          fpsRef.current.textContent = `${fps}`;
+        if (fpsRef.current && lastFpsVal.current !== displayFps) {
+          lastFpsVal.current = displayFps;
+          fpsRef.current.textContent = `${displayFps}`;
         }
         if (studioFpsRef.current) {
-          studioFpsRef.current.textContent = `${fps} FPS`;
+          studioFpsRef.current.textContent = `${displayFps} FPS${isIdle ? ' (idle)' : ''}`;
         }
-        if (msRef.current && lastMsVal.current !== frameMs) {
+        if (msRef.current && (lastMsVal.current !== frameMs || isIdle)) {
           lastMsVal.current = frameMs;
-          msRef.current.textContent = `${frameMs.toFixed(1)}ms`;
+          msRef.current.textContent = isIdle ? 'idle' : `${frameMs.toFixed(1)}ms`;
         }
         if (droppedFramesRef.current) {
           updateFrameHealthText(droppedFramesRef.current, recentDrops, health);
         }
-        const color = fps >= 50 ? '#22c55e' : fps >= 30 ? '#eab308' : '#ef4444';
+        const color = isIdle ? '#22c55e' : fps >= 50 ? '#22c55e' : fps >= 30 ? '#eab308' : '#ef4444';
         if (dotRef.current && lastDotColor.current !== color) {
           lastDotColor.current = color;
           dotRef.current.style.backgroundColor = color;

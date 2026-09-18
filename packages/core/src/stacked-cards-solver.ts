@@ -102,8 +102,16 @@ export class StackedCardsSolver {
       const cardRect = card.element.getBoundingClientRect();
       card.measuredHeight = card.element.offsetHeight || cardRect.height || 300;
 
-      // Card pin start is when container reaches top offset + cascade index
-      card.pinStartY = this.containerTop + accumulatedDistance;
+      const offsetTop = card.element.offsetTop;
+      const targetStickyTop = this.options.top + i * this.options.offset;
+
+      // When rendered in real DOM with layout, offsetTop reflects the natural document flow
+      if (offsetTop > 0) {
+        card.pinStartY = this.containerTop + offsetTop - targetStickyTop;
+      } else {
+        // Fallback for jsdom / unrendered elements / first card
+        card.pinStartY = this.containerTop + accumulatedDistance;
+      }
 
       // Unique card travel duration accounts for its individual height
       const individualDistance = Math.max(card.measuredHeight * 0.5, this.options.cardDistance);

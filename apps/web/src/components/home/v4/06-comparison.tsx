@@ -90,8 +90,14 @@ const ARCHITECTURE_INVARIANTS = [
 export function ComparisonSection() {
   return (
     <section id="architecture" className="relative w-full bg-[#050505] py-24 sm:py-32 px-4 sm:px-6 lg:px-8 border-t border-zinc-800/80 overflow-hidden font-sans">
-      {/* Background ambient lighting */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-violet-600/5 rounded-full blur-[140px] pointer-events-none" />
+      {/* Background ambient lighting - Zero-cost hardware radial gradient */}
+      <div
+        aria-hidden="true"
+        className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[400px] rounded-full pointer-events-none"
+        style={{
+          background: 'radial-gradient(circle, rgba(124, 58, 237, 0.08) 0%, transparent 70%)',
+        }}
+      />
 
       <div className="max-w-7xl mx-auto relative z-10">
         
@@ -122,7 +128,7 @@ export function ComparisonSection() {
         {/* 6 Clean Invariant Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 max-w-6xl mx-auto mb-24">
           {ARCHITECTURE_INVARIANTS.map((item, idx) => (
-            <Reveal key={item.title} direction="up" distance={20} delay={idx * 0.05}>
+            <Reveal key={item.title} direction="up" distance={20} index={idx} stagger={0.05}>
               <div className="p-6 rounded-2xl bg-zinc-950/70 border border-zinc-800/80 hover:border-zinc-700 transition-all duration-200 flex flex-col justify-between h-full group">
                 <div>
                   <div className="flex items-center justify-between mb-5">
@@ -158,10 +164,15 @@ export function ComparisonSection() {
         {/* ========================================== */}
         {/* 2. VERIFIED PRODUCTION FOOTPRINT (CLEAN & MODERN) */}
         {/* ========================================== */}
-        <Reveal direction="up" distance={25} delay={0.15}>
-          <div className="max-w-6xl mx-auto rounded-3xl border border-zinc-800 bg-gradient-to-b from-zinc-900/80 via-zinc-950 to-[#07070a] p-6 sm:p-10 mb-20 shadow-2xl relative overflow-hidden backdrop-blur-xl">
-            {/* Ambient accent */}
-            <div className="absolute top-0 right-0 -mt-16 -mr-16 w-72 h-72 bg-violet-600/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="max-w-6xl mx-auto rounded-3xl border border-zinc-800/90 bg-[#090a0f] p-6 sm:p-10 mb-20 shadow-2xl relative overflow-hidden">
+          {/* Ambient accent */}
+          <div
+            aria-hidden="true"
+            className="absolute top-0 right-0 -mt-16 -mr-16 w-72 h-72 rounded-full pointer-events-none"
+            style={{
+              background: 'radial-gradient(circle, rgba(124, 58, 237, 0.10) 0%, transparent 70%)',
+            }}
+          />
 
             {/* Header */}
             <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5 pb-8 border-b border-zinc-800/80 relative z-10">
@@ -315,13 +326,11 @@ export function ComparisonSection() {
               </span>
             </div>
           </div>
-        </Reveal>
 
         {/* ========================================== */}
         {/* 3. ARCHITECTURE & ATTRIBUTIONS */}
         {/* ========================================== */}
-        <Reveal direction="up" distance={20} delay={0.2}>
-          <div className="max-w-6xl mx-auto rounded-3xl border border-zinc-800 bg-gradient-to-b from-zinc-950 via-zinc-950 to-[#07070a] p-6 sm:p-10 shadow-2xl relative overflow-hidden">
+        <div className="max-w-6xl mx-auto rounded-3xl border border-zinc-800/90 bg-[#090a0f] p-6 sm:p-10 shadow-2xl relative overflow-hidden">
             {/* Header */}
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-8 border-b border-zinc-800/80 mb-8">
               <div>
@@ -418,7 +427,6 @@ export function ComparisonSection() {
               </div>
             </div>
           </div>
-        </Reveal>
 
       </div>
     </section>

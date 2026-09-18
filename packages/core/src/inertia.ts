@@ -35,8 +35,15 @@ export class InertiaEngine {
   private springVelocity: number = 0;
   private springStepState: SpringState = { position: 0, velocity: 0, settled: true };
   private springConfig: SpringConfig | null = null;
+  private settledFrames: number = 0;
+
+  private onWake = (): void => {
+    this.settledFrames = 0;
+    ticker.resumeTask(this.taskId);
+  };
 
   private onWheel = (e: WheelEvent): void => {
+    this.onWake();
     inputNormalizer.analyzeWheelEvent(e);
   };
 
@@ -107,8 +114,10 @@ export class InertiaEngine {
     if (typeof window === 'undefined' || this.isInitialized) return;
     this.isInitialized = true;
 
-    // Passive wheel listener for hardware input classification
+    // Passive listeners for hardware input classification & autonomous wake
     window.addEventListener('wheel', this.onWheel, { passive: true });
+    window.addEventListener('touchstart', this.onWake, { passive: true });
+    window.addEventListener('keydown', this.onWake, { passive: true });
 
     // Populate initial metrics from DOM
     this.syncInitialMetrics();
@@ -169,10 +178,27 @@ export class InertiaEngine {
         this.springVelocity = this.springStepState.velocity;
         if (!this.springStepState.settled) {
           this.lenis.scrollTo(this.springStepState.position, { immediate: true });
+        } else {
+          this.settledFrames++;
+          if (this.settledFrames >= 10) {
+            ticker.pauseTask(this.taskId);
+            this.settledFrames = 0;
+          }
         }
       } else {
         // Use exact RAF timestamp to drive Lenis's built-in frame-rate-independent damping
         this.lenis.raf(currentTime);
+        const isScrolling = Boolean((this.lenis as any).isScrolling);
+        const vel = Math.abs((this.lenis as any).velocity ?? this.metrics.velocity ?? 0);
+        if (!isScrolling && vel < 0.001) {
+          this.settledFrames++;
+          if (this.settledFrames >= 10) {
+            ticker.pauseTask(this.taskId);
+            this.settledFrames = 0;
+          }
+        } else {
+          this.settledFrames = 0;
+        }
       }
     });
 
@@ -190,6 +216,8 @@ export class InertiaEngine {
     this.isInitialized = false;
 
     window.removeEventListener('wheel', this.onWheel);
+    window.removeEventListener('touchstart', this.onWake);
+    window.removeEventListener('keydown', this.onWake);
 
     if (this.nativeScrollBound) {
       window.removeEventListener('scroll', this.onNativeScroll);
@@ -246,6 +274,7 @@ export class InertiaEngine {
       easing?: (t: number) => number;
     }
   ): void {
+    this.onWake();
     if (this.lenis) {
       this.lenis.scrollTo(target, options);
     } else if (typeof window !== 'undefined') {

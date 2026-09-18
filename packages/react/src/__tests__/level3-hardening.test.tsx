@@ -17,6 +17,7 @@ import { useScrollDraw } from '../hooks/useScrollDraw';
 import { useMagnetic } from '../hooks/useMagnetic';
 import { useScrollTimeline } from '../hooks/useScrollTimeline';
 import { useScrollDirection } from '../hooks/useScrollDirection';
+import { Reveal } from '../primitives/reveal';
 
 describe('Level 3: Headless React Hooks Hardening & Zero-Jank Suite', () => {
   const originalWindow = globalThis.window;
@@ -198,6 +199,31 @@ describe('Level 3: Headless React Hooks Hardening & Zero-Jank Suite', () => {
       expect(hiddenTransform).toContain('rotateY(-10deg)');
 
       revealObserver.unobserve(element);
+    });
+
+    it('forwards index, stagger, blur, scale, and rotateX in <Reveal> without DOM attribute leakage', () => {
+      const html = renderToString(
+        <Reveal
+          direction="up"
+          distance={40}
+          blur={8}
+          scale={0.92}
+          rotateX={12}
+          index={3}
+          stagger={0.1}
+          className="test-reveal-card"
+        >
+          <span>Content</span>
+        </Reveal>
+      );
+
+      expect(html).toContain('class="test-reveal-card"');
+      expect(html).toContain('<span>Content</span>');
+      expect(html).not.toContain('blur="');
+      expect(html).not.toContain('scale="');
+      expect(html).not.toContain('rotatex="');
+      expect(html).not.toContain('index="');
+      expect(html).not.toContain('stagger="');
     });
   });
 

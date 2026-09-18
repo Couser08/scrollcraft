@@ -121,6 +121,7 @@ export function usePin<T extends HTMLElement = HTMLDivElement>(
     const solver = new PinSolver(node, {
       duration,
       topOffset: top,
+      bottomOffset: options.bottom,
       disableTransform: options.disableTransform ?? true,
     });
 
@@ -196,6 +197,7 @@ export function usePin<T extends HTMLElement = HTMLDivElement>(
     };
   }, [
     top,
+    options.bottom,
     duration,
     options.disableTransform,
     pinSpacing,

@@ -132,6 +132,7 @@ export class GlobalRevealObserver {
   }
 
   private applyHiddenState(element: HTMLElement, options: RevealOptions): void {
+    (element as any).__sc_revealed = false;
     const duration = options.duration ?? 0.6;
     let transition = `opacity ${duration}s cubic-bezier(0.16, 1, 0.3, 1), transform ${duration}s cubic-bezier(0.16, 1, 0.3, 1)`;
     if (options.blur) {
@@ -139,6 +140,7 @@ export class GlobalRevealObserver {
       element.style.filter = `blur(${blurPx}px)`;
       transition += `, filter ${duration}s cubic-bezier(0.16, 1, 0.3, 1)`;
     }
+    element.style.willChange = 'opacity, transform';
     element.style.transition = transition;
     element.style.opacity = '0';
     TransformComposer.set(element, 'reveal', this.getHiddenTransform(options));
@@ -156,12 +158,28 @@ export class GlobalRevealObserver {
     element.style.transition = transition;
     element.style.opacity = '1';
     TransformComposer.set(element, 'reveal', 'translate3d(0, 0, 0)');
+
+    (element as any).__sc_revealed = true;
+
+    // Release GPU compositing layer once animation finishes to eliminate texture exhaustion and ghosting
+    const cleanupMs = Math.max(50, Math.round((duration + delay) * 1000) + 60);
+    setTimeout(() => {
+      if ((element as any).__sc_revealed) {
+        element.style.willChange = '';
+        element.style.transition = '';
+        if (options.blur) {
+          element.style.filter = '';
+        }
+        TransformComposer.clear(element, 'reveal');
+      }
+    }, cleanupMs);
   }
 
   public observe(element: HTMLElement, options: RevealOptions): void {
     if (!element || typeof window === 'undefined') return;
 
     if (motionStore.isReduced()) {
+      (element as any).__sc_revealed = true;
       element.style.opacity = '1';
       element.style.transition = 'none';
       element.style.filter = '';
@@ -184,6 +202,16 @@ export class GlobalRevealObserver {
       onReveal: options.onReveal,
       onReset: options.onReset,
     };
+
+    // If element has already completed its one-time reveal, guarantee it stays visible
+    if (fullOptions.once && (element as any).__sc_revealed) {
+      element.style.opacity = '1';
+      element.style.willChange = '';
+      element.style.transition = '';
+      if (fullOptions.blur) element.style.filter = '';
+      TransformComposer.clear(element, 'reveal');
+      return;
+    }
 
     // Safety: If element is taller than window, IntersectionObserver might never hit 0.15 threshold
     // We dynamically clamp the threshold to ensure it triggers
@@ -210,20 +238,10 @@ export class GlobalRevealObserver {
     };
     this.entries.set(element, entry);
 
-    // Reduced motion handling: reveal immediately without translation if reduced-motion preferred
-    if (motionStore.isReduced()) {
-      entry.hasRevealed = true;
-      element.style.opacity = '1';
-      element.style.transition = 'none';
-      if (fullOptions.blur) element.style.filter = 'none';
-      TransformComposer.set(element, 'reveal', 'translate3d(0, 0, 0)');
-      fullOptions.onReveal?.();
-      return;
-    }
-
     // Initial State Check: If already scrolled past the viewport above on mount, reveal instantly without animation
     if (rect.bottom < 0) {
       entry.hasRevealed = true;
+      (element as any).__sc_revealed = true;
       element.style.opacity = '1';
       if (fullOptions.blur) element.style.filter = 'none';
       TransformComposer.set(element, 'reveal', 'translate3d(0, 0, 0)');
@@ -241,6 +259,7 @@ export class GlobalRevealObserver {
     const observer = this.getObserver(safeThreshold);
     if (!observer) {
       entry.hasRevealed = true;
+      (element as any).__sc_revealed = true;
       element.style.opacity = '1';
       if (fullOptions.blur) element.style.filter = 'none';
       TransformComposer.set(element, 'reveal', 'translate3d(0, 0, 0)');
@@ -263,6 +282,7 @@ export class GlobalRevealObserver {
     }
     
     this.entries.delete(element);
+    delete (element as any).__sc_revealed;
     element.style.willChange = data.initialStyles.willChange;
     element.style.transition = data.initialStyles.transition;
     element.style.opacity = data.initialStyles.opacity;
@@ -275,6 +295,7 @@ export class GlobalRevealObserver {
     for (const observer of this.observers.values()) observer.disconnect();
     this.observers.clear();
     for (const entry of this.entries.values()) {
+      delete (entry.element as any).__sc_revealed;
       entry.element.style.willChange = entry.initialStyles.willChange;
       entry.element.style.transition = entry.initialStyles.transition;
       entry.element.style.opacity = entry.initialStyles.opacity;

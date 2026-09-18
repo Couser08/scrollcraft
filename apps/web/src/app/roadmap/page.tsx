@@ -3,6 +3,7 @@ import React from 'react';
 import Link from 'next/link';
 import { ScrollCraftLogo } from '@/components/ui/scrollcraft-logo';
 import { GithubIcon } from '@/components/ui/social-icons';
+import { ScrollProgress, Reveal } from '@scrollcraft/react';
 import {
   CheckCircle2,
   Clock,
@@ -24,6 +25,9 @@ export const metadata: Metadata = {
 export default function RoadmapPage() {
   return (
     <div className="w-full min-h-screen bg-[#050505] text-zinc-100 flex flex-col font-sans selection:bg-violet-600/30 selection:text-white">
+      {/* Top Reading Progress Bar */}
+      <ScrollProgress className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-violet-500 via-emerald-400 to-violet-500 z-50 origin-left" />
+
       {/* Sticky Header */}
       <header className="w-full border-b border-zinc-800/80 bg-[#050505]/90 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
@@ -111,169 +115,175 @@ export default function RoadmapPage() {
         {/* Milestone Cards Summary */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-20">
           {/* Current Milestone: v0.1.1 Beta */}
-          <div className="rounded-2xl border border-emerald-500/30 bg-gradient-to-b from-[#0c1410] to-[#070908] p-6 sm:p-8 flex flex-col justify-between shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-            <div>
-              <div className="flex items-center justify-between gap-4 mb-4">
-                <span className="text-xs font-mono uppercase tracking-widest text-emerald-400 font-bold flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)] animate-pulse" />
-                  CURRENT MILESTONE
+          <Reveal direction="up" distance={24} delay={0.1}>
+            <div className="rounded-2xl border border-emerald-500/30 bg-gradient-to-b from-[#0c1410] to-[#070908] p-6 sm:p-8 flex flex-col justify-between shadow-2xl relative overflow-hidden h-full">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+              <div>
+                <div className="flex items-center justify-between gap-4 mb-4">
+                  <span className="text-xs font-mono uppercase tracking-widest text-emerald-400 font-bold flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)] animate-pulse" />
+                    CURRENT MILESTONE
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/30 text-emerald-300 border border-emerald-400/50 font-bold flex items-center gap-1.5 shadow-[0_0_12px_rgba(16,185,129,0.3)]">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                      LIVE
+                    </span>
+                    <span className="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold">
+                      v0.1.1 Beta
+                    </span>
+                  </div>
+                </div>
+
+                <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3 font-sans">
+                  Hardened Engine Baseline
+                </h2>
+
+                <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed font-sans mb-6">
+                  Production-certified baseline featuring 101/101 automated test suites, Named Scroll-Timeline on <code className="text-emerald-400">:root</code>, 5-sample sorted median FPS benchmarks, and zero React Virtual DOM re-renders.
+                </p>
+
+                <div className="space-y-2.5 mb-6 text-xs font-mono text-zinc-300">
+                  <div className="flex items-center gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <span>8-Layer Hardening Protocol: 101/101 Tests Green</span>
+                  </div>
+                  <div className="flex items-center gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <span>Named Timeline on :root: 100% Container Clipping Immunity</span>
+                  </div>
+                  <div className="flex items-center gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <span>Core Throughput: 0.926ms / frame (1,080 FPS capacity)</span>
+                  </div>
+                  <div className="flex items-center gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <span>Next.js 15.5.25 &amp; React 19 Full RSC Compatibility</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-6 border-t border-emerald-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="font-mono text-xs text-zinc-300 flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-lg border border-emerald-500/30">
+                  <span className="text-emerald-500 select-none">$</span>
+                  <code className="text-emerald-300 select-all font-semibold">npm install @scrollcraft/core@0.1.1</code>
+                </div>
+                <span className="text-[11px] font-mono text-emerald-400 bg-emerald-950/40 px-3 py-1 rounded border border-emerald-500/30 font-semibold">
+                  Live on npm • Soak Period Active
                 </span>
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/30 text-emerald-300 border border-emerald-400/50 font-bold flex items-center gap-1.5 shadow-[0_0_12px_rgba(16,185,129,0.3)]">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-                    LIVE
-                  </span>
-                  <span className="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold">
-                    v0.1.1 Beta
-                  </span>
-                </div>
-              </div>
-
-              <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3 font-sans">
-                Hardened Engine Baseline
-              </h2>
-
-              <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed font-sans mb-6">
-                Production-certified baseline featuring 101/101 automated test suites, Named Scroll-Timeline on <code className="text-emerald-400">:root</code>, 5-sample sorted median FPS benchmarks, and zero React Virtual DOM re-renders.
-              </p>
-
-              <div className="space-y-2.5 mb-6 text-xs font-mono text-zinc-300">
-                <div className="flex items-center gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span>8-Layer Hardening Protocol: 101/101 Tests Green</span>
-                </div>
-                <div className="flex items-center gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span>Named Timeline on :root: 100% Container Clipping Immunity</span>
-                </div>
-                <div className="flex items-center gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span>Core Throughput: 0.926ms / frame (1,080 FPS capacity)</span>
-                </div>
-                <div className="flex items-center gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span>Next.js 15.5.25 &amp; React 19 Full RSC Compatibility</span>
-                </div>
               </div>
             </div>
-
-            <div className="pt-6 border-t border-emerald-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div className="font-mono text-xs text-zinc-300 flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-lg border border-emerald-500/30">
-                <span className="text-emerald-500 select-none">$</span>
-                <code className="text-emerald-300 select-all font-semibold">npm install @scrollcraft/core@0.1.1</code>
-              </div>
-              <span className="text-[11px] font-mono text-emerald-400 bg-emerald-950/40 px-3 py-1 rounded border border-emerald-500/30 font-semibold">
-                Live on npm • Soak Period Active
-              </span>
-            </div>
-          </div>
+          </Reveal>
 
           {/* Upcoming Milestone: v0.2.0 Master Architecture */}
-          <div className="rounded-2xl border border-violet-500/30 bg-gradient-to-b from-[#110d1c] to-[#08070d] p-6 sm:p-8 flex flex-col justify-between shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-violet-500/10 rounded-full blur-3xl pointer-events-none" />
-            <div>
-              <div className="flex items-center justify-between gap-4 mb-4">
-                <span className="text-xs font-mono uppercase tracking-widest text-violet-400 font-bold flex items-center gap-2">
-                  <Clock className="w-3.5 h-3.5 text-violet-400" />
-                  NEXT HORIZON (PLANNED)
-                </span>
-                <span className="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-violet-500/20 text-violet-300 border border-violet-500/30 font-semibold">
-                  In Active Development
-                </span>
+          <Reveal direction="up" distance={24} delay={0.2}>
+            <div className="rounded-2xl border border-violet-500/30 bg-gradient-to-b from-[#110d1c] to-[#08070d] p-6 sm:p-8 flex flex-col justify-between shadow-2xl relative overflow-hidden h-full">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-violet-500/10 rounded-full blur-3xl pointer-events-none" />
+              <div>
+                <div className="flex items-center justify-between gap-4 mb-4">
+                  <span className="text-xs font-mono uppercase tracking-widest text-violet-400 font-bold flex items-center gap-2">
+                    <Clock className="w-3.5 h-3.5 text-violet-400" />
+                    NEXT HORIZON (PLANNED)
+                  </span>
+                  <span className="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-violet-500/20 text-violet-300 border border-violet-500/30 font-semibold">
+                    In Active Development
+                  </span>
+                </div>
+
+                <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3 font-sans">
+                  v0.2.0 Zero-Jank Suite
+                </h2>
+
+                <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed font-sans mb-6">
+                  Comprehensive motion expansion solving the 7 real-world browser footguns: mobile VRAM management, rubber-band guards, SSR race cancellations, and granular subpath packaging.
+                </p>
+
+                <div className="space-y-2.5 mb-6 text-xs font-mono text-zinc-300">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-1.5 h-1.5 rounded-full bg-violet-400 shrink-0" />
+                    <span>The 7 Production Footguns Solved (VRAM, iOS, Hydration)</span>
+                  </div>
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-1.5 h-1.5 rounded-full bg-violet-400 shrink-0" />
+                    <span>Superpowers across 9 Core Hooks (Dual API &amp; Bleed Math)</span>
+                  </div>
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-1.5 h-1.5 rounded-full bg-violet-400 shrink-0" />
+                    <span>ScrollCraft Inspector Studio &amp; DevTools Flamecharts</span>
+                  </div>
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-1.5 h-1.5 rounded-full bg-violet-400 shrink-0" />
+                    <span>Granular Day-1 Subpath Bundles (&lt; 5 KB standalone)</span>
+                  </div>
+                </div>
               </div>
 
-              <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3 font-sans">
-                v0.2.0 Zero-Jank Suite
-              </h2>
-
-              <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed font-sans mb-6">
-                Comprehensive motion expansion solving the 7 real-world browser footguns: mobile VRAM management, rubber-band guards, SSR race cancellations, and granular subpath packaging.
-              </p>
-
-              <div className="space-y-2.5 mb-6 text-xs font-mono text-zinc-300">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-1.5 h-1.5 rounded-full bg-violet-400 shrink-0" />
-                  <span>The 7 Production Footguns Solved (VRAM, iOS, Hydration)</span>
-                </div>
-                <div className="flex items-center gap-2.5">
-                  <div className="w-1.5 h-1.5 rounded-full bg-violet-400 shrink-0" />
-                  <span>Superpowers across 9 Core Hooks (Dual API &amp; Bleed Math)</span>
-                </div>
-                <div className="flex items-center gap-2.5">
-                  <div className="w-1.5 h-1.5 rounded-full bg-violet-400 shrink-0" />
-                  <span>ScrollCraft Inspector Studio &amp; DevTools Flamecharts</span>
-                </div>
-                <div className="flex items-center gap-2.5">
-                  <div className="w-1.5 h-1.5 rounded-full bg-violet-400 shrink-0" />
-                  <span>Granular Day-1 Subpath Bundles (&lt; 5 KB standalone)</span>
-                </div>
+              <div className="pt-6 border-t border-violet-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <span className="text-xs text-zinc-400 font-sans">
+                  Architecture spec verified against engine invariants
+                </span>
+                <span className="text-[11px] font-mono text-violet-400 bg-violet-950/40 px-3 py-1 rounded border border-violet-500/30 font-semibold">
+                  Scope-Governed Progress
+                </span>
               </div>
             </div>
-
-            <div className="pt-6 border-t border-violet-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <span className="text-xs text-zinc-400 font-sans">
-                Architecture spec verified against engine invariants
-              </span>
-              <span className="text-[11px] font-mono text-violet-400 bg-violet-950/40 px-3 py-1 rounded border border-violet-500/30 font-semibold">
-                Scope-Governed Progress
-              </span>
-            </div>
-          </div>
+          </Reveal>
         </div>
 
         {/* Section 1: v0.1.1 Beta Promotion & Community Funnel */}
-        <section className="mb-20 rounded-2xl border border-zinc-800 bg-[#09090b] p-6 sm:p-10 shadow-xl">
-          <div className="flex items-center gap-3 mb-6">
-            <Shield className="w-6 h-6 text-emerald-400" />
-            <h2 className="text-2xl sm:text-3xl font-bold text-white font-sans">
-              v0.1.1 Beta Release &amp; Promotion Criteria
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8 text-sm text-zinc-300 font-sans leading-relaxed">
-            <div>
-              <h3 className="text-base font-semibold text-white mb-2 font-mono">
-                Criteria-Based Stable Promotion
-              </h3>
-              <p className="text-zinc-400">
-                Rather than relying on an arbitrary calendar date, <strong>v0.1.1 Beta</strong> enters a 1-week real-world soak period. If no critical regression or architectural defect is identified during community dogfooding, the release will be formally promoted to stable on npm.
-              </p>
+        <Reveal direction="up" distance={20} delay={0.1}>
+          <section className="mb-20 rounded-2xl border border-zinc-800 bg-[#09090b] p-6 sm:p-10 shadow-xl">
+            <div className="flex items-center gap-3 mb-6">
+              <Shield className="w-6 h-6 text-emerald-400" />
+              <h2 className="text-2xl sm:text-3xl font-bold text-white font-sans">
+                v0.1.1 Beta Release &amp; Promotion Criteria
+              </h2>
             </div>
-            <div>
-              <h3 className="text-base font-semibold text-white mb-2 font-mono">
-                Structured Bug-Reporting Pipeline
-              </h3>
-              <p className="text-zinc-400">
-                Community discussions and preliminary questions take place on our Discord server. To ensure no issue is lost in chat history, all reproducible defects and edge cases are triaged and tracked directly via <strong>GitHub Issues</strong>.
-              </p>
-            </div>
-          </div>
 
-          <div className="flex flex-wrap items-center gap-4 pt-4 border-t border-zinc-800">
-            <a
-              href="https://discord.gg/scrollcraft"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-5 py-2.5 rounded-full bg-violet-600 hover:bg-violet-500 text-white font-semibold text-xs sm:text-sm transition-all flex items-center gap-2 shadow-sm"
-            >
-              <MessageSquare className="w-4 h-4" />
-              <span>Join Discord Community</span>
-            </a>
-            <a
-              href="https://github.com/ScrollCraft/scrollcraft/issues"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-5 py-2.5 rounded-full bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-200 hover:text-white font-semibold text-xs sm:text-sm transition-all flex items-center gap-2"
-            >
-              <Bug className="w-4 h-4 text-emerald-400" />
-              <span>Report Issue on GitHub</span>
-            </a>
-            <span className="text-xs font-mono text-zinc-500 ml-auto">
-              Package bug tracking: <code className="text-zinc-400">npm bugs @scrollcraft/core</code>
-            </span>
-          </div>
-        </section>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8 text-sm text-zinc-300 font-sans leading-relaxed">
+              <div>
+                <h3 className="text-base font-semibold text-white mb-2 font-mono">
+                  Criteria-Based Stable Promotion
+                </h3>
+                <p className="text-zinc-400">
+                  Rather than relying on an arbitrary calendar date, <strong>v0.1.1 Beta</strong> enters a 1-week real-world soak period. If no critical regression or architectural defect is identified during community dogfooding, the release will be formally promoted to stable on npm.
+                </p>
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-white mb-2 font-mono">
+                  Structured Bug-Reporting Pipeline
+                </h3>
+                <p className="text-zinc-400">
+                  Community discussions and preliminary questions take place on our Discord server. To ensure no issue is lost in chat history, all reproducible defects and edge cases are triaged and tracked directly via <strong>GitHub Issues</strong>.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-4 pt-4 border-t border-zinc-800">
+              <a
+                href="https://discord.gg/scrollcraft"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-5 py-2.5 rounded-full bg-violet-600 hover:bg-violet-500 text-white font-semibold text-xs sm:text-sm transition-all flex items-center gap-2 shadow-sm"
+              >
+                <MessageSquare className="w-4 h-4" />
+                <span>Join Discord Community</span>
+              </a>
+              <a
+                href="https://github.com/ScrollCraft/scrollcraft/issues"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-5 py-2.5 rounded-full bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-200 hover:text-white font-semibold text-xs sm:text-sm transition-all flex items-center gap-2"
+              >
+                <Bug className="w-4 h-4 text-emerald-400" />
+                <span>Report Issue on GitHub</span>
+              </a>
+              <span className="text-xs font-mono text-zinc-500 ml-auto">
+                Package bug tracking: <code className="text-zinc-400">npm bugs @scrollcraft/core</code>
+              </span>
+            </div>
+          </section>
+        </Reveal>
 
         {/* Section 2: v0.2.0 Master Architecture Plan (In Active Development) */}
         <section className="mb-20">
@@ -448,103 +458,105 @@ export default function RoadmapPage() {
         </section>
 
         {/* Section 3: Architecture & Attributions */}
-        <section className="rounded-3xl border border-zinc-800 bg-gradient-to-b from-zinc-950 via-zinc-950 to-[#07070a] p-6 sm:p-10 shadow-2xl relative overflow-hidden mb-16">
-          {/* Header */}
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-8 border-b border-zinc-800/80 mb-8">
-            <div>
-              <div className="flex items-center gap-2 mb-1.5">
-                <span className="text-xs font-mono font-semibold uppercase tracking-widest text-violet-400">
-                  ENGINEERING ARCHITECTURE &amp; PRIOR ART
-                </span>
-                <span className="text-[10px] px-2 py-0.5 rounded-md bg-zinc-800 text-zinc-300 border border-zinc-700 font-mono font-medium">
-                  Open Source Attributions
-                </span>
+        <Reveal direction="up" distance={24} delay={0.15}>
+          <section className="rounded-3xl border border-zinc-800 bg-gradient-to-b from-zinc-950 via-zinc-950 to-[#07070a] p-6 sm:p-10 shadow-2xl relative overflow-hidden mb-16">
+            {/* Header */}
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-8 border-b border-zinc-800/80 mb-8">
+              <div>
+                <div className="flex items-center gap-2 mb-1.5">
+                  <span className="text-xs font-mono font-semibold uppercase tracking-widest text-violet-400">
+                    ENGINEERING ARCHITECTURE &amp; PRIOR ART
+                  </span>
+                  <span className="text-[10px] px-2 py-0.5 rounded-md bg-zinc-800 text-zinc-300 border border-zinc-700 font-mono font-medium">
+                    Open Source Attributions
+                  </span>
+                </div>
+                <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                  Custom React Motion Core &bull; Inertia Normalization Prior Art
+                </h3>
               </div>
-              <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-                Custom React Motion Core &bull; Inertia Normalization Prior Art
-              </h3>
+
+              <a
+                href="https://github.com/darkroomengineering/lenis"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-xs font-mono text-zinc-200 hover:text-white transition-all shrink-0 cursor-pointer"
+              >
+                <span>View Lenis Repository</span>
+                <ExternalLink className="w-3.5 h-3.5 text-zinc-400" />
+              </a>
             </div>
 
-            <a
-              href="https://github.com/darkroomengineering/lenis"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-xs font-mono text-zinc-200 hover:text-white transition-all shrink-0 cursor-pointer"
-            >
-              <span>View Lenis Repository</span>
-              <ExternalLink className="w-3.5 h-3.5 text-zinc-400" />
-            </a>
-          </div>
-
-          {/* Dual Architectural Pillars */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Pillar 1: ScrollCraft In-House Core */}
-            <div className="p-6 rounded-2xl bg-black/50 border border-zinc-800/80 space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-violet-950/60 border border-violet-500/30 flex items-center justify-center text-violet-300">
-                  <Sparkles className="w-4 h-4 text-violet-400" />
+            {/* Dual Architectural Pillars */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Pillar 1: ScrollCraft In-House Core */}
+              <div className="p-6 rounded-2xl bg-black/50 border border-zinc-800/80 space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-violet-950/60 border border-violet-500/30 flex items-center justify-center text-violet-300">
+                    <Sparkles className="w-4 h-4 text-violet-400" />
+                  </div>
+                  <div>
+                    <h4 className="text-base font-bold text-white">
+                      ScrollCraft Motion Core
+                    </h4>
+                    <span className="text-[11px] font-mono text-violet-400">
+                      In-House React 19 Architecture
+                    </span>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="text-base font-bold text-white">
-                    ScrollCraft Motion Core
-                  </h4>
-                  <span className="text-[11px] font-mono text-violet-400">
-                    In-House React 19 Architecture
+
+                <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed font-sans">
+                  The centralized 3-Phase Ticker, direct DOM Transform Composer, and all declarative primitives (<code className="text-violet-300">&lt;Parallax&gt;</code>, <code className="text-violet-300">&lt;Pin&gt;</code>, <code className="text-violet-300">&lt;Reveal&gt;</code>, <code className="text-violet-300">&lt;StackedCards&gt;</code>, <code className="text-violet-300">&lt;ScrollSequence&gt;</code>) are custom systems built specifically for React 19 concurrency and Next.js 15 App Router streaming.
+                </p>
+
+                <div className="flex flex-wrap gap-2 pt-1 text-[10px] font-mono text-zinc-400">
+                  <span className="px-2 py-1 rounded-md bg-zinc-900 border border-zinc-800 flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3 text-emerald-400" /> 3-Phase Ticker
+                  </span>
+                  <span className="px-2 py-1 rounded-md bg-zinc-900 border border-zinc-800 flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3 text-emerald-400" /> GPU Compositor
+                  </span>
+                  <span className="px-2 py-1 rounded-md bg-zinc-900 border border-zinc-800 flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3 text-emerald-400" /> 0 Re-Render Invariant
                   </span>
                 </div>
               </div>
 
-              <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed font-sans">
-                The centralized 3-Phase Ticker, direct DOM Transform Composer, and all declarative primitives (<code className="text-violet-300">&lt;Parallax&gt;</code>, <code className="text-violet-300">&lt;Pin&gt;</code>, <code className="text-violet-300">&lt;Reveal&gt;</code>, <code className="text-violet-300">&lt;StackedCards&gt;</code>, <code className="text-violet-300">&lt;ScrollSequence&gt;</code>) are custom systems built specifically for React 19 concurrency and Next.js 15 App Router streaming.
-              </p>
-
-              <div className="flex flex-wrap gap-2 pt-1 text-[10px] font-mono text-zinc-400">
-                <span className="px-2 py-1 rounded-md bg-zinc-900 border border-zinc-800 flex items-center gap-1">
-                  <CheckCircle2 className="w-3 h-3 text-emerald-400" /> 3-Phase Ticker
-                </span>
-                <span className="px-2 py-1 rounded-md bg-zinc-900 border border-zinc-800 flex items-center gap-1">
-                  <CheckCircle2 className="w-3 h-3 text-emerald-400" /> GPU Compositor
-                </span>
-                <span className="px-2 py-1 rounded-md bg-zinc-900 border border-zinc-800 flex items-center gap-1">
-                  <CheckCircle2 className="w-3 h-3 text-emerald-400" /> 0 Re-Render Invariant
-                </span>
-              </div>
-            </div>
-
-            {/* Pillar 2: Open Source Pedigree & Lenis Attributions */}
-            <div className="p-6 rounded-2xl bg-black/50 border border-zinc-800/80 space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-300">
-                  <Heart className="w-4 h-4 text-rose-400" />
+              {/* Pillar 2: Open Source Pedigree & Lenis Attributions */}
+              <div className="p-6 rounded-2xl bg-black/50 border border-zinc-800/80 space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-300">
+                    <Heart className="w-4 h-4 text-rose-400" />
+                  </div>
+                  <div>
+                    <h4 className="text-base font-bold text-white">
+                      Inertia Physics Prior Art
+                    </h4>
+                    <span className="text-[11px] font-mono text-zinc-400">
+                      Studio Freight &amp; Clément Roche Lineage
+                    </span>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="text-base font-bold text-white">
-                    Inertia Physics Prior Art
-                  </h4>
-                  <span className="text-[11px] font-mono text-zinc-400">
-                    Studio Freight &amp; Clément Roche Lineage
+
+                <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed font-sans">
+                  Our virtual momentum calculations take mathematical inspiration from the pioneering work of Studio Freight&apos;s Lenis. We utilize these normalization principles to deliver smooth trackpad and wheel interpolation across platforms, wired directly into ScrollCraft&apos;s zero-rerender compositor pipeline.
+                </p>
+
+                <div className="flex flex-wrap gap-2 pt-1 text-[10px] font-mono text-zinc-400">
+                  <span className="px-2 py-1 rounded-md bg-zinc-900 border border-zinc-800 flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3 text-emerald-400" /> Kinetic Physics
+                  </span>
+                  <span className="px-2 py-1 rounded-md bg-zinc-900 border border-zinc-800 flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3 text-emerald-400" /> Cross-Browser Deltas
+                  </span>
+                  <span className="px-2 py-1 rounded-md bg-zinc-900 border border-zinc-800 flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3 text-emerald-400" /> MIT Collaboration
                   </span>
                 </div>
               </div>
-
-              <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed font-sans">
-                Our virtual momentum calculations take mathematical inspiration from the pioneering work of Studio Freight&apos;s Lenis. We utilize these normalization principles to deliver smooth trackpad and wheel interpolation across platforms, wired directly into ScrollCraft&apos;s zero-rerender compositor pipeline.
-              </p>
-
-              <div className="flex flex-wrap gap-2 pt-1 text-[10px] font-mono text-zinc-400">
-                <span className="px-2 py-1 rounded-md bg-zinc-900 border border-zinc-800 flex items-center gap-1">
-                  <CheckCircle2 className="w-3 h-3 text-emerald-400" /> Kinetic Physics
-                </span>
-                <span className="px-2 py-1 rounded-md bg-zinc-900 border border-zinc-800 flex items-center gap-1">
-                  <CheckCircle2 className="w-3 h-3 text-emerald-400" /> Cross-Browser Deltas
-                </span>
-                <span className="px-2 py-1 rounded-md bg-zinc-900 border border-zinc-800 flex items-center gap-1">
-                  <CheckCircle2 className="w-3 h-3 text-emerald-400" /> MIT Collaboration
-                </span>
-              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        </Reveal>
       </main>
 
       {/* Footer */}

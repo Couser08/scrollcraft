@@ -14,6 +14,7 @@ export const TextReveal = React.memo(
       children,
       className = '',
       by = 'chars',
+      asChild = false,
       range,
       blur,
       scale,
@@ -21,6 +22,8 @@ export const TextReveal = React.memo(
       rotateY,
       slide,
       baseOpacity = 0,
+      triggerStart,
+      triggerEnd,
       style,
       ...domProps
     } = props;
@@ -30,9 +33,17 @@ export const TextReveal = React.memo(
     const targetsRef = useRef<(HTMLSpanElement | null)[]>([]);
     const { engine } = useScrollCraft();
 
+    const rawText = useMemo(() => {
+      if (typeof children === 'string') return children;
+      if (React.isValidElement(children) && typeof (children.props as any)?.children === 'string') {
+        return (children.props as any).children as string;
+      }
+      return '';
+    }, [children]);
+
     // Split words and characters with memoization
     const { wordGroups, totalTargets } = useMemo(() => {
-      const words = children.split(' ');
+      const words = rawText.split(' ');
       if (by === 'words') {
         return {
           wordGroups: words.map((word, index) => ({
@@ -80,6 +91,8 @@ export const TextReveal = React.memo(
         rotateY,
         slide,
         baseOpacity,
+        triggerStart,
+        triggerEnd,
       });
 
       const taskId = `text-reveal-${Math.random().toString(36).slice(2, 8)}`;
@@ -104,16 +117,96 @@ export const TextReveal = React.memo(
         solver.destroy();
         targetsRef.current = [];
       };
-    }, [engine, rangeStart, rangeEnd, blur, scale, rotateX, rotateY, slide, baseOpacity, totalTargets]);
+    }, [engine, rangeStart, rangeEnd, blur, scale, rotateX, rotateY, slide, baseOpacity, triggerStart, triggerEnd, totalTargets]);
 
     const mergedRef = composeRefs(forwardedRef, internalRef);
+
+    const contentSpans = (
+      <span aria-hidden="true" style={{ display: 'contents' }}>
+        {by === 'words'
+          ? wordGroups.map(({ word, wordIndex }, i) => (
+              <React.Fragment key={wordIndex}>
+                <span
+                  ref={(el) => {
+                    targetsRef.current[wordIndex] = el;
+                  }}
+                  className="sc-word inline-block"
+                  style={{
+                    opacity: baseOpacity,
+                    display: 'inline-block',
+                    transformOrigin: '50% 100%',
+                    transformStyle: 'preserve-3d',
+                    backfaceVisibility: 'hidden',
+                  }}
+                >
+                  {word}
+                </span>
+                {i < wordGroups.length - 1 && ' '}
+              </React.Fragment>
+            ))
+          : wordGroups.map(({ chars, wordIndex }, i) => (
+              <React.Fragment key={wordIndex}>
+                <span
+                  className="sc-word-group inline-block"
+                  style={{
+                    display: 'inline-block',
+                    whiteSpace: 'nowrap',
+                    transformStyle: 'preserve-3d',
+                  }}
+                >
+                  {chars.map(({ char, index }) => (
+                    <span
+                      key={index}
+                      ref={(el) => {
+                        targetsRef.current[index] = el;
+                      }}
+                      className="sc-char inline-block"
+                      style={{
+                        opacity: baseOpacity,
+                        display: 'inline-block',
+                        whiteSpace: char === ' ' ? 'pre' : 'normal',
+                        transformOrigin: '50% 100%',
+                        transformStyle: 'preserve-3d',
+                        backfaceVisibility: 'hidden',
+                      }}
+                    >
+                      {char}
+                    </span>
+                  ))}
+                </span>
+                {i < wordGroups.length - 1 && ' '}
+              </React.Fragment>
+            ))}
+      </span>
+    );
+
+    if (asChild && React.isValidElement(children)) {
+      const child = children as React.ReactElement<any>;
+      const childRef = (child.props as any)?.ref ?? (child as any).ref;
+      const combinedRef = composeRefs(childRef, mergedRef);
+      return React.cloneElement(child, {
+        'data-sc-reveal': 'pending',
+        'aria-label': rawText || child.props['aria-label'],
+        ...domProps,
+        ...child.props,
+        ref: combinedRef,
+        className: ['m-0 p-0 flex flex-wrap', className, child.props.className].filter(Boolean).join(' '),
+        style: {
+          perspective: '1000px',
+          transformStyle: 'preserve-3d',
+          ...style,
+          ...child.props.style,
+        },
+        children: contentSpans,
+      });
+    }
 
     return (
       <p
         ref={mergedRef}
         data-sc-reveal="pending"
-        aria-label={children}
-        className={`m-0 p-0 flex flex-wrap ${className}`}
+        aria-label={rawText}
+        className={['m-0 p-0 flex flex-wrap', className].filter(Boolean).join(' ')}
         style={{
           perspective: '1000px',
           transformStyle: 'preserve-3d',
@@ -121,62 +214,7 @@ export const TextReveal = React.memo(
         }}
         {...domProps}
       >
-        <span aria-hidden="true" style={{ display: 'contents' }}>
-          {by === 'words'
-            ? wordGroups.map(({ word, wordIndex }, i) => (
-                <React.Fragment key={wordIndex}>
-                  <span
-                    ref={(el) => {
-                      targetsRef.current[wordIndex] = el;
-                    }}
-                    className="sc-word inline-block"
-                    style={{
-                      opacity: baseOpacity,
-                      display: 'inline-block',
-                      transformOrigin: '50% 100%',
-                      transformStyle: 'preserve-3d',
-                      backfaceVisibility: 'hidden',
-                    }}
-                  >
-                    {word}
-                  </span>
-                  {i < wordGroups.length - 1 && ' '}
-                </React.Fragment>
-              ))
-            : wordGroups.map(({ chars, wordIndex }, i) => (
-                <React.Fragment key={wordIndex}>
-                  <span
-                    className="sc-word-group inline-block"
-                    style={{
-                      display: 'inline-block',
-                      whiteSpace: 'nowrap',
-                      transformStyle: 'preserve-3d',
-                    }}
-                  >
-                    {chars.map(({ char, index }) => (
-                      <span
-                        key={index}
-                        ref={(el) => {
-                          targetsRef.current[index] = el;
-                        }}
-                        className="sc-char inline-block"
-                        style={{
-                          opacity: baseOpacity,
-                          display: 'inline-block',
-                          whiteSpace: char === ' ' ? 'pre' : 'normal',
-                          transformOrigin: '50% 100%',
-                          transformStyle: 'preserve-3d',
-                          backfaceVisibility: 'hidden',
-                        }}
-                      >
-                        {char}
-                      </span>
-                    ))}
-                  </span>
-                  {i < wordGroups.length - 1 && ' '}
-                </React.Fragment>
-              ))}
-        </span>
+        {contentSpans}
       </p>
     );
   })

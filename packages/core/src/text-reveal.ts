@@ -22,13 +22,21 @@ export interface TextRevealOptions {
   slide?: number;
   /** Initial base opacity for unrevealed characters (0 to 1). Default: 0 */
   baseOpacity?: number;
+  /** Viewport trigger start fraction from top of viewport (e.g. 0.80 = 80% of window height). Default: 0.80 */
+  triggerStart?: number;
+  /** Viewport trigger end fraction from top of viewport (e.g. 0.25 = 25% of window height). Default: 0.25 */
+  triggerEnd?: number;
 }
 
 export class TextRevealSolver {
   private container: HTMLElement;
   private chars: HTMLElement[];
+  private options: TextRevealOptions;
   private range: [number, number];
   private containerTop = 0;
+  private stickyContainer: HTMLElement | null = null;
+  private stickyStartScroll: number = 0;
+  private stickyRunwayDistance: number = 0;
   private opacities: number[] = [];
   private progressValues: number[] = [];
   private initialOpacities: string[] = [];
@@ -44,6 +52,7 @@ export class TextRevealSolver {
   constructor(container: HTMLElement, chars: HTMLElement[], options: TextRevealOptions = {}) {
     this.container = container;
     this.chars = chars;
+    this.options = options;
     this.range = options.range || [0, 1];
     this.baseOpacity = options.baseOpacity !== undefined ? options.baseOpacity : 0;
     this.initialOpacities = chars.map((char) => char.style.opacity || '');
@@ -77,34 +86,88 @@ export class TextRevealSolver {
 
   /** Phase 1: capture layout once, never while calculating character values. */
   public measure(): void {
-    if (typeof window === 'undefined') return;
-    this.containerTop = this.container.getBoundingClientRect().top + (window.scrollY || window.pageYOffset);
+    if (typeof window === 'undefined' || !this.container) return;
+    const scrollTop = window.scrollY || window.pageYOffset;
+    const rect = this.container.getBoundingClientRect();
+    this.containerTop = rect.top + scrollTop;
+
+    // Detect if container or an ancestor has position: sticky
+    let el: HTMLElement | null = this.container;
+    let stickyEl: HTMLElement | null = null;
+    const doc = typeof document !== 'undefined' ? document : null;
+
+    while (el && (!doc || (el !== doc.body && el !== doc.documentElement))) {
+      const pos =
+        el.style?.position ||
+        (typeof window !== 'undefined' && typeof window.getComputedStyle === 'function' ? window.getComputedStyle(el)?.position : '');
+      if (pos === 'sticky') {
+        stickyEl = el;
+        break;
+      }
+      el = el.parentElement;
+    }
+
+    this.stickyContainer = stickyEl;
+
+    if (stickyEl && stickyEl.parentElement) {
+      const parent = stickyEl.parentElement;
+      const parentRect = parent.getBoundingClientRect();
+      const parentTop = parentRect.top + scrollTop;
+      const parentHeight = parent.offsetHeight || parentRect.height || 0;
+      const stickyHeight = stickyEl.offsetHeight || stickyEl.getBoundingClientRect().height || 0;
+
+      const computedTop =
+        typeof window.getComputedStyle === 'function'
+          ? parseFloat(window.getComputedStyle(stickyEl).top) || 0
+          : 0;
+
+      this.stickyStartScroll = parentTop + stickyEl.offsetTop - computedTop;
+      this.stickyRunwayDistance = Math.max(0, parentHeight - stickyHeight);
+    }
   }
 
   /** Phase 2: calculate opacity and kinetic values without DOM reads or writes. */
   public update(_scrollY: number, windowHeight: number): void {
     if (!this.container || this.chars.length === 0) return;
 
-    // Element enters screen at windowHeight, and reveals fully around 40% of viewport
-    const start = windowHeight;
-    const end = windowHeight * 0.4;
+    let progress = 0;
 
-    const viewportTop = this.containerTop - _scrollY;
-    let rawProgress = mapRange(start, end, 0, 1, viewportTop);
-    let progress = clamp(rawProgress, 0, 1);
+    if (this.stickyContainer && this.stickyRunwayDistance > 100) {
+      // Pinned sticky mode: progress tracks scroll through sticky runway
+      const runwayProgress = (_scrollY - this.stickyStartScroll) / this.stickyRunwayDistance;
+      progress = clamp(runwayProgress, 0, 1);
+    } else {
+      // Normal reading zone in viewport:
+      // Default: starts at 80% of windowHeight (comfortably above bottom/taskbar)
+      // and completes around 25% of windowHeight (natural reading zone)
+      const triggerStart = this.options.triggerStart ?? 0.80;
+      const triggerEnd = this.options.triggerEnd ?? 0.25;
 
-    progress = mapRange(this.range[0], this.range[1], 0, 1, progress);
-    progress = clamp(progress, 0, 1);
+      const start = windowHeight * triggerStart;
+      const end = windowHeight * triggerEnd;
+
+      const viewportTop = this.containerTop - _scrollY;
+      const rawProgress = mapRange(start, end, 0, 1, viewportTop);
+      progress = clamp(rawProgress, 0, 1);
+    }
+
+    if (this.range[0] !== 0 || this.range[1] !== 1) {
+      progress = clamp(mapRange(this.range[0], this.range[1], 0, 1, progress), 0, 1);
+    }
 
     const totalChars = this.chars.length;
     this.opacities.length = totalChars;
     this.progressValues.length = totalChars;
 
-    for (let i = 0; i < totalChars; i++) {
-      const charProgressStart = i / totalChars;
-      const charProgressEnd = (i + 1) / totalChars;
+    // Smooth staggered reveal with soft kinetic overlap between adjacent characters
+    const overlap = 0.25;
+    const stepSize = (1 - overlap) / Math.max(1, totalChars);
 
-      const charProgress = clamp(mapRange(charProgressStart, charProgressEnd, 0, 1, progress), 0, 1);
+    for (let i = 0; i < totalChars; i++) {
+      const charStart = i * stepSize;
+      const charEnd = Math.min(1, charStart + stepSize + overlap);
+
+      const charProgress = clamp(mapRange(charStart, charEnd, 0, 1, progress), 0, 1);
       this.progressValues[i] = charProgress;
 
       const charOpacity = mapRange(0, 1, this.baseOpacity, 1, charProgress);

@@ -21,7 +21,8 @@ export const TestItemCard: React.FC<TestItemCardProps> = ({ item, index }) => {
   return (
     <Link
       href={`/test/${item.slug}`}
-      className="group relative flex flex-col justify-between rounded-2xl border border-zinc-800/90 bg-[#09090c]/80 p-6 backdrop-blur-xl transition-all duration-300 hover:border-violet-500/50 hover:bg-[#0c0c12] hover:shadow-2xl hover:shadow-violet-950/20"
+      style={{ contentVisibility: 'auto', containIntrinsicSize: '240px 220px' }}
+      className="group relative flex flex-col justify-between rounded-2xl border border-zinc-800/90 bg-[#09090d] p-6 transition-[border-color,background-color,box-shadow] duration-200 hover:border-violet-500/50 hover:bg-[#0c0c14] hover:shadow-xl hover:shadow-violet-950/20 will-change-auto"
     >
       {/* Top Meta Line */}
       <div>

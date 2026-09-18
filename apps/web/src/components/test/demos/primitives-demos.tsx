@@ -38,7 +38,7 @@ export function ParallaxDemoStage({ knobs }: { knobs: Record<string, any> }) {
 
       {/* Midground Plane */}
       <Parallax speed={0.15} bleed={bleed} className="w-full max-w-2xl px-4 mt-8 z-10">
-        <div className="rounded-3xl border border-zinc-800 bg-zinc-900/80 p-8 shadow-2xl backdrop-blur-xl">
+        <div className="rounded-3xl glass-card p-8 shadow-2xl">
           <div className="flex items-center justify-between">
             <span className="text-xs font-mono font-bold uppercase text-sky-400">Mid-Layer 0.15x</span>
             <span className="text-[10px] font-mono text-zinc-500">origin="auto"</span>
@@ -52,7 +52,7 @@ export function ParallaxDemoStage({ knobs }: { knobs: Record<string, any> }) {
 
       {/* Foreground Hero Card (Controlled by Live Knob Speed) */}
       <Parallax speed={speed} bleed={bleed} className="w-full max-w-xl px-4 mt-12 z-20">
-        <div className="rounded-3xl border border-violet-500/40 bg-gradient-to-br from-violet-950/90 via-zinc-900 to-black p-8 shadow-2xl backdrop-blur-2xl">
+        <div className="rounded-3xl border border-violet-500/30 glass-card p-8 shadow-2xl">
           <div className="flex items-center justify-between">
             <span className="text-xs font-mono font-bold uppercase text-emerald-400">
               Interactive Foreground
@@ -106,15 +106,16 @@ export function RevealDemoStage({ knobs }: { knobs: Record<string, any> }) {
         ].map((item, idx) => (
           <Reveal
             key={`${idx}-${direction}-${distance}-${blur}-${rotateX}`}
+            index={idx}
+            stagger={0.1}
             direction={direction}
             distance={distance}
             blur={blur}
             scale={scale}
             rotateX={rotateX}
-            delay={idx * 0.1}
             duration={0.7}
             threshold={0.15}
-            className="rounded-3xl border border-zinc-800 bg-zinc-900/80 p-8 backdrop-blur-xl shadow-2xl"
+            className="rounded-3xl glass-card p-8 shadow-2xl"
           >
             <span className="text-xs font-mono text-violet-400 font-bold">STAGE 0{idx + 1}</span>
             <h4 className="text-xl font-bold text-white mt-2">{item.title}</h4>
@@ -159,7 +160,7 @@ export function PinDemoStage({ knobs }: { knobs: Record<string, any> }) {
             onLeave={() => pushLog('onLeave: Pin Released')}
             onEnterBack={() => pushLog('onEnterBack: Pin Re-engaged')}
             onLeaveBack={() => pushLog('onLeaveBack: Idle above trigger')}
-            className="w-full rounded-3xl border border-violet-500/40 bg-zinc-900/95 p-8 shadow-2xl backdrop-blur-2xl"
+            className="w-full rounded-3xl border border-violet-500/30 glass-card p-8 shadow-2xl"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -198,7 +199,7 @@ export function PinDemoStage({ knobs }: { knobs: Record<string, any> }) {
         {/* Right: Scrolling Milestones */}
         <div className="space-y-36 py-12">
           {[1, 2, 3, 4].map((step) => (
-            <div key={step} className="rounded-3xl border border-zinc-800 bg-zinc-900/60 p-8 backdrop-blur-xl">
+            <div key={step} className="rounded-3xl glass-card p-8 shadow-xl">
               <span className="text-xs font-mono text-violet-400 font-semibold">CHECKPOINT 0{step}</span>
               <h4 className="text-xl font-bold text-white mt-2">Milestone Card #{step}</h4>
               <p className="text-sm text-zinc-400 mt-2">
@@ -238,7 +239,7 @@ export function ScrollProgressDemoStage({ knobs }: { knobs: Record<string, any> 
         {/* Target Card with Embedded Progress Bar */}
         <div
           ref={targetCardRef}
-          className="rounded-3xl border border-zinc-800 bg-zinc-900/80 p-8 shadow-2xl backdrop-blur-xl space-y-6"
+          className="rounded-3xl glass-card p-8 shadow-2xl space-y-6"
         >
           <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
             <h4 className="text-lg font-bold text-white">Target Element Progress Track</h4>
@@ -317,7 +318,7 @@ export function ScrollTransformDemoStage({ knobs }: { knobs: Record<string, any>
           onSnap={(point) => {
             if (snapRef.current) snapRef.current.textContent = `Snapped at scroll: ${point}px`;
           }}
-          className="w-88 h-96 rounded-3xl border border-violet-500/40 bg-gradient-to-br from-violet-950/90 via-zinc-900 to-black p-8 shadow-2xl backdrop-blur-2xl flex flex-col justify-between"
+          className="w-88 h-96 rounded-3xl border border-violet-500/30 glass-card p-8 shadow-2xl flex flex-col justify-between"
         >
           <div>
             <div className="flex items-center justify-between">
@@ -368,7 +369,7 @@ export function ScrollDrawDemoStage({ knobs }: { knobs: Record<string, any> }) {
         </p>
       </div>
 
-      <div className="sticky top-36 z-20 w-88 h-88 rounded-3xl border border-zinc-800 bg-zinc-900/90 p-8 shadow-2xl flex flex-col items-center justify-center">
+      <div className="sticky top-36 z-20 w-88 h-88 rounded-3xl glass-card p-8 shadow-2xl flex flex-col items-center justify-center">
         <svg viewBox="0 0 200 200" className="w-64 h-64 overflow-visible" fill="none">
           {/* Subtle background track */}
           <path

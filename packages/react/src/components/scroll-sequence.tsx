@@ -29,6 +29,7 @@ export const ScrollSequence = React.memo(
       className = '',
       height = '300vh',
       poster,
+      children,
       style,
       ...domProps
     } = props;
@@ -113,6 +114,7 @@ export const ScrollSequence = React.memo(
       >
         <div className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center bg-black">
           <canvas ref={canvasRef} className="w-full h-full object-cover" />
+          {children}
         </div>
       </div>
     );

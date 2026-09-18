@@ -213,7 +213,10 @@ export const TestDetailView: React.FC<TestDetailViewProps> = ({ item }) => {
       </div>
 
       {/* Production-Ready Ditto Code Block */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-16 w-full space-y-12">
+      <div 
+        className="max-w-7xl mx-auto px-4 sm:px-6 pt-16 w-full space-y-12"
+        style={{ contentVisibility: 'auto', containIntrinsicSize: '0 800px' }}
+      >
         <div className="space-y-4">
           <div className="flex items-center gap-2 font-mono text-sm text-violet-400 font-bold">
             <Code2 className="w-5 h-5" />

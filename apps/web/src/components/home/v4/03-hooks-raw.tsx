@@ -581,12 +581,12 @@ export function HooksRawSection() {
         lastUpdateTextRef.current.textContent = `${deltaMs.toFixed(1)} ms ago`;
       }
       if (updateRateTextRef.current) {
-        const rateHz = Math.max(30, Math.min(240, Math.round(1000 / deltaMs)));
-        updateRateTextRef.current.textContent = `${rateHz > 0 ? rateHz : 60} Hz`;
+        const rateHz = Math.min(240, Math.max(1, Math.round(1000 / deltaMs)));
+        updateRateTextRef.current.textContent = `${rateHz} Hz`;
       }
 
-      // Smoothly update waveform path without React re-render
-      if (now - lastWaveUpdate >= 60) {
+      // Smoothly update waveform path without React re-render (~15Hz throttle)
+      if (now - lastWaveUpdate >= 66) {
         lastWaveUpdate = now;
         const pts = historyPointsRef.current;
         pts.shift();
@@ -606,10 +606,10 @@ export function HooksRawSection() {
     // 2. Hardware FPS telemetry synced with central Ticker (Zero competing RAF loops!)
     const fpsTimer = setInterval(() => {
       if (!isVisibleRef.current) return;
-      const { fps } = ticker.getFrameRate();
-      const displayFps = Math.max(30, Math.min(240, fps || 60));
+      const { fps, isIdle, targetFps } = ticker.getFrameRate();
+      const displayFps = isIdle ? targetFps : Math.min(240, Math.max(1, fps));
       if (fpsBadgeRef.current) {
-        fpsBadgeRef.current.textContent = `${displayFps} FPS`;
+        fpsBadgeRef.current.textContent = isIdle ? `${displayFps} FPS (idle)` : `${displayFps} FPS`;
       }
     }, 1000);
 

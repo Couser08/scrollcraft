@@ -5,6 +5,7 @@ import { ScrollValue } from '../scroll-value';
 import { TransformSolver } from '../transform-solver';
 import { DrawSolver } from '../draw-solver';
 import { TextRevealSolver } from '../text-reveal';
+import { StackedCardsSolver } from '../stacked-cards-solver';
 import { GlobalRevealObserver } from '../reveal';
 import { TransformComposer } from '../dom';
 
@@ -361,4 +362,113 @@ describe('Remediation: Solvers & Runtime Resilience', () => {
       expect(element.style.transform).toBe('');
     });
   });
+
+  describe('M-08: Container-Aware HorizontalScroll, StackedCards offsetTop & TextReveal Reading Zone', () => {
+    it('uses innerContainer.parentElement.clientWidth to prevent slide cut off in bounded containers', () => {
+      // Container width is 1200px (e.g. max-w-7xl), window is 1920px wide
+      mockWindow.innerWidth = 1920;
+
+      const element = {
+        style: {} as Record<string, string>,
+        getBoundingClientRect: () => ({ top: 0, height: 3000 }),
+      } as unknown as HTMLElement;
+
+      const parentWrapper = {
+        clientWidth: 1200,
+      };
+
+      const innerContainer = {
+        style: {} as Record<string, string>,
+        scrollWidth: 3500,
+        parentElement: parentWrapper,
+      } as unknown as HTMLElement;
+
+      const solver = new HorizontalScrollSolver(element, innerContainer, { driver: 'js' });
+      solver.measure();
+
+      // At scroll completion (scrollY = 2000), offset must travel:
+      // -(3500 - 1200) = -2300px.
+      // (If it incorrectly used window.innerWidth=1920, it would be -(3500 - 1920) = -1580px, under-translating by 720px!)
+      const state = solver.update(2000);
+      expect(state.progress).toBe(1);
+      expect(state.offset).toBeCloseTo(-2300, 2);
+    });
+
+    it('computes StackedCards pinStartY accurately using card offsetTop in DOM layout', () => {
+      const container = {
+        offsetHeight: 3000,
+        getBoundingClientRect: () => ({ top: 500, height: 3000 }),
+      } as unknown as HTMLElement;
+
+      const card0 = {
+        offsetHeight: 300,
+        offsetTop: 0,
+        style: {} as Record<string, string>,
+        getBoundingClientRect: () => ({ top: 500, height: 300 }),
+      } as unknown as HTMLElement;
+
+      const card1 = {
+        offsetHeight: 300,
+        offsetTop: 700, // 300px card0 + 400px spacer
+        style: {} as Record<string, string>,
+        getBoundingClientRect: () => ({ top: 1200, height: 300 }),
+      } as unknown as HTMLElement;
+
+      const solver = new StackedCardsSolver(container, [card0, card1], {
+        top: 100,
+        offset: 40,
+        cardDistance: 400,
+      });
+
+      solver.measure();
+      const states = solver.getCardsState();
+      expect(states).toHaveLength(2);
+
+      // Scroll to 1060px: Card 1 pins on Card 0
+      solver.update(1060);
+      solver.render();
+
+      expect(card0.style.pointerEvents).toBe('none');
+      expect(card1.style.pointerEvents).toBe('auto');
+
+      solver.destroy();
+    });
+
+    it('keeps characters pristine at taskbar (viewport bottom) and reveals within reading zone', () => {
+      mockWindow.innerHeight = 1000;
+
+      const container = {
+        getBoundingClientRect: () => ({ top: 1000 }), // exactly at bottom boundary
+      } as unknown as HTMLElement;
+
+      const char = {
+        style: { opacity: '' },
+      } as unknown as HTMLElement;
+
+      const solver = new TextRevealSolver(container, [char], {
+        baseOpacity: 0.1,
+        triggerStart: 0.80,
+        triggerEnd: 0.25,
+      });
+
+      solver.measure();
+
+      // At scrollY = 0: container is at viewportTop = 1000 (at bottom taskbar edge)
+      // Since triggerStart is 0.80 (800px), progress must be 0!
+      solver.update(0, 1000);
+      solver.render();
+
+      expect(char.style.opacity).toBe('0.1');
+
+      // Scroll so container is well inside viewport (viewportTop = 525px, halfway between 800 and 250)
+      solver.update(475, 1000);
+      solver.render();
+
+      expect(Number(char.style.opacity)).toBeGreaterThan(0.1);
+      expect(Number(char.style.opacity)).toBeLessThan(1.0);
+
+      solver.destroy();
+    });
+  });
 });
+

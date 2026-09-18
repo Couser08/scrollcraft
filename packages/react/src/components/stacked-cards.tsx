@@ -31,6 +31,8 @@ export const StackedCards = React.memo(
       minScale = 0.8,
       cardDistance = 400,
       height,
+      asChild = false,
+      children,
       style,
       ...domProps
     } = props;
@@ -39,12 +41,19 @@ export const StackedCards = React.memo(
     const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
     const { engine } = useScrollCraft();
 
+    const cardItems: React.ReactNode[] =
+      asChild && React.isValidElement(children)
+        ? (cards ?? [])
+        : (cards && cards.length > 0)
+        ? cards
+        : React.Children.toArray(children);
+
     const resolvedHeight =
       height !== undefined
         ? typeof height === 'number'
           ? `${height}px`
           : height
-        : `${Math.max(cards.length * (cardDistance + 350) + 800, 1600)}px`;
+        : `${Math.max(cardItems.length * (cardDistance + 350) + 800, 1600)}px`;
 
     useEffect(() => {
       const container = internalRef.current;
@@ -80,9 +89,47 @@ export const StackedCards = React.memo(
         solver.destroy();
         cardRefs.current = [];
       };
-    }, [cards.length, offset, top, scaleStep, minScale, cardDistance, engine]);
+    }, [cardItems.length, offset, top, scaleStep, minScale, cardDistance, engine]);
 
     const mergedRef = composeRefs(forwardedRef, internalRef);
+
+    const cardsList = cardItems.map((card, index) => (
+      <React.Fragment key={index}>
+        <div
+          ref={(el) => {
+            cardRefs.current[index] = el;
+          }}
+          className="w-full origin-top sticky"
+          style={{
+            top: `${top + index * offset}px`,
+            zIndex: index + 1,
+            marginBottom: '0px',
+          }}
+        >
+          {card}
+        </div>
+        {index < cardItems.length - 1 && (
+          <div
+            style={{ height: `${cardDistance}px` }}
+            aria-hidden="true"
+          />
+        )}
+      </React.Fragment>
+    ));
+
+    if (asChild && React.isValidElement(children)) {
+      const child = children as React.ReactElement<any>;
+      const childRef = (child.props as any)?.ref ?? (child as any).ref;
+      const combinedRef = composeRefs(childRef, mergedRef);
+      return React.cloneElement(child, {
+        ...domProps,
+        ...child.props,
+        ref: combinedRef,
+        className: ['relative w-full', className, child.props.className].filter(Boolean).join(' '),
+        style: { position: 'relative', minHeight: resolvedHeight, ...style, ...child.props.style },
+        children: cardsList,
+      });
+    }
 
     return (
       <div
@@ -91,22 +138,7 @@ export const StackedCards = React.memo(
         style={{ position: 'relative', minHeight: resolvedHeight, ...style }}
         {...domProps}
       >
-        {cards.map((card, index) => (
-          <div
-            key={index}
-            ref={(el) => {
-              cardRefs.current[index] = el;
-            }}
-            className="w-full origin-top sticky"
-            style={{
-              top: `${top + index * offset}px`,
-              zIndex: index + 1,
-              marginBottom: index < cards.length - 1 ? `${cardDistance}px` : '0px',
-            }}
-          >
-            {card}
-          </div>
-        ))}
+        {cardsList}
       </div>
     );
   })

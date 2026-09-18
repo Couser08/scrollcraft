@@ -2,9 +2,14 @@
 
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { DocsSidebar } from './docs-sidebar';
-import { TocItem } from './docs-toc';
 import { DOCS_CATEGORIES } from './docs-data';
 import { useScrollCraft } from '@scrollcraft/react';
+
+export interface TocItem {
+  id: string;
+  title: string;
+  level?: number;
+}
 import dynamic from 'next/dynamic';
 import { DocGettingStarted } from './sections/doc-getting-started';
 
@@ -95,14 +100,12 @@ export function DocsView() {
     const cat = DOCS_CATEGORIES.find((c) => c.items.some((i) => i.id === activeSection));
     if (cat?.id === 'primitives') {
       return [
-        { id: 'demo', title: 'Live Demonstration' },
         { id: 'syntax', title: 'Syntax & Production Code' },
         { id: 'capabilities', title: 'Capabilities & Props' },
       ];
     }
     if (cat?.id === 'hooks') {
       return [
-        { id: 'demo', title: 'Runtime Simulator' },
         { id: 'syntax', title: 'Syntax & Signature' },
         { id: 'capabilities', title: 'Capabilities & Return Values' },
       ];

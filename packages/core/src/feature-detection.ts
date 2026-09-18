@@ -83,11 +83,15 @@ export function detectPerformanceTier(): PerformanceTier {
 
   try {
     const cores = typeof navigator !== 'undefined' ? (navigator.hardwareConcurrency || 4) : 4;
+    const memory = typeof navigator !== 'undefined' && 'deviceMemory' in navigator ? (navigator as any).deviceMemory : 8;
     const isMobile = typeof navigator !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent || '');
     const isSafari = typeof navigator !== 'undefined' && /^((?!chrome|android).)*safari/i.test(navigator.userAgent || '');
 
-    // Low Tier: 2 or fewer cores (budget / legacy devices)
-    if (cores <= 2) {
+    // Low Tier:
+    // 1. 2 or fewer cores (budget / legacy devices)
+    // 2. 4GB or less system memory (legacy or entry devices)
+    // 3. 4 or fewer threads on desktop (e.g. 2015-era dual-core 4-thread laptops)
+    if (cores <= 2 || memory <= 4 || (cores <= 4 && !isMobile)) {
       cachedTier = 'low';
       return cachedTier;
     }

@@ -13,7 +13,6 @@
 import React from 'react';
 import { CodeViewer } from '@/components/ui/code-viewer';
 import { Activity } from 'lucide-react';
-import { HookPreview } from '../interactive/hook-preview';
 
 interface DocHooksProps {
   hookId: string;
@@ -372,11 +371,6 @@ export const DocHooks: React.FC<DocHooksProps> = ({ hookId }) => {
             <strong className="text-white">What it does:</strong> {hook.whatItDoes}
           </p>
         </div>
-      </div>
-
-      {/* Interactive Runtime Simulator */}
-      <div id="demo" className="space-y-3 scroll-mt-24">
-        <HookPreview hookId={hookId} />
       </div>
 
       {/* Minimal 5-10 Line Syntax Highlighted Code Snippet */}
