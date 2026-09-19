@@ -97,6 +97,12 @@ export interface ScrollProviderProps {
    * Default: false
    */
   restoreScroll?: boolean;
+  /** Automatically permit nested scrollable elements to scroll natively without hijacking wheel events. Default: true */
+  allowNestedScroll?: boolean;
+  /** Custom function to prevent smooth scrolling on traversed elements (e.g. modals, maps) */
+  prevent?: (node: HTMLElement) => boolean;
+  /** Automatically pause/resume Lenis when wrapper overflow changes (e.g. modal adds overflow: hidden). Default: true */
+  autoToggle?: boolean;
 }
 
 export type ScrollCraftProviderProps = ScrollProviderProps;

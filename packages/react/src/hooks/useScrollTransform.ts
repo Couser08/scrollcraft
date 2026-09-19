@@ -72,7 +72,7 @@ export function useScrollTransform<T extends HTMLElement = HTMLDivElement>(
 ): React.RefObject<T | null> | void {
   const { ref, options, isHeadless } = useDualRef<T, ScrollTransformOptions>(refOrOptions, maybeOptions);
   const solverRef = useRef<TransformSolver | null>(null);
-  const { subscribe, reducedMotion, scrollTo } = useScrollCraft();
+  const { engine, subscribe, reducedMotion, scrollTo } = useScrollCraft();
 
   const optionsKey = JSON.stringify({
     preset: options.preset,
@@ -104,10 +104,15 @@ export function useScrollTransform<T extends HTMLElement = HTMLDivElement>(
     solverRef.current = solver;
 
     const taskId = `transform-${Math.random().toString(36).slice(2, 8)}`;
-
     let isMounted = true;
+    let settledFrames = 0;
+
     const measureGeometry = () => {
-      if (isMounted) solver.measure();
+      if (isMounted) {
+        solver.measure();
+        settledFrames = 0;
+        ticker.resumeTask(taskId);
+      }
     };
     const unobserveElement = GlobalResizeManager.observe(element, measureGeometry);
     const unobserveParent = element.parentElement
@@ -119,19 +124,35 @@ export function useScrollTransform<T extends HTMLElement = HTMLDivElement>(
       });
     }
 
+    const unbindEngineRemeasure = engine?.onRemeasure(measureGeometry);
+
     let currentScroll = 0;
     let currentVelocity = 0;
+    let lastScroll = -999999;
 
     const unsubscribe = subscribe((metrics) => {
       currentScroll = metrics.scroll;
       currentVelocity = metrics.velocity;
+      if (Math.abs(metrics.velocity) >= 0.001 || Math.abs(metrics.scroll - lastScroll) > 0.1) {
+        lastScroll = metrics.scroll;
+        settledFrames = 0;
+        ticker.resumeTask(taskId);
+      }
     });
 
-    ticker.add(`${taskId}-update`, 'update', (dt) => {
+    ticker.add(taskId, 'update', (dt) => {
       solver.update(currentScroll, currentVelocity, dt, reducedMotion);
+      if (solver.isSettled() && Math.abs(currentVelocity) < 0.001) {
+        settledFrames++;
+        if (settledFrames >= 3) {
+          ticker.pauseTask(taskId);
+        }
+      } else {
+        settledFrames = 0;
+      }
     });
 
-    ticker.add(`${taskId}-render`, 'render', () => {
+    ticker.add(taskId, 'render', () => {
       solver.render();
     });
 
@@ -140,14 +161,14 @@ export function useScrollTransform<T extends HTMLElement = HTMLDivElement>(
     return () => {
       isMounted = false;
       unsubscribe();
+      unbindEngineRemeasure?.();
       unobserveElement();
       unobserveParent();
-      ticker.remove(`${taskId}-update`);
-      ticker.remove(`${taskId}-render`);
+      ticker.remove(taskId);
       solver.destroy();
       solverRef.current = null;
     };
-  }, [reducedMotion, subscribe, scrollTo, optionsKey, ref]);
+  }, [reducedMotion, subscribe, scrollTo, optionsKey, ref, engine]);
 
   if (isHeadless) {
     return ref;

@@ -26,6 +26,7 @@ export const ScrollSequence = React.memo(
       speed,
       maxDpr,
       windowSize,
+      fit = 'contain',
       className = '',
       height = '300vh',
       poster,
@@ -54,9 +55,51 @@ export const ScrollSequence = React.memo(
         if (ctx) {
           const w = img.naturalWidth || canvas.clientWidth || 300;
           const h = img.naturalHeight || canvas.clientHeight || 150;
-          canvas.width = w;
-          canvas.height = h;
-          ctx.drawImage(img, 0, 0, w, h);
+          const canvasWidth = canvas.clientWidth || 300;
+          const canvasHeight = canvas.clientHeight || 150;
+          const dpr = Math.min(window.devicePixelRatio || 1, maxDpr ?? 2);
+          canvas.width = canvasWidth * dpr;
+          canvas.height = canvasHeight * dpr;
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'medium';
+
+          const imgRatio = w / h;
+          const canvasRatio = canvasWidth / canvasHeight;
+          let drawWidth: number;
+          let drawHeight: number;
+          let offsetX: number;
+          let offsetY: number;
+
+          if (fit === 'cover') {
+            if (imgRatio > canvasRatio) {
+              drawHeight = canvasHeight;
+              drawWidth = w * (canvasHeight / h);
+              offsetX = (canvasWidth - drawWidth) / 2;
+              offsetY = 0;
+            } else {
+              drawWidth = canvasWidth;
+              drawHeight = h * (canvasWidth / w);
+              offsetX = 0;
+              offsetY = (canvasHeight - drawHeight) / 2;
+            }
+          } else {
+            // contain: preserve aspect ratio, fully centered, zero clipping
+            if (imgRatio > canvasRatio) {
+              drawWidth = canvasWidth;
+              drawHeight = h * (canvasWidth / w);
+              offsetX = 0;
+              offsetY = (canvasHeight - drawHeight) / 2;
+            } else {
+              drawHeight = canvasHeight;
+              drawWidth = w * (canvasHeight / h);
+              offsetX = (canvasWidth - drawWidth) / 2;
+              offsetY = 0;
+            }
+          }
+
+          ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+          ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
         }
       };
       img.src = poster;
@@ -64,7 +107,7 @@ export const ScrollSequence = React.memo(
       return () => {
         active = false;
       };
-    }, [poster]);
+    }, [poster, fit, maxDpr]);
 
     useEffect(() => {
       const container = internalRef.current;
@@ -76,6 +119,7 @@ export const ScrollSequence = React.memo(
         speed,
         maxDpr,
         windowSize,
+        fit,
       });
 
       const taskId = `sequence-${Math.random().toString(36).slice(2, 8)}`;
@@ -101,7 +145,7 @@ export const ScrollSequence = React.memo(
         ticker.remove(taskId);
         solver.destroy();
       };
-    }, [framesKey, speed, maxDpr, windowSize, engine]);
+    }, [framesKey, speed, maxDpr, windowSize, fit, engine]);
 
     const mergedRef = composeRefs(forwardedRef, internalRef);
 
@@ -113,7 +157,10 @@ export const ScrollSequence = React.memo(
         {...domProps}
       >
         <div className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center bg-black">
-          <canvas ref={canvasRef} className="w-full h-full object-cover" />
+          <canvas
+            ref={canvasRef}
+            className={fit === 'cover' ? 'w-full h-full object-cover' : 'w-full h-full object-contain'}
+          />
           {children}
         </div>
       </div>

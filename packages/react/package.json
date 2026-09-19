@@ -1,6 +1,6 @@
 {
   "name": "@scrollcraft/react",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "React & Next.js-native scroll toolkit with zero-rerender state, asChild Slot composition, and Lenis normalization",
   "main": "./dist/index.js",
   "module": "./dist/index.js",

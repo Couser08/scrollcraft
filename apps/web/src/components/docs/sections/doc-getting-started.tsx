@@ -18,10 +18,10 @@ interface DocGettingStartedProps {
 }
 
 const PM_COMMANDS = {
-  pnpm: 'pnpm add @scrollcraft/core@0.1.1 @scrollcraft/react@0.1.1',
-  npm: 'npm install @scrollcraft/core@0.1.1 @scrollcraft/react@0.1.1',
-  yarn: 'yarn add @scrollcraft/core@0.1.1 @scrollcraft/react@0.1.1',
-  bun: 'bun add @scrollcraft/core@0.1.1 @scrollcraft/react@0.1.1',
+  pnpm: 'pnpm add @scrollcraft/core@beta @scrollcraft/react@beta',
+  npm: 'npm install @scrollcraft/core@beta @scrollcraft/react@beta',
+  yarn: 'yarn add @scrollcraft/core@beta @scrollcraft/react@beta',
+  bun: 'bun add @scrollcraft/core@beta @scrollcraft/react@beta',
 };
 
 const NEXT_LAYOUT_SETUP = `// app/layout.tsx
@@ -180,7 +180,7 @@ export const DocGettingStarted: React.FC<DocGettingStartedProps> = ({ sectionId 
                 Notice
               </span>
               <span>
-                {activePm === 'yarn' ? 'Yarn' : 'Bun'} package registry integration is in validation. For v0.1.1 Beta, please use <strong>pnpm</strong> or <strong>npm</strong>.
+                {activePm === 'yarn' ? 'Yarn' : 'Bun'} package registry integration is in validation. For v0.2.0 Beta, please use <strong>pnpm</strong> or <strong>npm</strong>.
               </span>
             </div>
           )}
@@ -217,19 +217,137 @@ export const DocGettingStarted: React.FC<DocGettingStartedProps> = ({ sectionId 
         </div>
 
         {/* Release Status Banner */}
-        <div className="rounded-xl bg-gradient-to-r from-violet-950/30 via-zinc-900/50 to-cyan-950/30 border border-violet-500/20 p-4 space-y-2">
+        <div className="rounded-xl bg-gradient-to-r from-emerald-950/30 via-zinc-900/50 to-violet-950/30 border border-emerald-500/30 p-4 space-y-2">
           <div className="flex flex-wrap items-center gap-2">
             <span className="flex h-2 w-2 relative">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
             </span>
-            <span className="text-xs font-mono font-bold text-emerald-400">Current Release: v0.1.1 Beta (LIVE)</span>
+            <span className="text-xs font-mono font-bold text-emerald-400">Current Release: v0.2.0 Beta (LIVE)</span>
             <span className="text-zinc-600 font-mono text-xs">|</span>
-            <span className="text-xs font-mono font-bold text-cyan-400">v0.2.0 Beta (Coming in 1–2 weeks)</span>
+            <span className="text-xs font-mono font-bold text-violet-400">Next Horizon: v0.3.0 (Planned)</span>
           </div>
-          <p className="text-xs text-zinc-400 font-sans leading-relaxed">
-            Install the current public release with <code className="text-zinc-200 font-mono">npm install @scrollcraft/core@0.1.1</code>. The upcoming v0.2.0 milestone introduces the Universal Dual API, 5 new primitives, 4 new hooks, and the zero-overhead DevTools Inspector Studio.
+          <p className="text-xs text-zinc-300 font-sans leading-relaxed">
+            Install the active release with <code className="text-emerald-300 font-mono font-semibold">npm install @scrollcraft/core@beta @scrollcraft/react@beta</code>. <strong className="text-white">v0.2.0 Beta</strong> is the single recommended package, featuring the Universal Dual API, 11 production primitives, 9 hooks, and zero React Virtual DOM re-renders. (Note: Early internal cycles <code className="text-zinc-400 font-mono">v0.1.0</code> and <code className="text-zinc-400 font-mono">v0.1.1</code> served strictly as soak baselines and are deprecated).
           </p>
+        </div>
+
+        {/* Feature Support Matrix Table */}
+        <div id="feature-matrix" className="rounded-xl border border-zinc-800 bg-[#09090b] p-5 space-y-4 shadow-lg scroll-mt-24">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-zinc-800 pb-3">
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-sm sm:text-base font-bold text-white font-mono">Feature Support Matrix</h3>
+                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                  v0.2.0 Beta
+                </span>
+              </div>
+              <p className="text-xs text-zinc-400 font-sans mt-0.5">
+                Transparent disclosure of primitive capabilities, polymorphic slot composition, accessibility, and hardware acceleration drivers.
+              </p>
+            </div>
+            <div className="flex items-center gap-3 text-[10px] sm:text-xs font-mono text-zinc-400 shrink-0">
+              <span className="flex items-center gap-1"><span className="text-emerald-400 font-bold">✅</span> Shipped</span>
+              <span className="flex items-center gap-1"><span className="text-amber-400 font-bold">🔜</span> v0.3.0</span>
+              <span className="flex items-center gap-1"><span className="text-zinc-500 font-bold">—</span> N/A</span>
+            </div>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs font-mono border-collapse">
+              <thead>
+                <tr className="border-b border-zinc-800 text-zinc-400">
+                  <th className="py-2.5 px-3 font-semibold text-white">Primitive</th>
+                  <th className="py-2.5 px-3 font-semibold text-center">asChild (Polymorphic)</th>
+                  <th className="py-2.5 px-3 font-semibold text-center">respectReducedMotion (A11y)</th>
+                  <th className="py-2.5 px-3 font-semibold text-center">Native Driver</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-zinc-800/60 text-zinc-300">
+                <tr className="hover:bg-zinc-900/40 transition-colors">
+                  <td className="py-2.5 px-3 font-semibold text-violet-300">&lt;Parallax /&gt;</td>
+                  <td className="py-2.5 px-3 text-center text-emerald-400 font-bold">✅</td>
+                  <td className="py-2.5 px-3 text-center text-emerald-400 font-bold">✅</td>
+                  <td className="py-2.5 px-3 text-center text-emerald-400 font-semibold">✅ (driver: &apos;css&apos;)</td>
+                </tr>
+                <tr className="hover:bg-zinc-900/40 transition-colors">
+                  <td className="py-2.5 px-3 font-semibold text-violet-300">&lt;Reveal /&gt;</td>
+                  <td className="py-2.5 px-3 text-center text-emerald-400 font-bold">✅</td>
+                  <td className="py-2.5 px-3 text-center text-emerald-400 font-bold">✅</td>
+                  <td className="py-2.5 px-3 text-center text-zinc-500">—</td>
+                </tr>
+                <tr className="hover:bg-zinc-900/40 transition-colors">
+                  <td className="py-2.5 px-3 font-semibold text-violet-300">&lt;ScrollTransform /&gt;</td>
+                  <td className="py-2.5 px-3 text-center text-emerald-400 font-bold">✅</td>
+                  <td className="py-2.5 px-3 text-center text-emerald-400 font-bold">✅</td>
+                  <td className="py-2.5 px-3 text-center text-zinc-500">—</td>
+                </tr>
+                <tr className="hover:bg-zinc-900/40 transition-colors">
+                  <td className="py-2.5 px-3 font-semibold text-violet-300">&lt;ScrollDraw /&gt;</td>
+                  <td className="py-2.5 px-3 text-center text-emerald-400 font-bold">✅</td>
+                  <td className="py-2.5 px-3 text-center text-emerald-400 font-bold">✅</td>
+                  <td className="py-2.5 px-3 text-center text-zinc-500">—</td>
+                </tr>
+                <tr className="hover:bg-zinc-900/40 transition-colors">
+                  <td className="py-2.5 px-3 font-semibold text-violet-300">&lt;Pin /&gt;</td>
+                  <td className="py-2.5 px-3 text-center text-emerald-400 font-bold">✅</td>
+                  <td className="py-2.5 px-3 text-center text-amber-400 font-semibold">🔜</td>
+                  <td className="py-2.5 px-3 text-center text-zinc-400">Partial (disableTransform)</td>
+                </tr>
+                <tr className="hover:bg-zinc-900/40 transition-colors">
+                  <td className="py-2.5 px-3 font-semibold text-violet-300">&lt;HorizontalScroll /&gt;</td>
+                  <td className="py-2.5 px-3 text-center text-zinc-500">—</td>
+                  <td className="py-2.5 px-3 text-center text-amber-400 font-semibold">🔜</td>
+                  <td className="py-2.5 px-3 text-center text-emerald-400 font-semibold">✅ (CSS Snap)</td>
+                </tr>
+                <tr className="hover:bg-zinc-900/40 transition-colors">
+                  <td className="py-2.5 px-3 font-semibold text-violet-300">&lt;StackedCards /&gt;</td>
+                  <td className="py-2.5 px-3 text-center text-emerald-400 font-bold">✅</td>
+                  <td className="py-2.5 px-3 text-center text-amber-400 font-semibold">🔜</td>
+                  <td className="py-2.5 px-3 text-center text-zinc-500">—</td>
+                </tr>
+                <tr className="hover:bg-zinc-900/40 transition-colors">
+                  <td className="py-2.5 px-3 font-semibold text-violet-300">&lt;Magnetic /&gt;</td>
+                  <td className="py-2.5 px-3 text-center text-emerald-400 font-bold">✅</td>
+                  <td className="py-2.5 px-3 text-center text-amber-400 font-semibold">🔜</td>
+                  <td className="py-2.5 px-3 text-center text-zinc-500">—</td>
+                </tr>
+                <tr className="hover:bg-zinc-900/40 transition-colors">
+                  <td className="py-2.5 px-3 font-semibold text-violet-300">&lt;ScrollProgress /&gt;</td>
+                  <td className="py-2.5 px-3 text-center text-emerald-400 font-bold">✅</td>
+                  <td className="py-2.5 px-3 text-center text-emerald-400 font-bold">✅</td>
+                  <td className="py-2.5 px-3 text-center text-emerald-400 font-semibold">✅ (CSS Timeline)</td>
+                </tr>
+                <tr className="hover:bg-zinc-900/40 transition-colors">
+                  <td className="py-2.5 px-3 font-semibold text-violet-300">&lt;VelocityMarquee /&gt;</td>
+                  <td className="py-2.5 px-3 text-center text-zinc-500">—</td>
+                  <td className="py-2.5 px-3 text-center text-amber-400 font-semibold">🔜</td>
+                  <td className="py-2.5 px-3 text-center text-zinc-500">—</td>
+                </tr>
+                <tr className="hover:bg-zinc-900/40 transition-colors">
+                  <td className="py-2.5 px-3 font-semibold text-violet-300">&lt;ScrollSequence /&gt;</td>
+                  <td className="py-2.5 px-3 text-center text-zinc-500">—</td>
+                  <td className="py-2.5 px-3 text-center text-amber-400 font-semibold">🔜</td>
+                  <td className="py-2.5 px-3 text-center text-zinc-500">— (Canvas 2D Ticker)</td>
+                </tr>
+                <tr className="hover:bg-zinc-900/40 transition-colors">
+                  <td className="py-2.5 px-3 font-semibold text-violet-300">&lt;TextReveal /&gt;</td>
+                  <td className="py-2.5 px-3 text-center text-emerald-400 font-bold">✅</td>
+                  <td className="py-2.5 px-3 text-center text-amber-400 font-semibold">🔜</td>
+                  <td className="py-2.5 px-3 text-center text-zinc-500">—</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div className="pt-2 border-t border-zinc-800/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-[11px] text-zinc-400 font-sans">
+            <p>
+              In accordance with mature engineering standards (like React and MDN compatibility tables), transparently disclosing capabilities alongside current boundaries builds enduring developer trust.
+            </p>
+            <span className="font-mono text-violet-400 shrink-0">
+              🔜 = Scheduled for v0.3.0
+            </span>
+          </div>
         </div>
       </section>
 
@@ -245,7 +363,7 @@ export const DocGettingStarted: React.FC<DocGettingStartedProps> = ({ sectionId 
         <CodeViewer code={NEXT_LAYOUT_SETUP} fileName="app/layout.tsx" />
 
         {/* ScrollProvider Props Table */}
-        <div className="space-y-3 pt-3">
+        <div id="provider-props" className="space-y-3 pt-3 scroll-mt-24">
           <span className="text-xs font-mono uppercase tracking-wider text-zinc-400 block font-semibold">
             ScrollProvider Configuration Options
           </span>
@@ -275,7 +393,7 @@ export const DocGettingStarted: React.FC<DocGettingStartedProps> = ({ sectionId 
       </section>
 
       {/* 3. Quickstart Component Example */}
-      <section id="quick-example" className="space-y-4 border-b border-zinc-800 pb-8">
+      <section id="quick-example" className="space-y-4 border-b border-zinc-800 pb-8 scroll-mt-24">
         <div>
           <h2 className="text-xl font-bold text-white font-mono mb-1">Quickstart Component</h2>
           <p className="text-xs text-zinc-400 font-sans">
@@ -287,7 +405,7 @@ export const DocGettingStarted: React.FC<DocGettingStartedProps> = ({ sectionId 
       </section>
 
       {/* 4. Core Architecture Invariant */}
-      <section className="p-5 rounded-2xl bg-zinc-900/70 border border-zinc-800 text-xs font-mono text-zinc-300 space-y-2">
+      <section id="core-invariants" className="p-5 rounded-2xl bg-zinc-900/70 border border-zinc-800 text-xs font-mono text-zinc-300 space-y-2 scroll-mt-24">
         <div className="flex items-center gap-2 text-white font-bold">
           <ShieldCheck className="w-4 h-4 text-emerald-400" />
           <span>Core Engineering Invariants</span>
@@ -300,7 +418,7 @@ export const DocGettingStarted: React.FC<DocGettingStartedProps> = ({ sectionId 
       </section>
 
       {/* 5. Architecture & Attributions */}
-      <section className="p-5 rounded-2xl bg-zinc-900/40 border border-zinc-800/80 text-xs text-zinc-400 space-y-3 font-sans">
+      <section id="architecture-attributions" className="p-5 rounded-2xl bg-zinc-900/40 border border-zinc-800/80 text-xs text-zinc-400 space-y-3 font-sans scroll-mt-24">
         <div className="flex items-center gap-2 text-white font-mono font-bold">
           <Heart className="w-4 h-4 text-violet-400" />
           <span>Architecture &amp; Attributions</span>

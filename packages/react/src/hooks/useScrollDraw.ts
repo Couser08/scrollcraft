@@ -33,7 +33,7 @@ export function useScrollDraw<T extends SVGGeometryElement = SVGPathElement>(
 ): React.RefObject<T | null> | void {
   const { ref, options, isHeadless } = useDualRef<T, ScrollDrawOptions>(refOrOptions, maybeOptions);
   const solverRef = useRef<DrawSolver | null>(null);
-  const { subscribe, reducedMotion } = useScrollCraft();
+  const { engine, subscribe, reducedMotion } = useScrollCraft();
 
   const optionsKey = JSON.stringify({
     start: options.start,
@@ -61,10 +61,15 @@ export function useScrollDraw<T extends SVGGeometryElement = SVGPathElement>(
     }
 
     const taskId = `draw-${Math.random().toString(36).slice(2, 8)}`;
-
     let isMounted = true;
+    let settledFrames = 0;
+
     const measureGeometry = () => {
-      if (isMounted) solver.measure();
+      if (isMounted) {
+        solver.measure();
+        settledFrames = 0;
+        ticker.resumeTask(taskId);
+      }
     };
     const unobserveElement = GlobalResizeManager.observe(element, measureGeometry);
     const unobserveParent = element.parentElement
@@ -76,20 +81,36 @@ export function useScrollDraw<T extends SVGGeometryElement = SVGPathElement>(
       });
     }
 
+    const unbindEngineRemeasure = engine?.onRemeasure(measureGeometry);
+
     let currentScroll = 0;
     let currentVelocity = 0;
+    let lastScroll = -999999;
 
     const unsubscribe = subscribe((metrics) => {
       currentScroll = metrics.scroll;
       currentVelocity = metrics.velocity;
+      if (Math.abs(metrics.velocity) >= 0.001 || Math.abs(metrics.scroll - lastScroll) > 0.1) {
+        lastScroll = metrics.scroll;
+        settledFrames = 0;
+        ticker.resumeTask(taskId);
+      }
     });
 
-    ticker.add(`${taskId}-update`, 'update', (dt) => {
+    ticker.add(taskId, 'update', (dt) => {
       solver.update(currentScroll, currentVelocity, dt, reducedMotion);
       onDrawProgressRef.current?.(solver.getProgress());
+      if (solver.isSettled() && Math.abs(currentVelocity) < 0.001) {
+        settledFrames++;
+        if (settledFrames >= 3) {
+          ticker.pauseTask(taskId);
+        }
+      } else {
+        settledFrames = 0;
+      }
     });
 
-    ticker.add(`${taskId}-render`, 'render', () => {
+    ticker.add(taskId, 'render', () => {
       solver.render();
     });
 
@@ -98,14 +119,14 @@ export function useScrollDraw<T extends SVGGeometryElement = SVGPathElement>(
     return () => {
       isMounted = false;
       unsubscribe();
+      unbindEngineRemeasure?.();
       unobserveElement();
       unobserveParent();
-      ticker.remove(`${taskId}-update`);
-      ticker.remove(`${taskId}-render`);
+      ticker.remove(taskId);
       solver.destroy();
       solverRef.current = null;
     };
-  }, [reducedMotion, subscribe, optionsKey, ref]);
+  }, [reducedMotion, subscribe, optionsKey, ref, engine]);
 
   if (isHeadless) {
     return ref;

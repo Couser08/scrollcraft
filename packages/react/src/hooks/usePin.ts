@@ -53,7 +53,7 @@ export function usePin<T extends HTMLElement = HTMLDivElement>(
     progressValue: externalProgressValue,
   } = options;
 
-  const { engine } = useScrollCraft();
+  const { engine, subscribe } = useScrollCraft();
 
   const [progress, setProgress] = useState(0);
   const [pinOffsetY, setPinOffsetY] = useState(0);
@@ -84,8 +84,32 @@ export function usePin<T extends HTMLElement = HTMLDivElement>(
 
     let isMounted = true;
 
-    node.style.position = 'sticky';
-    node.style.top = `${top}px`;
+    // Detect clipping ancestors that break native CSS position: sticky
+    let hasClippingAncestor = false;
+    let parent = node.parentElement;
+    while (parent && parent !== document.body && parent !== document.documentElement) {
+      const computed = typeof window.getComputedStyle === 'function' ? window.getComputedStyle(parent) : null;
+      if (computed) {
+        const overflow = computed.overflow + computed.overflowY + computed.overflowX;
+        if (/(hidden|auto|scroll)/.test(overflow)) {
+          hasClippingAncestor = true;
+          if (typeof process !== 'undefined' && process.env?.NODE_ENV !== 'production') {
+            console.warn(
+              `[ScrollCraft] <Pin> element cannot stick natively because ancestor <${parent.tagName.toLowerCase()} class="${parent.className}"> has overflow: "${computed.overflow}". Falling back to transform simulation.`
+            );
+          }
+          break;
+        }
+      }
+      parent = parent.parentElement;
+    }
+
+    if (!hasClippingAncestor) {
+      node.style.position = 'sticky';
+      node.style.top = `${top}px`;
+    } else {
+      node.style.position = 'relative';
+    }
 
     // Auto-spacing placeholder track generation when pinSpacing is enabled
     let spacerElement: HTMLDivElement | null = null;
@@ -102,31 +126,23 @@ export function usePin<T extends HTMLElement = HTMLDivElement>(
       node.parentNode?.insertBefore(spacerElement, node.nextSibling);
     }
 
-    // Dev diagnostic for overflow containers breaking position: sticky
-    if (typeof process !== 'undefined' && process.env?.NODE_ENV !== 'production') {
-      let parent = node.parentElement;
-      while (parent && parent !== document.body && parent !== document.documentElement) {
-        const computed = window.getComputedStyle(parent);
-        const overflow = computed.overflow + computed.overflowY + computed.overflowX;
-        if (/(hidden|auto|scroll)/.test(overflow)) {
-          console.warn(
-            `[ScrollCraft] <Pin> element cannot stick because ancestor <${parent.tagName.toLowerCase()} class="${parent.className}"> has overflow: "${computed.overflow}". Remove the overflow property or place <Pin> outside this container.`
-          );
-          break;
-        }
-        parent = parent.parentElement;
-      }
-    }
-
     const solver = new PinSolver(node, {
       duration,
       topOffset: top,
       bottomOffset: options.bottom,
-      disableTransform: options.disableTransform ?? true,
+      disableTransform: hasClippingAncestor ? false : (options.disableTransform ?? true),
     });
 
+    const taskId = taskIdRef.current;
+    let settledFrames = 0;
+    let lastScroll = -999999;
+
     const measureGeometry = () => {
-      if (isMounted) solver.measure();
+      if (isMounted) {
+        solver.measure();
+        settledFrames = 0;
+        ticker.resumeTask(taskId);
+      }
     };
     const unobserve = GlobalResizeManager.observe(node, measureGeometry);
     if (typeof document !== 'undefined' && 'fonts' in document) {
@@ -135,11 +151,22 @@ export function usePin<T extends HTMLElement = HTMLDivElement>(
       });
     }
 
-    const taskId = taskIdRef.current;
+    const unbindEngineRemeasure = engine?.onRemeasure(measureGeometry);
+
+    const unsubScroll = subscribe((metrics) => {
+      if (Math.abs(metrics.velocity) >= 0.001 || Math.abs(metrics.scroll - lastScroll) > 0.1) {
+        lastScroll = metrics.scroll;
+        settledFrames = 0;
+        ticker.resumeTask(taskId);
+      }
+    });
+
     let zoneState: 'before' | 'inside' | 'after' = 'before';
 
     ticker.add(taskId, 'update', () => {
-      const scrollY = engine?.getMetrics().scroll ?? (window.scrollY || window.pageYOffset);
+      const metrics = engine?.getMetrics();
+      const scrollY = metrics?.scroll ?? (window.scrollY || window.pageYOffset);
+      const velocity = Math.abs(metrics?.velocity ?? 0);
       const state = solver.update(scrollY);
       const nextProgress = state.progress;
 
@@ -178,6 +205,15 @@ export function usePin<T extends HTMLElement = HTMLDivElement>(
       }
 
       onProgressRef.current?.(nextProgress);
+
+      if (velocity < 0.001) {
+        settledFrames++;
+        if (settledFrames >= 3) {
+          ticker.pauseTask(taskId);
+        }
+      } else {
+        settledFrames = 0;
+      }
     });
 
     ticker.add(taskId, 'render', () => {
@@ -186,6 +222,8 @@ export function usePin<T extends HTMLElement = HTMLDivElement>(
 
     return () => {
       isMounted = false;
+      unsubScroll();
+      unbindEngineRemeasure?.();
       unobserve();
       ticker.remove(taskId);
       solver.destroy();
@@ -204,6 +242,7 @@ export function usePin<T extends HTMLElement = HTMLDivElement>(
     trackState,
     ref,
     engine,
+    subscribe,
   ]);
 
   return {

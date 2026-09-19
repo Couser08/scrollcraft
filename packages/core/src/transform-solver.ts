@@ -105,7 +105,7 @@ export class TransformSolver {
     const elAlign = parts[0] || 'top';
     const vpAlign = parts[1] || 'bottom';
     
-    const scrollTop = window.scrollY || window.pageYOffset;
+    const scrollTop = window.scrollY ?? window.pageYOffset ?? 0;
     const elementTopAbs = rect.top + scrollTop;
     
     let elOffset = 0;
@@ -213,6 +213,10 @@ export class TransformSolver {
     
     this.isVisible = this.progress > 0 && this.progress < 1;
     triggerRegistry.updateProgress(this.id, this.progress);
+  }
+
+  public isSettled(): boolean {
+    return Math.abs(this.progress - this.targetProgress) < 0.0005;
   }
 
   private lastRenderedProgress: number | null = null;

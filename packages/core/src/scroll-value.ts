@@ -8,7 +8,7 @@ import { IScrollValue } from './types';
 
 export class ScrollValue<T = number> implements IScrollValue<T> {
   private value: T;
-  private subscribers: Set<(value: T) => void> = new Set();
+  private subscribers: ((value: T) => void)[] = [];
   private isDestroyed: boolean = false;
 
   constructor(initialValue: T) {
@@ -27,7 +27,7 @@ export class ScrollValue<T = number> implements IScrollValue<T> {
 
   public subscribe(callback: (value: T) => void): () => void {
     if (this.isDestroyed) return () => {};
-    this.subscribers.add(callback);
+    this.subscribers = [...this.subscribers, callback];
     // Immediately emit current value on subscription
     try {
       callback(this.value);
@@ -37,17 +37,17 @@ export class ScrollValue<T = number> implements IScrollValue<T> {
       }
     }
     return () => {
-      this.subscribers.delete(callback);
+      this.subscribers = this.subscribers.filter((s) => s !== callback);
     };
   }
 
   public destroy(): void {
     this.isDestroyed = true;
-    this.subscribers.clear();
+    this.subscribers = [];
   }
 
   private notify(): void {
-    const subs = Array.from(this.subscribers);
+    const subs = this.subscribers;
     for (let i = 0; i < subs.length; i++) {
       try {
         subs[i](this.value);

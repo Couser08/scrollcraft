@@ -27,14 +27,14 @@ High-performance, GPU-composited motion engine, declarative primitives, and head
 
 ## Quick Start
 
-Install the React package:
+Install the packages:
 
 ```bash
-npm install @scrollcraft/react
+npm install @scrollcraft/core@beta @scrollcraft/react@beta
 # or
-pnpm add @scrollcraft/react
+pnpm add @scrollcraft/core@beta @scrollcraft/react@beta
 # or
-yarn add @scrollcraft/react
+yarn add @scrollcraft/core@beta @scrollcraft/react@beta
 ```
 
 Wrap your root layout in Next.js App Router:
@@ -181,9 +181,23 @@ function Scene({ target }: { target: HTMLElement | null }) {
 
 ---
 
+## Community Bug Triage & Patch Policy (v0.2.x SLA)
+
+To ensure high reliability and predictable maintenance for teams building on ScrollCraft, all reported issues are governed by our public triage SLA:
+
+- **48-Hour Triage Window**: Every issue reported on [GitHub Issues](https://github.com/ScrollCraft/scrollcraft/issues) is verified and classified within 48 hours.
+- **High Severity (P0)**: Application crashes, severe memory leaks (OOM), core primitive completely inoperable, or catastrophic scroll lock / state loss.  
+  *Resolution SLA*: Immediate hotfix patch released within 24–48 hours.
+- **Medium Severity (P1)**: Flawed visual/physics behavior under standard usage, silent failure (e.g. ref or prop forwarding defects), or documented prop API mismatches.  
+  *Resolution SLA*: Remediated in the scheduled 0.2.1 patch window.
+- **Small Severity (P2)**: Sub-pixel cosmetic glitches, rare edge-case configurations, or nice-to-have documentation/type ergonomics.  
+  *Resolution SLA*: Deferred or bundled into scheduled minor releases (0.2.2+ or 0.3.0).
+
+---
+
 ## Roadmap
 
-Explore the [ScrollCraft Roadmap & Architecture Plan](https://scrollcraft.dev/roadmap) for details on our criteria-based v0.1.1 promotion and upcoming v0.2.0 zero-jank suite.
+Explore the [ScrollCraft Roadmap & Architecture Plan](https://scrollcraft.dev/roadmap) for details on our current **v0.2.0 Beta (LIVE)** release, the 7 solved browser footguns, and our upcoming **v0.3.0 Native Timelines & Spatial Motion** milestone.
 
 ---
 ## License

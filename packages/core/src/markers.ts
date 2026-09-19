@@ -106,6 +106,9 @@ export class MarkerManager {
 
   public setGlobalMarkers(enabled: boolean): void {
     this.isGlobalMarkersEnabled = enabled;
+    if (typeof window !== 'undefined') {
+      this.currentScrollY = window.scrollY || window.pageYOffset;
+    }
     const triggers = triggerRegistry.getAll();
     for (const trigger of triggers) {
       if (enabled) {
@@ -113,6 +116,9 @@ export class MarkerManager {
       } else if (!trigger.markers) {
         this.removeTrigger(trigger.id);
       }
+    }
+    if (enabled && this.markers.size > 0) {
+      ticker.ensureRunning();
     }
   }
 
@@ -177,7 +183,7 @@ export class MarkerManager {
       box-shadow: 0 2px 6px rgba(0,0,0,0.4);
       white-space: nowrap;
     `;
-    startTag.innerText = `start ${record.id} (${Math.round(record.startY)}px)`;
+    startTag.textContent = `start ${record.id} (${Math.round(record.startY)}px)`;
     startLine.appendChild(startTag);
     root.appendChild(startLine);
 
@@ -209,7 +215,7 @@ export class MarkerManager {
       box-shadow: 0 2px 6px rgba(0,0,0,0.4);
       white-space: nowrap;
     `;
-    endTag.innerText = `end ${record.id} (${Math.round(record.endY)}px)`;
+    endTag.textContent = `end ${record.id} (${Math.round(record.endY)}px)`;
     endLine.appendChild(endTag);
     root.appendChild(endLine);
 
@@ -223,8 +229,8 @@ export class MarkerManager {
     if (!item) return;
     item.record.startY = startY;
     item.record.endY = endY;
-    item.startTag.innerText = `start ${id} (${Math.round(startY)}px)`;
-    item.endTag.innerText = `end ${id} (${Math.round(endY)}px)`;
+    item.startTag.textContent = `start ${id} (${Math.round(startY)}px)`;
+    item.endTag.textContent = `end ${id} (${Math.round(endY)}px)`;
   }
 
   public updateTriggerProgress(id: string, progress: number): void {
@@ -255,12 +261,16 @@ export class MarkerManager {
   private ensureTicker(): void {
     if (this.isRendering) return;
     this.isRendering = true;
+    if (typeof window !== 'undefined') {
+      this.currentScrollY = window.scrollY || window.pageYOffset;
+    }
     ticker.add('sc-marker-manager-update', 'update', () => {
       if (typeof window !== 'undefined') {
         this.currentScrollY = window.scrollY || window.pageYOffset;
       }
     });
     ticker.add('sc-marker-manager', 'render', () => this.render());
+    ticker.ensureRunning();
   }
 
   private stopTicker(): void {

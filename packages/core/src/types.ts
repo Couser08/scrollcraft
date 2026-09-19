@@ -64,6 +64,12 @@ export interface InertiaConfig {
   fpsAware?: boolean;
   /** Align scroll offsets to physical device pixel grid to eliminate raster blurring and jitter. Default: true */
   subpixelSnap?: boolean;
+  /** Automatically permit nested scrollable elements to scroll natively without hijacking wheel events. Default: true */
+  allowNestedScroll?: boolean;
+  /** Custom function to prevent smooth scrolling on traversed elements (e.g. modals, maps) */
+  prevent?: (node: HTMLElement) => boolean;
+  /** Automatically pause/resume Lenis when wrapper overflow changes (e.g. modal adds overflow: hidden). Default: true */
+  autoToggle?: boolean;
 }
 
 export interface ScrollMetrics {

@@ -70,13 +70,39 @@ export const StackedCards = React.memo(
       });
 
       const taskId = `stacked-cards-${Math.random().toString(36).slice(2, 8)}`;
+      let settledFrames = 0;
+      let lastScroll = -999999;
 
-      const measure = () => solver.measure();
+      const measure = () => {
+        solver.measure();
+        settledFrames = 0;
+        ticker.resumeTask(taskId);
+      };
       const unobserve = GlobalResizeManager.observe(container, measure);
+      const unbindEngineRemeasure = engine?.onRemeasure(measure);
+
+      const unsubScroll = engine?.subscribe((metrics) => {
+        if (Math.abs(metrics.velocity) >= 0.001 || Math.abs(metrics.scroll - lastScroll) > 0.1) {
+          lastScroll = metrics.scroll;
+          settledFrames = 0;
+          ticker.resumeTask(taskId);
+        }
+      });
 
       ticker.add(taskId, 'update', () => {
-        const scrollY = engine?.getMetrics().scroll ?? (window.scrollY || window.pageYOffset);
+        const metrics = engine?.getMetrics();
+        const scrollY = metrics?.scroll ?? (window.scrollY || window.pageYOffset);
+        const velocity = Math.abs(metrics?.velocity ?? 0);
         solver.update(scrollY);
+
+        if (velocity < 0.001) {
+          settledFrames++;
+          if (settledFrames >= 3) {
+            ticker.pauseTask(taskId);
+          }
+        } else {
+          settledFrames = 0;
+        }
       });
 
       ticker.add(taskId, 'render', () => {
@@ -84,6 +110,8 @@ export const StackedCards = React.memo(
       });
 
       return () => {
+        unsubScroll?.();
+        unbindEngineRemeasure?.();
         unobserve();
         ticker.remove(taskId);
         solver.destroy();

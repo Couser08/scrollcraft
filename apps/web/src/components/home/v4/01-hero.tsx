@@ -125,14 +125,14 @@ export function HeroSection() {
             <div className="flex flex-wrap items-center gap-2.5 mb-6 text-xs font-mono select-none">
               <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[11px] font-bold tracking-wide">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)] animate-pulse" />
-                <span>v0.1.1 BETA (LIVE)</span>
+                <span>v0.2.0 BETA (LIVE)</span>
               </div>
               <Link
                 href="/roadmap"
-                className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-[11px] font-bold tracking-wide hover:bg-cyan-500/20 transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-500/10 border border-violet-500/30 text-violet-300 text-[11px] font-bold tracking-wide hover:bg-violet-500/20 transition-colors"
               >
-                <span>v0.2.0 Coming Soon</span>
-                <span className="text-[10px] text-cyan-400">&rarr;</span>
+                <span>v0.3.0 Horizon</span>
+                <span className="text-[10px] text-violet-400">&rarr;</span>
               </Link>
             </div>
 

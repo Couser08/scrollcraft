@@ -48,7 +48,7 @@ export class DrawSolver {
     const elAlign = parts[0] || 'top';
     const vpAlign = parts[1] || 'bottom';
     
-    const scrollTop = window.scrollY || window.pageYOffset;
+    const scrollTop = window.scrollY ?? window.pageYOffset ?? 0;
     const elementTopAbs = rect.top + scrollTop;
     
     let elOffset = 0;
@@ -143,6 +143,10 @@ export class DrawSolver {
 
   public getProgress(): number {
     return this.progress;
+  }
+
+  public isSettled(): boolean {
+    return Math.abs(this.progress - this.targetProgress) < 0.0005;
   }
 
   public render(): void {

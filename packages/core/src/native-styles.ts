@@ -8,7 +8,7 @@
 
 let injected = false;
 
-export function injectNativeStyles(): void {
+export function injectNativeStyles(nonce?: string): void {
   if (typeof document === 'undefined' || injected) return;
   
   const styleId = 'scrollcraft-native-engine';
@@ -19,6 +19,14 @@ export function injectNativeStyles(): void {
 
   const style = document.createElement('style');
   style.id = styleId;
+  if (nonce) {
+    style.setAttribute('nonce', nonce);
+  } else if (typeof document.querySelector === 'function') {
+    const metaNonce = document.querySelector('meta[property="csp-nonce"]')?.getAttribute('content');
+    if (metaNonce) {
+      style.setAttribute('nonce', metaNonce);
+    }
+  }
   style.textContent = `
     :root {
       scroll-timeline: --sc-doc-scroll block;

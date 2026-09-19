@@ -108,8 +108,8 @@ export function ScrollInspector({
   const lastMsVal = useRef(-1);
   const lastDotColor = useRef('');
 
-  const updateFrameHealthText = (el: HTMLSpanElement, recentDrops: number, health: number) => {
-    if (recentDrops === 0) {
+  const updateFrameHealthText = (el: HTMLSpanElement, recentDrops: number, health: number, isIdle: boolean = false) => {
+    if (isIdle || recentDrops === 0) {
       el.textContent = '100% Smooth (0 drops)';
       el.style.color = '#22c55e';
     } else if (recentDrops <= 3) {
@@ -144,7 +144,7 @@ export function ScrollInspector({
     }
     if (droppedFramesRef.current) {
       const { recent: recentDrops, health } = ticker.getDroppedFrames();
-      updateFrameHealthText(droppedFramesRef.current, recentDrops, health);
+      updateFrameHealthText(droppedFramesRef.current, recentDrops, health, isIdle);
     }
   }, [collapsed]);
 
@@ -196,7 +196,7 @@ export function ScrollInspector({
           msRef.current.textContent = isIdle ? 'idle' : `${frameMs.toFixed(1)}ms`;
         }
         if (droppedFramesRef.current) {
-          updateFrameHealthText(droppedFramesRef.current, recentDrops, health);
+          updateFrameHealthText(droppedFramesRef.current, recentDrops, health, isIdle);
         }
         const color = isIdle ? '#22c55e' : fps >= 50 ? '#22c55e' : fps >= 30 ? '#eab308' : '#ef4444';
         if (dotRef.current && lastDotColor.current !== color) {
@@ -378,22 +378,33 @@ export function ScrollInspector({
 
           {/* Control Bar: Markers Toggle & Triggers Drawer */}
           <div className="px-3.5 py-2 flex items-center justify-between bg-zinc-900/20">
-            <button
-              type="button"
-              onClick={toggleMarkers}
-              className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-medium border transition-colors cursor-pointer ${
-                markersActive
-                  ? 'bg-emerald-950/40 text-emerald-300 border-emerald-500/40'
-                  : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:bg-zinc-800 hover:text-zinc-200'
-              }`}
-            >
-              <span
-                className={`w-1.5 h-1.5 rounded-full ${
-                  markersActive ? 'bg-emerald-400' : 'bg-zinc-600'
+            {triggers.length > 0 ? (
+              <button
+                type="button"
+                onClick={toggleMarkers}
+                className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-medium border transition-colors cursor-pointer ${
+                  markersActive
+                    ? 'bg-emerald-950/40 text-emerald-300 border-emerald-500/40'
+                    : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:bg-zinc-800 hover:text-zinc-200'
                 }`}
-              />
-              Markers: {markersActive ? 'ON' : 'OFF'}
-            </button>
+                title="Toggle GSAP-style visual trigger boundaries"
+              >
+                <span
+                  className={`w-1.5 h-1.5 rounded-full ${
+                    markersActive ? 'bg-emerald-400' : 'bg-zinc-600'
+                  }`}
+                />
+                Markers: {markersActive ? 'ON' : 'OFF'}
+              </button>
+            ) : (
+              <div
+                className="flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-mono text-zinc-500 bg-zinc-900/40 border border-zinc-800/40 select-none cursor-default"
+                title="No spatial triggers registered on this page"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-zinc-700" />
+                <span>Markers: 0 triggers</span>
+              </div>
+            )}
 
             <button
               type="button"

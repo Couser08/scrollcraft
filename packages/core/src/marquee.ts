@@ -62,7 +62,7 @@ export class VelocityMarqueeSolver implements ScrollDriver {
   }
 
   public update(_scrollY: number, velocity: number = 0, deltaTime: number = 1 / 60): MarqueeState {
-    if (!this.isVisible || this.elementWidth === 0) return this.state;
+    if (!this.isVisible || this.elementWidth <= 0) return this.state;
 
     // The target speed is base + (scroll velocity * multiplier)
     const rawTargetSpeed = this.options.baseSpeed + (Math.abs(velocity) * this.options.velocityMultiplier);
@@ -75,12 +75,16 @@ export class VelocityMarqueeSolver implements ScrollDriver {
     
     this.state.position += this.currentSpeed * dirMultiplier * (deltaTime * 60);
 
-    // Infinite loop wrap
-    if (this.options.direction === 'left' && this.state.position <= -this.elementWidth) {
-      this.state.position += this.elementWidth;
-    } else if (this.options.direction === 'right' && this.state.position >= 0) {
-      this.state.position -= this.elementWidth;
+    // Seamless infinite loop wrap via modulo arithmetic
+    let p = this.state.position % this.elementWidth;
+    if (this.options.direction === 'left') {
+      if (p > 0) p -= this.elementWidth;
+      if (p <= -this.elementWidth) p += this.elementWidth;
+    } else {
+      if (p >= 0) p -= this.elementWidth;
+      if (p < -this.elementWidth) p += this.elementWidth;
     }
+    this.state.position = p;
 
     return this.state;
   }

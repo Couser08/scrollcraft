@@ -182,7 +182,7 @@ export function ComparisonSection() {
                     DISTRIBUTION FOOTPRINT &amp; HARDWARE AUDIT
                   </span>
                   <span className="px-2 py-0.5 rounded-md bg-zinc-800/80 border border-zinc-700/60 text-[10px] font-mono text-zinc-300">
-                    v0.1.1 Production
+                    v0.2.0 Production
                   </span>
                 </div>
                 <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight">

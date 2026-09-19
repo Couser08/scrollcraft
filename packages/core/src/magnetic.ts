@@ -118,6 +118,12 @@ export class MagneticSolver {
 
   private bindEvents() {
     if (typeof window === 'undefined') return;
+
+    // Disable magnetic physics on non-hover / pure touch devices
+    if (typeof window.matchMedia === 'function' && window.matchMedia('(hover: none)').matches) {
+      return;
+    }
+
     this.element.addEventListener('mouseenter', this.onMouseEnter);
     this.element.addEventListener('mousemove', this.onMouseMove);
     this.element.addEventListener('mouseleave', this.onMouseLeave);

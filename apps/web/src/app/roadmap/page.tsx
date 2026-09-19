@@ -14,12 +14,13 @@ import {
   Bug,
   Sparkles,
   ExternalLink,
+  Terminal,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Roadmap & Architecture Plan | ScrollCraft',
   description:
-    'The certified engineering roadmap for ScrollCraft. Explore current v0.1.1 Beta verification and upcoming v0.2.0 zero-jank architectural milestones.',
+    'The certified engineering roadmap for ScrollCraft. Explore active v0.2.0 Beta production verification and upcoming v0.3.0 architectural milestones.',
 };
 
 export default function RoadmapPage() {
@@ -60,6 +61,13 @@ export default function RoadmapPage() {
                 className="px-3 py-1.5 rounded-lg bg-zinc-900 text-white font-semibold border border-zinc-800 shadow-xs"
               >
                 Roadmap
+              </Link>
+              <Link
+                href="/test"
+                className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors flex items-center gap-1"
+              >
+                <span>Test Lab</span>
+                <span className="text-[9px] px-1 py-0.2 rounded-full bg-violet-500/20 text-violet-300 border border-violet-500/30 font-mono">25</span>
               </Link>
             </nav>
           </div>
@@ -114,7 +122,7 @@ export default function RoadmapPage() {
 
         {/* Milestone Cards Summary */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-20">
-          {/* Current Milestone: v0.1.1 Beta */}
+          {/* Current Milestone: v0.2.0 Beta */}
           <Reveal direction="up" distance={24} delay={0.1}>
             <div className="rounded-2xl border border-emerald-500/30 bg-gradient-to-b from-[#0c1410] to-[#070908] p-6 sm:p-8 flex flex-col justify-between shadow-2xl relative overflow-hidden h-full">
               <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
@@ -130,35 +138,35 @@ export default function RoadmapPage() {
                       LIVE
                     </span>
                     <span className="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold">
-                      v0.1.1 Beta
+                      v0.2.0 Beta
                     </span>
                   </div>
                 </div>
 
                 <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3 font-sans">
-                  Hardened Engine Baseline
+                  Universal Dual API &amp; Hardened Suite
                 </h2>
 
                 <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed font-sans mb-6">
-                  Production-certified baseline featuring 101/101 automated test suites, Named Scroll-Timeline on <code className="text-emerald-400">:root</code>, 5-sample sorted median FPS benchmarks, and zero React Virtual DOM re-renders.
+                  Production-certified release delivering the Universal Dual API (primitives + hooks parity), 11 production primitives, 9 core hooks, DevTools Inspector Studio, and zero React Virtual DOM re-renders.
                 </p>
 
                 <div className="space-y-2.5 mb-6 text-xs font-mono text-zinc-300">
                   <div className="flex items-center gap-2.5">
                     <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                    <span>8-Layer Hardening Protocol: 101/101 Tests Green</span>
+                    <span>Universal Dual API: 1:1 Parity between &lt;Primitives /&gt; and useHooks()</span>
                   </div>
                   <div className="flex items-center gap-2.5">
                     <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                    <span>Named Timeline on :root: 100% Container Clipping Immunity</span>
+                    <span>11 Production Primitives: Parallax, Pin, Reveal, Sequence, StackedCards, etc.</span>
                   </div>
                   <div className="flex items-center gap-2.5">
                     <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                    <span>Core Throughput: 0.926ms / frame (1,080 FPS capacity)</span>
+                    <span>DevTools Inspector Studio: Real-time telemetry, HUD, and live knob controls</span>
                   </div>
                   <div className="flex items-center gap-2.5">
                     <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                    <span>Next.js 15.5.25 &amp; React 19 Full RSC Compatibility</span>
+                    <span>Engine Performance: 0.926ms throughput (1,080 FPS capacity, 217 tests green)</span>
                   </div>
                 </div>
               </div>
@@ -166,16 +174,16 @@ export default function RoadmapPage() {
               <div className="pt-6 border-t border-emerald-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div className="font-mono text-xs text-zinc-300 flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-lg border border-emerald-500/30">
                   <span className="text-emerald-500 select-none">$</span>
-                  <code className="text-emerald-300 select-all font-semibold">npm install @scrollcraft/core@0.1.1</code>
+                  <code className="text-emerald-300 select-all font-semibold">npm install @scrollcraft/core@beta @scrollcraft/react@beta</code>
                 </div>
                 <span className="text-[11px] font-mono text-emerald-400 bg-emerald-950/40 px-3 py-1 rounded border border-emerald-500/30 font-semibold">
-                  Live on npm • Soak Period Active
+                  Live on npm • Recommended Release
                 </span>
               </div>
             </div>
           </Reveal>
 
-          {/* Upcoming Milestone: v0.2.0 Master Architecture */}
+          {/* Upcoming Milestone: v0.3.0 Native Timelines & Spatial Motion */}
           <Reveal direction="up" distance={24} delay={0.2}>
             <div className="rounded-2xl border border-violet-500/30 bg-gradient-to-b from-[#110d1c] to-[#08070d] p-6 sm:p-8 flex flex-col justify-between shadow-2xl relative overflow-hidden h-full">
               <div className="absolute top-0 right-0 w-32 h-32 bg-violet-500/10 rounded-full blur-3xl pointer-events-none" />
@@ -186,34 +194,34 @@ export default function RoadmapPage() {
                     NEXT HORIZON (PLANNED)
                   </span>
                   <span className="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-violet-500/20 text-violet-300 border border-violet-500/30 font-semibold">
-                    In Active Development
+                    Target Q4 2026
                   </span>
                 </div>
 
                 <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3 font-sans">
-                  v0.2.0 Zero-Jank Suite
+                  v0.3.0 Native Timelines &amp; Spatial Motion
                 </h2>
 
                 <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed font-sans mb-6">
-                  Comprehensive motion expansion solving the 7 real-world browser footguns: mobile VRAM management, rubber-band guards, SSR race cancellations, and granular subpath packaging.
+                  Next-generation motion kernel introducing universal CSS Scroll-Driven Timelines across all primitives, View Transitions route choreography, and Multi-Canvas R3F spatial synchronization.
                 </p>
 
                 <div className="space-y-2.5 mb-6 text-xs font-mono text-zinc-300">
                   <div className="flex items-center gap-2.5">
                     <div className="w-1.5 h-1.5 rounded-full bg-violet-400 shrink-0" />
-                    <span>The 7 Production Footguns Solved (VRAM, iOS, Hydration)</span>
+                    <span>Universal CSS Scroll Timelines (animation-timeline: view() / scroll())</span>
                   </div>
                   <div className="flex items-center gap-2.5">
                     <div className="w-1.5 h-1.5 rounded-full bg-violet-400 shrink-0" />
-                    <span>Superpowers across 9 Core Hooks (Dual API &amp; Bleed Math)</span>
+                    <span>View Transitions API integration for route choreography</span>
                   </div>
                   <div className="flex items-center gap-2.5">
                     <div className="w-1.5 h-1.5 rounded-full bg-violet-400 shrink-0" />
-                    <span>ScrollCraft Inspector Studio &amp; DevTools Flamecharts</span>
+                    <span>Multi-Canvas R3F spatial scene synchronization</span>
                   </div>
                   <div className="flex items-center gap-2.5">
                     <div className="w-1.5 h-1.5 rounded-full bg-violet-400 shrink-0" />
-                    <span>Granular Day-1 Subpath Bundles (&lt; 5 KB standalone)</span>
+                    <span>Automated WCAG 2.1 respectReducedMotion across all primitives</span>
                   </div>
                 </div>
               </div>
@@ -230,32 +238,76 @@ export default function RoadmapPage() {
           </Reveal>
         </div>
 
-        {/* Section 1: v0.1.1 Beta Promotion & Community Funnel */}
+        {/* Section 1: v0.2.1 Patch SLA & Severity Triage Policy */}
         <Reveal direction="up" distance={20} delay={0.1}>
           <section className="mb-20 rounded-2xl border border-zinc-800 bg-[#09090b] p-6 sm:p-10 shadow-xl">
-            <div className="flex items-center gap-3 mb-6">
-              <Shield className="w-6 h-6 text-emerald-400" />
-              <h2 className="text-2xl sm:text-3xl font-bold text-white font-sans">
-                v0.1.1 Beta Release &amp; Promotion Criteria
-              </h2>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 border-b border-zinc-800 pb-4">
+              <div className="flex items-center gap-3">
+                <Shield className="w-6 h-6 text-emerald-400" />
+                <div>
+                  <h2 className="text-2xl sm:text-3xl font-bold text-white font-sans">
+                    v0.2.1 Patch SLA &amp; Bug Triage Policy
+                  </h2>
+                  <p className="text-xs text-zinc-400 font-sans mt-0.5">
+                    Transparent, objective criteria ensuring community predictability and rapid hotfix turnaround.
+                  </p>
+                </div>
+              </div>
+              <span className="text-[11px] font-mono px-3 py-1 rounded-full bg-violet-500/10 text-violet-400 border border-violet-500/30 font-semibold shrink-0">
+                48-Hour Triage Window
+              </span>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8 text-sm text-zinc-300 font-sans leading-relaxed">
-              <div>
-                <h3 className="text-base font-semibold text-white mb-2 font-mono">
-                  Criteria-Based Stable Promotion
-                </h3>
-                <p className="text-zinc-400">
-                  Rather than relying on an arbitrary calendar date, <strong>v0.1.1 Beta</strong> enters a 1-week real-world soak period. If no critical regression or architectural defect is identified during community dogfooding, the release will be formally promoted to stable on npm.
-                </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              {/* High Severity */}
+              <div className="p-5 rounded-xl border border-red-500/30 bg-red-950/10 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-xs font-mono font-bold uppercase tracking-wider text-red-400">High Severity (P0)</span>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-red-500/20 text-red-300 font-bold">24–48h Hotfix</span>
+                  </div>
+                  <h4 className="text-sm font-semibold text-white mb-2">Crash, Core Inoperable, Data Loss</h4>
+                  <p className="text-xs text-zinc-400 leading-relaxed font-sans">
+                    Application crashes, severe memory leaks (OOM), core primitive completely inoperable, or catastrophic scroll lock / state corruption.
+                  </p>
+                </div>
+                <div className="pt-3 mt-3 border-t border-red-500/20 text-[11px] font-mono text-red-300">
+                  Action: Immediate triage &amp; hotfix patch
+                </div>
               </div>
-              <div>
-                <h3 className="text-base font-semibold text-white mb-2 font-mono">
-                  Structured Bug-Reporting Pipeline
-                </h3>
-                <p className="text-zinc-400">
-                  Community discussions and preliminary questions take place on our Discord server. To ensure no issue is lost in chat history, all reproducible defects and edge cases are triaged and tracked directly via <strong>GitHub Issues</strong>.
-                </p>
+
+              {/* Medium Severity */}
+              <div className="p-5 rounded-xl border border-amber-500/30 bg-amber-950/10 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-xs font-mono font-bold uppercase tracking-wider text-amber-400">Medium Severity (P1)</span>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold">0.2.1 Patch</span>
+                  </div>
+                  <h4 className="text-sm font-semibold text-white mb-2">Incorrect Behavior, Silent Failure</h4>
+                  <p className="text-xs text-zinc-400 leading-relaxed font-sans">
+                    Flawed behavior in commonly-used primitives, silent failure (e.g. ref or prop forwarding defects), or documented API mismatches.
+                  </p>
+                </div>
+                <div className="pt-3 mt-3 border-t border-amber-500/20 text-[11px] font-mono text-amber-300">
+                  Action: Remediated in 0.2.1 patch window
+                </div>
+              </div>
+
+              {/* Small Severity */}
+              <div className="p-5 rounded-xl border border-zinc-700 bg-zinc-900/50 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-xs font-mono font-bold uppercase tracking-wider text-zinc-400">Small Severity (P2)</span>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 font-bold">Scheduled Minor</span>
+                  </div>
+                  <h4 className="text-sm font-semibold text-white mb-2">Cosmetic Glitch, Edge Case</h4>
+                  <p className="text-xs text-zinc-400 leading-relaxed font-sans">
+                    Sub-pixel visual artifacts, rare edge-case configurations, or nice-to-have documentation and ergonomic type gaps.
+                  </p>
+                </div>
+                <div className="pt-3 mt-3 border-t border-zinc-800 text-[11px] font-mono text-zinc-400">
+                  Action: Bundled into scheduled minor releases
+                </div>
               </div>
             </div>
 
@@ -278,24 +330,29 @@ export default function RoadmapPage() {
                 <Bug className="w-4 h-4 text-emerald-400" />
                 <span>Report Issue on GitHub</span>
               </a>
-              <span className="text-xs font-mono text-zinc-500 ml-auto">
-                Package bug tracking: <code className="text-zinc-400">npm bugs @scrollcraft/core</code>
-              </span>
+              <div className="flex items-center gap-2 ml-auto text-xs font-mono text-zinc-400 bg-zinc-950/80 px-3 py-1.5 rounded-lg border border-zinc-800/80">
+                <Terminal className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
+                <span className="text-zinc-500 hidden sm:inline">CLI issue shortcut:</span>
+                <code className="text-emerald-400 font-semibold select-all">npm bugs @scrollcraft/core</code>
+                <span className="text-[10px] text-zinc-500 hidden md:inline border-l border-zinc-800 pl-2">
+                  (opens bug tracker directly from terminal)
+                </span>
+              </div>
             </div>
           </section>
         </Reveal>
 
-        {/* Section 2: v0.2.0 Master Architecture Plan (In Active Development) */}
+        {/* Section 2: Shipped in v0.2.0 Beta: The 7 Production Footguns Solved */}
         <section className="mb-20">
           <div className="text-center max-w-3xl mx-auto mb-14">
-            <span className="text-xs font-mono uppercase tracking-widest text-violet-400 font-bold block mb-2">
-              Future Architecture (Planned)
+            <span className="text-xs font-mono uppercase tracking-widest text-emerald-400 font-bold block mb-2">
+              Shipped &amp; Verified in v0.2.0 Beta
             </span>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-white font-sans tracking-tight mb-4">
               The 7 Production Footguns Solved in v0.2.0
             </h2>
             <p className="text-sm sm:text-base text-zinc-400 font-sans max-w-2xl mx-auto">
-              Engineered around natural module boundaries and strict runtime invariants. Here are the core failure classes scheduled for resolution in the upcoming major release:
+              Engineered around natural module boundaries and strict runtime invariants. Here are the core browser failure classes eliminated in this release:
             </p>
           </div>
 
@@ -562,12 +619,13 @@ export default function RoadmapPage() {
       {/* Footer */}
       <footer className="w-full border-t border-zinc-800/80 py-8 text-center text-xs text-zinc-500 bg-[#050505]">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p>&copy; {new Date().getFullYear()} ScrollCraft (v0.1.1 Beta). MIT Licensed.</p>
+          <p>&copy; {new Date().getFullYear()} ScrollCraft (v0.2.0 Beta). MIT Licensed.</p>
           <div className="flex items-center gap-6">
             <Link href="/" className="hover:text-zinc-300 transition-colors">Home</Link>
             <Link href="/docs" className="hover:text-zinc-300 transition-colors">Docs</Link>
             <Link href="/showcase" className="hover:text-zinc-300 transition-colors">Showcase</Link>
             <Link href="/roadmap" className="hover:text-zinc-300 transition-colors">Roadmap</Link>
+            <Link href="/test" className="hover:text-zinc-300 transition-colors">Test Lab</Link>
           </div>
         </div>
       </footer>

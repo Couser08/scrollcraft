@@ -70,8 +70,7 @@ export class Ticker {
 
   // Adaptive target refresh rate calibration (60Hz / 90Hz / 120Hz / 144Hz)
   private detectedTargetInterval: number = 0.01667;
-  private minObservedDelta: number = 0.01667;
-  private calibrationFrames: number = 0;
+  private calibrationSamples: number[] = [];
 
   private constructor() {}
 
@@ -306,6 +305,7 @@ export class Ticker {
     this.sampledFrameCount = 0;
     this.droppedFramesHistory.fill(0);
     this.droppedFramesIndex = 0;
+    this.calibrationSamples.length = 0;
   }
 
   private recordFrameDelta(rawDelta: number, currentTime: number): void {
@@ -314,28 +314,29 @@ export class Ticker {
     const effectiveDelta = Math.min(Math.max(rawDelta, 0.001), 0.5);
 
     // 2. Calibrate display refresh rate dynamically from healthy VSync frames
-    // In modern displays: 120Hz (~8.33ms), 144Hz (~6.94ms), 60Hz (~16.67ms), 50Hz (~20ms)
-    if (effectiveDelta >= 0.003 && effectiveDelta <= 0.035) {
-      if (effectiveDelta < this.minObservedDelta) {
-        this.minObservedDelta = effectiveDelta;
-      }
-      this.calibrationFrames++;
-      if (this.calibrationFrames >= 30) {
-        if (this.minObservedDelta <= 0.0095) {
-          // 120Hz - 165Hz high-refresh display (target ~8.33ms)
+    // Uses running median of healthy frames to prevent isolated jitter spikes from poisoning calibration.
+    if (effectiveDelta >= 0.004 && effectiveDelta <= 0.035) {
+      this.calibrationSamples.push(effectiveDelta);
+      if (this.calibrationSamples.length >= 30) {
+        const sorted = [...this.calibrationSamples].sort((a, b) => a - b);
+        const median = sorted[Math.floor(sorted.length / 2)];
+        if (median <= 0.0078) {
+          // 144Hz - 165Hz high-refresh display (target ~6.94ms)
+          this.detectedTargetInterval = 0.00694;
+        } else if (median <= 0.0098) {
+          // 120Hz display (target ~8.33ms)
           this.detectedTargetInterval = 0.00833;
-        } else if (this.minObservedDelta <= 0.0125) {
+        } else if (median <= 0.0135) {
           // 90Hz display (target ~11.11ms)
           this.detectedTargetInterval = 0.01111;
-        } else if (this.minObservedDelta <= 0.0185) {
+        } else if (median <= 0.0185) {
           // Standard 60Hz display (target ~16.67ms)
           this.detectedTargetInterval = 0.01667;
         } else {
           // 48Hz - 50Hz display or low-power mode (target ~20.0ms)
           this.detectedTargetInterval = 0.02000;
         }
-        this.minObservedDelta = this.detectedTargetInterval;
-        this.calibrationFrames = 0;
+        this.calibrationSamples.length = 0;
       }
     }
 

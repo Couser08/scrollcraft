@@ -1,6 +1,6 @@
-# ScrollCraft v0.1.1 (Beta) — The Definitive Pro Guide & Architecture Spec
+# ScrollCraft v0.2.0 (Beta) — The Definitive Pro Guide & Architecture Spec
 
-> **For AI Assistants & Developers:** This document is the single source of truth for `@scrollcraft/react` and `@scrollcraft/core` version `0.1.1`.  
+> **For AI Assistants & Developers:** This document is the single source of truth for `@scrollcraft/react` and `@scrollcraft/core` version `0.2.0`.  
 > ScrollCraft is a **headless, zero-rerender, compositor-thread-native scroll engine** for React 18/19 and Next.js 14/15 App Router.  
 > It does **NOT** work like Framer Motion (no continuous React state updates) and does **NOT** work like GSAP (no heavy DOM wrappers or global window polluters).
 
@@ -11,7 +11,7 @@
 When prompting an AI to generate components using ScrollCraft, prefix your prompt with:
 
 ```markdown
-You are building with ScrollCraft v0.1.1 (@scrollcraft/react and @scrollcraft/core).
+You are building with ScrollCraft v0.2.0 (@scrollcraft/react and @scrollcraft/core).
 Strict Rules:
 1. Always use declarative primitives (<Parallax>, <Reveal>, <Pin>, <HorizontalScroll>, <ScrollSequence>, <VelocityMarquee>).
 2. Never create extra wrapping <div> elements if layout preservation is needed — use the `asChild` prop.
@@ -24,7 +24,7 @@ Strict Rules:
 
 ## 1. Architectural Comparison: ScrollCraft vs GSAP + Lenis vs Framer Motion
 
-| Feature / Metric | ⚡ **ScrollCraft v0.1.1** | 🐢 **GSAP ScrollTrigger + Lenis** | 📦 **Framer Motion (`useScroll`)** |
+| Feature / Metric | ⚡ **ScrollCraft v0.2.0** | 🐢 **GSAP ScrollTrigger + Lenis** | 📦 **Framer Motion (`useScroll`)** |
 |---|---|---|---|
 | **Core Architecture** | 3-Phase Microtask Kernel (Measure → Mutate → Render) | Imperative ticker + manual DOM style injection | React Reconciliation hook loop |
 | **React Re-Renders on Scroll** | **0 (Zero)** — direct hardware transforms via refs | 0 (Manual DOM writes bypass React entirely) | **60–120 re-renders/sec** unless wrapped in `useTransform` motion values |
@@ -97,7 +97,7 @@ export function MotionCard() {
 }
 ```
 
-#### ✅ ScrollCraft 0.1.1 (Zero-Rerender, Slot-Based, Direct GPU Mutation)
+#### ✅ ScrollCraft 0.2.0 (Zero-Rerender, Slot-Based, Direct GPU Mutation)
 ```tsx
 'use client';
 import { Parallax } from '@scrollcraft/react';
@@ -362,7 +362,7 @@ export function ProductScrubber() {
 
 ### 5. `<Pin>` & `usePin` (Sticky Viewport Locking & Scrubbing)
 
-> ⚠️ **CRITICAL ARCHITECTURAL RULE FOR 0.1.1:**  
+> ⚠️ **CRITICAL ARCHITECTURAL RULE FOR 0.2.0:**  
 > `usePin` defaults to `trackState: false` to enforce **Zero React Re-renders** during scroll.  
 > If you render progress or pinned flags directly in JSX (e.g. `<span>{isPinned ? 'PINNED' : 'FREE'}</span>`), you MUST pass `trackState: true`.
 

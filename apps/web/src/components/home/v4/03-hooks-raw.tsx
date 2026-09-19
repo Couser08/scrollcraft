@@ -471,7 +471,7 @@ function computeWavePaths(pts: number[]) {
     return { x, y };
   });
 
-  if (coords.length === 0) return { strokePath: '', fillPath: '' };
+  if (coords.length === 0) return { strokePath: '', fillPath: '', lastY: 45 };
 
   let d = `M ${coords[0].x},${coords[0].y}`;
   for (let i = 0; i < coords.length - 1; i++) {
@@ -489,7 +489,8 @@ function computeWavePaths(pts: number[]) {
   }
 
   const fill = `${d} L ${width},${height} L 0,${height} Z`;
-  return { strokePath: d, fillPath: fill };
+  const lastY = Number(coords[coords.length - 1].y.toFixed(1));
+  return { strokePath: d, fillPath: fill, lastY };
 }
 
 const INITIAL_HISTORY = [
@@ -517,6 +518,9 @@ export function HooksRawSection() {
   const fpsBadgeRef = useRef<HTMLSpanElement>(null);
   const strokePathRef = useRef<SVGPathElement>(null);
   const fillPathRef = useRef<SVGPathElement>(null);
+  const scanDotRef = useRef<SVGCircleElement>(null);
+  const scanDotPingRef = useRef<SVGCircleElement>(null);
+  const graphValBadgeRef = useRef<HTMLSpanElement>(null);
 
   const historyPointsRef = useRef<number[]>([...INITIAL_HISTORY]);
 
@@ -585,15 +589,18 @@ export function HooksRawSection() {
         updateRateTextRef.current.textContent = `${rateHz} Hz`;
       }
 
-      // Smoothly update waveform path without React re-render (~15Hz throttle)
+      // Smoothly update waveform path & oscilloscope scan reticle (~15Hz throttle)
       if (now - lastWaveUpdate >= 66) {
         lastWaveUpdate = now;
         const pts = historyPointsRef.current;
         pts.shift();
         pts.push(Math.max(0.05, Math.min(0.95, currProgress)));
-        const { strokePath, fillPath } = computeWavePaths(pts);
+        const { strokePath, fillPath, lastY } = computeWavePaths(pts);
         if (strokePathRef.current) strokePathRef.current.setAttribute('d', strokePath);
         if (fillPathRef.current) fillPathRef.current.setAttribute('d', fillPath);
+        if (scanDotRef.current) scanDotRef.current.setAttribute('cy', String(lastY));
+        if (scanDotPingRef.current) scanDotPingRef.current.setAttribute('cy', String(lastY));
+        if (graphValBadgeRef.current) graphValBadgeRef.current.textContent = `VAL: ${currProgress.toFixed(3)}`;
       }
     };
 
@@ -656,7 +663,7 @@ export function HooksRawSection() {
                 Raw Data
               </span>
               <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-[10px] font-mono font-bold text-emerald-400">
-                v0.1.1 (LIVE)
+                v0.2.0 (LIVE)
               </span>
             </div>
           </Reveal>
@@ -701,31 +708,31 @@ export function HooksRawSection() {
           </div>
         </div>
 
-        {/* v0.2.0 Upcoming Hooks Discovery Ribbon */}
+        {/* v0.2.0 Shipped Hooks Discovery Ribbon */}
         <div className="flex flex-wrap items-center justify-center gap-2 mb-10 text-xs font-mono">
-          <span className="text-zinc-500">Upcoming in v0.2.0 Beta:</span>
+          <span className="text-emerald-400 font-bold">Shipped in v0.2.0 Beta:</span>
           <Link
             href="/docs#use-scroll-direction"
-            className="px-2.5 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20 transition-colors flex items-center gap-1.5"
+            className="px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/20 transition-colors flex items-center gap-1.5"
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
             <span>useScrollDirection()</span>
           </Link>
           <Link
             href="/docs#use-scroll-timeline"
-            className="px-2.5 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20 transition-colors"
+            className="px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/20 transition-colors"
           >
             useScrollTimeline()
           </Link>
           <Link
             href="/docs#use-scroll-transform"
-            className="px-2.5 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20 transition-colors"
+            className="px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/20 transition-colors"
           >
             useScrollTransform()
           </Link>
           <Link
             href="/docs#use-scroll-draw"
-            className="px-2.5 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20 transition-colors"
+            className="px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/20 transition-colors"
           >
             useScrollDraw()
           </Link>
@@ -933,41 +940,81 @@ export function HooksRawSection() {
                 </div>
               </div>
 
-              {/* Progress Over Time Graph */}
+              {/* Progress Over Time Oscilloscope Graph */}
               <div className="mt-6 mb-6">
-                <div className="text-xs text-zinc-400 font-medium mb-2.5">
-                  Progress over time
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_6px_rgba(52,211,153,0.8)]" />
+                    <span className="text-xs font-mono font-semibold uppercase tracking-wider text-zinc-300">
+                      Telemetry Stream
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-[10px] font-mono text-zinc-500">
+                    <span>30 SAMPLES</span>
+                    <span>•</span>
+                    <span>WINDOW: 2.0s</span>
+                    <span>•</span>
+                    <span className="text-emerald-400 font-semibold">VSYNC LOCKED</span>
+                  </div>
                 </div>
-                <div className="relative w-full h-32 rounded-lg bg-[#060608] border border-zinc-800/80 p-3 overflow-hidden">
+
+                <div className="relative w-full h-36 rounded-xl bg-[#06070a] border border-zinc-800/90 p-3 pt-6 pb-6 pr-10 pl-3 overflow-hidden shadow-inner">
+                  {/* Floating live badge in top-left */}
+                  <div className="absolute left-3 top-2 flex items-center gap-1.5 px-2 py-0.5 rounded bg-zinc-900/90 border border-zinc-800 text-[10px] font-mono text-zinc-300 z-10 shadow-xs">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block" />
+                    <span ref={graphValBadgeRef}>VAL: {INITIAL_HISTORY[INITIAL_HISTORY.length - 1].toFixed(3)}</span>
+                  </div>
+
                   {/* Y-Axis scale marks on the right */}
-                  <div className="absolute right-3 top-2 text-[10px] font-mono text-zinc-500 select-none">
-                    1.0
+                  <div className="absolute right-2.5 top-2 text-[9px] font-mono text-zinc-500 select-none">
+                    1.00
                   </div>
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono text-zinc-500 select-none">
-                    0.5
+                  <div className="absolute right-2.5 top-[35%] -translate-y-1/2 text-[9px] font-mono text-zinc-600 select-none">
+                    0.75
                   </div>
-                  <div className="absolute right-3 bottom-2 text-[10px] font-mono text-zinc-500 select-none">
-                    0.0
+                  <div className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[9px] font-mono text-zinc-500 select-none">
+                    0.50
+                  </div>
+                  <div className="absolute right-2.5 top-[65%] -translate-y-1/2 text-[9px] font-mono text-zinc-600 select-none">
+                    0.25
+                  </div>
+                  <div className="absolute right-2.5 bottom-3.5 text-[9px] font-mono text-zinc-500 select-none">
+                    0.00
                   </div>
 
-                  {/* Horizontal subtle guide lines */}
-                  <div className="absolute left-3 right-10 top-3 border-t border-zinc-800/50 border-dashed" />
-                  <div className="absolute left-3 right-10 top-1/2 border-t border-zinc-800/50 border-dashed" />
-                  <div className="absolute left-3 right-10 bottom-3 border-t border-zinc-800/50 border-dashed" />
-
-                  {/* SVG Waveform Curve */}
+                  {/* SVG Waveform Curve & Oscilloscope Grid */}
                   <svg
-                    className="w-[calc(100%-36px)] h-full overflow-visible"
+                    className="w-full h-full overflow-visible"
                     viewBox="0 0 300 90"
                     preserveAspectRatio="none"
                   >
                     <defs>
                       <linearGradient id="progress-wave-grad" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="0%" stopColor="#10b981" stopOpacity="0.25" />
+                        <stop offset="60%" stopColor="#10b981" stopOpacity="0.08" />
                         <stop offset="100%" stopColor="#10b981" stopOpacity="0.0" />
                       </linearGradient>
+                      <filter id="wave-glow" x="-20%" y="-20%" width="140%" height="140%">
+                        <feDropShadow dx="0" dy="0" stdDeviation="2" floodColor="#34d399" floodOpacity="0.6" />
+                      </filter>
                     </defs>
+
+                    {/* Horizontal Level Grid Lines */}
+                    <line x1="0" y1="12" x2="300" y2="12" stroke="#27272a" strokeWidth="0.75" strokeDasharray="3 3" />
+                    <line x1="0" y1="32" x2="300" y2="32" stroke="#27272a" strokeWidth="0.75" strokeDasharray="3 3" />
+                    <line x1="0" y1="52" x2="300" y2="52" stroke="#27272a" strokeWidth="0.75" strokeDasharray="3 3" />
+                    <line x1="0" y1="72" x2="300" y2="72" stroke="#27272a" strokeWidth="0.75" strokeDasharray="3 3" />
+
+                    {/* Vertical Time Markers */}
+                    <line x1="75" y1="0" x2="75" y2="90" stroke="#27272a" strokeWidth="0.75" strokeDasharray="3 3" />
+                    <line x1="150" y1="0" x2="150" y2="90" stroke="#27272a" strokeWidth="0.75" strokeDasharray="3 3" />
+                    <line x1="225" y1="0" x2="225" y2="90" stroke="#27272a" strokeWidth="0.75" strokeDasharray="3 3" />
+                    <line x1="300" y1="0" x2="300" y2="90" stroke="#10b981" strokeWidth="1" strokeDasharray="2 2" strokeOpacity="0.6" />
+
+                    {/* Area Fill */}
                     <path ref={fillPathRef} d={INITIAL_PATHS.fillPath} fill="url(#progress-wave-grad)" />
+
+                    {/* Oscilloscope Beam Line */}
                     <path
                       ref={strokePathRef}
                       d={INITIAL_PATHS.strokePath}
@@ -976,8 +1023,38 @@ export function HooksRawSection() {
                       strokeWidth="2"
                       strokeLinecap="round"
                       strokeLinejoin="round"
+                      filter="url(#wave-glow)"
+                    />
+
+                    {/* Live Leading Reticle / Scan Dot */}
+                    <circle
+                      ref={scanDotPingRef}
+                      cx="300"
+                      cy={INITIAL_PATHS.lastY}
+                      r="5"
+                      fill="#34d399"
+                      fillOpacity="0.3"
+                      className="animate-ping origin-center"
+                    />
+                    <circle
+                      ref={scanDotRef}
+                      cx="300"
+                      cy={INITIAL_PATHS.lastY}
+                      r="3.5"
+                      fill="#34d399"
+                      stroke="#ffffff"
+                      strokeWidth="1.5"
                     />
                   </svg>
+
+                  {/* X-Axis Time Marks */}
+                  <div className="absolute left-3 right-10 bottom-1 flex justify-between text-[9px] font-mono text-zinc-600 select-none">
+                    <span>-2.0s</span>
+                    <span>-1.5s</span>
+                    <span>-1.0s</span>
+                    <span>-0.5s</span>
+                    <span className="text-emerald-400 font-semibold">NOW</span>
+                  </div>
                 </div>
               </div>
             </div>

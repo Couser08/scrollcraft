@@ -19,6 +19,8 @@ export interface SequenceOptions {
   maxDpr?: number;
   /** Sliding LRU decoded window frame capacity (default: 20 frames) to protect mobile Safari VRAM */
   windowSize?: number;
+  /** Fitting behavior for the sequence frames on canvas ('contain' | 'cover'). Default: 'contain'. */
+  fit?: 'cover' | 'contain';
 }
 
 export class SequenceSolver {
@@ -43,13 +45,16 @@ export class SequenceSolver {
     private container: HTMLElement,
     options: SequenceOptions
   ) {
+    const isMobile = typeof navigator !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    const defaultWindow = isMobile ? 25 : Math.max(90, options.frames.length);
     this.options = {
       frames: options.frames,
       speed: options.speed ?? 1.5,
       maxDpr: options.maxDpr ?? 2,
-      windowSize: options.windowSize ?? 20,
+      windowSize: options.windowSize ?? defaultWindow,
+      fit: options.fit ?? 'contain',
     };
-    this.maxWindowSize = Math.max(10, Math.min(this.options.windowSize, 30));
+    this.maxWindowSize = this.options.windowSize;
     this.preloadInitial();
   }
 
@@ -81,12 +86,24 @@ export class SequenceSolver {
 
     this.loadingFrames.add(index);
     const img = new Image();
-    img.onload = () => {
+
+    const handleLoaded = () => {
       this.loadingFrames.delete(index);
       if (this.destroyed) return;
       this.decodedFrames.set(index, img);
       this.pruneDistantFrames();
+      if (index === this.currentFrame) {
+        this.drawFrame(this.currentFrame);
+      }
       onComplete?.(img);
+    };
+
+    img.onload = () => {
+      if (typeof img.decode === 'function') {
+        img.decode().then(handleLoaded).catch(handleLoaded);
+      } else {
+        handleLoaded();
+      }
     };
     img.onerror = () => {
       this.loadingFrames.delete(index);
@@ -153,6 +170,10 @@ export class SequenceSolver {
     this.canvas.height = canvasHeight * dpr;
     const ctx = this.canvas.getContext('2d');
     if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    if (this.currentFrame >= 0) {
+      this.drawFrame(this.currentFrame);
+    }
   }
 
   public update(scrollY: number): void {
@@ -196,7 +217,7 @@ export class SequenceSolver {
     }
     if (!img || img.width === 0 || img.height === 0) return;
 
-    // Draw image to fill the canvas like object-fit: cover
+    // Draw image to fill the canvas according to fit ('contain' or 'cover')
     const dpr = Math.min(window.devicePixelRatio || 1, this.options.maxDpr);
     const canvasWidth = this.canvas.width / dpr;
     const canvasHeight = this.canvas.height / dpr;
@@ -208,18 +229,35 @@ export class SequenceSolver {
     let offsetX: number;
     let offsetY: number;
 
-    if (imgRatio > canvasRatio) {
-      drawHeight = canvasHeight;
-      drawWidth = img.width * (canvasHeight / img.height);
-      offsetX = (canvasWidth - drawWidth) / 2;
-      offsetY = 0;
+    if (this.options.fit === 'cover') {
+      if (imgRatio > canvasRatio) {
+        drawHeight = canvasHeight;
+        drawWidth = img.width * (canvasHeight / img.height);
+        offsetX = (canvasWidth - drawWidth) / 2;
+        offsetY = 0;
+      } else {
+        drawWidth = canvasWidth;
+        drawHeight = img.height * (canvasWidth / img.width);
+        offsetX = 0;
+        offsetY = (canvasHeight - drawHeight) / 2;
+      }
     } else {
-      drawWidth = canvasWidth;
-      drawHeight = img.height * (canvasWidth / img.width);
-      offsetX = 0;
-      offsetY = (canvasHeight - drawHeight) / 2;
+      // 'contain': preserve entire frame aspect ratio inside viewport, perfectly centered without clipping
+      if (imgRatio > canvasRatio) {
+        drawWidth = canvasWidth;
+        drawHeight = img.height * (canvasWidth / img.width);
+        offsetX = 0;
+        offsetY = (canvasHeight - drawHeight) / 2;
+      } else {
+        drawHeight = canvasHeight;
+        drawWidth = img.width * (canvasHeight / img.height);
+        offsetX = (canvasWidth - drawWidth) / 2;
+        offsetY = 0;
+      }
     }
 
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'medium';
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
     ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
   }

@@ -48,6 +48,8 @@ export class TextRevealSolver {
   private entrySlide: number = 0;
   private baseOpacity: number = 0;
   private hasKineticTransforms: boolean = false;
+  private currentProgress: number = -1;
+  private lastRenderedProgress: number = -2;
 
   constructor(container: HTMLElement, chars: HTMLElement[], options: TextRevealOptions = {}) {
     this.container = container;
@@ -155,6 +157,8 @@ export class TextRevealSolver {
       progress = clamp(mapRange(this.range[0], this.range[1], 0, 1, progress), 0, 1);
     }
 
+    this.currentProgress = progress;
+
     const totalChars = this.chars.length;
     this.opacities.length = totalChars;
     this.progressValues.length = totalChars;
@@ -177,6 +181,9 @@ export class TextRevealSolver {
 
   /** Phase 3: write the values calculated in update. */
   public render(): void {
+    if (this.currentProgress === this.lastRenderedProgress) return;
+    this.lastRenderedProgress = this.currentProgress;
+
     const total = this.chars.length;
     for (let i = 0; i < total; i++) {
       const char = this.chars[i];
@@ -193,7 +200,7 @@ export class TextRevealSolver {
       // 2. Atmospheric blur write
       if (this.maxBlur > 0) {
         const currentBlur = lerp(this.maxBlur, 0, charProgress);
-        const blurStr = currentBlur > 0.05 ? `blur(${currentBlur.toFixed(2)}px)` : 'none';
+        const blurStr = currentBlur > 0.5 ? `blur(${currentBlur.toFixed(1)}px)` : '';
         if (char.style.filter !== blurStr) {
           char.style.filter = blurStr;
         }

@@ -81,6 +81,7 @@ describe('TriggerRegistry & MarkerManager', () => {
           setAttribute: vi.fn(),
           className: '',
           innerText: '',
+          textContent: '',
         };
         createdElements.push(el);
         return el;
@@ -141,6 +142,7 @@ describe('TriggerRegistry & MarkerManager', () => {
           setAttribute: vi.fn(),
           className: '',
           innerText: '',
+          textContent: '',
         };
         mockElements.push(el);
         return el;

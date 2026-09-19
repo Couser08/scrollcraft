@@ -573,17 +573,17 @@ export function StackedCardsShowcase() {
   return (
     <div className="w-full py-12">
       <StackedCards offset={40} top={110} scaleStep={0.05} minScale={0.85} cardDistance={400}>
-        <div className="w-full max-w-xl mx-auto h-64 rounded-3xl border border-violet-500/30 glass-card p-8 shadow-2xl">
+        <div className="w-full max-w-xl mx-auto h-64 rounded-3xl border border-violet-500/30 bg-[#0d0e15] p-8 shadow-2xl">
           <span className="text-xs font-mono text-violet-400">CARD 01</span>
           <h3 className="text-2xl font-bold text-white mt-2">Zero-Rerender Engine</h3>
           <p className="text-sm text-zinc-300 mt-2">Direct DOM matrix calculations avoid Virtual DOM thrashing.</p>
         </div>
-        <div className="w-full max-w-xl mx-auto h-64 rounded-3xl border border-sky-500/30 glass-card p-8 shadow-2xl">
+        <div className="w-full max-w-xl mx-auto h-64 rounded-3xl border border-sky-500/30 bg-[#0d0e15] p-8 shadow-2xl">
           <span className="text-xs font-mono text-sky-400">CARD 02</span>
           <h3 className="text-2xl font-bold text-white mt-2">GSAP Parity Solvers</h3>
           <p className="text-sm text-zinc-300 mt-2">Pinning, velocity marquees, and horizontal panning built-in.</p>
         </div>
-        <div className="w-full max-w-xl mx-auto h-64 rounded-3xl border border-emerald-500/30 glass-card p-8 shadow-2xl">
+        <div className="w-full max-w-xl mx-auto h-64 rounded-3xl border border-emerald-500/30 bg-[#0d0e15] p-8 shadow-2xl">
           <span className="text-xs font-mono text-emerald-400">CARD 03</span>
           <h3 className="text-2xl font-bold text-white mt-2">Next.js App Router Native</h3>
           <p className="text-sm text-zinc-300 mt-2">Survives React 19 RSC streaming and route hydration without jumps.</p>
@@ -777,9 +777,11 @@ export function PanoramicHorizontalShowcase() {
       { name: 'maxDpr', type: 'number', default: '2', description: 'Maximum device pixel ratio clamp.' },
       { name: 'poster', type: 'string', default: 'undefined', description: 'Immediate fallback image rendered before frames load.' },
       { name: 'height', type: 'string | number', default: "'300vh'", description: 'Total scroll runway height for sequence scrubbing.' },
+      { name: 'fit', type: "'contain' | 'cover'", default: "'contain'", description: 'Preserve frame aspect ratio without clipping (contain) or stretch to fill canvas (cover).' },
       { name: 'children', type: 'React.ReactNode', default: 'undefined', description: 'Optional overlays or elements rendered inside the pinned sticky presentation container.' },
     ],
     knobs: [
+      { id: 'fit', label: 'Fit Mode', type: 'select', default: 'contain', options: ['contain', 'cover'] },
       { id: 'speed', label: 'Speed', type: 'number', default: 1, min: 0.5, max: 2.5, step: 0.25 },
       { id: 'maxDpr', label: 'Max DPR', type: 'number', default: 2, min: 1, max: 3, step: 0.5 },
     ],

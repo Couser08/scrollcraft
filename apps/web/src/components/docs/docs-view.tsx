@@ -61,16 +61,24 @@ import { ScrollCraftLogo } from '@/components/ui/scrollcraft-logo';
 
 const TOC_MAPPING: Record<string, TocItem[]> = {
   introduction: [
-    { id: 'introduction-mental-model', title: 'Mental Model' },
+    { id: 'introduction-mental-model', title: 'Mental Model & Pillars' },
     { id: 'install-package', title: 'Package Installation' },
+    { id: 'feature-matrix', title: 'Feature Support Matrix' },
     { id: 'provider-setup', title: 'Root Layout Setup' },
+    { id: 'provider-props', title: 'Configuration Props' },
     { id: 'quick-example', title: 'Quickstart Component' },
+    { id: 'core-invariants', title: 'Engineering Invariants' },
+    { id: 'architecture-attributions', title: 'Attributions & Engine' },
   ],
   installation: [
     { id: 'install-package', title: 'Package Manager' },
+    { id: 'feature-matrix', title: 'Feature Support Matrix' },
   ],
   setup: [
-    { id: 'provider-setup', title: 'Root Layout Integration' },
+    { id: 'provider-setup', title: 'Root Layout Setup' },
+    { id: 'provider-props', title: 'Configuration Props' },
+    { id: 'quick-example', title: 'Quickstart Component' },
+    { id: 'core-invariants', title: 'Core Invariants' },
   ],
   'three-phase-ticker': [
     { id: 'ticker-execution', title: 'Execution Pipeline' },
@@ -403,11 +411,11 @@ export function DocsView() {
             <div className="w-full bg-zinc-900/90 border border-violet-500/30 rounded-lg px-3 py-1.5 text-xs text-zinc-300 font-mono flex items-center justify-between shadow-xs">
               <span className="font-semibold text-white">@scrollcraft/react</span>
               <span className="text-[10px] px-2 py-0.5 rounded font-bold uppercase tracking-wider bg-violet-500/15 text-violet-400 border border-violet-500/30 font-mono">
-                v0.1.1 Beta
+                v0.2.0 Beta
               </span>
             </div>
             <p className="text-[10px] text-zinc-400 leading-tight px-1 font-sans">
-              <span className="text-zinc-300 font-medium">v0.1.1 Beta</span> is production-hardened across the 8-Layer Protocol with zero React re-renders.
+              <span className="text-zinc-300 font-medium">v0.2.0 Beta</span> is production-hardened across the 8-Layer Protocol with zero React re-renders.
             </p>
           </div>
 

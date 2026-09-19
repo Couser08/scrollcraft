@@ -292,7 +292,7 @@ export function PrimitivesShowcase() {
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0d0f14] border border-zinc-800 text-[11px] font-mono tracking-[0.25em] text-zinc-400 uppercase mb-4 shadow-sm">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)] animate-pulse" />
-              <span>CORE PRIMITIVES &bull; BETA v0.1.1 (LIVE)</span>
+              <span>CORE PRIMITIVES &bull; BETA v0.2.0 (LIVE)</span>
             </div>
 
             {/* Dual-Tone Headline */}
@@ -365,15 +365,15 @@ export function PrimitivesShowcase() {
 
         </div>
 
-        {/* v0.2.0 Coming Soon Teaser Ribbon */}
-        <div className="w-full mb-6 p-3 rounded-xl bg-cyan-950/20 border border-cyan-500/30 flex flex-wrap items-center justify-between gap-3 text-xs font-mono">
-          <div className="flex flex-wrap items-center gap-2 text-cyan-300">
-            <span className="px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 font-bold uppercase text-[10px]">
-              v0.2.0 Coming Soon
+        {/* v0.2.0 Live Primitives Ribbon */}
+        <div className="w-full mb-6 p-3 rounded-xl bg-emerald-950/20 border border-emerald-500/30 flex flex-wrap items-center justify-between gap-3 text-xs font-mono">
+          <div className="flex flex-wrap items-center gap-2 text-emerald-300">
+            <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold uppercase text-[10px]">
+              v0.2.0 Beta (LIVE)
             </span>
-            <span>New Primitives: &lt;StackedCards /&gt;, &lt;TextReveal /&gt;, &lt;ScrollTransform /&gt;, &lt;ScrollDraw /&gt;, &lt;ScrollInspector /&gt;</span>
+            <span>Shipped Primitives: &lt;StackedCards /&gt;, &lt;TextReveal /&gt;, &lt;ScrollTransform /&gt;, &lt;ScrollDraw /&gt;, &lt;ScrollInspector /&gt;</span>
           </div>
-          <a href="/docs#stacked-cards" className="text-cyan-400 hover:text-cyan-300 transition-colors flex items-center gap-1 font-semibold">
+          <a href="/docs#stacked-cards" className="text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1 font-semibold">
             <span>Explore Docs</span>
             <span>&rarr;</span>
           </a>

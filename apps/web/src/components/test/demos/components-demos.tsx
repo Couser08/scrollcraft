@@ -22,7 +22,7 @@ export function StackedCardsDemoStage({ knobs }: { knobs: Record<string, any> })
   const scaleStep = knobs.scaleStep ?? 0.05;
 
   const cards = [
-    <div key={1} className="w-full max-w-xl mx-auto h-72 rounded-3xl border border-violet-500/30 glass-card p-8 shadow-2xl flex flex-col justify-between">
+    <div key={1} className="w-full max-w-xl mx-auto h-72 rounded-3xl border border-violet-500/30 bg-[#0d0e15] p-8 shadow-[0_20px_50px_rgba(0,0,0,0.9)] flex flex-col justify-between">
       <div className="flex items-center justify-between border-b border-violet-500/20 pb-4">
         <span className="text-xs font-mono text-violet-400 font-bold uppercase tracking-wider">
           Card 01 / Physics Solver
@@ -43,7 +43,7 @@ export function StackedCardsDemoStage({ knobs }: { knobs: Record<string, any> })
       </div>
     </div>,
 
-    <div key={2} className="w-full max-w-xl mx-auto h-72 rounded-3xl border border-sky-500/30 glass-card p-8 shadow-2xl flex flex-col justify-between">
+    <div key={2} className="w-full max-w-xl mx-auto h-72 rounded-3xl border border-sky-500/30 bg-[#0d0e15] p-8 shadow-[0_20px_50px_rgba(0,0,0,0.9)] flex flex-col justify-between">
       <div className="flex items-center justify-between border-b border-sky-500/20 pb-4">
         <span className="text-xs font-mono text-sky-400 font-bold uppercase tracking-wider">
           Card 02 / Lifecycle Solvers
@@ -64,7 +64,7 @@ export function StackedCardsDemoStage({ knobs }: { knobs: Record<string, any> })
       </div>
     </div>,
 
-    <div key={3} className="w-full max-w-xl mx-auto h-72 rounded-3xl border border-emerald-500/30 glass-card p-8 shadow-2xl flex flex-col justify-between">
+    <div key={3} className="w-full max-w-xl mx-auto h-72 rounded-3xl border border-emerald-500/30 bg-[#0d0e15] p-8 shadow-[0_20px_50px_rgba(0,0,0,0.9)] flex flex-col justify-between">
       <div className="flex items-center justify-between border-b border-emerald-500/20 pb-4">
         <span className="text-xs font-mono text-emerald-400 font-bold uppercase tracking-wider">
           Card 03 / Next.js Streaming
@@ -85,7 +85,7 @@ export function StackedCardsDemoStage({ knobs }: { knobs: Record<string, any> })
       </div>
     </div>,
 
-    <div key={4} className="w-full max-w-xl mx-auto h-72 rounded-3xl border border-amber-500/30 glass-card p-8 shadow-2xl flex flex-col justify-between">
+    <div key={4} className="w-full max-w-xl mx-auto h-72 rounded-3xl border border-amber-500/30 bg-[#0d0e15] p-8 shadow-[0_20px_50px_rgba(0,0,0,0.9)] flex flex-col justify-between">
       <div className="flex items-center justify-between border-b border-amber-500/20 pb-4">
         <span className="text-xs font-mono text-amber-400 font-bold uppercase tracking-wider">
           Card 04 / Boundary Unpinning
@@ -303,6 +303,7 @@ export function HorizontalScrollDemoStage({ knobs }: { knobs: Record<string, any
 export function ScrollSequenceDemoStage({ knobs }: { knobs: Record<string, any> }) {
   const speed = knobs.speed ?? 1;
   const maxDpr = knobs.maxDpr ?? 2;
+  const fit = (knobs.fit as 'contain' | 'cover') ?? 'contain';
   const FRAME_COUNT = 90;
 
   const frames = React.useMemo(
@@ -316,9 +317,11 @@ export function ScrollSequenceDemoStage({ knobs }: { knobs: Record<string, any> 
   return (
     <div className="relative w-full bg-black">
       <ScrollSequence
+        key={`${fit}-${speed}-${maxDpr}`}
         frames={frames}
         speed={speed}
         maxDpr={maxDpr}
+        fit={fit}
         poster="/sequence/chrono-watch/poster.webp"
         height="400vh"
         className="w-full"
@@ -381,41 +384,54 @@ export function ScrollSequenceDemoStage({ knobs }: { knobs: Record<string, any> 
 // ==========================================
 export function TextRevealDemoStage({ knobs }: { knobs: Record<string, any> }) {
   const by = knobs.by ?? 'chars';
-  const blur = knobs.blur ?? 8;
+  const blur = knobs.blur ?? 0;
   const rotateX = knobs.rotateX ?? 35;
 
   return (
-    <div className="w-full min-h-[220vh] flex flex-col items-center justify-start pt-16 px-6">
-      {/* Top Entrance Teaser Card */}
-      <div className="max-w-md mx-auto text-center mb-44 space-y-3">
-        <span className="text-xs font-mono uppercase tracking-widest text-violet-400">
-          Scroll Down to Trigger Typographic Reveal
-        </span>
-        <h3 className="text-2xl font-bold text-white">3D Perspective Kinetic Split</h3>
-        <p className="text-xs text-zinc-400">
-          At scrollY = 0, text is completely pristine and hidden (baseOpacity: 0). As you scroll into view, each character flips up in 3D perspective space!
+    <div className="w-full flex flex-col items-center justify-start pt-16 pb-32 px-6">
+      {/* Top Entrance Intro */}
+      <div className="max-w-md mx-auto text-center mb-28 space-y-3">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-violet-500/30 bg-violet-500/10 text-violet-400 text-xs font-mono">
+          <span>Natural Document Flow • No Sticky Locking</span>
+        </div>
+        <h3 className="text-2xl font-bold text-white">Editorial Typography Reveal</h3>
+        <p className="text-xs text-zinc-400 leading-relaxed">
+          In mature production sites, text reveals naturally as the user scrolls down through the viewport reading zone — with zero artificial section pinning.
         </p>
-        <div className="inline-flex items-center gap-1 font-mono text-xs text-emerald-400">
-          <span>↓ Scroll Down Into Section</span>
+        <div className="inline-flex items-center gap-1 font-mono text-xs text-emerald-400 pt-2">
+          <span>↓ Scroll down to read editorial copy</span>
         </div>
       </div>
 
-      {/* Reveal Target Section with 3D Perspective */}
-      <div className="max-w-4xl mx-auto text-center space-y-8 sticky top-48 p-8 sm:p-12 rounded-3xl glass-card shadow-2xl">
-        <span className="text-xs font-mono uppercase tracking-widest text-violet-400">
-          Kinetic Typographic Split (by="{by}" | rotateX: {rotateX}° | 3D Flip)
-        </span>
+      {/* Reveal Target in Normal Document Flow */}
+      <div className="max-w-4xl mx-auto text-center space-y-8 my-20 p-8 sm:p-14 rounded-3xl bg-[#0c0d12] border border-zinc-800/80 shadow-2xl">
+        <div className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-violet-400">
+          <span>Kinetic Typographic Split</span>
+          <span className="text-zinc-600">•</span>
+          <span>by="{by}"</span>
+          <span className="text-zinc-600">•</span>
+          <span>rotateX: {rotateX}°</span>
+        </div>
+
         <TextReveal
           key={`${by}-${blur}-${rotateX}`}
           by={by}
           blur={blur}
-          scale={0.88}
+          scale={0.92}
           rotateX={rotateX}
           baseOpacity={0.15}
           className="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight text-white leading-tight"
         >
           Declarative scroll physics with zero React re-renders. Every single character illuminates and flips in 3D perspective space in lockstep with your gesture.
         </TextReveal>
+      </div>
+
+      {/* Trailing Section demonstrating unblocked scroll */}
+      <div className="max-w-md mx-auto text-center mt-24 space-y-2 text-zinc-500 font-mono text-xs">
+        <span className="text-emerald-400 font-bold">✓ Natural Flow Verified</span>
+        <p className="text-zinc-400 font-sans text-xs">
+          The page continues scrolling freely past the typography with zero scroll hijacking or sticky trapping.
+        </p>
       </div>
     </div>
   );

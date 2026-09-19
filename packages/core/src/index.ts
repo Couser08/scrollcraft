@@ -29,3 +29,4 @@ export * from './stacked-cards-solver';
 export * from './motion-preference';
 export * from './input-normalizer';
 export * from './history-restore';
+export * from './gsap-bridge';

@@ -14,50 +14,70 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { Reveal } from '@scrollcraft/react';
-import { ArrowRight, BookOpen, Check, Copy, Shield, Terminal, Code2, Cpu, CheckCircle2, Play } from 'lucide-react';
+import { ArrowRight, BookOpen, Check, Copy, Shield, Terminal, Code2, Cpu, CheckCircle2 } from 'lucide-react';
 
 export function FinalCTASection() {
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState<'terminal' | 'quickstart' | 'specs'>('terminal');
   const [copiedCode, setCopiedCode] = useState(false);
-  const [isRunningDoctor, setIsRunningDoctor] = useState(false);
-  const installCmd = 'npm i @scrollcraft/react';
+  const installCmd = 'npm i @scrollcraft/react@beta';
 
   const quickstartSnippet = `import { ScrollProvider, Parallax } from '@scrollcraft/react';
 
 export default function App() {
   return (
-    <ScrollProvider smooth>
-      <Parallax speed={0.25} className="hero">
-        <h1 className="text-6xl font-bold">
-          Make the web move.
-        </h1>
-      </Parallax>
+    <ScrollProvider smooth={true}>
+      <main className="min-h-[200vh] flex flex-col items-center justify-center">
+        <Parallax speed={0.25}>
+          <h1 className="text-5xl font-extrabold text-white">
+            Make the web move.
+          </h1>
+        </Parallax>
+      </main>
     </ScrollProvider>
   );
-}`;
+};`;
 
-  const copyQuickstart = () => {
-    if (typeof navigator !== 'undefined' && navigator.clipboard) {
-      navigator.clipboard.writeText(quickstartSnippet);
-      setCopiedCode(true);
-      setTimeout(() => setCopiedCode(false), 2000);
+  const copyToClipboard = (text: string, onSuccess: () => void) => {
+    if (typeof navigator !== 'undefined' && navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(onSuccess).catch(() => {
+        fallbackCopy(text, onSuccess);
+      });
+    } else {
+      fallbackCopy(text, onSuccess);
     }
   };
 
-  const runDoctor = () => {
-    setIsRunningDoctor(true);
-    setTimeout(() => {
-      setIsRunningDoctor(false);
-    }, 400);
+  const fallbackCopy = (text: string, onSuccess: () => void) => {
+    try {
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-9999px';
+      textArea.style.top = '-9999px';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      onSuccess();
+    } catch {
+      // Fallback failed
+    }
+  };
+
+  const copyQuickstart = () => {
+    copyToClipboard(quickstartSnippet, () => {
+      setCopiedCode(true);
+      setTimeout(() => setCopiedCode(false), 2000);
+    });
   };
 
   const copyCommand = () => {
-    if (typeof navigator !== 'undefined' && navigator.clipboard) {
-      navigator.clipboard.writeText(installCmd);
+    copyToClipboard(installCmd, () => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    }
+    });
   };
 
   return (
@@ -286,42 +306,35 @@ export default function App() {
                           </button>
                         </div>
 
-                        {/* Simulated Build Logs */}
+                        {/* Professional Engine Logs */}
                         <div className="space-y-1.5 text-[11px] text-zinc-400">
                           <div className="flex items-center gap-2 text-zinc-300">
                             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                            <span>Resolving @scrollcraft/react (v0.1.1-beta) [4ms]</span>
+                            <span>Package: @scrollcraft/react@0.2.0-beta</span>
                           </div>
                           <div className="flex items-center gap-2 text-zinc-300">
                             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                            <span>Hardware compositor: Direct DOM Pipeline</span>
+                            <span>Compositor: Direct GPU matrix transforms</span>
                           </div>
                           <div className="flex items-center gap-2 text-zinc-300">
                             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                            <span>Subpixel RAF loop: Synchronized (60–240 Hz)</span>
+                            <span>Ticker: Decoupled 3-phase microtask loop</span>
                           </div>
                           <div className="flex items-center gap-2 text-emerald-400 font-medium">
                             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                            <span>0 dependencies &bull; &lt; 5 KB brotli &bull; Zero shift</span>
+                            <span>Footprint: &lt; 5.2 KB Brotli • 0 runtime dependencies</span>
                           </div>
                         </div>
 
-                        {/* Interactive Verification Pill */}
+                        {/* Telemetry Status Bar */}
                         <div className="pt-0.5">
-                          <button
-                            type="button"
-                            onClick={runDoctor}
-                            disabled={isRunningDoctor}
-                            className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-zinc-900/80 hover:bg-zinc-850 border border-zinc-800 text-[11px] text-zinc-300 transition-all cursor-pointer"
-                          >
-                            <span className="flex items-center gap-2">
-                              <Play className={`w-3 h-3 text-violet-400 ${isRunningDoctor ? 'animate-spin' : ''}`} />
-                              <span>{isRunningDoctor ? 'Analyzing compositor frame delta...' : 'Run verify doctor check'}</span>
-                            </span>
-                            <span className="text-[10px] font-mono text-emerald-400 font-semibold">
-                              {isRunningDoctor ? 'calibrating...' : '✓ 0ms lag (Pass)'}
-                            </span>
-                          </button>
+                          <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-zinc-900/60 border border-zinc-800 text-[11px] text-zinc-400 font-mono">
+                            <div className="flex items-center gap-2">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]" />
+                              <span>Active release:</span>
+                            </div>
+                            <span className="text-emerald-400 font-semibold">v0.2.0 Beta (LIVE)</span>
+                          </div>
                         </div>
                       </div>
                     )}
@@ -334,17 +347,17 @@ export default function App() {
                           <button
                             type="button"
                             onClick={copyQuickstart}
-                            className="flex items-center gap-1 text-zinc-400 hover:text-white transition-colors cursor-pointer"
+                            className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white transition-colors cursor-pointer text-[10px]"
                           >
                             {copiedCode ? (
                               <>
                                 <Check className="w-3 h-3 text-emerald-400" />
-                                <span className="text-emerald-400 text-[10px]">Copied</span>
+                                <span className="text-emerald-400">Copied!</span>
                               </>
                             ) : (
                               <>
-                                <Copy className="w-3 h-3" />
-                                <span className="text-[10px]">Copy code</span>
+                                <Copy className="w-3 h-3 text-zinc-400" />
+                                <span>Copy code</span>
                               </>
                             )}
                           </button>
@@ -353,10 +366,12 @@ export default function App() {
                           <span className="text-purple-400">import</span> &#123; <span className="text-violet-300">ScrollProvider</span>, <span className="text-violet-300">Parallax</span> &#125; <span className="text-purple-400">from</span> <span className="text-emerald-300">&apos;@scrollcraft/react&apos;</span>;{'\n\n'}
                           <span className="text-purple-400">export default function</span> <span className="text-violet-400 font-semibold">App</span>() &#123;{'\n'}
                           {'  '}<span className="text-purple-400">return</span> ({'\n'}
-                          {'    '}&lt;<span className="text-violet-300">ScrollProvider</span> <span className="text-amber-300">smooth</span>&gt;{'\n'}
-                          {'      '}&lt;<span className="text-violet-300">Parallax</span> <span className="text-amber-300">speed</span>=&#123;<span className="text-emerald-400">0.25</span>&#125;&gt;{'\n'}
-                          {'        '}&lt;<span className="text-zinc-100">h1</span>&gt;Make the web move.&lt;/<span className="text-zinc-100">h1</span>&gt;{'\n'}
-                          {'      '}&lt;/<span className="text-violet-300">Parallax</span>&gt;{'\n'}
+                          {'    '}&lt;<span className="text-violet-300">ScrollProvider</span> <span className="text-amber-300">smooth</span>=&#123;<span className="text-emerald-400">true</span>&#125;&gt;{'\n'}
+                          {'      '}&lt;<span className="text-zinc-300">main</span> <span className="text-amber-300">className</span>=<span className="text-emerald-300">&quot;min-h-[200vh]&quot;</span>&gt;{'\n'}
+                          {'        '}&lt;<span className="text-violet-300">Parallax</span> <span className="text-amber-300">speed</span>=&#123;<span className="text-emerald-400">0.25</span>&#125;&gt;{'\n'}
+                          {'          '}&lt;<span className="text-zinc-100">h1</span>&gt;Make the web move.&lt;/<span className="text-zinc-100">h1</span>&gt;{'\n'}
+                          {'        '}&lt;/<span className="text-violet-300">Parallax</span>&gt;{'\n'}
+                          {'      '}&lt;/<span className="text-zinc-300">main</span>&gt;{'\n'}
                           {'    '}&lt;/<span className="text-violet-300">ScrollProvider</span>&gt;{'\n'}
                           {'  '});{'\n'}
                           &#125;
@@ -368,27 +383,27 @@ export default function App() {
                     {activeTab === 'specs' && (
                       <div className="grid grid-cols-2 gap-2.5 font-mono text-xs h-full content-between">
                         <div className="p-3 rounded-xl bg-black/50 border border-zinc-800/80 flex flex-col justify-between">
-                          <span className="text-[10px] text-zinc-500 uppercase tracking-wider">Bundle Size</span>
-                          <span className="text-lg sm:text-xl font-bold text-white mt-1">&lt; 5 KB</span>
-                          <span className="text-[10px] text-zinc-400 mt-0.5">Brotli (tree-shaken)</span>
+                          <span className="text-[10px] text-zinc-500 uppercase tracking-wider">Bundle Footprint</span>
+                          <span className="text-lg sm:text-xl font-bold text-white mt-1">&lt; 5.2 KB</span>
+                          <span className="text-[10px] text-zinc-400 mt-0.5">Brotli • 0 Dependencies</span>
                         </div>
 
                         <div className="p-3 rounded-xl bg-black/50 border border-zinc-800/80 flex flex-col justify-between">
-                          <span className="text-[10px] text-zinc-500 uppercase tracking-wider">Target Rate</span>
-                          <span className="text-lg sm:text-xl font-bold text-emerald-400 mt-1">RAF Sync</span>
-                          <span className="text-[10px] text-zinc-400 mt-0.5">Hardware 60–240 Hz</span>
+                          <span className="text-[10px] text-zinc-500 uppercase tracking-wider">Frame Pipeline</span>
+                          <span className="text-lg sm:text-xl font-bold text-emerald-400 mt-1">Host VSync</span>
+                          <span className="text-[10px] text-zinc-400 mt-0.5">Adaptive 60–240 Hz</span>
                         </div>
 
                         <div className="p-3 rounded-xl bg-black/50 border border-zinc-800/80 flex flex-col justify-between">
-                          <span className="text-[10px] text-zinc-500 uppercase tracking-wider">Re-renders</span>
-                          <span className="text-lg sm:text-xl font-bold text-emerald-400 mt-1">0 / scroll</span>
-                          <span className="text-[10px] text-zinc-400 mt-0.5">Pure mutable refs</span>
+                          <span className="text-[10px] text-zinc-500 uppercase tracking-wider">DOM Compositing</span>
+                          <span className="text-lg sm:text-xl font-bold text-emerald-400 mt-1">Zero Re-renders</span>
+                          <span className="text-[10px] text-zinc-400 mt-0.5">Direct Transform Writes</span>
                         </div>
 
                         <div className="p-3 rounded-xl bg-black/50 border border-zinc-800/80 flex flex-col justify-between">
-                          <span className="text-[10px] text-zinc-500 uppercase tracking-wider">Architecture</span>
-                          <span className="text-lg sm:text-xl font-bold text-violet-400 mt-1">RSC Safe</span>
-                          <span className="text-[10px] text-zinc-400 mt-0.5">React 18 & 19 Ready</span>
+                          <span className="text-[10px] text-zinc-500 uppercase tracking-wider">Component Model</span>
+                          <span className="text-lg sm:text-xl font-bold text-violet-400 mt-1">React 18 &amp; 19</span>
+                          <span className="text-[10px] text-zinc-400 mt-0.5">RSC Streaming Ready</span>
                         </div>
                       </div>
                     )}
@@ -401,7 +416,7 @@ export default function App() {
                       <span className="text-zinc-700">&bull;</span>
                       <span>zero layout shift</span>
                     </div>
-                    <span className="text-emerald-400 font-medium">ready for production</span>
+                    <span className="text-emerald-400 font-medium font-mono text-[10px]">v0.2.0-beta • active release</span>
                   </div>
                 </div>
               </div>

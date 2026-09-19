@@ -26,6 +26,7 @@ export class InertiaEngine {
   };
 
   private subscribers: Set<(metrics: ScrollMetrics) => void> = new Set();
+  private remeasureListeners: Set<() => void> = new Set();
   private isInitialized: boolean = false;
   private taskId: string = `lenis-ticker-${Math.random().toString(36).slice(2, 8)}`;
   private prevScrollRestoration: string | null = null;
@@ -98,6 +99,9 @@ export class InertiaEngine {
       spring: config?.spring,
       fpsAware: config?.fpsAware ?? true,
       subpixelSnap: config?.subpixelSnap ?? true,
+      allowNestedScroll: config?.allowNestedScroll ?? true,
+      prevent: config?.prevent,
+      autoToggle: config?.autoToggle ?? true,
     };
 
     if (this.config.physicsMode === 'spring') {
@@ -144,6 +148,19 @@ export class InertiaEngine {
       window.history.scrollRestoration = 'manual';
     }
 
+    const hasComputedStyle =
+      typeof getComputedStyle === 'function' ||
+      (typeof window !== 'undefined' && typeof (window as any).getComputedStyle === 'function');
+
+    if (
+      typeof globalThis !== 'undefined' &&
+      typeof (globalThis as any).getComputedStyle === 'undefined' &&
+      typeof window !== 'undefined' &&
+      typeof (window as any).getComputedStyle === 'function'
+    ) {
+      (globalThis as any).getComputedStyle = (window as any).getComputedStyle.bind(window);
+    }
+
     // Instantiate Lenis with normalized cross-browser settings and input profiling
     this.lenis = new Lenis({
       lerp: this.config.lerp,
@@ -155,6 +172,9 @@ export class InertiaEngine {
       wheelMultiplier: this.config.wheelMultiplier as number,
       touchMultiplier: this.config.touchMultiplier,
       overscroll: this.config.overscroll,
+      allowNestedScroll: this.config.allowNestedScroll,
+      prevent: this.config.prevent,
+      autoToggle: hasComputedStyle ? this.config.autoToggle : false,
     });
 
     // Hook scroll listener to sync metrics & notify external subscribers
@@ -243,6 +263,7 @@ export class InertiaEngine {
     }
 
     this.subscribers.clear();
+    this.remeasureListeners.clear();
   }
 
   public subscribe(callback: (metrics: ScrollMetrics) => void): () => void {
@@ -255,6 +276,11 @@ export class InertiaEngine {
       }
     }
     return () => this.subscribers.delete(callback);
+  }
+
+  public onRemeasure(callback: () => void): () => void {
+    this.remeasureListeners.add(callback);
+    return () => this.remeasureListeners.delete(callback);
   }
 
   public getMetrics(): ScrollMetrics {
@@ -289,6 +315,15 @@ export class InertiaEngine {
   public resize(): void {
     if (this.lenis) {
       this.lenis.resize();
+    }
+    for (const listener of this.remeasureListeners) {
+      try {
+        listener();
+      } catch (err) {
+        if (typeof console !== 'undefined') {
+          console.error('[ScrollCraft] Error in remeasure listener:', err);
+        }
+      }
     }
   }
 

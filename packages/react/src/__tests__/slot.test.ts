@@ -34,6 +34,27 @@ describe('composeRefs Utility', () => {
     expect(() => composed(mockNode)).not.toThrow();
     expect(callbackRef).toHaveBeenCalledWith(mockNode);
   });
+
+  it('aggregates and calls React 19 ref cleanup functions', () => {
+    const cleanup1 = vi.fn();
+    const cleanup2 = vi.fn();
+    const ref1 = vi.fn().mockReturnValue(cleanup1);
+    const ref2 = vi.fn().mockReturnValue(cleanup2);
+    const ref3 = vi.fn(); // returns undefined
+
+    const composed = composeRefs(ref1, ref2, ref3);
+    const mockNode = {} as HTMLElement;
+    const compositeCleanup = composed(mockNode);
+
+    expect(ref1).toHaveBeenCalledWith(mockNode);
+    expect(ref2).toHaveBeenCalledWith(mockNode);
+    expect(ref3).toHaveBeenCalledWith(mockNode);
+    expect(typeof compositeCleanup).toBe('function');
+
+    compositeCleanup?.();
+    expect(cleanup1).toHaveBeenCalledTimes(1);
+    expect(cleanup2).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe('composeEventHandlers Utility', () => {

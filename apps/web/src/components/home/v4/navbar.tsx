@@ -42,7 +42,7 @@ export function Navbar() {
         </div>
 
         {/* Centered Navigation */}
-        <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-zinc-400 absolute left-1/2 -translate-x-1/2">
+        <nav className="hidden md:flex items-center gap-7 text-sm font-medium text-zinc-400 absolute left-1/2 -translate-x-1/2">
           <Link href="/docs" className="hover:text-white transition-colors">
             Docs
           </Link>
@@ -51,6 +51,10 @@ export function Navbar() {
           </Link>
           <Link href="/roadmap" className="hover:text-white transition-colors">
             Roadmap
+          </Link>
+          <Link href="/test" className="hover:text-white transition-colors flex items-center gap-1">
+            <span>Test Lab</span>
+            <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-violet-500/20 text-violet-300 border border-violet-500/30 font-mono font-semibold">25</span>
           </Link>
         </nav>
 

@@ -19,6 +19,7 @@ import React, {
 } from 'react';
 import {
   InertiaEngine,
+  InertiaConfig,
   ScrollMetrics,
   tierStore,
   PerformanceTier,
@@ -71,6 +72,9 @@ export const ScrollProvider: React.FC<ScrollProviderProps> = ({
   respectReducedMotion = true,
   motionOverride,
   restoreScroll = false,
+  allowNestedScroll,
+  prevent,
+  autoToggle,
 }) => {
   if (motionOverride && motionStore.getMode() !== motionOverride) {
     motionStore.setOverride(motionOverride);
@@ -81,15 +85,29 @@ export const ScrollProvider: React.FC<ScrollProviderProps> = ({
   );
   const engineRef = useRef<InertiaEngine | null>(null);
 
+  const getCombinedConfig = (): InertiaConfig => {
+    const base = typeof smooth === 'object' ? smooth : {};
+    return {
+      ...base,
+      ...(allowNestedScroll !== undefined ? { allowNestedScroll } : {}),
+      ...(prevent !== undefined ? { prevent } : {}),
+      ...(autoToggle !== undefined ? { autoToggle } : {}),
+    };
+  };
+
   // Serialize smooth prop to prevent referential-inequality re-init loops
-  const smoothConfigKey = typeof smooth === 'object' ? JSON.stringify(smooth) : String(smooth);
+  const smoothConfigKey = JSON.stringify({
+    smooth: typeof smooth === 'object' ? smooth : String(smooth),
+    allowNestedScroll,
+    hasPrevent: Boolean(prevent),
+    autoToggle,
+  });
   const smoothPropRef = useRef(smooth);
   smoothPropRef.current = smooth;
 
   // Initialize engine once without causing re-renders
   if (!engineRef.current && typeof window !== 'undefined') {
-    const config = typeof smooth === 'object' ? smooth : {};
-    engineRef.current = new InertiaEngine(config);
+    engineRef.current = new InertiaEngine(getCombinedConfig());
   }
 
   useEffect(() => {
@@ -111,8 +129,7 @@ export const ScrollProvider: React.FC<ScrollProviderProps> = ({
     const activeSmooth = smoothPropRef.current;
     // Safely re-instantiate engine if cleared by React StrictMode cleanup pass
     if (!engineRef.current) {
-      const config = typeof activeSmooth === 'object' ? activeSmooth : {};
-      engineRef.current = new InertiaEngine(config);
+      engineRef.current = new InertiaEngine(getCombinedConfig());
     }
 
     const engine = engineRef.current;

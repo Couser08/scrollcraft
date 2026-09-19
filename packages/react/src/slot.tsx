@@ -11,18 +11,34 @@ import React, { forwardRef, cloneElement, isValidElement, ReactNode, CSSProperti
 export type PossibleRef<T> = React.Ref<T> | undefined;
 
 /**
- * Composes multiple React refs into a single callback ref
+ * Composes multiple React refs into a single callback ref.
+ * Fully supports React 19 ref cleanup return functions.
  */
-export function composeRefs<T>(...refs: PossibleRef<T>[]): (node: T | null) => void {
+export function composeRefs<T>(...refs: PossibleRef<T>[]): (node: T | null) => (() => void) | void {
   return (node: T | null) => {
-    refs.forEach((ref) => {
-      if (!ref) return;
+    let cleanups: (() => void)[] | null = null;
+
+    for (let i = 0; i < refs.length; i++) {
+      const ref = refs[i];
+      if (!ref) continue;
       if (typeof ref === 'function') {
-        ref(node);
+        const cleanup = ref(node);
+        if (typeof cleanup === 'function') {
+          if (!cleanups) cleanups = [];
+          cleanups.push(cleanup);
+        }
       } else {
         (ref as React.MutableRefObject<T | null>).current = node;
       }
-    });
+    }
+
+    if (cleanups && cleanups.length > 0) {
+      return () => {
+        for (let i = 0; i < cleanups!.length; i++) {
+          cleanups![i]();
+        }
+      };
+    }
   };
 }
 
