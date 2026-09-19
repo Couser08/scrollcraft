@@ -6,6 +6,7 @@
 
 import { ElementTransform } from './types';
 import { tierStore } from './feature-detection';
+import { NumericTransform } from './fast-transform';
 import { snapToDevicePixel } from './math';
 
 const transformCache = new WeakMap<HTMLElement, ElementTransform>();
@@ -16,18 +17,32 @@ const composedTransforms = new WeakMap<HTMLElement, { base: string; parts: Map<s
  * The first use preserves an existing inline transform as the base layer.
  */
 export class TransformComposer {
-  public static set(element: HTMLElement, owner: string, transform: string): void {
+  public static set(element: HTMLElement, owner: string, transform: string | NumericTransform): void {
     let state = composedTransforms.get(element);
     if (!state) {
       state = { base: element.style.transform || '', parts: new Map(), lastComposed: '' };
       composedTransforms.set(element, state);
     }
 
-    // Fast path: if the owner's transform hasn't changed, skip composition entirely
-    if (state.parts.get(owner) === transform) return;
-    state.parts.set(owner, transform);
+    let transformStr = '';
+    if (typeof transform === 'string') {
+      transformStr = transform;
+    } else {
+      const x = transform.x || 0;
+      const y = transform.y || 0;
+      const z = transform.z || 0;
+      const sx = transform.scaleX ?? transform.scale ?? 1;
+      const sy = transform.scaleY ?? transform.scale ?? 1;
+      const rx = transform.rotateX ?? 0;
+      const ry = transform.rotateY ?? 0;
+      const rz = transform.rotateZ ?? transform.rotate ?? 0;
+      
+      transformStr = `translate3d(${x}px, ${y}px, ${z}px) rotateX(${rx}deg) rotateY(${ry}deg) rotateZ(${rz}deg) scale(${sx}, ${sy})`;
+    }
 
-    // Direct string composition without intermediate array allocations
+    if (state.parts.get(owner) === transformStr) return;
+    state.parts.set(owner, transformStr);
+
     let composed = state.base || '';
     for (const part of state.parts.values()) {
       if (part) {
@@ -39,6 +54,9 @@ export class TransformComposer {
     if (composed !== state.lastComposed) {
       state.lastComposed = composed;
       element.style.transform = composed;
+      if (!(element.style.willChange || '').includes('transform')) {
+        SmartCompositor.get().promote(element);
+      }
     }
   }
 
@@ -54,14 +72,8 @@ export class TransformComposer {
       }
     }
     composed = composed.trim();
-
-    if (composed !== state.lastComposed) {
-      state.lastComposed = composed;
-      element.style.transform = composed;
-    }
-    if (state.parts.size === 0) {
-      composedTransforms.delete(element);
-    }
+    state.lastComposed = composed;
+    element.style.transform = composed;
   }
 
   public static get(element: HTMLElement): string {
@@ -98,6 +110,7 @@ export class TransformWriter {
       const transformString = `translate3d(${x}px, ${y}px, ${z}px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) rotateZ(${rotateZ}deg) scale(${scaleX}, ${scaleY})`;
       element.style.transform = transformString;
       transformCache.set(element, { x, y, z, scaleX, scaleY, rotateX, rotateY, rotateZ });
+      SmartCompositor.get().promote(element);
     }
 
     if (transform.opacity !== undefined && element.style.opacity !== String(transform.opacity)) {
@@ -409,4 +422,11 @@ export class GlobalResizeManager {
     this.windowListeners.clear();
   }
 }
+
+
+
+
+
+
+
 

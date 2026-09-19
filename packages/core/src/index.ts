@@ -30,3 +30,6 @@ export * from './motion-preference';
 export * from './input-normalizer';
 export * from './history-restore';
 export * from './gsap-bridge';
+export * from './fast-transform';
+export * from './spatial-registry';
+export * from './frustum-shield';

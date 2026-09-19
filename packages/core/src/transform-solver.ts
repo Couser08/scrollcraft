@@ -1,6 +1,6 @@
 import { clamp, damp, calculateVelocitySnapTarget, snapToDevicePixel } from './math';
 import { TimelineSolver, PropertyTimeline, KeyframeSegment } from './timeline';
-import { TransformComposer } from './dom';
+import { TransformComposer, SmartCompositor } from './dom';
 import { triggerRegistry } from './markers';
 
 export interface TransformProperties {
@@ -274,14 +274,6 @@ export class TransformSolver {
       this.mutatedProperties.add('borderRadius');
     }
     
-    // Manage will-change
-    if (this.isVisible && !this.wasVisible) {
-      this.element.style.willChange = 'transform, opacity, filter';
-      this.mutatedProperties.add('willChange');
-    } else if (!this.isVisible && this.wasVisible) {
-      this.element.style.willChange = this.initialStyles.willChange || '';
-    }
-    
     this.wasVisible = this.isVisible;
   }
 
@@ -301,11 +293,10 @@ export class TransformSolver {
       window.clearTimeout(this.snapTimeout);
     }
     TransformComposer.clear(this.element, 'scroll-transform');
+    SmartCompositor.get().destroy(this.element);
     triggerRegistry.unregister(this.id);
     
-    if (this.mutatedProperties.has('willChange')) {
-      this.element.style.willChange = this.initialStyles.willChange || '';
-    }
+    this.element.style.willChange = this.initialStyles.willChange || '';
     if (this.mutatedProperties.has('opacity')) {
       this.element.style.opacity = this.initialStyles.opacity || '';
     }
@@ -317,3 +308,5 @@ export class TransformSolver {
     }
   }
 }
+
+

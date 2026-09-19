@@ -179,7 +179,7 @@ export class TextRevealSolver {
     }
   }
 
-  /** Phase 3: write the values calculated in update. */
+  /** Phase 3: write the values calculated in update with zero-overhead settled character gating. */
   public render(): void {
     if (this.currentProgress === this.lastRenderedProgress) return;
     this.lastRenderedProgress = this.currentProgress;
@@ -190,9 +190,18 @@ export class TextRevealSolver {
       if (!char) continue;
 
       const charProgress = this.progressValues[i] ?? 0;
+      const targetOpacity = this.opacities[i] ?? this.baseOpacity;
+      const newOpacity = String(targetOpacity);
+
+      // Fast-path: skip characters that are already settled at fully-revealed (1) or fully-hidden (0)
+      if (charProgress >= 1 && char.style.opacity === '1' && !this.hasKineticTransforms) {
+        continue;
+      }
+      if (charProgress <= 0 && char.style.opacity === newOpacity && !this.hasKineticTransforms) {
+        continue;
+      }
 
       // 1. Direct GPU opacity write
-      const newOpacity = String(this.opacities[i] ?? this.baseOpacity);
       if (char.style.opacity !== newOpacity) {
         char.style.opacity = newOpacity;
       }
@@ -213,8 +222,12 @@ export class TextRevealSolver {
         const currentRotateY = lerp(this.entryRotateY, 0, charProgress);
         const currentSlide = lerp(this.entrySlide, 0, charProgress);
 
-        const transformStr = `translate3d(0, ${currentSlide.toFixed(2)}px, 0) rotateX(${currentRotateX.toFixed(2)}deg) rotateY(${currentRotateY.toFixed(2)}deg) scale(${currentScale.toFixed(4)})`;
-        TransformComposer.set(char, 'text-reveal', transformStr);
+        TransformComposer.set(char, 'text-reveal', {
+          y: currentSlide,
+          rotateX: currentRotateX,
+          rotateY: currentRotateY,
+          scale: currentScale !== 1 ? currentScale : undefined,
+        });
       }
     }
   }
